@@ -1,0 +1,13 @@
+.DS_Store
+.venv
+.idea
+parsetab.py
+*.out
+*.sqlite
+simple
+out
+data
+**/__pycache__
+htmlcov
+.coverage
+tmp

@@ -1,0 +1,34 @@
+- FIXME: accepting where after group by
+- FIXME: accepting multiple where or group by
+- FIXME: between accepts bin_op!
+
+Ideas:
+- Characterize errors in prediction
+    - string diffs
+      - Smart string diff based on sql structure
+    - structural diff
+    - relational algebra
+    - result diff
+    - Eval with transformation/repair
+        - sort tuples
+- Characterize the sql queries that prediction failed
+    - train DT model on props
+    - Feature selection on props
+- Relaxing Evaluation:
+  - Use score instead of bool
+  - Score based on similarity (using fixes)
+  - Smart result set comparison
+
+
+TODO:
+- join > 3 ==> C5
+- Check if there is window functions
+- Check if case exists
+
+
+Tasks:
+- Try to run the parse all of the bird sqls and put the failed sqls into a file
+    - order of predicates in the where clause
+    - Learn how test-suit-accuracy works!
+-
+-
