@@ -30,3 +30,4 @@ with open(path + "gold.txt", 'r') as f:
 
 
 
+
