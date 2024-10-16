@@ -98,3 +98,11 @@ class NodeVisitor(ABC):
     @abstractmethod
     def visit_literal_list(self, node: LiteralListNode):
         pass
+
+    @abstractmethod
+    def visit_with_clause(self, node: WithClauseNode):
+        pass
+
+    @abstractmethod
+    def visit_common_table_expression(self, node: CommonTableExpressionNode):
+        pass

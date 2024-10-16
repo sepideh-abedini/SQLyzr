@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import Optional, Union, Tuple, List, Set
 
+
 from dbutil.database_schema import DatabaseSchema
 
 class SqlAstNode(ABC):
@@ -495,7 +496,7 @@ class GroupClauseNode(SqlAstNode):
 # 2: the select
 class SelectCoreNode(SqlAstNode):
     select_clause: SelectClauseNode
-    from_clause: FromClauseNode
+    from_clause: Optional[FromClauseNode] = None
     where_clause: Optional[WhereClauseNode] = None
     group_clause: Optional[GroupClauseNode] = None
 
@@ -518,6 +519,66 @@ class SelectCoreNode(SqlAstNode):
         return 1
 
 
+
+@dataclass
+class CommonTableExpressionNode(SqlAstNode):
+    table_name: LiteralNode
+    columns: List[ColumnNode]
+    select_stmt : "SelectStatementNode"
+
+    def accept(self, visitor):
+        return visitor.visit_common_table_expression(self)
+
+    def __add__(self, other):
+        if isinstance(other, ColumnNode):
+            return replace(self, columns=self.columns + [other])
+        else:
+            raise RuntimeError("Invalid operand type: {}".format(type(other)))
+
+
+    def __eq__(self, other):
+        if not isinstance(other, CommonTableExpressionNode):
+            return False
+        if self.table_name == other.table_name and \
+            self.columns == other.columns and \
+            self.select_stmt == other.select_stmt:
+            return True
+        else:
+            return  False
+
+    def __hash__(self):
+        return 1
+
+
+@dataclass
+class WithClauseNode(SqlAstNode):
+    common_table_expr: List[CommonTableExpressionNode]
+
+    def accept(self, visitor):
+        return visitor.visit_with_clause(self)
+
+    def __add__(self, other):
+        if isinstance(other, CommonTableExpressionNode):
+            return replace(self, common_table_expr=self.common_table_expr + [other])
+        else:
+            raise RuntimeError("Invalid operand type: {}".format(type(other)))
+
+    def __eq__(self, other):
+        if not isinstance(other, WithClauseNode):
+            return False
+        if self.common_table_expr == other.common_table_expr:
+            return True
+        else:
+            print(self.__class__.__name__)
+            return False
+
+        def __hash__(self):
+            return 1
+
+
+
+
+
 @dataclass
 # 1: all the sql statement
 class SelectStatementNode(ExpressionNode):
@@ -525,6 +586,7 @@ class SelectStatementNode(ExpressionNode):
     set_ops: List[TerminalNode]
     orderby: Optional[OrderByNode] = None
     limit: Optional[LimitNode] = None
+    with_clause: Optional[WithClauseNode] = None
 
     def has_sub_expr(self):
         return True
@@ -617,6 +679,9 @@ class WindowExpressionNode(ExpressionNode):
 
     def __hash__(self):
         return 1
+
+
+
 
 
 

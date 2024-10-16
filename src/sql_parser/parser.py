@@ -14,6 +14,7 @@ precedence = (
 
 def p_select_statement(p):
     '''select_statement : select_core
+                        | with_clause select_statement
                         | select_statement set_op select_core
                         | select_statement order_by
                         | select_statement limit'''
@@ -26,14 +27,19 @@ def p_select_statement(p):
             p[0] = replace(p[1], orderby=p[2])
         elif isinstance(p[2], LimitNode):
             p[0] = replace(p[1], limit=p[2])
+        elif isinstance(p[2], WithClauseNode):
+            p[0] = replace(p[1], with_clause=p[2])
 
 
 def p_select_core(p):
-    '''select_core : select_clause from_clause
+    '''select_core : select_clause
+                   | select_clause from_clause
                    | select_clause from_clause where_clause
                    | select_clause from_clause group_clause
                    | select_clause from_clause where_clause group_clause'''
-    if len(p) == 3:
+    if len(p) == 2:
+        p[0] = SelectCoreNode(p[1])
+    elif len(p) == 3:
         p[0] = SelectCoreNode(p[1], p[2])
     elif len(p) == 4:
         if isinstance(p[3], WhereClauseNode):
@@ -57,11 +63,52 @@ def p_select_clause(p):
             p[0] = SelectClauseNode([p[3]], True)
 
 
+def p_column_list(p):
+    '''column_list : column
+                   | column_list COMMA column'''
+
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = [p[1], p[3]]
+
+
+
+
+def p_common_table_expression(p):
+    '''common_table_expression : table_name LPAREN column_list RPAREN AS LPAREN select_statement RPAREN
+                               | table_name AS LPAREN select_statement RPAREN'''
+    if len(p)== 6:
+        p[0] = CommonTableExpressionNode(p[2], [], p[4])
+    else:
+        p[0] = CommonTableExpressionNode(p[1], [p[3]], p[7])
+
+
+
+def p_with_clause(p):
+    '''with_clause : WITH common_table_expression
+                    | WITH RECURSIVE common_table_expression
+                    | with_clause COMMA common_table_expression'''
+
+    if len(p) == 3:
+        p[0] = WithClauseNode([p[2]])
+    else:
+        if isinstance(p[1], WithClauseNode):
+            p[0] = p[1] + p[3]
+        else:
+            p[0] = WithClauseNode(p[3])
+
+
+
+
 def p_result_column(p):
     '''result_column : expr
-                     | expr AS column_alias'''
+                     | expr AS column_alias
+                     | expr column_alias'''
     if len(p) == 2:
         p[0] = ResultColumnNode(p[1])
+    elif len(p) == 3:
+        p[0] = ResultColumnNode(p[1], p[2])
     else:
         p[0] = ResultColumnNode(p[1], p[3])
 
@@ -195,12 +242,15 @@ def p_column(p):
 def p_fun_expr(p):
     '''fun_expr : EXISTS LPAREN select_statement RPAREN
                 | fun_name LPAREN expr RPAREN
+                | fun_name LPAREN RPAREN
                 | NOT EXISTS LPAREN select_statement RPAREN
                 | fun_name LPAREN DISTINCT expr RPAREN
                 | fun_name LPAREN expr COMMA expr RPAREN
                 | fun_name LPAREN expr COMMA expr COMMA expr RPAREN
             '''
-    if len(p) == 5:
+    if len(p) == 4:
+        p[0] = FunctionExpressionNode(p[1], [])
+    elif len(p) == 5:
         if isinstance(p[3], SelectStatementNode):
             p[0] = FunctionExpressionNode(TerminalNode('fun_name', p[1]), [p[3]])
         else:
@@ -232,6 +282,7 @@ def p_bin_op_expr(p):
                    | expr IS NOT expr
                    | expr IN LPAREN select_statement RPAREN
                    | expr IN LPAREN literal_list RPAREN
+                   | expr NOT IN LPAREN literal_list RPAREN
                    | expr NOT IN LPAREN select_statement RPAREN'''
     if len(p) == 4:
         p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', p[2]), p[3])
@@ -247,6 +298,7 @@ def p_bin_op_expr(p):
 def p_expr(p):
     '''expr : column
             | LPAREN select_statement RPAREN
+            | expr ARITH_OP expr
             | LPAREN expr RPAREN
             | literal_value
             | expr STAR expr
@@ -312,11 +364,16 @@ def p_cast_expr(p):
 
 
 def p_between_expr(p):
-    '''between_expr : expr BETWEEN expr bin_op expr'''
-    p[0] = BetweenExpressionNode(p[1], p[3], p[5])
+    '''between_expr : expr BETWEEN expr bin_op expr
+                    | expr NOT BETWEEN expr bin_op expr'''
+    if len(p) == 6:
+        p[0] = BetweenExpressionNode(p[1], p[3], p[5])
+    else:
+        p[0] = BetweenExpressionNode(p[1], p[4], p[6])
 
 def p_column_alias(p):
-    '''column_alias : ID'''
+    '''column_alias : ID
+                    | RANK'''
     p[0] = TerminalNode('column_alias', p[1])
 
 
@@ -327,14 +384,16 @@ def p_fun_name(p):
 
 def p_literal_value(p):
     '''literal_value : NUMBER
-                     | STRING'''
+                     | STRING
+                     | DATE'''
     p[0] = LiteralNode(p[1])
 
 
 def p_column_name(p):
     '''column_name : ID
                    | STRING
-                   | STAR'''
+                   | STAR
+                   | RANK'''
     p[0] = TerminalNode('column_name', p[1])
 
 

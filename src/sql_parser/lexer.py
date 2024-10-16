@@ -1,7 +1,7 @@
 import re
+from datetime import datetime
 
 import ply.lex as lex
-
 
 fun_names = {
     'avg': 'AVG',
@@ -57,11 +57,13 @@ keywords = {
     'dense_rank': 'DENSE_RANK',
     'partition': 'PARTITION',
     'over': 'OVER',
-    'end' : 'END',
-    'then' : 'THEN',
-    'else' : 'ELSE',
-    'case' : 'CASE',
-    'when' : 'WHEN'
+    'end': 'END',
+    'then': 'THEN',
+    'else': 'ELSE',
+    'case': 'CASE',
+    'when': 'WHEN',
+    'with' : 'WITH',
+    'recursive' : 'RECURSIVE'
 }
 
 reserved = keywords | sort_orders | set_ops | logic_ops
@@ -72,12 +74,13 @@ tokens = [
              'RPAREN',
              'COMP_OP',
              'ARITH_OP',
+             'DATE',
              'NUMBER',
              'DOT',
              'STRING',
              'STAR',
              'ID',
-            'ORR'
+             'ORR'
          ] + list(reserved.values())
 
 t_COMMA = r','
@@ -85,7 +88,13 @@ t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_STAR = r'\*'
 t_DOT = r'\.'
-t_ORR =  r'\|\|'
+t_ORR = r'\|\|'
+
+
+def t_DATE(t):
+    r'\d{4}-\d{2}-\d{2}'  # Match dates in YYYY-MM-DD format
+    return t
+
 
 def t_NUMBER(t):
     r'(\d+\.\d+)|(\-\d+)|(\d+)'
@@ -96,11 +105,13 @@ def t_NUMBER(t):
     return t
 
 
+# r'\'[^\']*\'|\"[^\"]*\"'
 def t_STRING(t):
-    r'\'[^\']*\'|\"[^\"]*\"'
+    r"\'([^']|'')*\'|\"([^\"]|\"\")*\""
     val = str(t.value)
     val = val.replace("\"", "")
     val = val.replace("\'", "")
+    val = val.replace("\''", "")
     t.value = val
     return t
 
