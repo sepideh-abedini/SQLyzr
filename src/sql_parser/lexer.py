@@ -76,7 +76,8 @@ tokens = [
              'DOT',
              'STRING',
              'STAR',
-             'ID'
+             'ID',
+            'ORR'
          ] + list(reserved.values())
 
 t_COMMA = r','
@@ -84,7 +85,7 @@ t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_STAR = r'\*'
 t_DOT = r'\.'
-
+t_ORR =  r'\|\|'
 
 def t_NUMBER(t):
     r'(\d+\.\d+)|(\-\d+)|(\d+)'
@@ -111,7 +112,7 @@ def t_ARITH_OP(t):
 
 # FIXME: handle != op
 def t_COMP_OP(t):
-    r'>=|<=|=|>|<'
+    r'!=|<>|>=|<=|=|>|<'
     return t
 
 
@@ -123,7 +124,7 @@ def t_ID(t):
 
 
 # A string containing ignored characters (spaces and tabs)
-t_ignore = ' \t'
+t_ignore = ' '
 
 
 # Error handling rule

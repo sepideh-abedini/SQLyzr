@@ -30,15 +30,18 @@ def p_select_statement(p):
 
 def p_select_core(p):
     '''select_core : select_clause from_clause
-                   | select_core where_clause
-                   | select_core group_clause'''
-    if isinstance(p[1], SelectClauseNode):
+                   | select_clause from_clause where_clause
+                   | select_clause from_clause group_clause
+                   | select_clause from_clause where_clause group_clause'''
+    if len(p) == 3:
         p[0] = SelectCoreNode(p[1], p[2])
-    if isinstance(p[1], SelectCoreNode):
-        if isinstance(p[2], WhereClauseNode):
-            p[0] = replace(p[1], where_clause=p[2])
-        elif isinstance(p[2], GroupClauseNode):
-            p[0] = replace(p[1], group_clause=p[2])
+    elif len(p) == 4:
+        if isinstance(p[3], WhereClauseNode):
+            p[0] = SelectCoreNode(p[1], p[2], where_clause=p[3])
+        else:
+            p[0] = SelectCoreNode(p[1], p[2], group_clause=p[3])
+    elif len(p) == 5:
+        p[0] = SelectCoreNode(p[1], p[2], p[3], p[4])
 
 
 def p_select_clause(p):
@@ -82,8 +85,12 @@ def p_ordering_term(p):
 
 
 def p_limit(p):
-    '''limit : LIMIT expr'''
-    p[0] = LimitNode(p[2])
+    '''limit : LIMIT expr
+             | LIMIT expr COMMA expr'''
+    if len(p) == 3:
+        p[0] = LimitNode(p[2])
+    else:
+        p[0] = LimitNode([p[2], p[4]])
 
 
 def p_from_clause(p):
@@ -103,11 +110,14 @@ def p_from_clause(p):
 def p_table_or_subquery(p):
     '''table_or_subquery : table_name
                          | table_name AS table_alias
+                         | table_name table_alias
                          | LPAREN select_statement RPAREN
                          | LPAREN select_statement RPAREN table_alias
                          | LPAREN select_statement RPAREN AS table_alias'''
     if len(p) == 2:
         p[0] = TableOrSubqueryNode(table_name=p[1])
+    elif len(p) == 3:
+        p[0] = TableOrSubqueryNode(table_name=p[1], table_alias=p[2])
     elif len(p) == 4:
         if isinstance(p[2], SelectStatementNode):
             p[0] = TableOrSubqueryNode(select_statement=p[2])
@@ -216,21 +226,17 @@ def p_bin_op_expr(p):
                    | expr ARITH_OP expr
                    | expr LIKE expr
                    | expr COMP_OP expr
-                   | expr IS NULL
+                   | expr IS expr
+                   | expr ORR expr
                    | expr NOT LIKE expr
-                   | expr IS NOT NULL
+                   | expr IS NOT expr
                    | expr IN LPAREN select_statement RPAREN
+                   | expr IN LPAREN literal_list RPAREN
                    | expr NOT IN LPAREN select_statement RPAREN'''
     if len(p) == 4:
-        if p[3] == 'null':
-            p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', p[2]), LiteralNode('NULL'))
-        else:
-            p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', p[2]), p[3])
+        p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', p[2]), p[3])
     elif len(p) == 5:
-        if p[3] == 'null':
-            p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', p[2]), LiteralNode('NOT NULL'))
-        else:
-            p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', 'NOT LIKE'), p[4])
+        p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', 'NOT LIKE'), p[4])
     elif len(p) == 6:
         p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', 'IN'), p[4])
     elif len(p) == 7:
@@ -250,9 +256,13 @@ def p_expr(p):
             | cast_expr
             | win_expr
             | case_expr
+            | NULL
             '''
     if len(p) == 2:
-        p[0] = p[1]
+        if type(p[1]) is str and p[1] == 'null':
+            p[0] = LiteralNode('NULL')
+        else:
+            p[0] = p[1]
     elif len(p) == 4:
         p[0] = p[2]
 
@@ -354,6 +364,26 @@ def p_case_expr(p):
         p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'),[p[3], p[5]])
     else:
         p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'), [p[3], p[5], p[7]])
+
+
+
+# def p_order_by(p):
+#     '''order_by : ORDER BY ordering_term
+#                 | order_by COMMA ordering_term'''
+#     if isinstance(p[1], OrderByNode):
+#         p[0] = p[1] + p[3]
+#     else:
+#         p[0] = OrderByNode([p[3]])
+
+
+def p_literal_list(p):
+    '''literal_list : literal_value
+                    | literal_list COMMA literal_value'''
+    if len(p) == 2:
+        if isinstance(p[1], LiteralListNode):
+            p[0] = p[1] + p[3]
+    else:
+        p[0] = LiteralListNode([p[2]])
 
 # Error rule for syntax errors
 def p_error(p):

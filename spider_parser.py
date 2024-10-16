@@ -30,21 +30,23 @@ with open(path + "pred_example.txt") as g, open(path + "gold_example.txt") as p:
         try:
             parsed_pred = parser.parse(pred, db_id)
             parsed_gold = parser.parse(g, db_id)
+            if (parsed_pred == parsed_gold) or (parsed_gold == parsed_pred):
+                scores += 1.0
+                matched_line_numbers.append(line)
+            else:
+                # print(f"_______pred_{line} is_________:",pred)
+                # print(f"_______gold_{line} is_________:",g)
+                # print(f"______db_id______{line} is_________:", db_id)
+                err += 1.0
         except Exception as e:
             print("*************************** PARSING ERROR")
             print(f"_______pred_{line} is_________:", pred)
             print(f"_______gold_{line} is_________:", g)
             print(f"______db_id______{line} is_________:", db_id)
             print(e)
-            # raise e
-        if (parsed_pred == parsed_gold ) or (parsed_gold == parsed_pred):
-            scores += 1.0
-            matched_line_numbers.append(line)
-        else:
-            # print(f"_______pred_{line} is_________:",pred)
-            # print(f"_______gold_{line} is_________:",g)
-            # print(f"______db_id______{line} is_________:", db_id)
             err += 1.0
+            # raise e
+
 
 with open(path + "s_matched_lines.txt", "w") as out:
     for line in matched_line_numbers:

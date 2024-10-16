@@ -9,16 +9,15 @@ parser = SqlParser()
 
 
 
-a1 = "SELECT strftime(name) from stadium"
-# b1 = "SELECT t2.stadium_id from concert as t2 join stadium"
-
-# a1 = "SELECT 'Free Meal Count (Ages 5-17)' / 'Enrollment (Ages 5-17)' FROM frpm WHERE 'Educational Option Type' = 'Continuation School' AND 'Free Meal Count (Ages 5-17)' / 'Enrollment (Ages 5-17)' IS NOT NULL ORDER BY 'Free Meal Count (Ages 5-17)' / 'Enrollment (Ages 5-17)' ASC LIMIT 3"
+gold1 = "SELECT count(*) FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T2.petid  =  T3.petid WHERE T1.sex  =  'F' AND T3.pettype  =  'dog'"
+pred1 = "select count(*) from Student as T1 join Has_Pet as T2 on T1.StuID = T2.StuID join Pets as T3 on T2.PetID = T3.PetID where T3.PetType = 'terminal' Or T1.Sex = 'terminal'"
 
 
+g = "SELECT CAST((SELECT COUNT(T1.atom_id) FROM connected AS T1 INNER JOIN bond AS T2 ON T1.bond_id = T2.bond_id GROUP BY T2.bond_type ORDER BY COUNT(T2.bond_id) DESC LIMIT 1 ) AS REAL) * 100 / ( SELECT COUNT(atom_id) FROM connected )"
 
-a2 = "select T1.first_name,T1.last_name from Professionals as T1 join Treatments as T2 on T1.professional_id = T2.professional_id where T2.cost_of_treatment < (select avg(cost_of_treatment) from Treatments)"
-b2 = "SELECT T1.first_name,T1.last_name FROM Professionals AS T1 JOIN Treatments AS T2 WHERE cost_of_treatment  <  ( SELECT avg(cost_of_treatment) FROM Treatments )"
 
+gold2= "SELECT major ,  age FROM student WHERE stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat')"
+pred2= "select Age,Major from Student where StuID not in (select T1.StuID from Student as T1 join Has_Pet as T2 on T1.StuID = T2.StuID join Pets as T3 on T2.PetID = T3.PetID where T3.PetType = 'terminal')"
 
 class ExactMatchParser:
     def __init__(self):
@@ -37,14 +36,20 @@ class ExactMatchParser:
 
 if __name__ == "__main__":
 
-    db_id = "concert_singer"
-    # eparser = ExactMatchParser()
+    db_id = "pets_1"
+    eparser = ExactMatchParser()
     parser = SqlParser()
     #
     # ast = parser.parse("SELECT School FROM (SELECT T2.School,T1.AvgScrRead, RANK() OVER (PARTITION BY T2.County ORDER BY T1.AvgScrRead DESC) AS rnk FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.Virtual = 'F') ranked_schools WHERE rnk <= 5")
-    ast = parser.parse("SELECT a * 2 FROM b")
-    # ast1 = eparser.parse(a1, db_id)
-    # ast2 = eparser.parse(b1, db_id)
+    #ast = parser.parse("SELECT a * 2 FROM b")
+    # ast1 = eparser.parse(gold1, db_id)
+    # ast2 = eparser.parse(pred1, db_id)
+    ast2 = parser.parse(g)
+    # print(ast1 == ast2 or ast2 == ast1)
+    # ast2 = eparser.parse(pred1, db_id)
+
+    # ast1 = parser.parse(gold2)
+    # ast2 = parser.parse(pred2)
     #
     # print(ast1 == ast2 or ast2 == ast1)
 # get head of AST Node created for each pred and gold sql

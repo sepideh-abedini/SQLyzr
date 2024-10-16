@@ -94,3 +94,7 @@ class NodeVisitor(ABC):
     @abstractmethod
     def visit_window_definition (self, node: WindowDefinitionNode):
         pass
+
+    @abstractmethod
+    def visit_literal_list(self, node: LiteralListNode):
+        pass

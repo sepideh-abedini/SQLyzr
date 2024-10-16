@@ -89,6 +89,7 @@ class BinOpExpressionNode(ExpressionNode):
         return 1
 
 
+
 @dataclass
 # TODO : adding NOT BETWEEN
 class BetweenExpressionNode(ExpressionNode):
@@ -170,7 +171,6 @@ class ColumnNode(ExpressionNode):
     def __hash__(self):
         return 1
 
-
 @dataclass
 class LiteralNode(ExpressionNode):
     value: Union[int, str]
@@ -186,6 +186,32 @@ class LiteralNode(ExpressionNode):
         # #     return True
         # else:
         #     return True
+
+    def __hash__(self):
+        return 1
+
+
+@dataclass
+class LiteralListNode(ExpressionNode):
+    literals : List[LiteralNode]
+
+    def accept(self, visitor):
+        return visitor.visit_literal_list(self)
+
+    def __add__(self, other):
+        if isinstance(other, LiteralNode):
+            return replace(self, literals=self.literals + [other])
+        else:
+            raise RuntimeError("Invalid operand type: {}".format(type(other)))
+
+
+    def __eq__(self, other):
+        if not isinstance(other, LiteralListNode):
+            return False
+        else:
+            if set(self.literals) == set(other.literals):
+                return True
+            return False
 
     def __hash__(self):
         return 1
@@ -371,7 +397,7 @@ class OrderByNode(SqlAstNode):
 
 @dataclass
 class LimitNode(SqlAstNode):
-    expr: ExpressionNode
+    expr: list[ExpressionNode]
 
     def accept(self, visitor):
         return visitor.visit_limit(self)
@@ -379,7 +405,7 @@ class LimitNode(SqlAstNode):
     def __eq__(self, other):
         if not isinstance(other, LimitNode):
             return False
-        if self.expr == other.expr:
+        if set(self.expr) == set(other.expr):
             return True
         else:
             print(self.__class__.__name__)
@@ -594,12 +620,12 @@ class WindowExpressionNode(ExpressionNode):
 
 
 
-def variable_extractor(expr: ExpressionNode) -> Set[ExpressionNode]:
+def variable_extractor(expr: ExpressionNode) -> Set[SqlAstNode]:
     if not isinstance(expr, BinOpExpressionNode):
         return set()
     else:
         if expr.op.value in {'and', 'or'}:
-            return variable_extractor(expr.left).union(variable_extractor(expr.right))
+            return variable_extractor(expr.left).union(variable_extractor(expr.right)).union([expr.op])
         else:
             return {expr}
 
