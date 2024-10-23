@@ -1,0 +1,2 @@
+SELECT loan.amount, loan.payments  FROM client  JOIN disp ON client.client_id = disp.client_id  JOIN account ON disp.account_id = account.account_id  JOIN loan ON account.account_id = loan.account_id  WHERE client.client_id = 992
+tokens:10192

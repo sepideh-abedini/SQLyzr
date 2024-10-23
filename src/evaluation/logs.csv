@@ -1,0 +1,43 @@
+question,gold_query,db_id,final_query,schema_linking,classification,sql_generation,self_correction
+What is the highest eligible free rate for K-12 students in the schools in Alameda County?,SELECT 'Free Meal Count (K-12)' / 'Enrollment (K-12)' FROM frpm WHERE 'County Name' = 'Alameda' ORDER BY (CAST('Free Meal Count (K-12)' AS REAL) / 'Enrollment (K-12)') DESC LIMIT 1,california_schools,SELECT MAX(CAST('Free Meal Count (K-12)' AS FLOAT) / CAST('Enrollment (K-12)' AS FLOAT)) AS 'Highest Eligible Free Rate' FROM frpm WHERE County = 'Alameda',"""highest eligible free rate for K-12 students"" so we need column = ['Free Meal Count (K-12)', 'Enrollment (K-12)']
+""schools in Alameda County"" so we need column = ['County']
+Hint also refers to the columns = ['Free Meal Count (K-12)', 'Enrollment (K-12)', 'County']
+Based on the columns and tables, we don't need any Foreign_keys.
+Based on the tables, columns, and Foreign_keys, The set of possible cell values are = ['Alameda']. So the Schema_links are:
+Schema_links: ['Free Meal Count (K-12)', 'Enrollment (K-12)', 'County', 'Alameda']","The SQL query for the given question needs these tables = [frpm], so we don't need JOIN.
+Plus, it doesn't require nested queries, and we need the answer to the sub-questions = [""""].
+So, we don't need JOIN and don't need nested queries, then the SQL query can be classified as ""EASY"".
+Label: ""EASY""","SELECT MAX(""Free Meal Count (K-12)"" / ""Enrollment (K-12)"") FROM frpm WHERE ""County Name"" = 'Alameda'","1) The question asks for the highest eligible free rate for K-12 students in the schools in Alameda County. This means we need to calculate the rate as 'Free Meal Count (K-12)' / 'Enrollment (K-12)' for each school in Alameda County and then find the maximum value.
+2) JOIN is not required as there is no need to join any tables.
+3) The WHERE condition should be County = 'Alameda'.
+4) GROUP BY is not required as there is no need to group any columns.
+5) The ORDER BY clause is not required as we are only interested in the maximum value.
+6) All columns are correct and there are no typo errors.
+7) CAST might be required if the 'Free Meal Count (K-12)' and 'Enrollment (K-12)' columns are not already in a numeric format.
+8) CASE is not required as there is no need to use CASE.
+So, the final sqlite SQL query answer to the question the given question is =
+Revised_SQL: SELECT MAX(CAST('Free Meal Count (K-12)' AS FLOAT) / CAST('Enrollment (K-12)' AS FLOAT)) AS 'Highest Eligible Free Rate' FROM frpm WHERE County = 'Alameda'"
+Please list the lowest three eligible free rates for students aged 5-17 in continuation schools.,SELECT 'Free Meal Count (Ages 5-17)' / 'Enrollment (Ages 5-17)' FROM frpm WHERE 'Educational Option Type' = 'Continuation School' AND 'Free Meal Count (Ages 5-17)' / 'Enrollment (Ages 5-17)' IS NOT NULL ORDER BY 'Free Meal Count (Ages 5-17)' / 'Enrollment (Ages 5-17)' ASC LIMIT 3,california_schools,SELECT T1.'Free Meal Count (Ages 5-17)' / T1.'Enrollment (Ages 5-17)' AS 'Eligible Free Rate' FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.'CDSCode' = T2.'CDSCode' WHERE T2.'School Type' = 'Continuation School' ORDER BY 'Eligible Free Rate' ASC LIMIT 3,"""lowest three eligible free rates"" so we need column = [frpm.'Free Meal Count (Ages 5-17)', frpm.'Enrollment (Ages 5-17)']
+""students aged 5-17"" so we need column = [frpm.'Enrollment (Ages 5-17)']
+""continuation schools"" so we need column = [schools.'School Type']
+Hint also refers to the columns = [frpm.'Free Meal Count (Ages 5-17)', frpm.'Enrollment (Ages 5-17)', schools.'School Type']
+Based on the columns and tables, we need these Foreign_keys = [frpm.'CDSCode' = schools.'CDSCode'].
+Based on the tables, columns, and Foreign_keys, The set of possible cell values are = [1]. So the Schema_links are:
+Schema_links: [frpm.'Free Meal Count (Ages 5-17)', frpm.'Enrollment (Ages 5-17)', schools.'School Type', frpm.'CDSCode' = schools.'CDSCode', 1]","The SQL query for the given question needs these tables = [frpm, schools], so we need JOIN.
+Plus, it doesn't require nested queries, and we need the answer to the sub-questions = [""""].
+So, we need JOIN and don't need nested queries, then the SQL query can be classified as ""NON-NESTED"".
+Label: ""NON-NESTED""","For creating the SQL for the given question, we need to join these tables = [frpm,schools].
+First of all, for joining these tables we have to use the common column = [frpm.'CDSCode' = schools.'CDSCode'].
+Now, we have to filter the rows where 'School Type' = 'Continuation School'.
+Then, we have to find the lowest three eligible free rates for students aged 5-17 which can be computed by dividing 'Free Meal Count (Ages 5-17)' by 'Enrollment (Ages 5-17)'.
+So the sqlite SQL query will be:
+SQL: SELECT T1.'Free Meal Count (Ages 5-17)' / T1.'Enrollment (Ages 5-17)' AS 'Eligible Free Rate' FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.'CDSCode' = T2.'CDSCode' WHERE T2.'School Type' = 'Continuation School' ORDER BY 'Eligible Free Rate' ASC LIMIT 3","1) All of the columns are mentioned in the question.
+2) The JOIN is correct as it is joining on the correct foreign key.
+3) The WHERE statement is correct as it is filtering for 'Continuation School'.
+4) GROUP BY is not required as there is no need to group any columns.
+5) The ORDER BY clause is correct.
+6) All columns exist in the table and there are no typos.
+7) CAST is not required as there is no need to cast any columns.
+8) CASE is not required as there is no need to use CASE.
+So, the final sqlite SQL query answer to the question the given question is =
+Revised_SQL: SELECT T1.'Free Meal Count (Ages 5-17)' / T1.'Enrollment (Ages 5-17)' AS 'Eligible Free Rate' FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.'CDSCode' = T2.'CDSCode' WHERE T2.'School Type' = 'Continuation School' ORDER BY 'Eligible Free Rate' ASC LIMIT 3"

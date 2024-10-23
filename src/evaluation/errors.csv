@@ -1,0 +1,601 @@
+temp	gold	pred
+	temp	gold	pred
+0	0.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.0	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.0	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.0	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.0	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.0	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.0	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.2	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.2	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.2	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.2	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.2	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.2	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.2	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.2	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.2	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.2	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.2	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.2	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.2	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.2	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.2	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location , Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.2	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.2	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.2	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.2	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT T1.Name, T1.Capacity FROM stadium AS T1 ORDER BY T1.Average DESC LIMIT 1
+	temp	gold	pred
+0	0.2	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.2	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.2	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.2	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.2	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.2	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.2	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.2	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.2	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.2	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.2	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.2	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT country , count(*) FROM singer GROUP BY country
+	temp	gold	pred
+0	0.2	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.2	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.2	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.2	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location , Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.2	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.2	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.2	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.2	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.2	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.2	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.2	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.2	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.2	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.2	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.2	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.2	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.2	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.2	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.2	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.2	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT country , count(*) FROM singer GROUP BY country
+	temp	gold	pred
+0	0.2	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.2	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.2	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.2	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.2	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.2	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.2	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.2	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.2	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.4	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.4	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.4	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.4	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.4	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.4	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(age) , min(age) , max(age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.4	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.4	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.4	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.4	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.4	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT country , count(*) FROM singer GROUP BY country
+	temp	gold	pred
+0	0.4	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.4	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.4	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.4	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.4	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.4	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.4	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.4	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.4	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.4	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.4	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.4	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.4	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.4	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.4	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.4	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.4	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.4	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.4	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.4	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.4	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.4	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.4	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.4	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location , Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.4	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.4	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.4	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.4	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.4	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.4	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.4	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.4	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.4	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.4	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.4	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.4	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name , T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.4	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.4	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.4	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.4	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.4	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.4	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.4	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.4	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.4	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.4	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.4	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.4	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.4	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.7	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.7	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.7	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.7	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.7	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.7	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.7	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.7	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.7	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.7	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.7	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.7	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.7	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer)
+	temp	gold	pred
+0	0.7	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.7	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.7	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.7	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.7	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.7	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT T1.Name, T1.Capacity FROM stadium AS T1 ORDER BY T1.Average DESC LIMIT 1
+	temp	gold	pred
+0	0.7	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.7	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.7	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.7	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT name , country , age FROM singer ORDER BY age DESC
+	temp	gold	pred
+0	0.7	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.7	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(age) , min(age) , max(age) FROM singer WHERE country = 'France'
+	temp	gold	pred
+0	0.7	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(age) , min(age) , max(age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.7	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name , T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.7	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.7	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.7	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.7	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.7	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.7	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name
+	temp	gold	pred
+0	0.7	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT song_name FROM singer WHERE age > (SELECT avg(age) FROM singer)
+	temp	gold	pred
+0	0.7	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location , Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.7	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.7	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.7	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.7	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT S.Name, S.Capacity FROM stadium AS S ORDER BY S.Average DESC LIMIT 1
+	temp	gold	pred
+0	0.7	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	0.7	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.7	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	0.7	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.7	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	0.7	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.7	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	0.7	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	0.7	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	0.7	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.7	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	0.7	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.7	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	0.7	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE age > (SELECT AVG(age) FROM singer)
+	temp	gold	pred
+0	0.7	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT avg(Age) FROM singer)
+	temp	gold	pred
+0	0.7	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location , Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.7	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	0.7	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.7	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	0.7	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT S.Name, S.Capacity FROM stadium AS S ORDER BY S.Average DESC LIMIT 1
+	temp	gold	pred
+0	0.7	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	1.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	1.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	1.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	1.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	1.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	1.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'French'
+	temp	gold	pred
+0	1.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name , T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	1.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	1.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	1.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	1.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	1.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	1.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer)
+	temp	gold	pred
+0	1.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	"SELECT ""Song_Name"" FROM singer WHERE ""Age"" > (SELECT avg(""Age"") FROM singer)"
+	temp	gold	pred
+0	1.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	1.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	1.0	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	1.0	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	1.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT T1.Name, T1.Capacity FROM stadium AS T1 ORDER BY T1.Average DESC LIMIT 1
+	temp	gold	pred
+0	1.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	1.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	1.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	1.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	1.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name , Country , Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	1.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(Age) , min(Age) , max(Age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	1.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(age), min(age), max(age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	1.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name , T1.Song_release_year FROM singer AS T1 ORDER BY Age LIMIT 1
+	temp	gold	pred
+0	1.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	1.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	1.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	1.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , count(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	1.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	1.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer)
+	temp	gold	pred
+0	1.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer AS s WHERE s.Age > (SELECT AVG(Age) FROM singer)
+	temp	gold	pred
+0	1.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT location , name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	1.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	1.0	select max(capacity), average from stadium	SELECT avg(Capacity), max(Capacity) FROM stadium
+	temp	gold	pred
+0	1.0	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	1.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	"SELECT ""Name"", ""Capacity"" FROM stadium ORDER BY ""Average"" DESC LIMIT 1"
+	temp	gold	pred
+0	1.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name , Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	1.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	1.0	SELECT count(*) FROM singer	SELECT count(*) FROM singer
+	temp	gold	pred
+0	1.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	1.0	SELECT name ,  country ,  age FROM singer ORDER BY age DESC	SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+	temp	gold	pred
+0	1.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(age) , min(age) , max(age) FROM singer WHERE Country = 'France'
+	temp	gold	pred
+0	1.0	SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'	SELECT avg(age) , min(age) , max(age) FROM singer WHERE country = 'France'
+	temp	gold	pred
+0	1.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT T1.Name , T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+	temp	gold	pred
+0	1.0	SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1	SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer)
+	temp	gold	pred
+0	1.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	1.0	SELECT DISTINCT country FROM singer WHERE age  >  20	SELECT DISTINCT Country FROM singer WHERE Age > 20
+	temp	gold	pred
+0	1.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT country , count(*) FROM singer GROUP BY country
+	temp	gold	pred
+0	1.0	SELECT country ,  count(*) FROM singer GROUP BY country	SELECT Country , COUNT(*) FROM singer GROUP BY Country
+	temp	gold	pred
+0	1.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer)
+	temp	gold	pred
+0	1.0	SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)	SELECT s.Song_Name FROM singer s WHERE s.Age > (SELECT AVG(Age) FROM singer)
+	temp	gold	pred
+0	1.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location , Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	1.0	SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000	SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+	temp	gold	pred
+0	1.0	select max(capacity), average from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	1.0	select avg(capacity) ,  max(capacity) from stadium	SELECT avg(Capacity) , max(Capacity) FROM stadium
+	temp	gold	pred
+0	1.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+	temp	gold	pred
+0	1.0	SELECT name ,  capacity FROM stadium ORDER BY average DESC LIMIT 1	SELECT Name , Capacity FROM stadium ORDER BY Average DESC LIMIT 1

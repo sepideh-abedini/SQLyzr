@@ -1,0 +1,21 @@
+SELECT count(*) FROM singer
+SELECT count(*) FROM singer
+SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+SELECT Name, Country, Age FROM singer ORDER BY Age DESC
+SELECT avg(age) , min(age) , max(age) FROM singer WHERE Country = 'France'
+SELECT avg(age) , min(age) , max(age) FROM singer WHERE country = 'France'
+SELECT T1.Name , T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1
+SELECT Song_Name, Song_release_year FROM singer WHERE Age = (SELECT min(Age) FROM singer) 
+SELECT DISTINCT Country FROM singer WHERE Age > 20
+SELECT DISTINCT Country FROM singer WHERE Age > 20
+SELECT country , count(*) FROM singer GROUP BY country
+SELECT Country , COUNT(*) FROM singer GROUP BY Country 
+SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) 
+SELECT s.Song_Name FROM singer s WHERE s.Age > (SELECT AVG(Age) FROM singer)
+SELECT Location , Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000
+SELECT avg(Capacity) , max(Capacity) FROM stadium
+SELECT avg(Capacity) , max(Capacity) FROM stadium
+SELECT Name, Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+SELECT Name , Capacity FROM stadium ORDER BY Average DESC LIMIT 1
+tokens:18774

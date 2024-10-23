@@ -1,0 +1,3 @@
+,nlq,pred,gold,db_id,id
+0,How many heads of the departments are older than 56 ?,SELECT COUNT(*) FROM head WHERE age > 56,SELECT count(*) FROM head WHERE age  >  56,department_management,0
+1,"List the name, born state and age of the heads of departments ordered by age.","SELECT name, born_state, age FROM head ORDER BY age","SELECT name ,  born_state ,  age FROM head ORDER BY age",department_management,1

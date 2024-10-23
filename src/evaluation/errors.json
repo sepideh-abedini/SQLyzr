@@ -1,0 +1,81 @@
+[
+    {
+        "NL query":"",
+        "gold SQL": "SELECT id FROM goods WHERE food = 'Cake' AND price  >=  (SELECT avg(price) FROM goods WHERE food  =  'Tart')"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT analytical_layer_type_code FROM analytical_layer GROUP BY analytical_layer_type_code ORDER BY count(*) DESC LIMIT 1"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT T1.title FROM movies AS T1 JOIN movietheaters AS T2 ON T1.code  =  T2.movie WHERE T2.name  =  'Odeon'"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT staff_id ,  staff_details FROM staff WHERE staff_details LIKE '%s%' GROUP BY staff_id HAVING count(*)  >=  1"
+    },
+    {
+        "gold SQL": "SELECT T2.location FROM pilotskills AS T1 JOIN hangar AS T2 ON T1.plane_name  =  T2.plane_name WHERE T1.age  =  (SELECT min(age) FROM pilotskills)"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT avg(value) ,  sum(value) FROM boxes"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT name ,  RESULT FROM cyclist WHERE nation != 'Russia'"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT name FROM press ORDER BY Month_Profits_billion DESC LIMIT 1"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT T2.location FROM pilotskills AS T1 JOIN hangar AS T2 ON T1.plane_name  =  T2.plane_name WHERE T1.age  =  (SELECT min(age) FROM pilotskills)"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT t1.name ,  count(*) FROM district AS t1 JOIN spokesman_district AS t2 ON t1.District_ID  =  t2.District_ID GROUP BY t2.District_ID"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT sid FROM Sailors EXCEPT SELECT T1.sid FROM Sailors AS T1 JOIN Reserves AS T2 ON T1.sid  =  T2.sid"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT T1.invoice_status_code ,  T1.invoice_date ,  T2.shipment_date FROM Invoices AS T1 JOIN Shipments AS T2 ON T1.invoice_number  =  T2.invoice_number"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT min(annual_fuel_cost) ,  max(annual_fuel_cost) ,  avg(annual_fuel_cost) FROM vehicles"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT Name FROM player ORDER BY Wins_count ASC"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT Driver FROM driver ORDER BY Age ASC"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT T1.bio_data ,  T2.date_of_transcript FROM Students AS T1 JOIN Transcripts AS T2 ON T1.student_id  =  T2.student_id"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT T2.name ,  COUNT(*) FROM official_languages AS T1 JOIN languages AS T2 ON T1.language_id  =  T2.id GROUP BY T2.name"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT DISTINCT T1.item FROM items AS T1 JOIN goods AS T2 ON T1.item  =  T2.id WHERE T2.flavor  =  'Chocolate' GROUP BY item HAVING count(*)  <=  10"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT T2.name FROM official_languages AS T1 JOIN languages AS T2 ON T1.language_id  =  T2.id GROUP BY T2.id ORDER BY COUNT(*) DESC LIMIT 1"
+    },
+    {
+        "NL query":"",
+        "gold SQL": "SELECT count(T1.pilot_name) ,  avg(T1.age) ,  T2.location FROM pilotskills AS T1 JOIN hangar AS T2 ON T1.plane_name  =  T2.plane_name GROUP BY T2.location"
+    }
+]
