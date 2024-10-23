@@ -406,7 +406,7 @@ class LimitNode(SqlAstNode):
     def __eq__(self, other):
         if not isinstance(other, LimitNode):
             return False
-        if set(self.expr) == set(other.expr):
+        if self.expr == other.expr:
             return True
         else:
             print(self.__class__.__name__)
@@ -602,9 +602,9 @@ class SelectStatementNode(ExpressionNode):
     def __eq__(self, other):
         if not isinstance(other, SelectStatementNode):
             return False
-        if self.select_cores == other.select_cores and self.orderby == other.orderby and \
-                self.set_ops == other.set_ops and \
+        if set(self.select_cores) == set(other.select_cores) and set(self.set_ops) == set(other.set_ops) and \
                 self.orderby == other.orderby and \
+                self.with_clause == other.with_clause and \
                 self.limit == other.limit:
             return True
         else:

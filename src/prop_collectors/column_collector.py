@@ -1,3 +1,4 @@
+from sql_parser.node import WithClauseNode, CommonTableExpressionNode, LiteralListNode
 from src.sql_parser.node import ResultColumnNode
 from src.sql_parser.node import SelectStatementNode, SelectCoreNode, TableOrSubqueryNode, FromClauseNode, JoinClauseNode, \
     ColumnNode, TerminalNode
@@ -10,6 +11,15 @@ from src.visitor.collector_visitor import CollectorVisitor
 class ColumnCollector(CollectorVisitor):
     """Collects the columns used in the statement and finds the table name
     column type using the provided schema of database (e.g. tables.json)"""
+
+    def visit_literal_list(self, node: LiteralListNode):
+        pass
+
+    def visit_common_table_expression(self, node: CommonTableExpressionNode):
+        pass
+
+    def visit_with_clause(self, node: WithClauseNode):
+        pass
 
     def __init__(self, db_schema: DatabaseSchema):
         super().__init__(SqlFeatures)

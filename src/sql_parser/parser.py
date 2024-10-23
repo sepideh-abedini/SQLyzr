@@ -353,7 +353,8 @@ def p_join_op(p):
 def p_type_name(p):
     '''type_name : REAL
                  | FLOAT
-                 | INTEGER'''
+                 | INTEGER
+                 | INT'''
     p[0] = TerminalNode('type_name', p[1])
 
 
@@ -385,7 +386,8 @@ def p_fun_name(p):
 def p_literal_value(p):
     '''literal_value : NUMBER
                      | STRING
-                     | DATE'''
+                     | DATE
+                     | NULL'''
     p[0] = LiteralNode(p[1])
 
 
@@ -418,11 +420,14 @@ def p_win_fun(p):
 
 def p_case_expr(p):
     '''case_expr : CASE WHEN expr THEN expr ELSE expr END
+                 | CASE WHEN expr THEN expr WHEN expr THEN expr END
                  | CASE WHEN expr THEN expr END'''
     if len(p) == 7:
         p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'),[p[3], p[5]])
-    else:
+    elif len(p) == 9:
         p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'), [p[3], p[5], p[7]])
+    else:
+        p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'), [p[3], p[5], p[7], p[9]])
 
 
 

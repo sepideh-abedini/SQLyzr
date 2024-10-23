@@ -1,0 +1,2 @@
+SELECT DISTINCT T1.Id, T1.Maker  FROM car_makers AS T1  JOIN model_list AS T2 ON T1.Id = T2.Maker  JOIN car_names AS T3 ON T2.Model = T3.Model  JOIN cars_data AS T4 ON T3.MakeId = T4.Id  GROUP BY T1.Id  HAVING COUNT(DISTINCT T2.Model) >= 2 AND COUNT(DISTINCT T4.Id) > 3
+tokens:10974

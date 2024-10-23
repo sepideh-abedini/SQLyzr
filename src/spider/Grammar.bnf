@@ -1,0 +1,65 @@
+select_statement ::= select_core
+		| select_statement set_op select_core
+		| select_statement order_by
+		| select_statement limit
+select_core ::= select_clause from_clause
+		| select_core where_clause
+		| select_core group_clause
+select_clause ::= SELECT result_column
+		| SELECT DISTINCT result_column
+		| select_clause COMMA result_column
+result_column ::= expr | expr AS column_alias
+order_by ::= ORDER BY ordering_term | order_by COMMA ordering_term
+ordering_term ::= expr | expr sort_order
+limit ::= LIMIT expr
+from_clause ::= FROM table_or_subquery
+		| from_clause COMMA table_or_subquery
+		| FROM join_clause
+table_or_subquery ::= table_name
+		| table_name AS table_alias
+		| LPAREN select_statement RPAREN
+		| LPAREN select_statement RPAREN AS table_alias
+table_name ::= ID
+table_alias ::= ID
+join_clause ::= table_or_subquery join_op table_or_subquery join_constraint
+		| table_or_subquery join_op table_or_subquery
+		| join_clause join_op table_or_subquery join_constraint
+		| join_clause join_op table_or_subquery
+join_constraint ::= ON expr
+where_clause ::= WHERE expr
+group_clause ::= GROUP BY expr
+		| group_clause COMMA expr
+		| group_clause HAVING expr
+column ::= column_name | table_name DOT column_name
+fun_expr ::= EXISTS LPAREN select_statement RPAREN
+		| fun_name LPAREN expr RPAREN
+		| NOT EXISTS LPAREN select_statement RPAREN
+		| fun_name LPAREN DISTINCT expr RPAREN
+bin_op_expr ::= expr bin_op expr
+		| expr NOT LIKE expr
+		| expr IN LPAREN select_statement RPAREN
+		| expr NOT IN LPAREN select_statement RPAREN
+between_expr ::= expr BETWEEN expr bin_op expr
+expr ::= column
+		| LPAREN select_statement RPAREN
+		| LPAREN expr RPAREN
+		| literal_value
+		| bin_op_expr
+		| fun_expr
+		| between_expr
+		| cast_expr
+cast_expr ::= CAST LPAREN expr AS type_name RPAREN
+type_name ::= REAL | FLOAT | INTEGER
+set_op ::= UNION | EXCEPT | INTERSECT
+sort_order ::= ASC | DESC
+bin_op ::= ARITH_OP | COMP_OP | AND | OR | LIKE
+column_alias ::= ID
+fun_name ::= ID
+literal_value ::= NUMBER | STRING
+column_name ::= ID | STAR
+join_op ::= JOIN | INNER JOIN
+
+
+
+// Terminal: When matched, rule ends
+// Non-Terminal: Used to match the rule recursively

@@ -10,7 +10,7 @@ parser = SqlParser()
 path = "data/datasets/bird/"
 errors = []
 
-with open(path + "gold.txt", 'r') as f:
+with open(path + "gold_train.txt", 'r') as f:
     total = 0
     count = 0
     for line in f:

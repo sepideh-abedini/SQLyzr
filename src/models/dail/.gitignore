@@ -1,0 +1,6 @@
+.idea
+.DS_Store
+.venv
+dataset
+vector_cache
+third_party

@@ -63,7 +63,8 @@ keywords = {
     'case': 'CASE',
     'when': 'WHEN',
     'with' : 'WITH',
-    'recursive' : 'RECURSIVE'
+    'recursive' : 'RECURSIVE',
+    'int' : 'INT'
 }
 
 reserved = keywords | sort_orders | set_ops | logic_ops
