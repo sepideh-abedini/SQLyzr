@@ -1,12 +1,17 @@
 # from turtle import pd
 import json
 import os.path
+import sqlite3
 
 import pandas as pd
 import math
+
+from evaluation.lib import Timer
 from exact_match import ExactMatchParser
+from src.models.test_suite_acc.evaluation import test_suite_exec_acc
 from src.spider.evaluation import eval_exact_match
 from src.evaluation.src.models_runner.din_runner import DinRunner
+import lib
 
 
 def confidence_level_interval(column: pd.Series) -> float:
@@ -17,32 +22,92 @@ def confidence_level_interval(column: pd.Series) -> float:
     mean = column.mean()
     interval_start = mean - err_margin
     interval_end = mean + err_margin
-    return (interval_start, interval_end)
+    return "({:.3f}, {:.3f})".format(interval_start, interval_end)
+
+
+def exec_sql(db_path, sql):
+    """
+    return 1 if the values between prediction and gold are matching
+    in the corresponding index. Currently, not support multiple col_unit(pairs).
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        cursor.execute(sql)
+        res = cursor.fetchall()
+        return res
+    except sqlite3.OperationalError as e:
+        print(e)
+        return False
 
 
 class DinModelEvaluator:
 
     def __init__(self):
         self.df = pd.DataFrame()
-        self.temps = [0.0, 0.2, 0.4, 0.7, 1.0]
-        self.itrs = 3
+        # self.temps = [0.0, 0.2, 0.4, 0.7, 1.0]
+        self.temps = [0.0, 0.2]
+        self.itrs = 2
         self.pred_results_dir = "data/out/pred_results/din"
-        self.dataset_dir = "data/dataset/data"
+        self.dataset_dir = "data/dataset/data/"
+        self.score_metrics = {
+            'token_score': self.calc_token_usage_score,
+            'exact_match': self.calc_exact_match,
+            'spider_exact_match': self.calc_spider_exact_match,
+            'exec_score': self.calc_exec_acc,
+            'test_suit_score': self.calc_test_suit_acc,
+            'sql_exec_time': self.total_sql_exec_time,
+            'count': self.get_gold_queries_count
+        }
 
     def get_pred_file_path(self, temp, itr):
-        return os.path.join(self.pred_results_dir, f"{temp}_{itr+1}_out")
+        return os.path.join(self.pred_results_dir, f"{temp}_{itr + 1}_out")
 
     def evaluate(self, skip: bool = False):
-        # print("first")
+        model_exec_times = {}
         if skip == False:
             for temp in self.temps:
-                self.run_model_k_times(temp, self.itrs)
+                for itr in range(self.itrs):
+                    exec_time = self.run_model(temp, itr)
+                    if temp not in model_exec_times:
+                        model_exec_times[temp] = {}
+                    model_exec_times[temp][itr] = exec_time
 
         for temp in self.temps:
             for itr in range(self.itrs):
-                self.calc_single_run_metrics(temp, itr)
+                exec_time = 0
+                if not skip:
+                    exec_time = model_exec_times[temp][itr]
+                self.calc_single_run_metrics(temp, itr, exec_time)
 
-        print("_______created dataframe_______\n", self.df)
+        # print("_______created dataframe_______\n", self.df[['temp','exact_score','test_suit_acc',
+        #                                                     'spider_exact_score','exec_score', 'total_sql_exec_time']])
+        means = self.df.groupby('temp').mean()
+        means.columns = [col + '_mean' for col in means.columns]
+
+        cis = self.df.groupby('temp').agg(confidence_level_interval)
+        cis.columns = [col + '_ci' for col in cis.columns]
+
+        result = means.join(cis)
+        result = result.round(3)
+
+        result.to_csv("scores.csv")
+
+    def get_gold_pred_db(self, temp, iter):
+        result = []
+
+        with open(os.path.join(self.dataset_dir, "dev.json"), "r") as f_gold:
+            gold_file = json.load(f_gold)
+            with open(self.get_pred_file_path(temp, iter), 'r') as f_pred:
+                f_pred_lines = f_pred.read().splitlines()[:-1]
+                for idx, pred in enumerate(f_pred_lines):
+                    gold = gold_file[idx]
+                    db_id = gold['db_id']
+                    gold_query = gold['query']
+
+                    result.append([gold_query, pred, db_id])
+
+        return result
 
     def calc_token_usage_score(self, temp: float, itr: int):
         total_toks = 0
@@ -52,54 +117,78 @@ class DinModelEvaluator:
             total_toks += int(total_tokens)
         return total_toks
 
-    def calc_single_run_metrics(self, temp: float, itr: int):
-        token_score = self.calc_token_usage_score(temp, itr)
-        exact_score = self.calc_exact_match(temp, itr)
-        spider_exact_score = self.calc_spider_exact_match(temp, itr)
-        exec_score = self.calc_exec_acc(temp, itr)
-        test_suit_score = self.calc_test_suit_acc(temp, itr)
+    def calc_single_run_metrics(self, temp: float, itr: int, model_exec_time):
+        scores = {'temp': temp, 'iter': itr, 'model_exec_time': model_exec_time}
+        for metric_name in self.score_metrics:
+            metric_fun = self.score_metrics[metric_name]
+            score = metric_fun(temp, itr)
+            scores[metric_name] = score
 
-        result = pd.DataFrame([{"temp": temp, "iter": itr + 1, \
-                                "token_score": token_score, "exec_score": exec_score, \
-                                "spider_exact_score": spider_exact_score, \
-                                "exact_score": exact_score, "test_suit_acc": test_suit_score}])
-
+        result = pd.DataFrame([scores])
         self.df = pd.concat([self.df, result], ignore_index=True)
-
-    def run_model_k_times(self, temp: float, itr: int):
-        # print("second")
-        for i in range(itr):
-            self.run_model(temp, i)
-            # print("i", i)
 
     # iter | tmp | token_score | exact_match | exec_acc
 
     def run_model(self, temp: float, itr: int):
+        timer = Timer()
+        timer.start()
         din_runner = DinRunner()
         din_runner.run(self.dataset_dir, self.get_pred_file_path(temp, itr), temp)
+        return timer.stop().total_seconds() * 1000000
 
     def calc_exec_acc(self, temp, itr):
-        return 0
+        score = 0
+        total_sql_exec_time = 0
+        res = self.get_gold_pred_db(temp, itr)
+        for gold, pred, db_id in res:
+
+            db_path = os.path.join(self.dataset_dir, 'database', db_id, f'{db_id}.sqlite')
+
+            gold_sql_exec_res = exec_sql(db_path, gold)
+            pred_sql_exec_res = exec_sql(db_path, pred)
+            result = pred_sql_exec_res == gold_sql_exec_res
+
+            if result:
+                score += 1
+        return score
+
+    def total_sql_exec_time(self, temp, itr):
+        res = self.get_gold_pred_db(temp, itr)
+        total_sql_exec_time = 0.0
+        for gold, pred, db_id in res:
+            db_path = os.path.join(self.dataset_dir, 'database', db_id, f'{db_id}.sqlite')
+
+            timer = lib.Timer()
+            timer.start()
+            pred_sql_exec_res = exec_sql(db_path, pred)
+            pred_sql_exec_time = timer.stop()
+            total_sql_exec_time += pred_sql_exec_time.total_seconds() * 1000000
+
+        return total_sql_exec_time
 
     def calc_exact_match(self, temp, itr):
         parser = ExactMatchParser(os.path.join(self.dataset_dir, "tables.json"))
-        with open(os.path.join(self.dataset_dir, "dev.json"), "r") as f_gold:
-            gold_file = json.load(f_gold)
-            score = 0
-            with open(self.get_pred_file_path(temp, itr), 'r') as f_pred:
-                f_pred_lines = f_pred.read().splitlines()[:-1]
-                for idx, pred in enumerate(f_pred_lines):
-                    gold = gold_file[idx]
-                    db_id = gold['db_id']
-                    gold_query = gold['query']
-                    gold_parser = parser.parse(gold_query, db_id)
-                    pred_parser = parser.parse(pred, db_id)
-                    if (gold_parser == pred_parser) or (pred_parser == gold_parser):
-                        score += 1
+        res = self.get_gold_pred_db(temp, itr)
+        score = 0
+
+        for gold, pred, db_id in res:
+            gold_parser = parser.parse(gold, db_id)
+
+            pred_parser = parser.parse(pred, db_id)
+
+            if (gold_parser == pred_parser) or (pred_parser == gold_parser):
+                score += 1
+
         return score
 
     def calc_test_suit_acc(self, temp, itr):
-        return 0
+        test_suite_acc = test_suite_exec_acc(
+            gold=os.path.join(self.dataset_dir, "gold.txt"),
+            pred=self.get_pred_file_path(temp, itr),
+            db_dir=os.path.join(self.dataset_dir, "database"),
+            table=os.path.join(self.dataset_dir, "tables.json")
+        )
+        return test_suite_acc
 
     def calc_spider_exact_match(self, temp, itr):
         exact_match = eval_exact_match(
@@ -110,10 +199,15 @@ class DinModelEvaluator:
         )
         return exact_match
 
+    def get_gold_queries_count(self, temp, itr):
+        res = self.get_gold_pred_db(temp, itr)
+        return len(res)
+
 
 def main():
     evaluator = DinModelEvaluator()
-    evaluator.evaluate(skip=True)
+    # evaluator.evaluate(skip=True)
+    evaluator.evaluate(skip=False)
 
 
 if __name__ == "__main__":

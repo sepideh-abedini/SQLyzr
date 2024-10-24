@@ -52,6 +52,7 @@ def run_model(args, temp):
     model_exec_time = timer.stop()
     return model_exec_time
 
+
 def run_eval(args, temp):
     dev_json_path = "{}dev.json".format(args.dataset)
     gold_db, gold_sql_strs = my_exe_eval.read_gold_data(dev_json_path)

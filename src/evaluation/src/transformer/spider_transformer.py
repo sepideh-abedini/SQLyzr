@@ -8,7 +8,7 @@ from src.evaluation.src.transformer.transformer import Transformer
 class SpiderTransformer(Transformer):
 
     def transform_query(self, spider_dir:str):
-        train_path = path.join(spider_dir, "train_spider.json")
+        train_path = path.join(spider_dir, "dev.json")
         queries_out_path = path.join(self.out_dir ,'dev.json')
 
         with open(train_path, 'r') as in_file, open(queries_out_path, 'w') as out_file:
@@ -24,7 +24,7 @@ class SpiderTransformer(Transformer):
 
                 out_file.write(json.dumps(list, indent=4))
 
-        dev_path = path.join(spider_dir ,'train_spider.json')
+        dev_path = path.join(spider_dir ,'dev.json')
         gold_out_path = path.join(self.out_dir ,'gold.txt')
 
         with open(dev_path, 'r') as in_file, open(gold_out_path, 'w') as out_file:

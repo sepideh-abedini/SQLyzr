@@ -3,7 +3,7 @@ import subprocess
 from src.evaluation.src.models_runner.runner import ModelRunner, execute_command
 
 
-DIN_FILE = 'models/din/DIN-SQL.py'
+DIN_FILE = 'src/models/din/DIN-SQL.py'
 
 
 
