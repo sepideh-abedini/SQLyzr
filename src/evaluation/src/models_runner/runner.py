@@ -6,6 +6,9 @@ def execute_command(command: str):
     with subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
         for line in p.stdout:
             print(line, end='\n')
+        if p.stderr:
+            for line in p.stderr:
+                print(line, end='\n')
     if p.returncode != 0:
         raise subprocess.CalledProcessError(p.returncode, p.args)
 
@@ -14,6 +17,6 @@ def execute_command(command: str):
 class ModelRunner(ABC):
 
     @abstractmethod
-    def run(self, dataset_dir, output_dir, temp):
+    def run(self, temp):
         pass
 

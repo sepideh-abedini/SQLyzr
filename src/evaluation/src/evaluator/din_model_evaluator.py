@@ -12,6 +12,7 @@ from src.models.test_suite_acc.evaluation import test_suite_exec_acc
 from src.spider.evaluation import eval_exact_match
 from src.evaluation.src.models_runner.din_runner import DinRunner
 import lib
+from sys import argv
 
 
 def confidence_level_interval(column: pd.Series) -> float:
@@ -43,11 +44,15 @@ def exec_sql(db_path, sql):
 
 class DinModelEvaluator:
 
-    def __init__(self):
+    def __init__(self, temps, itrs):
         self.df = pd.DataFrame()
         # self.temps = [0.0, 0.2, 0.4, 0.7, 1.0]
-        self.temps = [0.0, 0.2]
-        self.itrs = 2
+        # self.temps = [0.0, 0.2, 0.4, 0.7]
+        # self.itrs = 3
+        self.temps = temps
+        self.itrs = itrs
+        # self.itrs = 1
+
         self.pred_results_dir = "data/out/pred_results/din"
         self.dataset_dir = "data/dataset/data/"
         self.score_metrics = {
@@ -170,14 +175,20 @@ class DinModelEvaluator:
         parser = ExactMatchParser(os.path.join(self.dataset_dir, "tables.json"))
         res = self.get_gold_pred_db(temp, itr)
         score = 0
+        parser_errors = []
 
         for gold, pred, db_id in res:
-            gold_parser = parser.parse(gold, db_id)
+            try:
+                gold_parser = parser.parse(gold, db_id)
+                pred_parser = parser.parse(pred, db_id)
+                if (gold_parser == pred_parser) or (pred_parser == gold_parser):
+                    score += 1
+            except Exception as e:
+                parser_errors.append(pred)
 
-            pred_parser = parser.parse(pred, db_id)
-
-            if (gold_parser == pred_parser) or (pred_parser == gold_parser):
-                score += 1
+        with open(self.dataset_dir + "parser_errors.txt", 'w') as f:
+            for error in parser_errors:
+                f.write(f"{error}")
 
         return score
 
@@ -205,9 +216,13 @@ class DinModelEvaluator:
 
 
 def main():
-    evaluator = DinModelEvaluator()
+
+    temps = list(map(float, argv[1].split(',')))  # e.g., "0.0,0.2,0.4" -> [0.0, 0.2, 0.4]
+    itrs = int(argv[2])  # e.g., "3" -> 3
+
+    evaluator = DinModelEvaluator(temps, itrs)
     # evaluator.evaluate(skip=True)
-    evaluator.evaluate(skip=False)
+    evaluator.evaluate(skip=True)
 
 
 if __name__ == "__main__":

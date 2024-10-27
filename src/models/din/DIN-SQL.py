@@ -3,8 +3,9 @@ import time
 import openai
 import os
 import sys
+import re
 
-GPT_MODEL = "gpt-4o-mini"
+GPT_MODEL = "gpt-4o"
              # "gpt-3.5-turbo"
 #"gpt-4"
 # GPT_MODEL = "gpt-4o-mini"
@@ -607,42 +608,42 @@ def GPT4_generation(prompt):
 
 def GPT4_debug(prompt):
   response = openai.chat.completions.create(
-    model="gpt-4",
+    model=GPT_MODEL,
     messages=[{"role": "user", "content": prompt}],
     n = 1,
     stream = False,
-    temperature=0.0,
+    temperature=TEMPERATURE,
     max_tokens=350,
-    top_p = 1.0,
+    # top_p = 1.0,
     frequency_penalty=0.0,
     presence_penalty=0.0,
     stop = ["#", ";","\n\n"]
   )
   return response.choices[0].message.content
 
-SKIPS = [24, 62, 63, 68, 69, 96, 97, 98, 100, 107,
-         108, 109, 110, 114, 117, 118, 119,120,
-         121, 122, 123, 124, 125, 126, 127, 131,
-         134, 135, 136, 139, 140, 141, 144, 145, 146,
-         147, 148, 149, 150, 151, 152, 157, 158, 159,
-         163, 165, 168, 171, 173, 175, 179, 180]
-SKIPS = [176]
+# SKIPS = [24, 62, 63, 68, 69, 96, 97, 98, 100, 107,
+#          108, 109, 110, 114, 117, 118, 119,120,
+#          121, 122, 123, 124, 125, 126, 127, 131,
+#          134, 135, 136, 139, 140, 141, 144, 145, 146,
+#          147, 148, 149, 150, 151, 152, 157, 158, 159,
+#          163, 165, 168, 171, 173, 175, 179, 180]
+# SKIPS = [176]
 
 
 # START = 180
 if __name__ == '__main__':
     spider_schema,spider_primary,spider_foreign = creatiing_schema(DATASET_SCHEMA)
     val_df = load_data(DATASET)
-    # print("################### DIN ####################: temp={}".format(TEMPERATURE) )
+    print("################### DIN_TEMP ####################: temp={}".format(TEMPERATURE) )
     print(f"Number of data samples {val_df.shape[0]}")
     CODEX = []
     total_cost = 0
     for index, row in val_df.iterrows():
-        if index >= 20:
-            break
+        # if index >= 20:
+        #     break
         if 'query' not in row and 'SQL' in row:
             row['query'] = row['SQL']
-        # print(f"index is {index}")
+        print(f"index is {index}")
         # print(row['query'])
         # print(row['question']/)
         schema_links = None
@@ -658,7 +659,7 @@ if __name__ == '__main__':
         try:
             schema_links = schema_links.split("Schema_links: ")[1]
         except:
-            print("Slicing error for the schema_linking module")
+            # print("Slicing error for the schema_linking module")
             schema_links = "[]"
         # print(schema_links)
         classification = None
@@ -677,7 +678,7 @@ if __name__ == '__main__':
             predicted_class = '"NESTED"'
         # print(classification)
         if '"EASY"' in predicted_class:
-            print("EASY")
+            # print("EASY")
             SQL = None
             while SQL is None:
                 try:
@@ -687,13 +688,13 @@ if __name__ == '__main__':
                     time.sleep(3)
                     pass
         elif '"NON-NESTED"' in predicted_class:
-            print("NON-NESTED")
+            # print("NON-NESTED")
             SQL = None
             while SQL is None:
                 try:
                     SQL, toknes = GPT4_generation(medium_prompt_maker(row['question'], row['db_id'], schema_links))
-                    print("SQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQL:")
-                    print(SQL)
+                    # print("SQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQL:")
+                    # print(SQL)
                     total_cost += tokens
                 except:
                     time.sleep(3)
@@ -707,7 +708,7 @@ if __name__ == '__main__':
             if 'questions =[' in classification:
                 sub_questions = classification.split('questions = ["')[1].split('"]')[0]
             else:
-                print("No sub questions found! :(")
+                # print("No sub questions found! :(")
                 sub_questions = []
             # print("NESTED")
             SQL = None
@@ -724,7 +725,7 @@ if __name__ == '__main__':
             except:
                 print("SQL slicing error")
                 SQL = "SELECT"
-        print("GPT Response: ", SQL)
+        # print("GPT Response: ", SQL)
         debugged_SQL = None
         while debugged_SQL is None:
             try:
@@ -733,7 +734,9 @@ if __name__ == '__main__':
                 time.sleep(3)
                 pass
         SQL = "SELECT " + debugged_SQL
-        print(SQL)
+        # print("__________HERE IS SQL________: ", SQL)
+        pattern = r'SELECT\s*```sql ([^`]*).*'
+        SQL = re.sub(pattern, r'\1', SQL)
         CODEX.append([row['question'], SQL, row['query'], row['db_id']])
     df = pd.DataFrame(CODEX, columns=['NLQ', 'PREDICTED SQL', 'GOLD SQL', 'DATABASE'])
 
