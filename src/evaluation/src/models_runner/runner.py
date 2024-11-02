@@ -66,9 +66,9 @@ class ModelRunner(ABC):
 
     def merge_results(self):
         all_toks = 0
-        with open(f"{self.output_dir}/results.txt", 'w') as out:
+        with open(f"{self.output_dir}", 'w') as out:
             for i in range(self.thread_count):
-                with open(f"{self.output_dir}/output_{i}", 'r') as file:
+                with open(f"{self.output_dir}_{i}", 'r') as file:
                     count_lines = file.readlines()
                     last_line = count_lines[-1]
                     toks = int(last_line.split(":")[-1])

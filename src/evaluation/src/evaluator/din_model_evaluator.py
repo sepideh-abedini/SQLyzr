@@ -13,6 +13,7 @@ from src.spider.evaluation import eval_exact_match
 from src.evaluation.src.models_runner.din_runner import DinRunner
 import lib
 from sys import argv
+import argparse
 
 
 def confidence_level_interval(column: pd.Series) -> float:
@@ -44,7 +45,7 @@ def exec_sql(db_path, sql):
 
 class DinModelEvaluator:
 
-    def __init__(self, temps, itrs):
+    def __init__(self, temps, itrs, threads):
         self.df = pd.DataFrame()
         # self.temps = [0.0, 0.2, 0.4, 0.7, 1.0]
         # self.temps = [0.0, 0.2, 0.4, 0.7]
@@ -52,9 +53,9 @@ class DinModelEvaluator:
         self.temps = temps
         self.itrs = itrs
         # self.itrs = 1
-
-        self.pred_results_dir = "data/out/pred_results/din"
-        self.dataset_dir = "data/dataset/data/"
+        self.thread_count = threads
+        self.pred_results_dir = "data/dataset/output_results/din"
+        self.dataset_dir = "data/dataset/data"
         self.score_metrics = {
             'token_score': self.calc_token_usage_score,
             'exact_match': self.calc_exact_match,
@@ -101,7 +102,7 @@ class DinModelEvaluator:
     def get_gold_pred_db(self, temp, iter):
         result = []
 
-        with open(os.path.join(self.dataset_dir, "dev.json"), "r") as f_gold:
+        with open(os.path.join(self.dataset_dir,"dev.json"), "r") as f_gold:
             gold_file = json.load(f_gold)
             with open(self.get_pred_file_path(temp, iter), 'r') as f_pred:
                 f_pred_lines = f_pred.read().splitlines()[:-1]
@@ -137,8 +138,9 @@ class DinModelEvaluator:
     def run_model(self, temp: float, itr: int):
         timer = Timer()
         timer.start()
-        din_runner = DinRunner()
-        din_runner.run(self.dataset_dir, self.get_pred_file_path(temp, itr), temp)
+        din_runner = DinRunner(self.dataset_dir, self.get_pred_file_path(temp, itr), self.thread_count, temp)
+        din_runner.run()
+        din_runner.merge_results()
         return timer.stop().total_seconds() * 1000000
 
     def calc_exec_acc(self, temp, itr):
@@ -217,12 +219,19 @@ class DinModelEvaluator:
 
 def main():
 
-    temps = list(map(float, argv[1].split(',')))  # e.g., "0.0,0.2,0.4" -> [0.0, 0.2, 0.4]
-    itrs = int(argv[2])  # e.g., "3" -> 3
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--temps", nargs='+', type=float , help='different GPT"s temperature')
+    parser.add_argument("--itrs", type=int, help='number of iterations')
+    parser.add_argument("--thread_count", type=int, default = 4, help='number of threads')
 
-    evaluator = DinModelEvaluator(temps, itrs)
+    args = parser.parse_args()
+
+
+
+    evaluator = DinModelEvaluator(args.temps, args.itrs, args.thread_count)
     # evaluator.evaluate(skip=True)
-    evaluator.evaluate(skip=True)
+    evaluator.evaluate(skip=False)
+
 
 
 if __name__ == "__main__":
