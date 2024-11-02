@@ -1,7 +1,7 @@
 import json.decoder
 
 import openai
-from utils.enums import LLM
+from src.models.dail.utils.enums import LLM
 import time
 
 
@@ -66,7 +66,7 @@ def ask_llm(model: str, batch: list, temperature: float, n:int):
                 response = ask_chat(model, messages, temperature, n)
                 response['response'] = [response['response']]
             break
-        except openai.error.RateLimitError:
+        except openai.RateLimitError:
             n_repeat += 1
             print(f"Repeat for the {n_repeat} times for RateLimitError", end="\n")
             time.sleep(1)

@@ -157,7 +157,9 @@ class DinModelEvaluator:
 
             if result:
                 score += 1
-        return score
+
+        final_score = score / len(res) * 100
+        return final_score
 
     def total_sql_exec_time(self, temp, itr):
         res = self.get_gold_pred_db(temp, itr)
@@ -201,7 +203,7 @@ class DinModelEvaluator:
             db_dir=os.path.join(self.dataset_dir, "database"),
             table=os.path.join(self.dataset_dir, "tables.json")
         )
-        return test_suite_acc
+        return test_suite_acc * 100
 
     def calc_spider_exact_match(self, temp, itr):
         exact_match = eval_exact_match(

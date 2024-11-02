@@ -22,6 +22,7 @@ class DinRunner(ModelRunner):
 
 
 
+
 # def main():
 #     runner = DinRunner(dataset_dir="data/dataset/data", output_dir="data/dataset/output_results/din", thread_count=8,
 #                        temp=1)

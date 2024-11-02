@@ -6,10 +6,10 @@ import openai
 from tqdm import tqdm
 
 from llm.chatgpt import init_chatgpt, ask_llm
-from utils.enums import LLM
+from src.models.dail.utils.enums import LLM
 from torch.utils.data import DataLoader
 
-from utils.post_process import process_duplication, get_sqls
+from src.models.dail.utils.post_process import process_duplication, get_sqls
 
 QUESTION_FILE = "questions.json"
 
@@ -73,7 +73,7 @@ if __name__ == '__main__':
                 break
             try:
                 res = ask_llm(args.model, batch, args.temperature, args.n)
-            except openai.error.InvalidRequestError:
+            except Exception as e:
                 print(f"The {i}-th question has too much tokens! Return \"SELECT\" instead")
                 res = ""
 

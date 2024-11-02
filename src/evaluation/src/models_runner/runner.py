@@ -4,7 +4,6 @@ import os
 import shutil
 import subprocess
 import threading
-import time
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -14,11 +13,8 @@ from attr import dataclass
 
 def execute_command(command: str):
     with subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
-        for line in p.stdout:
-            print(line, end='\n')
-        if p.stderr:
-            for line in p.stderr:
-                print(line, end='\n')
+        output, errors = p.communicate()
+        print(output, errors)
     if p.returncode != 0:
         raise subprocess.CalledProcessError(p.returncode, p.args)
 
@@ -28,7 +24,7 @@ class ModelRunner(ABC):
     dataset_dir: str
     output_dir: str
     thread_count: int
-    temp: int
+    temp: float
 
     def run(self):
         threads = []
@@ -76,3 +72,4 @@ class ModelRunner(ABC):
 
                     out.writelines(count_lines[:-1])
             out.write(f"tokens:{all_toks}")
+
