@@ -6,6 +6,8 @@ import threading
 from dataclasses import dataclass
 from pathlib import Path
 
+from fontTools.afmLib import readlines
+
 from src.evaluation.src.models_runner.runner import ModelRunner, execute_command
 
 DIN_FILE = 'src/models/din/DIN-SQL.py'
@@ -55,10 +57,17 @@ class DinRunner(ModelRunner):
         execute_command(DIN_command)
 
     def merge_results(self):
+        all_toks = 0
         with open (f"{self.output_dir}/results.txt", 'w') as out:
             for i in range(self.thread_count):
                 with open(f"{self.output_dir}/output_{i}", 'r') as file:
-                    out.write(file.read())
+                    count_lines = file.readlines()
+                    last_line = count_lines[-1]
+                    toks = int(last_line.split(":")[-1])
+                    all_toks += toks
+
+                    out.writelines(count_lines[:-1])
+            out.write(f"tokens:{all_toks}")
 
 
 def main():
