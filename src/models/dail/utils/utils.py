@@ -5,7 +5,7 @@ import re
 import sqlite3
 
 from transformers import AutoTokenizer
-from utils.enums import LLM
+from src.models.dail.utils.enums import LLM
 from sql_metadata import Parser
 
 

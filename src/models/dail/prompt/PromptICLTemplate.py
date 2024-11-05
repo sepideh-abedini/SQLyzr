@@ -1,4 +1,4 @@
-from utils.utils import get_tokenizer, count_tokens, jaccard_similarity
+from src.models.dail.utils.utils import get_tokenizer, count_tokens, jaccard_similarity
 import numpy as np
 import json
 

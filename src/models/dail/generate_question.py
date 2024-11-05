@@ -5,10 +5,10 @@ import argparse
 import os
 import sys
 import json
-from prompt.prompt_builder import prompt_factory
-from utils.data_builder import load_data
-from utils.enums import REPR_TYPE, EXAMPLE_TYPE, SELECTOR_TYPE, LLM
-from utils.utils import cost_estimate
+from src.models.dail.prompt.prompt_builder import prompt_factory
+from src.models.dail.utils.data_builder import load_data
+from src.models.dail.utils.enums import REPR_TYPE, EXAMPLE_TYPE, SELECTOR_TYPE, LLM
+from src.models.dail.utils.utils import cost_estimate
 
 from tqdm import tqdm
 
@@ -18,7 +18,9 @@ sys.path.append("./")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_type", type=str, choices=["spider", "realistic", "bird"], default="spider")
+    parser.add_argument("--output_dir", type=str)
+    parser.add_argument("--data_type", type=str, choices=["spider", "realistic", "bird","sqlyzr"], default="spider")
+    parser.add_argument("--dataset_dir", type=str)
     parser.add_argument("--split", type=str, choices=["train", "test"], default="test",  required=True)
     parser.add_argument("--k_shot", type=int, default=0, help="Number of examples")
     parser.add_argument("--prompt_repr", type=str, choices=[REPR_TYPE.CODE_REPRESENTATION,
@@ -65,7 +67,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # load test dataset here
-    data = load_data(args.data_type, PATH_DATA, args.pre_test_result)
+    data = load_data(args.data_type, args.dataset_dir, args.pre_test_result)
 
     # Read all tables into a dict
     databases = data.get_databases()
@@ -123,8 +125,8 @@ if __name__ == '__main__':
         "questions": questions
     }
     
-    path_generate = f"dataset/process/{args.data_type.upper()}-{args.split.upper()}_{prompt.name}_CTX-{args.max_ans_len}_ANS-{args.max_seq_len}"
-        
+    # path_generate = f"dataset/process/{args.data_type.upper()}-{args.split.upper()}_{prompt.name}_CTX-{args.max_ans_len}_ANS-{args.max_seq_len}"
+    path_generate = args.output_dir
     os.makedirs(path_generate, exist_ok=True)
     json.dump(task, open(os.path.join(path_generate, "questions.json"), "w"), indent=4)
     

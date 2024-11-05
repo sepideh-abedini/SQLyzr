@@ -1,4 +1,4 @@
-from utils.utils import get_sql_for_database
+from src.models.dail.utils.utils import get_sql_for_database
 import json
 
 

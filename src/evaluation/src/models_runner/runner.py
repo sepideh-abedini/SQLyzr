@@ -55,6 +55,9 @@ class ModelRunner(ABC):
                 dev_json_chunk_path = os.path.join(dataset_chunk_dir, "dev.json")
                 with open(dev_json_chunk_path, 'w') as out_file:
                     json.dump(chunked, out_file, indent=4)
+                gold_txt_chunk_path = os.path.join(dataset_chunk_dir, "gold.txt")
+                with open(gold_txt_chunk_path, 'w') as out_file:
+                    out_file.writelines("\n".join(list(map(lambda data: f"{data["query"]}\t{data["db_id"]}", chunked))))
 
     @abstractmethod
     def run_model_single_time(self, k):

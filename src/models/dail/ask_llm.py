@@ -48,10 +48,11 @@ if __name__ == '__main__':
     # init openai api
     init_chatgpt(args.openai_api_key, args.openai_group_id, args.model)
 
-    if args.start_index == 0:
-        mode = "w"
-    else:
-        mode = "a"
+    # if args.start_index == 0:
+    #     mode = "w"
+    # else:
+    #     mode = "a"
+    mode = "w"
 
     # if args.mini_index_path:
     #     mini_index = json.load(open(args.mini_index_path, 'r'))

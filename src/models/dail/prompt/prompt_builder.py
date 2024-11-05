@@ -1,10 +1,10 @@
-from utils.enums import REPR_TYPE
-from utils.enums import EXAMPLE_TYPE
-from utils.enums import SELECTOR_TYPE
-from prompt.PromptReprTemplate import *
-from prompt.ExampleFormatTemplate import *
-from prompt.ExampleSelectorTemplate import *
-from prompt.PromptICLTemplate import BasicICLPrompt
+from src.models.dail.utils.enums import REPR_TYPE
+from src.models.dail.utils.enums import EXAMPLE_TYPE
+from src.models.dail.utils.enums import SELECTOR_TYPE
+from src.models.dail.prompt.PromptReprTemplate import *
+from src.models.dail.prompt.ExampleFormatTemplate import *
+from src.models.dail.prompt.ExampleSelectorTemplate import *
+from src.models.dail.prompt.PromptICLTemplate import BasicICLPrompt
 
 
 def get_repr_cls(repr_type: str):
