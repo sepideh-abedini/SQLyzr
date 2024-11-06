@@ -7,50 +7,76 @@ from src.evaluation.src.transformer.transformer import Transformer
 
 class SpiderTransformer(Transformer):
 
-    def transform_query(self, spider_dir:str):
-        train_path = path.join(spider_dir, "dev.json")
-        queries_out_path = path.join(self.out_dir ,'dev.json')
+    def transform_json_entry(self, entry):
+        return {
+            "db_id": entry["db_id"],
+            "query": entry["query"],
+            "question": entry["question"],
+            "evidence": "",
+        }
 
-        with open(train_path, 'r') as in_file, open(queries_out_path, 'w') as out_file:
-                train_data = json.load(in_file)
-                list = []
-                for line in train_data:
-                    list.append({
-                        "db_id" : line["db_id"],
-                        "query" : line["query"],
-                        "question" : line["question"],
-                        "evidence" : "",
-                    })
+    def transform_txt_entry(self, entry):
+        return f"{entry['query']}\t{entry["db_id"]}\n"
 
-                out_file.write(json.dumps(list, indent=4))
+    def transform_json_data(self, data):
+        return list(map(self.transform_json_entry, data))
 
-        dev_path = path.join(spider_dir ,'dev.json')
-        gold_out_path = path.join(self.out_dir ,'gold.txt')
+    def transform_query(self):
+        self.transform_json_file("dev.json", "test.json")
+        self.transform_json_file("train.json", "train.json")
+        self.merge_jsons(path.join(self.out_dir, "test.json"),
+                         path.join(self.out_dir, "train.json"),
+                         path.join(self.out_dir, "all.json"))
+        self.transform_gold_file("dev.json", "test.gold.txt")
+        self.transform_gold_file("train.json", "train.gold.txt")
+        self.merge_texts(path.join(self.out_dir, "test.gold.txt"),
+                         path.join(self.out_dir, "train.gold.txt"),
+                         path.join(self.out_dir, "all.gold.txt"))
 
-        with open(dev_path, 'r') as in_file, open(gold_out_path, 'w') as out_file:
-            dev_data = json.load(in_file)
-            list = []
-            for line in dev_data:
-                list.append(f"{line['query']}\t{line["db_id"]}\n")
+    def transform_gold_file(self, in_path, out_path):
+        with open(path.join(self.in_dir, in_path), "r") as in_file, open(
+                path.join(self.out_dir, out_path), "w") as out_file:
+            dev_json_data = json.load(in_file)
+            data = list(map(self.transform_txt_entry, dev_json_data))
+            out_file.writelines(data)
 
-            for line in list:
-                out_file.write(line)
+    def transform_json_file(self, in_path, out_path):
+        with open(path.join(self.in_dir, in_path), "r") as in_file, open(
+                path.join(self.out_dir, out_path), "w") as out_file:
+            dev_json_data = json.load(in_file)
+            dev_json_data_transformed = self.transform_json_data(dev_json_data)
+            out_file.write(json.dumps(dev_json_data_transformed, indent=4))
 
-    def transform_table(self, spider_dir:str):
-        table_path = path.join(spider_dir, "tables.json")
-        tables_out_path = path.join(self.out_dir ,'tables.json')
-        with open(table_path, 'r') as in_file, open(tables_out_path, 'w') as out_file:
-            table = json.load(in_file)
+    def transform_table(self):
+        with open(path.join(self.in_dir, "tables.json"), "r") as in_file, open(
+                path.join(self.out_dir, "tables.json"), "w") as out_file:
+            out_file.writelines(in_file)
 
-            out_file.write(json.dumps(table, indent=4))
+    def merge_jsons(self, a_path, b_path, out_path):
+        with open(a_path, 'r') as dev_table_file, open(b_path, 'r') as train_table_file:
+            with open(out_path, 'w') as out_file:
+                dev_table_data = json.load(dev_table_file)
+                train_table_data = json.load(train_table_file)
+                out_file.write(json.dumps(dev_table_data + train_table_data, indent=4))
+
+    def merge_texts(self, a_path, b_path, out_path):
+        with open(a_path) as a_file, open(b_path) as b_file:
+            with open(out_path, 'w') as out_file:
+                out_file.write(a_file.read())
+                out_file.write(b_file.read())
+
+    def transform_database(self):
+        database_path = path.join(self.in_dir, "database")
+        database_out_path = path.join(self.out_dir, "database")
+        shutil.copytree(database_path, database_out_path)
 
 
 def main():
-    transformer = SpiderTransformer('data/dataset/data')
-    transformer.call_transformers("data/dataset/spider")
-
+    transformer = SpiderTransformer('data/dataset/spider', 'data/dataset/uniform')
+    transformer.transform_query()
+    transformer.transform_table()
+    transformer.transform_database()
 
 
 if __name__ == '__main__':
-        main()
-
+    main()
