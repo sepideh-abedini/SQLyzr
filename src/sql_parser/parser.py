@@ -6,11 +6,11 @@ from .lexer import tokens, logic_ops
 from .lexer import get_lexer
 from .node import *
 
-
 precedence = (
     ('left', 'OR', 'AND'),
     ('left', 'COMP_OP', 'ARITH_OP')
 )
+
 
 def p_select_statement(p):
     '''select_statement : select_core
@@ -73,16 +73,13 @@ def p_column_list(p):
         p[0] = [p[1], p[3]]
 
 
-
-
 def p_common_table_expression(p):
     '''common_table_expression : table_name LPAREN column_list RPAREN AS LPAREN select_statement RPAREN
                                | table_name AS LPAREN select_statement RPAREN'''
-    if len(p)== 6:
+    if len(p) == 6:
         p[0] = CommonTableExpressionNode(p[2], [], p[4])
     else:
         p[0] = CommonTableExpressionNode(p[1], [p[3]], p[7])
-
 
 
 def p_with_clause(p):
@@ -97,8 +94,6 @@ def p_with_clause(p):
             p[0] = p[1] + p[3]
         else:
             p[0] = WithClauseNode(p[3])
-
-
 
 
 def p_result_column(p):
@@ -190,9 +185,9 @@ def p_table_alias(p):
 
 def p_join_clause(p):
     '''join_clause : table_or_subquery join_op table_or_subquery join_constraint
-		| table_or_subquery join_op table_or_subquery
-		| join_clause join_op table_or_subquery join_constraint
-		| join_clause join_op table_or_subquery'''
+                   | table_or_subquery join_op table_or_subquery
+                   | join_clause join_op table_or_subquery join_constraint
+                   | join_clause join_op table_or_subquery'''
 
     if isinstance(p[1], TableOrSubqueryNode):
         if len(p) == 5:
@@ -207,7 +202,8 @@ def p_join_clause(p):
 
 
 def p_join_constraint(p):
-    '''join_constraint : ON expr'''
+    '''join_constraint : ON expr
+                       | USING expr'''
     p[0] = JoinConstraintNode(p[2])
 
 
@@ -262,11 +258,10 @@ def p_fun_expr(p):
             p[0] = FunctionExpressionNode(p[1], [p[4]], distinct=True)
     elif len(p) == 7:
         if isinstance(p[3], SelectStatementNode):
-            p[0] = FunctionExpressionNode(p[1], [p[3],p[5]])
+            p[0] = FunctionExpressionNode(p[1], [p[3], p[5]])
     elif len(p) == 8:
         if isinstance(p[3], SelectStatementNode):
-            p[0] = FunctionExpressionNode(p[1], [p[3],p[5], p[7]])
-
+            p[0] = FunctionExpressionNode(p[1], [p[3], p[5], p[7]])
 
 
 # expr bin_op expr
@@ -292,7 +287,6 @@ def p_bin_op_expr(p):
         p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', 'IN'), p[4])
     elif len(p) == 7:
         p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', 'NOT IN'), p[5])
-
 
 
 def p_expr(p):
@@ -322,6 +316,7 @@ def p_expr(p):
 def p_set_op(p):
     '''set_op : UNION
               | EXCEPT
+              | UNION ALL
               | INTERSECT'''
     p[0] = TerminalNode('set_op', p[1])
 
@@ -340,23 +335,26 @@ def p_bin_op(p):
               | LIKE'''
     p[0] = TerminalNode('bin_op', p[1])
 
+
 def p_join_op(p):
     '''join_op : JOIN
                | INNER JOIN
-               | LEFT JOIN'''
+               | LEFT JOIN
+               | RIGHT JOIN'''
     if len(p) == 2:
         p[0] = TerminalNode('join_op', p[1])
     else:
-        p[0] = TerminalNode('join_op', p[1]+" "+p[2])
+        p[0] = TerminalNode('join_op', p[1] + " " + p[2])
 
 
 def p_type_name(p):
     '''type_name : REAL
                  | FLOAT
                  | INTEGER
-                 | INT'''
+                 | INT
+                 | TEXT
+                 | DATE'''
     p[0] = TerminalNode('type_name', p[1])
-
 
 
 def p_cast_expr(p):
@@ -372,14 +370,18 @@ def p_between_expr(p):
     else:
         p[0] = BetweenExpressionNode(p[1], p[4], p[6])
 
+
 def p_column_alias(p):
     '''column_alias : ID
+                    | STRING
+                    | END
                     | RANK'''
     p[0] = TerminalNode('column_alias', p[1])
 
 
 def p_fun_name(p):
-    '''fun_name : ID'''
+    '''fun_name : ID
+                | DATE'''
     p[0] = TerminalNode('fun_name', p[1])
 
 
@@ -395,22 +397,31 @@ def p_column_name(p):
     '''column_name : ID
                    | STRING
                    | STAR
-                   | RANK'''
+                   | RANK
+                   | DATE
+                   | END
+                   | TEXT'''
     p[0] = TerminalNode('column_name', p[1])
 
 
 def p_win_expr(p):
-    # '''win_expr : win_fun LPAREN RPAREN OVER LPAREN win_def RPAREN'''
     '''win_expr : win_fun LPAREN RPAREN OVER LPAREN win_def RPAREN'''
-    p[0] = WindowExpressionNode(p[1] , p[6])
+    p[0] = WindowExpressionNode(p[1], p[6])
+
+
+def p_over_expr(p):
+    '''over_expr : expr OVER LPAREN PARTITION BY result_column order_by RPAREN'''
+    p[0] = WindowDefinitionNode(p[7], p[6])
+
 
 def p_win_def(p):
     '''win_def : order_by
-                 | PARTITION BY result_column order_by'''
+               | PARTITION BY result_column order_by'''
     if len(p) == 2:
         p[0] = WindowDefinitionNode(p[1])
     else:
-        p[0] = WindowDefinitionNode(p[4] , p[3])
+        p[0] = WindowDefinitionNode(p[4], p[3])
+
 
 def p_win_fun(p):
     '''win_fun : RANK
@@ -419,16 +430,24 @@ def p_win_fun(p):
 
 
 def p_case_expr(p):
-    '''case_expr : CASE WHEN expr THEN expr ELSE expr END
-                 | CASE WHEN expr THEN expr WHEN expr THEN expr END
-                 | CASE WHEN expr THEN expr END'''
-    if len(p) == 7:
-        p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'),[p[3], p[5]])
-    elif len(p) == 9:
-        p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'), [p[3], p[5], p[7]])
-    else:
-        p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'), [p[3], p[5], p[7], p[9]])
+    '''case_expr : CASE case_when_expr END
+                 | CASE expr case_when_expr END'''
+    if len(p) == 4:
+        p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'), p[2])
+    elif len(p) == 5:
+        p[0] = FunctionExpressionNode(TerminalNode('fun_name', 'case'), [p[2]] + p[3])
 
+
+def p_case_when_expr(p):
+    '''case_when_expr : WHEN expr THEN expr
+                      | WHEN expr THEN expr ELSE expr
+                      | WHEN expr THEN expr case_when_expr'''
+    if len(p) == 5:
+        p[0] = [p[2], p[4]]
+    elif len(p) == 7:
+        p[0] = [p[2], p[4], p[6]]
+    else:
+        p[0] = [p[2], p[4]] + p[5]
 
 
 # def p_order_by(p):
@@ -442,12 +461,14 @@ def p_case_expr(p):
 
 def p_literal_list(p):
     '''literal_list : literal_value
-                    | literal_list COMMA literal_value'''
+                    | literal_list COMMA literal_value
+                    | literal_list OR literal_value '''
     if len(p) == 2:
         if isinstance(p[1], LiteralListNode):
             p[0] = p[1] + p[3]
     else:
         p[0] = LiteralListNode([p[2]])
+
 
 # Error rule for syntax errors
 def p_error(p):
@@ -456,14 +477,9 @@ def p_error(p):
     raise SyntaxError(f"{p}")
 
 
-
-
-
 def get_parser():
     parser = yacc.yacc()
     return parser
-
-
 
 
 class SqlParser:
@@ -474,6 +490,6 @@ class SqlParser:
     def parse(self, sql: str) -> SelectStatementNode:
         ast = self.parser.parse(sql)
         if ast:
-            #FIXME: Set raw sql
+            # FIXME: Set raw sql
             pass
         return ast

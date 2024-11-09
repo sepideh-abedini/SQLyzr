@@ -174,7 +174,7 @@ class ColumnNode(ExpressionNode):
 
 @dataclass
 class LiteralNode(ExpressionNode):
-    value: Union[int, str]
+    value: Union[int, str, ExpressionNode]
 
     def accept(self, visitor):
         return visitor.visit_literal(self)

@@ -53,6 +53,7 @@ keywords = {
     'float': 'FLOAT',
     'real': 'REAL',
     'left': 'LEFT',
+    'right': 'RIGHT',
     'rank': 'RANK',
     'dense_rank': 'DENSE_RANK',
     'partition': 'PARTITION',
@@ -62,9 +63,13 @@ keywords = {
     'else': 'ELSE',
     'case': 'CASE',
     'when': 'WHEN',
-    'with' : 'WITH',
-    'recursive' : 'RECURSIVE',
-    'int' : 'INT'
+    'with': 'WITH',
+    'recursive': 'RECURSIVE',
+    'int': 'INT',
+    'text': 'TEXT',
+    'date': 'DATE',
+    'all': 'ALL',
+    'using': 'USING'
 }
 
 reserved = keywords | sort_orders | set_ops | logic_ops
@@ -98,7 +103,7 @@ def t_DATE(t):
 
 
 def t_NUMBER(t):
-    r'(\d+\.\d+)|(\-\d+)|(\d+)'
+    r'(\-\d+\.\d+)|(\d+\.\d+)|(\-\d+)|(\d+)'
     if t.value.isdigit():
         t.value = int(t.value)
     else:
@@ -108,7 +113,7 @@ def t_NUMBER(t):
 
 # r'\'[^\']*\'|\"[^\"]*\"'
 def t_STRING(t):
-    r"\'([^']|'')*\'|\"([^\"]|\"\")*\""
+    r"\'([^']|'')*\'|\"([^\"]|\"\")*\"|\`([^\`]|\`\`)*\`"
     val = str(t.value)
     val = val.replace("\"", "")
     val = val.replace("\'", "")
