@@ -1,4 +1,5 @@
 import json
+from os.path import split
 from typing import Dict
 
 from src.dbutil.database_schema import DatabaseSchema
@@ -15,6 +16,7 @@ class DatabaseSchemaRepo:
             for db in data:
                 schema = DatabaseSchema()
                 for table in db['table_names_original']:
+                    table = split_to_snake(table)
                     schema.tables[table.lower()] = {}
                 for i, col in enumerate(db['column_names_original']):
                     table_idx = col[0]
