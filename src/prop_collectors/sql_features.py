@@ -26,8 +26,7 @@ class SqlFeatures(MergeableVisitorResult):
 
     def merge(self, other: 'SqlFeatures') -> 'SqlFeatures':
         if not isinstance(other, SqlFeatures):
-            raise RuntimeError(
-                f"Invalid type to merge with sql properties:{type(other)}")
+            raise RuntimeError(f"Invalid type to merge with sql properties:{type(other)}")
         kw = {}
         for a in dir(self):
             if not callable(getattr(self, a)) and not a.startswith("_"):

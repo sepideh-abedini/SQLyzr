@@ -1,5 +1,7 @@
 from typing import Dict, List, Set, Tuple, FrozenSet
 
+from util.logger import log
+
 
 class DatabaseSchema:
     tables: Dict[str, Dict[str, str]]  # {table_name -> {col_name -> col_type}}
@@ -11,11 +13,14 @@ class DatabaseSchema:
 
     def get_col_type(self, table_name, col_name) -> str:
         if table_name not in self.tables:
-            raise RuntimeError(f"Table not found: {table_name}")
+            log(f"Table not found: {table_name}")
+            return 'NA'
         table = self.tables[table_name]
-        if col_name not in table:
-            raise RuntimeError(f"Column not found: {col_name}")
-        return table[col_name]
+        if col_name in table:
+            return table[col_name]
+        else:
+            log(f"Column not found: {col_name}")
+            return 'NA'
 
     def get_table_name(self, col_name: str, candidate_tables: List[str]) -> str:
         """Find the table that has a column with the given name by only searching
@@ -23,15 +28,22 @@ class DatabaseSchema:
         matched_tables = []
         for table in candidate_tables:
             if table not in self.tables:
-                raise RuntimeError(
-                    f"Candidate table not found: {table}, Available tables: {self.tables.keys()}")
+                log(f"Candidate table not found: {table}, Available tables: {self.tables.keys()}")
+                return "NA"
             if col_name in self.tables[table]:
                 matched_tables.append(table)
         if len(matched_tables) == 1:
             return matched_tables[0]
         if len(matched_tables) == 0:
-            raise RuntimeError(
-                f"Column not found in candidate tables: {col_name}, {candidate_tables}")
+            log(f"Column not found in candidate tables: {col_name}, {candidate_tables}")
+        for table in self.tables:
+            if col_name in self.tables[table]:
+                matched_tables.append(table)
+        if len(matched_tables) == 1:
+            return matched_tables[0]
+        if len(matched_tables) == 0:
+            log(f"Column not found in candidate tables: {col_name}, {candidate_tables}")
+            return "NA"
         if len(matched_tables) > 1:
-            raise RuntimeError(
-                f"Ambiguous column name: {col_name}, matched tables: {matched_tables}")
+            log(f"Ambiguous column name: {col_name}, matched tables: {matched_tables}")
+            return matched_tables[0]

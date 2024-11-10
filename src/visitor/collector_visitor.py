@@ -10,6 +10,15 @@ class CollectorVisitor(NodeVisitor):
     """Automatically visits all attributes of a node and
     merges the results."""
 
+    def visit_literal_list(self, node: LiteralListNode):
+        return self.visit_node(node)
+
+    def visit_with_clause(self, node: WithClauseNode):
+        return self.visit_node(node)
+
+    def visit_common_table_expression(self, node: CommonTableExpressionNode):
+        return self.visit_node(node)
+
     def visit_window_expression(self, node: WindowExpressionNode):
         return self.visit_node(node)
 

@@ -464,10 +464,9 @@ def p_literal_list(p):
                     | literal_list COMMA literal_value
                     | literal_list OR literal_value '''
     if len(p) == 2:
-        if isinstance(p[1], LiteralListNode):
-            p[0] = p[1] + p[3]
+        p[0] = LiteralListNode([p[1]])
     else:
-        p[0] = LiteralListNode([p[2]])
+        p[0] = p[1] + p[3]
 
 
 # Error rule for syntax errors

@@ -51,6 +51,6 @@ with open(path + "train_gold.sql") as g, open(path + "train_gold.sql") as p:
 #         for m in gold_matched:
 #             file.write(f"{m}")
 
-length = len(g)
-exact_score = scores / length
-print(scores)
+print(f"Errors: {err}")
+print(f"Matched: {scores}")
+print(f"Total: {len(gold_lines)}")

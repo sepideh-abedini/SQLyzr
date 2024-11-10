@@ -118,6 +118,8 @@ def t_STRING(t):
     val = val.replace("\"", "")
     val = val.replace("\'", "")
     val = val.replace("\''", "")
+    val = val.replace("`", "")
+    val = val.lower()
     t.value = val
     return t
 
