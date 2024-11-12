@@ -2,26 +2,18 @@ import json
 import math
 import os
 import shutil
-import subprocess
 import threading
 from abc import ABC, abstractmethod
-from pathlib import Path
 
 import tqdm
 from attr import dataclass
 
-
-def execute_command(command: str):
-    with subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
-        output, errors = p.communicate()
-        print(output, errors)
-    if p.returncode != 0:
-        raise subprocess.CalledProcessError(p.returncode, p.args)
+from src.evaluation.src.models_runner.run_config import ModelRunConfig
 
 
 @dataclass
 class ModelRunner(ABC):
-    dataset_dir: str
+    config: ModelRunConfig
     output_dir: str
     thread_count: int
     temp: float
@@ -39,7 +31,7 @@ class ModelRunner(ABC):
             thread.join()
 
     def split_dataset(self):
-        with (open(os.path.join(self.dataset_dir, "dev.json"), 'r') as file):
+        with (open(self.config.get_query_file_path(), 'r') as file):
             data = json.load(file)
             data_len = len(data)
             chunk_size = math.ceil(data_len / self.thread_count)
@@ -49,13 +41,12 @@ class ModelRunner(ABC):
                 end = start + chunk_size
                 chunked = data[start:end]
 
-                dataset_parent_dir = Path(self.dataset_dir).parent
-                dataset_chunk_dir = f"{dataset_parent_dir}/data_{i}"
-                shutil.copytree(self.dataset_dir, dataset_chunk_dir, dirs_exist_ok=True)
-                dev_json_chunk_path = os.path.join(dataset_chunk_dir, "dev.json")
+                dataset_chunk_dir = self.config.get_chunk_path(i)
+                shutil.copytree(self.config.dataset_path, dataset_chunk_dir, dirs_exist_ok=True)
+                dev_json_chunk_path = os.path.join(dataset_chunk_dir, self.config.query_file)
                 with open(dev_json_chunk_path, 'w') as out_file:
                     json.dump(chunked, out_file, indent=4)
-                gold_txt_chunk_path = os.path.join(dataset_chunk_dir, "gold.txt")
+                gold_txt_chunk_path = os.path.join(dataset_chunk_dir, self.config.gold_file)
                 with open(gold_txt_chunk_path, 'w') as out_file:
                     out_file.writelines("\n".join(list(map(lambda data: f"{data["query"]}\t{data["db_id"]}", chunked))))
 
@@ -75,4 +66,3 @@ class ModelRunner(ABC):
 
                     out.writelines(count_lines[:-1])
             out.write(f"tokens:{all_toks}")
-

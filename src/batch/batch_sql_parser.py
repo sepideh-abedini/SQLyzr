@@ -6,6 +6,7 @@ from tqdm import tqdm
 from src.batch.csv_file_processor import CsvFileProcessor
 from src.sql_parser.node import SqlAstNode
 from src.sql_parser.parser import SqlParser
+from util.logger import log
 
 
 class SqlRow(TypedDict):
@@ -33,10 +34,16 @@ class BatchSqlParser(CsvFileProcessor):
         return asts
 
     def get_ast(self, row: SqlRow) -> SqlAstNode:
-        ast = self.sql_parser.parse(row['sql'])
-        ast.db_id = row['db_id']
-        ast.id = row['id']
-        ast.question = row['question']
+        try:
+            ast = self.sql_parser.parse(row['sql'])
+            ast.db_id = row['db_id']
+            ast.id = row['id']
+            ast.question = row['question']
+            ast.raw_sql = row['sql']
+        except Exception as e:
+            log(e)
+            log(f"Error parsing: {row['db_id']} -> {row['sql']}")
+            ast = None
         return ast
 
     def get_columns(self):

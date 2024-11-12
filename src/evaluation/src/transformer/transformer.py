@@ -7,9 +7,10 @@ from os import path
 
 class Transformer(ABC):
 
-    def __init__(self, in_dir, out_dir):
+    def __init__(self, in_dir, out_dir, num_samples=None):
         self.in_dir = in_dir
         self.out_dir = out_dir
+        self.num_samples = num_samples
 
     @abstractmethod
     def transform_json_entry(self, entry):
@@ -30,7 +31,6 @@ class Transformer(ABC):
     @abstractmethod
     def transform_table(self):
         pass
-
 
     def call_transformers(self, dataset_dir: str):
         self.transform_query(dataset_dir)

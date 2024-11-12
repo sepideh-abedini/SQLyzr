@@ -1,4 +1,4 @@
-LOG_LEVEL = "warn"
+LOG_LEVEL = "DEBUG"
 
 def log(msg):
     if LOG_LEVEL == "DEBUG":

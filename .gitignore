@@ -1,15 +1,14 @@
 .DS_Store
 .venv*
 .idea
+data
 parsetab.py
 *.out
 *.sqlite
 simple
 out
-data
 **/__pycache__
 htmlcov
 .coverage
 tmp
-data
 archive

@@ -8,17 +8,13 @@ from itertools import product
 from collections import defaultdict
 import tqdm
 import random
-from models.test_suite_acc.parse import get_all_preds_for_execution, remove_distinct
-import time
-import pickle as pkl
-import subprocess
+from src.third_party.test_suite_acc.parse import get_all_preds_for_execution, remove_distinct
 from itertools import chain
-
-
 
 threadLock = threading.Lock()
 TIMEOUT = 60
 EXEC_TMP_DIR = 'tmp/'
+
 
 def permute_tuple(element: Tuple, perm: Tuple) -> Tuple:
     assert len(element) == len(perm)
@@ -156,8 +152,9 @@ async def exec_on_db_(sqlite_path: str, query: str) -> Tuple[str, Any]:
         cursor.connection.close()
         return "exception", e
 
+
 async def exec_on_db(
-    sqlite_path: str, query: str, process_id: str = "", timeout: int = TIMEOUT
+        sqlite_path: str, query: str, process_id: str = "", timeout: int = TIMEOUT
 ) -> Tuple[str, Any]:
     try:
         return await asyncio.wait_for(exec_on_db_(sqlite_path, query), timeout)
@@ -181,7 +178,8 @@ def postprocess(query: str) -> str:
 # 0 if denotationally equivalent
 # 1 otherwise
 # the meaning of each auxillary argument can be seen in the parser definition in evaluation.py
-def eval_exec_match(db: str, p_str: str, g_str: str, plug_value: bool, keep_distinct: bool, progress_bar_for_each_datapoint: bool) -> int:
+def eval_exec_match(db: str, p_str: str, g_str: str, plug_value: bool, keep_distinct: bool,
+                    progress_bar_for_each_datapoint: bool) -> int:
     # post-process the prediction.
     # e.g. removing spaces between ">" and "="
     p_str, g_str = postprocess(p_str), postprocess(g_str)

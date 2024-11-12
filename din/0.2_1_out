@@ -1,0 +1,501 @@
+SELECT city_name FROM city WHERE state_name = 'Wyoming' ORDER BY population DESC LIMIT 1 
+SELECT T1.city_name  FROM city AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  WHERE T2.state_name = 'Wyoming'  ORDER BY T1.population DESC  LIMIT 1 
+SELECT city_name FROM city WHERE state_name = 'Wyoming' ORDER BY population DESC LIMIT 1 
+SELECT T2.city_name  FROM state AS T1  JOIN city AS T2 ON T1.state_name = T2.state_name  WHERE T1.state_name = 'Wyoming'  ORDER BY T2.population DESC  LIMIT 1 
+SELECT city_name FROM city WHERE state_name = 'Wyoming' ORDER BY population DESC LIMIT 1 
+SELECT city_name FROM city WHERE state_name = 'Wyoming' ORDER BY population DESC LIMIT 1 
+SELECT city_name  FROM city  JOIN state ON city.state_name = state.state_name  WHERE state.state_name = 'Wyoming'  ORDER BY city.population DESC  LIMIT 1 
+SELECT city_name FROM city WHERE state_name = 'Wyoming' ORDER BY population DESC LIMIT 1 
+SELECT city_name FROM city WHERE state_name = 'Wyoming' ORDER BY population DESC LIMIT 1 
+SELECT city_name FROM city WHERE state_name = 'Wyoming' ORDER BY population DESC LIMIT 1 
+SELECT T1.city_name  FROM city AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  WHERE T2.state_name = 'Wyoming'  ORDER BY T1.population DESC  LIMIT 1 
+SELECT river_name  FROM river  WHERE traverse = (SELECT state_name                    FROM city                    WHERE population = (SELECT max(population) FROM city WHERE country_name = 'US')) 
+SELECT area FROM state WHERE state_name = 'New Mexico' 
+SELECT area FROM state WHERE state_name = 'new mexico' 
+SELECT area FROM state WHERE state_name = 'New Mexico' 
+SELECT area FROM state WHERE state_name = 'new mexico' 
+SELECT area FROM state WHERE state_name = 'new mexico' 
+SELECT area FROM state WHERE state_name = 'new mexico' 
+SELECT population FROM state WHERE state_name = 'california' 
+SELECT population FROM state WHERE state_name = 'california' 
+SELECT population FROM state WHERE state_name = 'california' 
+SELECT population FROM state WHERE state_name = 'California' 
+SELECT population FROM state WHERE state_name = 'California' 
+SELECT population FROM state WHERE state_name = 'California' 
+SELECT population FROM state WHERE state_name = 'california' 
+SELECT population FROM state WHERE state_name = 'California' 
+SELECT population FROM state WHERE state_name = 'California' 
+SELECT population FROM state WHERE state_name = 'California' 
+SELECT population FROM state WHERE state_name = 'California' 
+SELECT population FROM state WHERE state_name = 'california' 
+SELECT state_name FROM state ORDER BY population ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY population ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY population ASC LIMIT 1 
+SELECT city_name FROM city WHERE state_name = 'Texas' 
+SELECT city_name FROM city WHERE state_name = 'Texas' 
+SELECT city_name FROM city WHERE state_name = 'Texas' 
+SELECT city_name FROM city WHERE state_name = 'Texas' 
+SELECT city_name FROM city WHERE state_name = 'Texas' 
+SELECT city_name FROM city WHERE state_name = 'Texas' 
+SELECT area FROM state WHERE capital = 'albany' 
+SELECT lake_name FROM lake WHERE state_name = 'california' 
+SELECT lake_name FROM lake WHERE state_name = 'Michigan' 
+SELECT state_name FROM state 
+SELECT DISTINCT state_name FROM state 
+SELECT state_name FROM state WHERE country_name = 'USA' 
+SELECT DISTINCT T2.state_name  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Ohio River' 
+SELECT DISTINCT T2.state_name  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Ohio' 
+SELECT DISTINCT b.state_name FROM border_info b JOIN river r ON b.border = r.traverse WHERE r.river_name = 'Ohio River'
+SELECT DISTINCT b.state_name FROM border_info b JOIN river r ON b.border = r.traverse WHERE r.river_name = 'Ohio River'
+SELECT DISTINCT T2.state_name  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Ohio' 
+SELECT DISTINCT traverse FROM river WHERE river_name = 'ohio' 
+SELECT DISTINCT T2.state_name  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Ohio' 
+SELECT DISTINCT T1.state_name  FROM state AS T1  JOIN river AS T2 ON T2.traverse = T1.state_name  WHERE T2.river_name = 'Ohio' 
+SELECT DISTINCT T2.state_name  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Ohio River' 
+SELECT DISTINCT     state.state_name FROM     river JOIN     state ON river.traverse = state.state_name WHERE     river.river_name = 'Ohio'
+SELECT DISTINCT T1.state_name  FROM state AS T1  JOIN river AS T2 ON T2.traverse = T1.state_name  WHERE T2.river_name = 'Ohio' 
+SELECT DISTINCT state.state_name FROM state JOIN river ON river.traverse = state.state_name WHERE river.river_name = 'ohio'
+SELECT DISTINCT     state.state_name FROM     river JOIN     state ON river.traverse = state.state_name WHERE     river.river_name = 'Ohio'
+SELECT state_name FROM border_info WHERE border = 'Ohio' 
+SELECT DISTINCT T2.state_name  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'ohio' 
+SELECT DISTINCT S.state_name  FROM state AS S  JOIN river AS R ON R.traverse = S.state_name  WHERE R.river_name = 'Ohio' 
+SELECT state_name FROM state ORDER BY population DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY population DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY population DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY population DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY population DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY population DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY population DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY population DESC LIMIT 1 
+SELECT state_name FROM state WHERE country_name = 'us' ORDER BY population DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY population DESC LIMIT 1 
+SELECT lowest_elevation FROM highlow WHERE state_name = 'pennsylvania' 
+SELECT state_name, highest_point FROM highlow WHERE lowest_elevation = 0 
+SELECT MAX(length) FROM river WHERE country_name = 'usa' 
+SELECT MAX(length) FROM river WHERE country_name = 'USA' 
+SELECT river_name FROM river WHERE traverse LIKE '%Texas%' ORDER BY length DESC LIMIT 1 
+SELECT T1.river_name  FROM river AS T1  JOIN state AS T2  ON T1.traverse = T2.state_name  WHERE T2.state_name = 'Texas'  ORDER BY T1.length DESC  LIMIT 1 
+SELECT river_name FROM river WHERE traverse = 'Texas' ORDER BY length DESC LIMIT 1 
+SELECT river_name FROM river WHERE traverse = 'Texas' ORDER BY length DESC LIMIT 1 
+SELECT river_name FROM river WHERE traverse LIKE '%Texas%' ORDER BY length DESC LIMIT 1 
+SELECT DISTINCT river_name, length FROM river WHERE traverse = 'Texas' ORDER BY length DESC
+SELECT count(river_name)  FROM river  JOIN state ON river.traverse = state.state_name  WHERE state.state_name = 'Idaho' 
+SELECT COUNT(river_name) FROM river WHERE traverse = 'Idaho' 
+SELECT count(DISTINCT T1.river_name)  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T2.state_name = 'Idaho'
+SELECT count(DISTINCT river_name) FROM river WHERE traverse = 'Idaho' 
+SELECT COUNT(DISTINCT river_name) FROM river WHERE traverse LIKE '%Idaho%' 
+SELECT COUNT(DISTINCT river_name)  FROM river  WHERE traverse = 'Idaho' 
+SELECT COUNT(DISTINCT river_name) AS river_count FROM river WHERE traverse = 'Idaho'
+SELECT state_name FROM border_info WHERE border = 'Kentucky' 
+SELECT state_name FROM border_info WHERE border = 'kentucky' 
+SELECT state_name FROM border_info WHERE border = 'Kentucky' 
+SELECT border FROM border_info WHERE state_name = 'kentucky' 
+SELECT state_name FROM border_info WHERE border = 'Kentucky' 
+SELECT DISTINCT border FROM border_info WHERE state_name = 'Kentucky' 
+SELECT DISTINCT border  FROM border_info  WHERE state_name = 'Kentucky' 
+SELECT state_name FROM border_info WHERE border = 'Kentucky' 
+SELECT border FROM border_info WHERE state_name = 'kentucky' 
+SELECT DISTINCT border FROM border_info WHERE state_name = 'Kentucky' 
+SELECT DISTINCT b.state_name FROM border_info b JOIN state s ON b.border = s.state_name WHERE s.state_name = 'kentucky'
+SELECT state_name FROM border_info WHERE border = 'Kentucky' 
+SELECT border FROM border_info WHERE state_name = 'kentucky' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name  FROM river  JOIN state ON river.traverse = state.state_name  WHERE state.state_name = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name  FROM river  JOIN state ON river.traverse = state.state_name  WHERE state.state_name = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT DISTINCT river.river_name FROM river JOIN state ON river.traverse = state.state_name WHERE state.state_name = 'Illinois'
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois'
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT DISTINCT state.state_name FROM city JOIN state ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT DISTINCT state_name, country_name FROM city WHERE city_name = 'Springfield' 
+SELECT DISTINCT T2.state_name  FROM city AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  WHERE T1.city_name = 'Springfield' 
+SELECT DISTINCT state.state_name FROM state JOIN city ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT DISTINCT state.state_name FROM state JOIN city ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT DISTINCT state.state_name FROM city JOIN state ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT DISTINCT state.state_name FROM state JOIN city ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT T2.state_name  FROM city AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  WHERE T1.city_name = 'springfield' 
+SELECT DISTINCT state.state_name FROM city JOIN state ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT DISTINCT state_name FROM city WHERE city_name = 'springfield' 
+SELECT state.state_name FROM city JOIN state ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT DISTINCT state_name FROM city WHERE city_name = 'springfield' 
+SELECT DISTINCT state.state_name FROM state JOIN city ON city.state_name = state.state_name WHERE city.city_name = 'Springfield' AND state.country_name = 'United States'
+SELECT population FROM state WHERE area = (SELECT max(area) FROM state)
+SELECT population FROM state ORDER BY area DESC LIMIT 1 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'boulder city' 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'Boulder' 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'boulder' 
+SELECT population FROM city WHERE city_name = 'boulder'
+SELECT city_name FROM city WHERE state_name = 'Alaska' ORDER BY population ASC LIMIT 1 
+SELECT state_name  FROM state  WHERE state_name IN (     SELECT DISTINCT traverse      FROM river      WHERE length = (         SELECT max(length)          FROM river          WHERE country_name = 'United States'     ) ) 
+SELECT DISTINCT traverse AS state_name  FROM river  WHERE river_name = (SELECT river_name FROM river ORDER BY length DESC LIMIT 1)
+SELECT r.traverse AS state_name FROM river r JOIN state s ON r.traverse = s.state_name ORDER BY r.length DESC LIMIT 1
+SELECT DISTINCT traverse FROM river WHERE length = (SELECT max(length) FROM river) 
+SELECT DISTINCT traverse AS state_name FROM river WHERE length = (SELECT max(length) FROM river) 
+SELECT density FROM state WHERE area = (SELECT min(area) FROM state) 
+SELECT density FROM state WHERE area = (SELECT min(area) FROM state) 
+SELECT DISTINCT s.state_name FROM state s JOIN highlow h ON s.state_name = h.state_name WHERE h.highest_point > (     SELECT highest_point     FROM highlow     WHERE state_name = 'Colorado' )
+SELECT state.state_name  FROM state  JOIN highlow ON state.state_name = highlow.state_name  WHERE highlow.highest_point > (SELECT highest_point FROM highlow WHERE state_name = 'Colorado') 
+SELECT state_name  FROM highlow  WHERE highest_point > (SELECT highest_point FROM highlow WHERE state_name = 'Colorado') 
+SELECT highest_elevation FROM highlow WHERE state_name = 'delaware' 
+SELECT highest_point FROM highlow WHERE state_name = 'Delaware' 
+SELECT highest_elevation FROM highlow WHERE state_name = 'delaware' 
+SELECT highest_point FROM highlow WHERE state_name = 'Delaware' 
+SELECT highest_point FROM highlow WHERE state_name = 'Delaware' 
+SELECT river_name FROM river WHERE country_name = 'us' ORDER BY length DESC LIMIT 1 
+SELECT river_name FROM river WHERE country_name = 'USA' ORDER BY length DESC LIMIT 1 
+SELECT river_name FROM river WHERE country_name = 'America' ORDER BY length DESC LIMIT 1 
+SELECT river_name FROM river WHERE country_name = 'us' ORDER BY length DESC LIMIT 1 
+SELECT river_name FROM river WHERE country_name = 'united states' ORDER BY length DESC LIMIT 1 
+SELECT river_name FROM river WHERE country_name = 'us' ORDER BY length DESC LIMIT 1 
+SELECT river_name FROM river ORDER BY length DESC LIMIT 1 
+SELECT river_name FROM river WHERE country_name = 'United States' ORDER BY length DESC LIMIT 1 
+SELECT state_name FROM city WHERE population = (SELECT MAX(population) FROM city) 
+SELECT To determine which state has the largest city, we need to find the city with the highest population and then identify the state it belongs to. Here's the corrected SQL query:
+SELECT To determine which state has the largest city, we need to compare the populations of cities and identify the state associated with the city that has the highest population. Here's the fixed SQLite SQL query:
+SELECT state_name FROM city WHERE population = (SELECT MAX(population) FROM city)
+SELECT city_name  FROM city  WHERE state_name = (SELECT state_name FROM state ORDER BY area DESC LIMIT 1)  ORDER BY population ASC  LIMIT 1
+SELECT state_name FROM state ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state WHERE country_name = 'United States' ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state WHERE country_name = 'USA' ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state WHERE country_name = 'USA' ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state WHERE country_name = 'us' ORDER BY area DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY area DESC LIMIT 1 
+SELECT DISTINCT h.highest_point FROM highlow h JOIN border_info b ON h.state_name = b.state_name WHERE b.border = 'Mississippi'
+SELECT To address the question 'what are the high points of states surrounding Mississippi,' we need to identify the states that border Mississippi and then find the highest points in those states. Here's the corrected SQL query:
+SELECT DISTINCT h.highest_point FROM highlow h JOIN border_info b ON h.state_name = b.state_name WHERE b.border = 'Colorado'
+SELECT MAX(highest_point)  FROM highlow  WHERE state_name IN (SELECT state_name FROM border_info WHERE border = 'Colorado') 
+SELECT state_name FROM state ORDER BY density ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY density ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY density ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY density ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY density ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY density ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY density ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY density ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY density ASC LIMIT 1 
+SELECT highest_point FROM highlow WHERE state_name = 'Texas' 
+SELECT highlow.highest_point  FROM highlow  JOIN state ON highlow.state_name = state.state_name  WHERE state.state_name = 'Texas' 
+SELECT highest_point FROM highlow WHERE state_name = 'Texas' 
+SELECT mountain_name FROM mountain WHERE state_name = 'Texas' ORDER BY mountain_altitude DESC LIMIT 1 
+SELECT highest_point FROM highlow WHERE state_name = 'Texas' 
+SELECT state_name FROM state WHERE state_name NOT IN (SELECT state_name FROM border_info) 
+SELECT state_name FROM state WHERE state_name NOT IN (SELECT state_name FROM border_info) 
+SELECT state_name FROM state WHERE state_name NOT IN (SELECT DISTINCT state_name FROM border_info) AND state_name NOT IN (SELECT DISTINCT border FROM border_info) 
+SELECT area FROM state ORDER BY density ASC LIMIT 1 
+SELECT count(*)  FROM state  JOIN highlow ON state.state_name = highlow.state_name  WHERE highlow.lowest_elevation < (SELECT lowest_elevation FROM highlow WHERE state_name = 'Alabama')
+SELECT mountain_altitude FROM mountain WHERE mountain_name = 'guadalupe peak' 
+SELECT mountain_altitude FROM mountain WHERE mountain_name = 'guadalupe peak' 
+SELECT MAX(mountain_altitude) FROM mountain WHERE mountain_name = 'Guadalupe Peak' 
+SELECT MAX(highlow.highest_point) AS highest_point FROM highlow JOIN state ON highlow.state_name = state.state_name WHERE state.country_name = 'America'
+SELECT T1.highest_elevation  FROM highlow AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  WHERE T2.country_name = 'united states'  ORDER BY T1.highest_elevation DESC  LIMIT 1 
+SELECT MAX(highest_elevation) FROM highlow WHERE state_name IN (SELECT state_name FROM state WHERE country_name = 'USA') 
+SELECT MAX(highest_elevation) AS highest_point_height FROM highlow JOIN state ON highlow.state_name = state.state_name WHERE state.country_name = 'usa'
+SELECT length FROM river WHERE river_name = 'rio grande' 
+SELECT length FROM river WHERE river_name = 'rio grande' 
+SELECT length FROM river WHERE river_name = 'rio grande' 
+SELECT length FROM river WHERE river_name = 'rio grande'
+SELECT length FROM river WHERE river_name = 'rio grande' 
+SELECT length FROM river WHERE river_name = 'rio grande' 
+SELECT MAX(length) FROM river WHERE traverse = 'Texas' 
+SELECT MAX(length) FROM river WHERE traverse = 'Texas' 
+SELECT COUNT(DISTINCT capital) FROM state WHERE state_name = 'Rhode Island' 
+SELECT COUNT(city_name) FROM city WHERE country_name = 'United States' 
+SELECT COUNT(city_name) FROM city WHERE country_name = 'USA' 
+SELECT COUNT(city_name) FROM city WHERE country_name = 'US' 
+SELECT COUNT(city_name) FROM city WHERE country_name = 'USA' 
+SELECT COUNT(city_name) FROM city WHERE country_name = 'us' 
+SELECT COUNT(DISTINCT city_name) FROM city 
+SELECT MAX(population) FROM city WHERE country_name = 'USA' 
+SELECT COUNT(*) FROM river WHERE river_name = 'colorado' 
+SELECT COUNT(*) FROM river WHERE river_name = 'colorado' 
+SELECT population FROM city WHERE city_name = 'Seattle' AND state_name = 'Washington' 
+SELECT population FROM city WHERE city_name = 'seattle' AND state_name = 'washington' 
+SELECT population FROM city WHERE state_name = 'Alaska' ORDER BY population DESC LIMIT 1 
+SELECT MAX(population) FROM city WHERE state_name = 'Alaska' 
+SELECT city.population  FROM city  JOIN state ON city.state_name = state.state_name  WHERE state.state_name = 'Texas' AND city.city_name = state.capital 
+SELECT c.population FROM city c JOIN state s ON c.state_name = s.state_name WHERE s.state_name = 'Texas' AND c.city_name = s.capital
+SELECT SUM(population) FROM state WHERE country_name = 'United States' 
+SELECT SUM(population) FROM state 
+SELECT COUNT(state_name) FROM state WHERE country_name = 'USA' 
+SELECT COUNT(DISTINCT state_name) FROM state 
+SELECT COUNT(state_name) FROM state WHERE country_name = 'USA' 
+SELECT COUNT(state_name) FROM state WHERE country_name = 'USA' 
+SELECT COUNT(state_name) FROM state WHERE country_name = 'United States' 
+SELECT COUNT(state_name) FROM state WHERE country_name = 'United States' 
+SELECT COUNT(DISTINCT border)  FROM border_info  WHERE state_name = 'kentucky' 
+SELECT COUNT(DISTINCT border_info.border) AS number_of_borders FROM border_info WHERE border_info.state_name = 'Kentucky'
+SELECT count(DISTINCT border) FROM border_info WHERE state_name = 'Kentucky' 
+SELECT COUNT(DISTINCT border_info.state_name) AS number_of_states FROM border_info JOIN state ON border_info.state_name = state.state_name WHERE border_info.border = 'Kentucky'
+SELECT COUNT(DISTINCT border) FROM border_info WHERE state_name = 'Kentucky' 
+SELECT COUNT(DISTINCT border_info.border) AS number_of_bordering_states FROM state JOIN border_info ON state.state_name = border_info.state_name WHERE state.population = (SELECT MAX(population) FROM state)
+SELECT COUNT(DISTINCT s.state_name) AS states_without_rivers FROM state s LEFT JOIN river r ON s.state_name = r.traverse WHERE r.river_name IS NULL
+SELECT To address the given question, we need to determine how many states have a higher point than the highest point of the state with the largest capital city in the US. Here's how we can construct the SQL query:
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT river_name FROM river WHERE traverse = 'Illinois' 
+SELECT DISTINCT r.traverse FROM river r JOIN state s ON r.traverse = s.state_name WHERE s.country_name = 'Texas' ORDER BY r.length DESC LIMIT 1
+SELECT capital FROM state WHERE state_name = 'Texas' 
+SELECT capital FROM state WHERE state_name = 'Texas'
+SELECT capital FROM state WHERE state_name = 'Texas' 
+SELECT capital FROM state WHERE state_name = 'Texas'
+SELECT capital FROM state WHERE state_name = 'texas' 
+SELECT capital FROM state WHERE state_name = 'Texas' 
+SELECT DISTINCT s.capital FROM state s JOIN border_info b ON s.state_name = b.state_name WHERE b.border = 'Texas'
+SELECT DISTINCT city.city_name AS capital FROM city JOIN state ON city.state_name = state.state_name JOIN border_info ON state.state_name = border_info.state_name WHERE border_info.border = 'texas' AND city.city_name = state.capital
+SELECT DISTINCT s.capital FROM state s JOIN border_info b ON s.state_name = b.state_name WHERE b.border = 'Texas'
+SELECT DISTINCT T2.capital  FROM border_info AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  WHERE T1.border = 'Texas' 
+SELECT DISTINCT city.city_name FROM city JOIN river ON city.state_name = river.traverse WHERE river.river_name = 'Mississippi'
+SELECT city_name  FROM city  WHERE state_name = (SELECT state_name FROM highlow ORDER BY highest_point DESC LIMIT 1) 
+SELECT DISTINCT highlow.highest_point, state.state_name  FROM highlow  JOIN state ON highlow.state_name = state.state_name 
+SELECT city_name FROM city WHERE state_name = 'Kansas' 
+SELECT city_name FROM city WHERE state_name = 'Kansas' 
+SELECT city_name FROM city WHERE state_name = 'Kansas' 
+SELECT city_name FROM city WHERE state_name = 'Kansas' 
+SELECT city_name FROM city WHERE state_name = 'Kansas' 
+SELECT city_name FROM city WHERE state_name = 'Kansas' 
+SELECT city_name FROM city WHERE state_name = 'Kansas' 
+SELECT To address the question of identifying major cities in states through which the Mississippi River runs, we need to join the relevant tables based on the foreign keys provided. The 'river' table will help us identify the states the Mississippi River traverses, and the 'city' table will provide the major cities in those states. Here's the corrected SQL query:
+SELECT city_name FROM city WHERE country_name = 'USA' 
+SELECT city_name FROM city WHERE country_name = 'United States' 
+SELECT DISTINCT city_name  FROM city  WHERE country_name IN ('US', 'United States', 'USA')
+SELECT state_name, density FROM state WHERE country_name = 'United States' 
+SELECT DISTINCT state.population FROM state JOIN river ON river.traverse = state.state_name WHERE river.river_name = 'Mississippi'
+SELECT DISTINCT s.state_name, s.population FROM state s JOIN river r ON s.state_name = r.traverse WHERE r.river_name = 'Mississippi'
+SELECT DISTINCT T2.population  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Mississippi' 
+SELECT DISTINCT s.state_name, s.population FROM state s JOIN river r ON s.state_name = r.traverse WHERE r.river_name = 'Mississippi River'
+SELECT DISTINCT T2.population  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Mississippi' 
+SELECT DISTINCT T2.population  FROM river AS T1  JOIN state AS T2  ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Mississippi' 
+SELECT T2.population  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Mississippi' 
+SELECT DISTINCT state.population FROM state JOIN river ON river.traverse = state.state_name WHERE river.river_name = 'Mississippi'
+SELECT DISTINCT s.population FROM state s JOIN border_info b ON s.state_name = b.state_name WHERE b.border = 'texas'
+SELECT city_name, population  FROM city  WHERE state_name = 'Wisconsin' 
+SELECT population FROM city WHERE state_name = 'Wisconsin' 
+SELECT city_name, population FROM city WHERE state_name = 'Wisconsin' 
+SELECT city_name FROM city ORDER BY population DESC LIMIT 1 
+SELECT city.city_name FROM city JOIN state ON city.state_name = state.state_name WHERE state.country_name = 'United States' ORDER BY (city.population / state.area) DESC LIMIT 1
+SELECT city_name FROM city ORDER BY population DESC LIMIT 1 
+SELECT city.city_name FROM city JOIN state ON city.state_name = state.state_name ORDER BY (city.population / state.area) DESC LIMIT 1
+SELECT city_name FROM city WHERE country_name = 'usa' ORDER BY population DESC LIMIT 1 
+SELECT city_name FROM city ORDER BY population DESC LIMIT 1 
+SELECT city_name FROM city ORDER BY population DESC LIMIT 1 
+SELECT city_name FROM city WHERE country_name = 'US' ORDER BY population DESC LIMIT 1 
+SELECT city_name FROM city WHERE country_name = 'usa' ORDER BY population DESC LIMIT 1 
+SELECT city.city_name, city.population FROM city JOIN state ON city.state_name = state.state_name WHERE state.country_name = 'US' AND city.city_name = state.capital ORDER BY city.population DESC LIMIT 1
+SELECT city.city_name, city.population FROM city JOIN state ON city.state_name = state.state_name WHERE state.country_name = 'USA' AND city.city_name = state.capital ORDER BY city.population DESC LIMIT 1
+SELECT city.city_name, city.population FROM city JOIN state ON city.state_name = state.state_name WHERE city.city_name = state.capital ORDER BY city.population DESC LIMIT 1
+SELECT capital FROM state ORDER BY population DESC LIMIT 1 
+SELECT s.capital, MAX(s.population) AS max_population FROM state s WHERE s.country_name = 'USA' GROUP BY s.capital ORDER BY max_population DESC LIMIT 1
+SELECT capital FROM state WHERE country_name = 'US' ORDER BY population DESC LIMIT 1 
+SELECT capital FROM state ORDER BY population DESC LIMIT 1 
+SELECT capital FROM state ORDER BY population DESC LIMIT 1 
+SELECT DISTINCT state.capital FROM state JOIN city ON city.state_name = state.state_name WHERE city.city_name = 'durham'
+SELECT capital FROM state ORDER BY area ASC LIMIT 1 
+SELECT capital FROM state ORDER BY density DESC LIMIT 1 
+SELECT capital FROM state ORDER BY population DESC LIMIT 1 
+SELECT capital FROM state ORDER BY population DESC LIMIT 1 
+SELECT capital  FROM state  WHERE state_name IN (     SELECT traverse      FROM river      WHERE length = (SELECT max(length) FROM river) ) 
+SELECT SUM(area) FROM state 
+SELECT SUM(area) FROM state 
+SELECT SUM(area) FROM state WHERE country_name = 'us' 
+SELECT SUM(area) FROM state WHERE country_name = 'USA' 
+SELECT density FROM state WHERE state_name = 'Wyoming' 
+SELECT density FROM state WHERE state_name = 'Wyoming' 
+SELECT density FROM state WHERE state_name = 'Wyoming' 
+SELECT mountain_name FROM mountain WHERE country_name = 'us' ORDER BY mountain_altitude DESC LIMIT 1 
+SELECT mountain_name FROM mountain WHERE country_name = 'us' ORDER BY mountain_altitude DESC LIMIT 1 
+SELECT mountain_name FROM mountain WHERE country_name = 'America' ORDER BY mountain_altitude DESC LIMIT 1 
+SELECT mountain_name FROM mountain WHERE country_name = 'united states' ORDER BY mountain_altitude DESC LIMIT 1 
+SELECT T1.highest_point  FROM highlow AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  WHERE T2.capital = 'des moines' 
+SELECT highest_point FROM highlow JOIN state ON highlow.state_name = state.state_name WHERE state.capital = 'des moines'
+SELECT h.highest_point FROM highlow h JOIN state s ON h.state_name = s.state_name WHERE s.country_name = 'USA' ORDER BY h.highest_elevation DESC LIMIT 1
+SELECT T1.highest_point  FROM highlow AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  WHERE T2.country_name = 'usa' ORDER BY T1.highest_elevation DESC  LIMIT 1 
+SELECT T1.highest_point  FROM highlow AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  ORDER BY T1.highest_elevation DESC  LIMIT 1 
+SELECT h.highest_point FROM highlow h JOIN state s ON h.state_name = s.state_name WHERE s.country_name = 'US' ORDER BY h.highest_elevation DESC LIMIT 1
+SELECT h.highest_point FROM highlow h JOIN state s ON h.state_name = s.state_name WHERE s.country_name = 'United States' ORDER BY h.highest_elevation DESC LIMIT 1
+SELECT highest_point  FROM highlow  WHERE state_name = (SELECT state_name FROM state ORDER BY density ASC LIMIT 1) 
+SELECT To address the question of finding the largest city in the smallest state through which the Mississippi River runs, we need to follow these steps:
+SELECT city_name  FROM city  WHERE state_name = (     SELECT state_name      FROM state      WHERE country_name = 'USA'      ORDER BY area ASC      LIMIT 1 )  ORDER BY population DESC  LIMIT 1
+SELECT city_name  FROM city  WHERE state_name = (SELECT state_name FROM state ORDER BY area ASC LIMIT 1)  ORDER BY population DESC  LIMIT 1
+SELECT s.state_name FROM state s JOIN border_info b ON s.state_name = b.border WHERE b.state_name = 'california' ORDER BY s.area DESC LIMIT 1
+SELECT s.state_name FROM state s JOIN border_info b ON s.state_name = b.state_name WHERE b.border = 'california' ORDER BY s.area DESC LIMIT 1
+SELECT To address the question 'what state that borders California is the largest,' we need to find the state with the largest area that borders California. Here's how we can construct the SQL query:
+SELECT river_name  FROM river  WHERE traverse = (     SELECT state_name      FROM state      ORDER BY area DESC      LIMIT 1 )  ORDER BY length DESC  LIMIT 1 
+SELECT r.river_name, MAX(r.length) AS longest_length FROM river r JOIN border_info b ON r.traverse = b.state_name WHERE b.border = 'Tennessee' GROUP BY r.river_name ORDER BY longest_length DESC LIMIT 1
+SELECT r.river_name, MAX(r.length) AS max_length FROM river r JOIN border_info b ON r.traverse = b.state_name WHERE b.border = 'tennessee' GROUP BY r.river_name ORDER BY max_length DESC LIMIT 1
+SELECT r.river_name, r.length FROM river r JOIN border_info b ON r.traverse = b.state_name WHERE b.border = 'Tennessee' ORDER BY r.length DESC LIMIT 1
+SELECT river_name  FROM river  WHERE traverse = (     SELECT state_name      FROM city      GROUP BY state_name      ORDER BY COUNT(city_name) DESC      LIMIT 1 )  ORDER BY length DESC  LIMIT 1 
+SELECT lowest_point FROM highlow WHERE state_name = 'Iowa' 
+SELECT lowest_point FROM highlow WHERE state_name = 'Iowa' 
+SELECT lowest_point FROM highlow WHERE state_name = 'Iowa' 
+SELECT lowest_point FROM highlow WHERE state_name = 'Iowa' 
+SELECT lowest_point FROM highlow WHERE state_name = 'Iowa' 
+SELECT lowest_point FROM highlow WHERE state_name = 'Iowa' 
+SELECT To find the lowest point in the USA, we need to query the 'highlow' table, specifically looking for the minimum value in the 'lowest_point' column where the 'country_name' is 'USA'. However, the 'highlow' table does not have a 'country_name' column, so we need to join it with the 'state' table to filter by the country. Here's how the query should be constructed:
+SELECT T1.lowest_point  FROM highlow AS T1  JOIN state AS T2 ON T1.state_name = T2.state_name  WHERE T2.country_name = 'United States'  ORDER BY T1.lowest_elevation ASC  LIMIT 1 
+SELECT hl.lowest_point FROM highlow hl JOIN state s ON hl.state_name = s.state_name WHERE s.country_name = 'US' ORDER BY hl.lowest_elevation ASC LIMIT 1
+SELECT MIN(lowest_point) AS lowest_point_of_us FROM highlow JOIN state ON highlow.state_name = state.state_name WHERE state.country_name = 'US'
+SELECT MIN(highlow.lowest_point) AS lowest_point FROM highlow JOIN river ON highlow.state_name = river.traverse WHERE river.river_name = 'Mississippi'
+SELECT hl.lowest_point FROM highlow hl JOIN river r ON hl.state_name = r.traverse WHERE r.river_name = 'Mississippi'
+SELECT state_name FROM state WHERE country_name = 'usa' ORDER BY density DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY density DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY density DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY density DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY density DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY density DESC LIMIT 1 
+SELECT state_name FROM state WHERE country_name = 'usa' ORDER BY density DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY density DESC LIMIT 1 
+SELECT state_name FROM state ORDER BY density DESC LIMIT 1 
+SELECT s.state_name, s.population FROM state s JOIN river r ON s.state_name = r.traverse WHERE r.river_name = 'Mississippi' ORDER BY s.population DESC LIMIT 1
+SELECT state_name  FROM state  WHERE state_name IN (SELECT traverse FROM river WHERE river_name = 'Mississippi')  ORDER BY population DESC  LIMIT 1 
+SELECT density FROM state ORDER BY area DESC LIMIT 1 
+SELECT population  FROM city  WHERE state_name = (SELECT state_name FROM state ORDER BY area DESC LIMIT 1)  ORDER BY population DESC LIMIT 1 
+SELECT population FROM state ORDER BY area ASC LIMIT 1 
+SELECT population FROM state WHERE density = (SELECT max(density) FROM state) 
+SELECT population FROM state ORDER BY density DESC LIMIT 1 
+SELECT city_name FROM city WHERE country_name = 'USA' ORDER BY population ASC LIMIT 1 
+SELECT city_name FROM city WHERE country_name = 'us' ORDER BY population ASC LIMIT 1 
+SELECT city_name FROM city ORDER BY population ASC LIMIT 1 
+SELECT city_name FROM city ORDER BY population ASC LIMIT 1 
+SELECT s.state_name FROM state s JOIN border_info b ON s.state_name = b.border WHERE b.state_name = 'Texas' ORDER BY s.area ASC LIMIT 1
+SELECT To determine the smallest state that borders Texas, we need to join the 'border_info' table with the 'state' table to find the states that border Texas and then select the one with the smallest area. Here's the corrected SQL query:
+SELECT state.state_name FROM state JOIN border_info ON state.state_name = border_info.state_name WHERE border_info.border = 'texas' ORDER BY state.area ASC LIMIT 1
+SELECT state.state_name FROM state JOIN river ON river.traverse = state.state_name WHERE river.river_name = 'Mississippi' ORDER BY state.area ASC LIMIT 1
+SELECT state_name FROM state ORDER BY area ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY area ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY area ASC LIMIT 1 
+SELECT state_name FROM state WHERE country_name = 'USA' ORDER BY area ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY area ASC LIMIT 1 
+SELECT state_name FROM state ORDER BY area ASC LIMIT 1 
+SELECT SUM(length) FROM river WHERE country_name = 'USA' 
+SELECT river_name  FROM river  GROUP BY river_name  ORDER BY COUNT(DISTINCT traverse) DESC  LIMIT 1 
+SELECT river_name FROM river GROUP BY river_name ORDER BY COUNT(DISTINCT traverse) DESC LIMIT 1 
+SELECT river_name FROM river GROUP BY river_name ORDER BY COUNT(DISTINCT traverse) DESC LIMIT 1 
+SELECT river_name  FROM river  ORDER BY LENGTH(traverse) - LENGTH(REPLACE(traverse, ',', '')) DESC  LIMIT 1 
+SELECT river_name  FROM river  ORDER BY LENGTH(traverse) - LENGTH(REPLACE(traverse, ',', '')) DESC  LIMIT 1 
+SELECT river_name FROM river GROUP BY river_name ORDER BY COUNT(DISTINCT traverse) DESC LIMIT 1 
+SELECT river_name FROM river GROUP BY river_name ORDER BY COUNT(DISTINCT traverse) DESC LIMIT 1 
+SELECT To address the question 'what rivers are in states that border Alabama,' we need to construct a query that identifies rivers in states that share a border with Alabama. Here's the fixed SQL query:
+SELECT DISTINCT river.river_name FROM river JOIN border_info ON river.traverse = border_info.border WHERE border_info.state_name = 'Alabama'
+SELECT DISTINCT river_name  FROM river  WHERE traverse IN (SELECT border FROM border_info WHERE state_name = 'Alabama') 
+SELECT To address the question of finding the state bordering Oklahoma with the largest population, we need to join the 'border_info' table with the 'state' table. The 'border_info' table will help us identify the states that border Oklahoma, and the 'state' table will provide the population information. Here's the corrected SQL query:
+SELECT s.state_name, s.population FROM state s JOIN border_info b ON s.state_name = b.border WHERE b.state_name = 'Oklahoma' ORDER BY s.population DESC LIMIT 1
+SELECT state_name  FROM state  WHERE state_name IN (     SELECT state_name      FROM border_info      WHERE border = 'Oklahoma' )  ORDER BY population DESC  LIMIT 1
+SELECT state.state_name FROM state JOIN border_info ON state.state_name = border_info.state_name WHERE border_info.border = 'Oklahoma' ORDER BY state.population DESC LIMIT 1
+SELECT To address the question, we need to identify the state containing the highest point among those traversed by the Colorado River. Here's how we can construct the SQL query:
+SELECT state_name FROM state ORDER BY LENGTH(capital) DESC LIMIT 1 
+SELECT To determine which state's capital city is the largest, we need to join the 'state' and 'city' tables, as the 'state' table contains information about the capital city. We will then order the results by the population of the capital city in descending order and select the top result. Here's the corrected SQL query:
+SELECT state_name FROM river ORDER BY length DESC LIMIT 1
+SELECT To determine the state with the smallest urban population, we need to aggregate the population of cities within each state and then find the state with the smallest total urban population. Here's the corrected SQL query:
+SELECT DISTINCT state_name  FROM border_info  WHERE border IN (SELECT state_name FROM border_info WHERE border = 'colorado') 
+SELECT To address the question 'what states border states that the Mississippi runs through,' we need to identify states that share a border with states traversed by the Mississippi River. Here's how we can construct the query:
+SELECT DISTINCT b.state_name FROM border_info b JOIN river r ON b.border = r.traverse WHERE r.river_name = 'Mississippi'
+SELECT DISTINCT border FROM border_info WHERE state_name IN (SELECT traverse FROM river WHERE river_name = 'Mississippi') 
+SELECT DISTINCT s.state_name FROM state s JOIN border_info b ON s.state_name = b.border JOIN river r ON s.state_name = r.traverse WHERE b.state_name = 'Texas'
+SELECT border FROM border_info WHERE state_name = (SELECT state_name FROM state ORDER BY population DESC LIMIT 1) 
+SELECT border FROM border_info WHERE state_name = (SELECT state_name FROM state ORDER BY population DESC LIMIT 1) 
+SELECT DISTINCT border  FROM border_info  WHERE state_name = (SELECT state_name FROM state ORDER BY area ASC LIMIT 1) 
+SELECT border FROM border_info WHERE state_name = (SELECT state_name FROM state ORDER BY area ASC LIMIT 1)
+SELECT DISTINCT T2.state_name  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name 
+SELECT DISTINCT state_name, country_name FROM mountain 
+SELECT mountain_name FROM mountain WHERE country_name = 'united states' ORDER BY mountain_altitude DESC LIMIT 1 
+SELECT state.state_name FROM state JOIN highlow ON state.state_name = highlow.state_name ORDER BY highlow.highest_elevation DESC LIMIT 1
+SELECT city_name FROM city ORDER BY population ASC LIMIT 1 
+SELECT s.density FROM river r JOIN state s ON r.traverse = s.state_name WHERE r.length = (SELECT MAX(length) FROM river WHERE country_name = 'United States')
+SELECT mountain_name FROM mountain WHERE state_name != 'Alaska' ORDER BY mountain_altitude DESC LIMIT 1 
+SELECT river_name FROM river WHERE river_name NOT IN (SELECT river_name FROM river WHERE traverse = 'Tennessee')
+SELECT river_name FROM river WHERE river_name NOT IN (SELECT river_name FROM river WHERE traverse = 'Tennessee') 
+SELECT DISTINCT river_name FROM river WHERE country_name != 'USA' 
+SELECT DISTINCT river_name  FROM river  WHERE traverse IN (     SELECT border      FROM border_info      WHERE state_name IN (         SELECT state_name          FROM state          WHERE capital = 'atlanta'     ) ) 
+SELECT DISTINCT river_name FROM river WHERE traverse IN (SELECT border FROM border_info WHERE state_name IN (SELECT state_name FROM state WHERE capital = 'Atlanta')) 
+SELECT capital FROM state ORDER BY population ASC LIMIT 1 
+SELECT state_name FROM highlow ORDER BY highest_elevation DESC LIMIT 1 
+SELECT state_name FROM highlow ORDER BY highest_point DESC LIMIT 1
+SELECT state_name FROM highlow ORDER BY highest_elevation DESC LIMIT 1 
+SELECT state_name FROM highlow WHERE highest_point = (SELECT MAX(highest_point) FROM highlow WHERE state_name IN (SELECT state_name FROM state WHERE country_name = 'USA')) 
+SELECT state_name FROM highlow ORDER BY highest_elevation DESC LIMIT 1 
+SELECT state_name FROM highlow WHERE highest_elevation = (     SELECT MAX(highest_elevation)     FROM highlow     JOIN state ON highlow.state_name = state.state_name     WHERE state.country_name = 'United States' )
+SELECT state_name  FROM highlow  WHERE highest_point = (SELECT MAX(highest_point) FROM highlow) 
+SELECT state_name FROM highlow WHERE highest_point = (     SELECT MAX(highest_point)     FROM highlow )
+SELECT T1.state_name  FROM state AS T1  JOIN highlow AS T2 ON T1.state_name = T2.state_name  ORDER BY T2.lowest_elevation ASC  LIMIT 1 
+SELECT state_name FROM highlow ORDER BY lowest_point ASC LIMIT 1
+SELECT state_name FROM highlow ORDER BY lowest_point LIMIT 1 
+SELECT b.state_name FROM border_info b JOIN highlow h ON b.state_name = h.state_name WHERE b.border = 'Idaho' ORDER BY h.lowest_point ASC LIMIT 1
+SELECT state.state_name FROM state JOIN city ON city.state_name = state.state_name GROUP BY state.state_name ORDER BY AVG(city.population) ASC LIMIT 1
+SELECT T1.state_name  FROM state AS T1  JOIN mountain AS T2 ON T2.state_name = T1.state_name  WHERE T2.mountain_name = 'Mount Whitney' 
+SELECT state_name FROM mountain WHERE mountain_name = 'Mount Whitney'
+SELECT country_name, state_name FROM mountain WHERE mountain_name = 'mount whitney' 
+SELECT country_name, state_name FROM mountain WHERE mountain_name = 'Mount Whitney' 
+SELECT DISTINCT state_name FROM river WHERE traverse IS NOT NULL
+SELECT DISTINCT state.state_name  FROM state  JOIN river ON river.traverse = state.state_name 
+SELECT DISTINCT T1.state_name  FROM state AS T1  JOIN city AS T2 ON T1.state_name = T2.state_name  WHERE T2.city_name = 'Austin' 
+SELECT city.city_name, city.population FROM city JOIN border_info ON city.state_name = border_info.state_name WHERE border_info.border = 'california' ORDER BY city.population DESC LIMIT 1
+SELECT city.city_name, city.population FROM city JOIN border_info ON city.state_name = border_info.state_name WHERE border_info.border = 'California' ORDER BY city.population DESC LIMIT 1
+SELECT count(*)  FROM river  WHERE traverse NOT IN (SELECT state_name FROM state WHERE capital = 'Albany') 
+SELECT river_name FROM river WHERE traverse = 'Texas' ORDER BY length ASC LIMIT 1 
+SELECT city_name  FROM city  WHERE state_name = (     SELECT state_name      FROM state      WHERE country_name = 'US'      ORDER BY area ASC      LIMIT 1 ) 
+SELECT c.population FROM state s JOIN city c ON s.capital = c.city_name AND s.state_name = c.state_name JOIN river r ON s.state_name = r.traverse WHERE r.river_name = 'Mississippi' ORDER BY s.area DESC LIMIT 1
+SELECT river_name FROM river WHERE country_name = 'USA' ORDER BY length ASC LIMIT 1 
+SELECT river_name FROM river ORDER BY length ASC LIMIT 1 
+SELECT river_name FROM river WHERE country_name = 'US' ORDER BY length ASC LIMIT 1 
+SELECT river_name FROM river WHERE country_name = 'united states' ORDER BY length ASC LIMIT 1 
+SELECT river_name FROM river ORDER BY length ASC LIMIT 1 
+SELECT capital  FROM state  WHERE state_name IN (     SELECT border      FROM border_info      WHERE state_name IN (         SELECT border          FROM border_info          WHERE state_name = 'Texas'     ) ) 
+SELECT To address the question 'what is the smallest city of the smallest state in the US,' we need to determine the smallest state by area and then find the city with the smallest population within that state. Here's how you can construct the SQL query:
+SELECT population  FROM state  WHERE area = (     SELECT max(area)      FROM state      WHERE state_name IN (         SELECT border          FROM border_info          WHERE state_name = 'Texas'     ) ) 
+SELECT state_name FROM state WHERE capital = 'Salem' 
+SELECT state_name FROM state WHERE capital = 'Salem' 
+SELECT state_name FROM state WHERE capital = 'Salem' 
+SELECT state_name FROM state WHERE capital = 'Salem' 
+SELECT river_name FROM river WHERE traverse = (SELECT state_name FROM state ORDER BY population DESC LIMIT 1) 
+SELECT state_name  FROM state  WHERE state_name IN (     SELECT border      FROM border_info      WHERE state_name = (         SELECT state_name          FROM state          ORDER BY population DESC          LIMIT 1     ) )  ORDER BY area DESC  LIMIT 1
+SELECT COUNT(*) FROM river WHERE country_name = 'us' 
+SELECT DISTINCT capital FROM state WHERE country_name = 'USA' LIMIT 50 
+SELECT COUNT(DISTINCT state.state_name) AS num_states FROM state JOIN city ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT COUNT(DISTINCT state.state_name) AS number_of_states FROM city JOIN state ON city.state_name = state.state_name WHERE city.city_name = 'springfield'
+SELECT COUNT(DISTINCT state.state_name) AS number_of_states FROM city JOIN state ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT COUNT(DISTINCT state.state_name) AS number_of_states FROM city JOIN state ON city.state_name = state.state_name WHERE city.city_name = 'Springfield'
+SELECT border FROM border_info WHERE state_name = (SELECT state_name FROM state ORDER BY population ASC LIMIT 1) 
+SELECT DISTINCT lake.lake_name FROM lake JOIN border_info ON lake.state_name = border_info.border WHERE border_info.state_name = 'Texas'
+SELECT COUNT(city_name) FROM city WHERE state_name = 'Texas' 
+SELECT COUNT(city_name) FROM city WHERE state_name = 'Texas' 
+SELECT COUNT(city_name) FROM city WHERE state_name = 'Texas' 
+SELECT DISTINCT highest_point FROM highlow 
+SELECT count(DISTINCT T2.state_name)  FROM river AS T1  JOIN state AS T2 ON T1.traverse = T2.state_name  WHERE T1.river_name = 'Missouri' 
+SELECT COUNT(DISTINCT traverse) AS number_of_states FROM river WHERE river_name = 'Missouri River'
+SELECT COUNT(DISTINCT traverse) AS number_of_states FROM river WHERE river_name = 'Missouri River'
+SELECT river_name  FROM river  WHERE traverse = (     SELECT state_name      FROM state      WHERE country_name = 'USA'      ORDER BY area ASC      LIMIT 1 )  ORDER BY length DESC  LIMIT 1 
+SELECT population / area AS avg_population_per_sq_km FROM state WHERE state_name = 'pennsylvania' 
+SELECT To address the question, we need to identify states that border states which themselves border states that border Florida. This involves multiple levels of joins on the 'border_info' table. Here's how you can construct the query:
+SELECT COUNT(DISTINCT state_name)  FROM border_info  WHERE border IS NOT NULL
+SELECT MAX(mountain_altitude) FROM mountain WHERE state_name = 'Texas' 
+SELECT COUNT(DISTINCT border_info.state_name) AS number_of_states FROM border_info AS b1 JOIN border_info AS b2 ON b1.state_name = b2.state_name WHERE b1.border = 'Colorado' AND b2.border = 'New Mexico'
+SELECT COUNT(city_name)  FROM city  WHERE state_name IN (SELECT border FROM border_info WHERE state_name = 'Nebraska')
+SELECT SUM(state.population) AS total_population FROM state JOIN border_info ON state.state_name = border_info.state_name WHERE border_info.border = 'Texas'
+SELECT lake_name FROM lake WHERE country_name = 'United States' 
+SELECT lake_name FROM lake WHERE country_name = 'us' 
+SELECT lake_name FROM lake WHERE country_name = 'us' 
+tokens:4441994

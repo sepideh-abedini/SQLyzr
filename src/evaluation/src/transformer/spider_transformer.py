@@ -33,10 +33,16 @@ class SpiderTransformer(Transformer):
                          path.join(self.out_dir, "train.gold.txt"),
                          path.join(self.out_dir, "all.gold.txt"))
 
+    def get_sampled_data(self, data):
+        if self.num_samples:
+            return data[:self.num_samples]
+        return data
+
     def transform_gold_file(self, in_path, out_path):
         with open(path.join(self.in_dir, in_path), "r") as in_file, open(
                 path.join(self.out_dir, out_path), "w") as out_file:
             dev_json_data = json.load(in_file)
+            dev_json_data = self.get_sampled_data(dev_json_data)
             data = list(map(self.transform_txt_entry, dev_json_data))
             out_file.writelines(data)
 
@@ -44,6 +50,7 @@ class SpiderTransformer(Transformer):
         with open(path.join(self.in_dir, in_path), "r") as in_file, open(
                 path.join(self.out_dir, out_path), "w") as out_file:
             dev_json_data = json.load(in_file)
+            dev_json_data = self.get_sampled_data(dev_json_data)
             dev_json_data_transformed = self.transform_json_data(dev_json_data)
             out_file.write(json.dumps(dev_json_data_transformed, indent=4))
 
@@ -68,11 +75,11 @@ class SpiderTransformer(Transformer):
     def transform_database(self):
         database_path = path.join(self.in_dir, "database")
         database_out_path = path.join(self.out_dir, "database")
-        shutil.copytree(database_path, database_out_path)
+        shutil.copytree(database_path, database_out_path, dirs_exist_ok=True)
 
 
 def main():
-    transformer = SpiderTransformer('data/dataset/spider', 'data/dataset/uniform')
+    transformer = SpiderTransformer('data/dataset/spider', 'data/dataset/uniform', 4)
     transformer.transform_query()
     transformer.transform_table()
     transformer.transform_database()

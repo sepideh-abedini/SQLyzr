@@ -16,9 +16,9 @@ class BatchAstExporterProcessor(ABC, Generic[T]):
     def __init__(self, out_path: str):
         self.out_path = out_path
 
-    def process(self, ast: List[SqlAstNode]):
+    def process(self, ast_list: List[SqlAstNode]):
         # ****IMPORTANT NOTE!**** Multi thread processing might change the order of data!
-        data = process_multi_thread(self.process_ast, ast, self.__class__.__name__)
+        data = process_multi_thread(self.process_ast, ast_list, self.__class__.__name__)
         df = DataFrame(data)
         save_csv(df, self.out_path)
         return df
