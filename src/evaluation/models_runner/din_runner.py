@@ -4,7 +4,7 @@ from src.evaluation.src.evaluator.lib import execute_command
 from src.evaluation.src.models_runner.run_config import ModelEvalConfig
 from src.evaluation.src.models_runner.runner import ModelRunner
 
-DIN_FILE = 'src/third_party/din_gen/DIN-SQL.py'
+DIN_FILE = 'src/third_party/din_gen/din.py'
 
 
 class DinRunner(ModelRunner):

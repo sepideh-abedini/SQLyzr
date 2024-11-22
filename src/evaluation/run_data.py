@@ -32,7 +32,7 @@ def run_model(args, temp):
         dataset_dir=dataset_dir,
         output=args.output,
         temp=temp,
-        din_file="models/din_gen/DIN-SQL.py"
+        din_file="models/din_gen/din.py"
     )
 
     token = "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"

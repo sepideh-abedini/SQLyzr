@@ -13,3 +13,4 @@ htmlcov
 tmp
 archive
 src/third_party
+.env
