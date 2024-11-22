@@ -24,7 +24,7 @@ def log(*args):
         print(*args)
 
 
-def confidence_level_interval(column: pd.Series) -> float:
+def confidence_level_interval(column: pd.Series) -> str:
     CONFIDENCE = 0.95
     Z = 1.65
     SE = column.std() / math.sqrt(column.size)
@@ -32,7 +32,8 @@ def confidence_level_interval(column: pd.Series) -> float:
     mean = column.mean()
     interval_start = mean - err_margin
     interval_end = mean + err_margin
-    return "({:.3f}, {:.3f})".format(interval_start, interval_end)
+    return "({:.2f}%, {:.2f}%)".format(interval_start * 100, interval_end * 100)
+    # return f"({interval_start}, {interval_end})"
 
 
 def exec_sql(db_path, sql):

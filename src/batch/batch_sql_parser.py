@@ -6,7 +6,7 @@ from tqdm import tqdm
 from src.batch.csv_file_processor import CsvFileProcessor
 from src.sql_parser.node import SqlAstNode
 from src.sql_parser.parser import SqlParser
-from util.logger import log
+from src.util.logger import log
 
 
 class SqlRow(TypedDict):

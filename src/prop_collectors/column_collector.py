@@ -9,7 +9,7 @@ from src.dbutil.database_schema import DatabaseSchema
 from src.prop_collectors.sql_features import SqlFeatures
 from src.prop_collectors.database_column import DatabaseColumn, STAR_COLUMN
 from src.visitor.collector_visitor import CollectorVisitor
-from util.str_utils import split_to_snake
+from src.util.str_utils import split_to_snake
 
 
 class ColumnCollector(CollectorVisitor):

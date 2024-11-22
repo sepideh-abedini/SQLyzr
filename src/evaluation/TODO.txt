@@ -1,9 +1,0 @@
-Write a run_data.py that receives a single argument specifying the model (din|dail)
-and writes the output (prediction result) into the "pred.txt" file.
-
-Example:
-python3 run_data.py din
-python3 run_data.py dail
-
-Output:
-a file "pred.txt" containing the predictions.

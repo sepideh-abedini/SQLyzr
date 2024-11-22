@@ -14,14 +14,14 @@ from src.batch.spider_pre_processor import SpiderPreProcessor
 from src.evaluation.my_exe_eval import exec_sql
 from exact_match import ExactMatchParser
 from src.evaluation.lib import Timer
-from src.evaluation.src.models_runner.run_config import ModelRunConfig
+from src.evaluation.src.models_runner.run_config import ModelEvalConfig
 from src.evaluation.src.models_runner.din_runner import DinRunner
 from src.third_party.spider.evaluation import eval_exact_match
 from src.third_party.test_suite_acc.evaluation import test_suite_exec_acc
 
 
 class DinModelEvaluator:
-    config: ModelRunConfig
+    config: ModelEvalConfig
 
     def __init__(self, config, pred_dir, temps, itrs, threads):
         self.df = pd.DataFrame()
@@ -31,17 +31,17 @@ class DinModelEvaluator:
         self.pred_dir = pred_dir
         self.thread_count = threads
         self.score_metrics = {
-            'token_score': self.calc_token_usage_score,
-            'exact_match': self.calc_exact_match,
-            'spider_exact_match': self.calc_spider_exact_match,
-            'exec_score': self.calc_exec_acc,
-            'test_suit_score': self.calc_test_suit_acc,
-            'sql_exec_time': self.total_sql_exec_time,
+            # 'token_score': self.calc_token_usage_score,
+            # 'exact_match': self.calc_exact_match,
+            # 'spider_exact_match': self.calc_spider_exact_match,
+            # 'exec_score': self.calc_exec_acc,
+            # 'test_suit_score': self.calc_test_suit_acc,
+            # 'sql_exec_time': self.total_sql_exec_time,
             'count': self.get_gold_queries_count
         }
 
     def get_pred_file_path(self, temp, itr):
-        return os.path.join(self.pred_dir, f"{temp}_{itr + 1}_out")
+        return os.path.join(self.pred_dir, f"{temp}_{itr}.out")
 
     def evaluate(self, skip: bool = False):
         model_exec_times = {}
@@ -60,8 +60,6 @@ class DinModelEvaluator:
                     exec_time = model_exec_times[temp][itr]
                 self.calc_single_run_metrics(temp, itr, exec_time)
 
-        # print("_______created dataframe_______\n", self.df[['temp','exact_score','test_suit_acc',
-        #                                                     'spider_exact_score','exec_score', 'total_sql_exec_time']])
         means = self.df.groupby('temp').mean()
         means.columns = [col + '_mean' for col in means.columns]
 
@@ -176,7 +174,7 @@ class DinModelEvaluator:
             db_dir=self.config.get_database_path(),
             table=self.config.get_tables_file_path()
         )
-        return test_suite_acc * 100
+        return test_suite_acc
 
     def calc_spider_exact_match(self, temp, itr):
         exact_match = eval_exact_match(
@@ -198,24 +196,23 @@ def main():
     parser.add_argument("--itrs", type=int, help='number of iterations')
     parser.add_argument("--thread_count", type=int, default=4, help='number of threads')
 
-    config = ModelRunConfig(dataset_path="data/dataset/uniform",
-                            query_file="all.json",
-                            gold_file="all.gold.txt",
-                            database_dir="database",
-                            tables_file="tables.json")
+    config = ModelEvalConfig(dataset_path="data/spider",
+                             query_file="dev.json",
+                             gold_file="dev_gold.sql",
+                             database_dir="database",
+                             tables_file="tables.json")
     args = parser.parse_args()
 
-    preprocessor = SpiderPreProcessor(config.get_query_file_path(), "out/spider.csv" )
+    preprocessor = SpiderPreProcessor(config.get_query_file_path(), "data/out/spider.csv")
     preprocessor.process()
 
-    parser = BatchSqlParser("out/spider.csv")
+    parser = BatchSqlParser("data/out/spider.csv")
     ASTlist = parser.process()
-
-    categorizer = BatchCategoryExporter("out/spider_categories.csv")
+    #
+    categorizer = BatchCategoryExporter("data/out/spider_categories.csv")
     df = categorizer.process(ASTlist)
-    evaluator = DinModelEvaluator(config, "data/out/din", args.temps, args.itrs, args.thread_count)
+    evaluator = DinModelEvaluator(config, "data/out/din_gen", args.temps, args.itrs, args.thread_count)
     evaluator.evaluate(skip=True)
-
 
     # evaluator.evaluate(skip=False)
 

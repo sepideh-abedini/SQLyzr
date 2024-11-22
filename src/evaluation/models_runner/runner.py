@@ -8,12 +8,12 @@ from abc import ABC, abstractmethod
 import tqdm
 from attr import dataclass
 
-from src.evaluation.src.models_runner.run_config import ModelRunConfig
+from src.evaluation.src.models_runner.run_config import ModelEvalConfig
 
 
 @dataclass
 class ModelRunner(ABC):
-    config: ModelRunConfig
+    config: ModelEvalConfig
     output_dir: str
     thread_count: int
     temp: float

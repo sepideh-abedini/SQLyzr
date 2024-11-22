@@ -27,12 +27,12 @@ def run_model(args, temp):
     timer.start()
     dataset_dir = f"models/{args.dataset}"
 
-    DIN_command = "python3 models/din/{din_file} --dataset {dataset_dir} --output {output} --temp {temp}".format(
+    DIN_command = "python3 models/din_gen/{din_file} --dataset {dataset_dir} --output {output} --temp {temp}".format(
         model_file=args.model,
         dataset_dir=dataset_dir,
         output=args.output,
         temp=temp,
-        din_file="models/din/DIN-SQL.py"
+        din_file="models/din_gen/DIN-SQL.py"
     )
 
     token = "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"
@@ -44,7 +44,7 @@ def run_model(args, temp):
 
     # if(args.model == "dail"):
     #     os.system(DAIL_command)
-    # elif(args.model == "din"):
+    # elif(args.model == "din_gen"):
     # os.system(DIN_command)
     res = os.system(DAIL_command)
 
@@ -146,20 +146,20 @@ def one_time_run_data(args, temp):
 
     total_tokens = read_total_tokens(args)
 
-    dev_json_path = '{}/dev.json'.format(args.dataset)  # args.dataset = models/din/sample_data
+    dev_json_path = '{}/dev.json'.format(args.dataset)  # args.dataset = models/din_gen/sample_data
     add_db_name_to_gold_sql(dev_json_path)
 
     exact_match = eval_exact_match(
         gold='{}.final'.format(dev_json_path),
-        pred=args.output,  # args.output = din.pred.out
-        db_dir='{}/database'.format(args.dataset),  # args.dataset = models/din/sample_data
+        pred=args.output,  # args.output = din_gen.pred.out
+        db_dir='{}/database'.format(args.dataset),  # args.dataset = models/din_gen/sample_data
         table='{}/tables.json'.format(args.dataset)
     )
     #
     test_suite_acc = test_suite_exec_acc(
         gold='{}.final'.format(dev_json_path),
-        pred=args.output,  # args.output = din.pred.out
-        db_dir='{}/database'.format(args.dataset),  # args.dataset = models/din/sample_data
+        pred=args.output,  # args.output = din_gen.pred.out
+        db_dir='{}/database'.format(args.dataset),  # args.dataset = models/din_gen/sample_data
         table='{}/tables.json'.format(args.dataset)
     )
 

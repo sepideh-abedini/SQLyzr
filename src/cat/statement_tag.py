@@ -24,6 +24,7 @@ class SelectType(OrderedTag):
     SingleColumn = 1
     MultiColumn = 2
 
+
 class DataTypes(StatementTag):
     Numeric = auto()
     String = auto()
@@ -60,6 +61,7 @@ class JoinConditions(OrderedTag):
     UnconditionalJoin = 1
     ConditionalJoin = 2
 
+
 class JoinType(StatementTag):
     OuterJoin = auto()
     InnerJoin = auto()
@@ -68,10 +70,12 @@ class JoinType(StatementTag):
     LeftOuterJoin = auto()
     RightOuterJoin = auto()
 
+
 class JoinTables(OrderedTag):
     SingleJoin = 1
     TwoJoin = 2
     MultiJoin = 3
+
 
 class ExtraKeywords(StatementTag):
     Distinct = auto()
@@ -81,8 +85,9 @@ class ExtraKeywords(StatementTag):
     LIKE = auto()
     BETWEEN = auto()
     IS_NULL = auto()
-    IN =  auto()
+    IN = auto()
     EXISTS = auto()
+
 
 class AggregateFuncs(StatementTag):
     MAX = auto()
@@ -96,6 +101,7 @@ class StructureType(StatementTag):
     Compound = auto()
     Nested = auto()
 
+
 class Nested(StatementTag):
     Zero = 0
     One = 1
@@ -108,4 +114,3 @@ class WindowFunction(StatementTag):
     WITH = auto()
     CASE = auto()
     WITH_RECURSIVE = auto()
-

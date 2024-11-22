@@ -1,3 +1,0 @@
-SELECT city_name FROM city WHERE state_name = 'Wyoming' ORDER BY population DESC LIMIT 1 
-SELECT city_name FROM city WHERE state_name = 'Wyoming' ORDER BY population DESC LIMIT 1 
-tokens:16570

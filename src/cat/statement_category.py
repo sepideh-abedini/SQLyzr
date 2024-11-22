@@ -1,18 +1,18 @@
 from typing import Set
 
-from src.cat.tag_set import TagSet
+from src.cat.sub_category import SubCategory
 
 
 class StatementCategory:
     name: str
-    tag_sets: Set[TagSet]
+    sub_cats: Set[SubCategory]
 
-    def __init__(self, name: str, *tag_sets: TagSet):
+    def __init__(self, name: str, *tag_sets: SubCategory):
         self.name = name
-        self.tag_sets = set(tag_sets)
+        self.sub_cats = set(tag_sets)
 
-    def matches(self, feature_set: TagSet):
-        for fs in self.tag_sets:
+    def matches(self, feature_set: SubCategory):
+        for fs in self.sub_cats:
             if feature_set >= fs:
-                return True
-        return False
+                return fs
+        return None

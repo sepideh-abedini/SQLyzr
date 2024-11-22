@@ -4,12 +4,15 @@ from pathlib import Path
 
 
 @dataclass
-class ModelRunConfig:
+class ModelEvalConfig:
     dataset_path: str
+    pred_dir: str
+    eval_dir: str
     tables_file: str
     query_file: str  # json file containing the nl query
     gold_file: str  # a file containing gold sql corresponding to the query file
     database_dir: str
+    scores_file: str
 
     def get_sub_path(self, path: str):
         return os.path.join(self.dataset_path, path)
@@ -34,3 +37,21 @@ class ModelRunConfig:
 
     def get_chunk_path(self, i: int):
         return os.path.join(self.get_parent_dir(), f"{self.get_dataset_dir()}_{i}")
+
+    def get_pred_path(self, temp: float, itr: int):
+        return os.path.join(self.pred_dir, f"{temp}_{itr}.out")
+
+    def get_eval_data_path(self, temp: float, itr: int):
+        return os.path.join(self.eval_dir, f"{temp}_{itr}.csv")
+
+    def get_gold_path_per_cat(self, temp: float, itr: int, cat: str):
+        return os.path.join(self.eval_dir, f"{temp}_{itr}_{cat}.gold")
+
+    def get_pred_path_per_cat(self, temp: float, itr: int, cat: str):
+        return os.path.join(self.eval_dir, f"{temp}_{itr}_{cat}.pred")
+
+    def get_scores_path(self, sub: str = ""):
+        return os.path.join(self.eval_dir, f"scores_{sub}.csv")
+
+    def get_database_file_path(self, db_id: str):
+        return os.path.join(self.dataset_path, self.database_dir, db_id, f"{db_id}.sqlite")

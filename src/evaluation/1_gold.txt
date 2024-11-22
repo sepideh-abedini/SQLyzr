@@ -1,1 +1,0 @@
-SELECT Name FROM country WHERE continent  =  'Europe' AND Population  =  '80000'	world_1

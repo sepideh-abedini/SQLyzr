@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import Optional, Union, Tuple, List, Set
 
-from dbutil.database_schema import DatabaseSchema
+from src.dbutil.database_schema import DatabaseSchema
 
 
 class SqlAstNode(ABC):

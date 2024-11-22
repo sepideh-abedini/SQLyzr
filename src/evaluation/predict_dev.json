@@ -1,4 +1,0 @@
-{
-    "0": "SELECT MAX(CAST('Free Meal Count (K-12)' AS FLOAT) / CAST('Enrollment (K-12)' AS FLOAT)) AS 'Highest Eligible Free Rate' FROM frpm WHERE County = 'Alameda'\t----- bird -----\tcalifornia_schools",
-    "1": "SELECT T1.'Free Meal Count (Ages 5-17)' / T1.'Enrollment (Ages 5-17)' AS 'Eligible Free Rate' FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.'CDSCode' = T2.'CDSCode' WHERE T2.'School Type' = 'Continuation School' ORDER BY 'Eligible Free Rate' ASC LIMIT 3\t----- bird -----\tcalifornia_schools"
-}

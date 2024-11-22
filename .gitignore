@@ -12,3 +12,4 @@ htmlcov
 .coverage
 tmp
 archive
+src/third_party

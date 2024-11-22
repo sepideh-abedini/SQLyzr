@@ -1,6 +1,6 @@
 from typing import Dict, List, Set, Tuple, FrozenSet
 
-from util.logger import log
+from src.util.logger import log
 
 
 class DatabaseSchema:

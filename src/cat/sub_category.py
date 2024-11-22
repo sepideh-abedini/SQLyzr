@@ -5,11 +5,11 @@ from src.cat.statement_tag import StatementTag
 
 
 @dataclass(eq=True, frozen=True)
-class TagSet:
+class SubCategory:
+    name: str
     tags: FrozenSet[StatementTag]
-    name: str = ''
 
-    def __ge__(self, other: 'TagSet'):
+    def __ge__(self, other: 'SubCategory'):
         for tag in other.tags:
             if not self.has_greater(tag):
                 return False
@@ -27,7 +27,7 @@ class TagSet:
     def __add__(self, other):
         if isinstance(other, StatementTag):
             return replace(self, tags=self.tags.union({other}))
-        if isinstance(other, TagSet):
+        if isinstance(other, SubCategory):
             return replace(self, tags=self.tags.union(other.tags))
         raise RuntimeError(f"Invalid add operand type {type(other)}")
 
@@ -45,4 +45,4 @@ class TagSet:
             for ot in self.tags:
                 if t != ot and ot >= t:
                     to_remove.add(t)
-        return TagSet(frozenset(self.tags.difference(to_remove)))
+        return SubCategory(frozenset(self.tags.difference(to_remove)))

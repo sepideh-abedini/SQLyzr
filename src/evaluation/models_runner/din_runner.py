@@ -1,10 +1,10 @@
 import shutil
 
-from evaluation.src.evaluator.lib import execute_command
-from evaluation.src.models_runner.run_config import ModelRunConfig
+from src.evaluation.src.evaluator.lib import execute_command
+from src.evaluation.src.models_runner.run_config import ModelEvalConfig
 from src.evaluation.src.models_runner.runner import ModelRunner
 
-DIN_FILE = 'src/third_party/din/DIN-SQL.py'
+DIN_FILE = 'src/third_party/din_gen/DIN-SQL.py'
 
 
 class DinRunner(ModelRunner):
@@ -20,12 +20,12 @@ class DinRunner(ModelRunner):
 
 
 def main():
-    config = ModelRunConfig(dataset_path="data/dataset/uniform",
-                            query_file="test.json",
-                            gold_file="test.gold.txt",
-                            database_dir="database",
-                            tables_file="tables.json")
-    runner = DinRunner(config=config, output_dir="data/out/din/pred.sql", thread_count=2, temp=1)
+    config = ModelEvalConfig(dataset_path="data/dataset/uniform",
+                             query_file="test.json",
+                             gold_file="test.gold.txt",
+                             database_dir="database",
+                             tables_file="tables.json")
+    runner = DinRunner(config=config, output_dir="data/out/din_gen/pred.sql", thread_count=2, temp=1)
     runner.convert_dataset()
     runner.run()
     runner.merge_results()

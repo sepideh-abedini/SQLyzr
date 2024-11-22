@@ -1,13 +1,13 @@
-from src.cat.tag_set import TagSet
+from src.cat.sub_category import SubCategory
 from src.cat.statement_tag import *
 from src.visitor.visitor_result import MergeableVisitorResult
 
 
 class TagCollectorResult(MergeableVisitorResult):
-    tag_set: TagSet
+    tag_set: SubCategory
 
     def __init__(self, *tags: StatementTag):
-        self.tag_set = TagSet(frozenset([*tags]))
+        self.tag_set = SubCategory('', frozenset([*tags]))
 
     def merge(self, other):
         if isinstance(other, TagCollectorResult):
