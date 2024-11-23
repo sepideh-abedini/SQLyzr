@@ -7,12 +7,13 @@ import attr
 import numpy as np
 import torch
 
-from utils.linking_utils import abstract_preproc, corenlp, serialization
-from utils.linking_utils.spider_match_utils import (
+from src.third_party.dail.utils.linking_utils import abstract_preproc, corenlp, serialization
+from src.third_party.dail.utils.linking_utils.spider_match_utils import (
     compute_schema_linking,
     compute_cell_value_linking,
     match_shift
 )
+
 
 @attr.s
 class PreprocessedSchema:
@@ -106,7 +107,6 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
 
     def __init__(
             self,
-            save_path,
             min_freq=3,
             max_count=5000,
             include_table_name_in_column=True,
@@ -120,7 +120,6 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
         else:
             self.word_emb = word_emb
 
-        self.data_dir = os.path.join(save_path, 'enc')
         self.include_table_name_in_column = include_table_name_in_column
         # self.count_tokens_in_word_emb_for_vocab = count_tokens_in_word_emb_for_vocab
         self.fix_issue_16_primary_keys = fix_issue_16_primary_keys
@@ -195,30 +194,20 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
             return self.word_emb.tokenize_for_copying(unsplit)
         return presplit, presplit
 
-    def save(self):
-        os.makedirs(self.data_dir, exist_ok=True)
-        # self.vocab = self.vocab_builder.finish()
-        # print(f"{len(self.vocab)} words in vocab")
-        # self.vocab.save(self.vocab_path)
-        # self.vocab_builder.save(self.vocab_word_freq_path)
+    def save(self, output_path, section):
+        texts = self.texts[section]
+        with open(output_path, 'w') as f:
+            for text in texts:
+                f.write(json.dumps(text) + '\n')
 
-        for section, texts in self.texts.items():
-            with open(os.path.join(self.data_dir, section + '_schema-linking.jsonl'), 'w') as f:
-                for text in texts:
-                    f.write(json.dumps(text) + '\n')
-
-    def load(self, sections):
-        # self.vocab = vocab.Vocab.load(self.vocab_path)
-        # self.vocab_builder.load(self.vocab_word_freq_path)
-        for section in sections:
-            self.texts[section] = []
-            with open(os.path.join(self.data_dir, section + '_schema-linking.jsonl'), 'r') as f:
-                for line in f.readlines():
-                    if line.strip():
-                        self.texts[section].append(json.loads(line))
+    def load(self, input_path, section):
+        self.texts[section] = []
+        with open(input_path, 'r') as f:
+            for line in f.readlines():
+                if line.strip():
+                    self.texts[section].append(json.loads(line))
 
     def dataset(self, section):
         return [
             json.loads(line)
             for line in open(os.path.join(self.data_dir, section + '.jsonl'))]
-

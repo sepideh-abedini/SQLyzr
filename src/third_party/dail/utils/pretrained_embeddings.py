@@ -1,14 +1,11 @@
 import abc
 import functools
 import os
-import time
 
-import bpemb
 import corenlp
-import torch
 import torchtext
 
-from utils.linking_utils import corenlp
+from src.third_party.dail.utils.linking_utils import corenlp
 
 
 class Embedder(metaclass=abc.ABCMeta):

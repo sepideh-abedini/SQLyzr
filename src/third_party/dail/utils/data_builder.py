@@ -1,11 +1,113 @@
 import json
 import os
+from dataclasses import dataclass
 
-from src.models.dail.utils.utils import get_tables, sql2skeleton
-from src.models.dail.utils.linking_utils.application import get_question_pattern_with_schema_linking
+from src.third_party.dail.utils.utils import get_tables, sql2skeleton
+from src.third_party.dail.utils.linking_utils.application import get_question_pattern_with_schema_linking
 
 
-class BasicDataset(object):
+@dataclass
+class BasicDataset:
+    tables_path: str
+    db_path: str
+    train_json: str
+    path_train_schema_linking: str
+    databases = None
+
+    def get_databases(self):
+        if self.databases is None:
+            self.databases = dict()
+            # for db_id in os.listdir(self.path_db):
+            #     self.databases[db_id] = self.get_tables(db_id)
+            with open(self.tables_path) as f:
+                tables = json.load(f)
+                for tj in tables:
+                    db_id = tj["db_id"]
+                    self.databases[db_id] = self.get_tables(db_id)
+        return self.databases
+
+    def get_tables(self, db_id):
+        if db_id in self.databases:
+            return self.databases[db_id]
+        else:
+            path_db = os.path.join(self.db_path, db_id, db_id + ".sqlite")
+            tables = get_tables(path_db)
+            self.databases[db_id] = tables
+            return tables
+
+    def get_train_json(self):
+        datas = json.load(open(self.train_json, "r"))
+        linking_infos = self.get_train_schema_linking()
+        db_id_to_table_json = dict()
+        for table_json in self.get_table_json():
+            db_id_to_table_json[table_json["db_id"]] = table_json
+        schemas = [db_id_to_table_json[d["db_id"]] for d in datas]
+        queries = [data["query"] for data in datas]
+        pre_queries = self.get_pre_skeleton(queries, schemas)
+        return self.data_pre_process(datas, linking_infos, pre_queries)
+
+    def get_train_schema_linking(self):
+        if not os.path.exists(self.path_train_schema_linking):
+            return None
+        linking_infos = []
+        with open(self.path_train_schema_linking, 'r') as f:
+            for line in f.readlines():
+                if line.strip():
+                    linking_infos.append(json.loads(line))
+        return linking_infos
+
+    def get_table_json(self):
+        return json.load(open(self.tables_path, "r"))
+
+    def get_pre_skeleton(self, queries=None, schemas=None):
+        if queries:
+            skeletons = []
+            for query, schema in zip(queries, schemas):
+                skeletons.append(sql2skeleton(query, schema))
+            return skeletons
+        else:
+            return False
+
+    def data_pre_process(self, datas, linking_infos=None, pre_queries=None):
+        db_id_to_table_json = dict()
+        for table_json in self.get_table_json():
+            db_id_to_table_json[table_json["db_id"]] = table_json
+        for data in datas:
+            db_id = data["db_id"]
+            data["tables"] = self.get_tables(db_id)
+            if data["query"].strip()[:6] != 'SELECT':
+                data["query_skeleton"] = data["query"]
+            else:
+                data["query_skeleton"] = sql2skeleton(data["query"], db_id_to_table_json[db_id])
+            data["path_db"] = self.get_path_db(db_id)
+        if linking_infos:
+            db_id_to_table_json = dict()
+            for table_json in self.get_table_json():
+                db_id_to_table_json[table_json["db_id"]] = table_json
+            for id in range(min(len(datas), len(linking_infos))):
+                datas[id]["sc_link"] = linking_infos[id]["sc_link"]
+                datas[id]["cv_link"] = linking_infos[id]["cv_link"]
+                datas[id]["question_for_copying"] = linking_infos[id]["question_for_copying"]
+                datas[id]["column_to_table"] = linking_infos[id]["column_to_table"]
+                db_id = datas[id]["db_id"]
+                datas[id]["table_names_original"] = db_id_to_table_json[db_id]["table_names_original"]
+            question_patterns = get_question_pattern_with_schema_linking(datas)
+            for id in range(len(datas)):
+                datas[id]["question_pattern"] = question_patterns[id]
+        if pre_queries:
+            for id in range(min(len(datas), len(pre_queries))):
+                datas[id]["pre_skeleton"] = pre_queries[id]
+        return datas
+
+    def get_path_db(self, db_id):
+        return os.path.join(self.db_path, db_id, f"{db_id}.sqlite")
+
+    def get_train_questions(self):
+        questions = json.load(open(self.train_json, "r"))
+        return [_["question"] for _ in questions]
+
+
+class BasicDatasetOld(object):
     def __init__(self, path_data, pre_test_result=None):
         # self.path_data = os.path.join(path_data, self.name)
         self.path_data = path_data
@@ -31,40 +133,9 @@ class BasicDataset(object):
     def set_mini_test(self, mini_file):
         self.mini_test_index_json = os.path.join(self.path_data, mini_file)
 
-    def get_databases(self):
-        if self.databases is None:
-            self.databases = dict()
-            # for db_id in os.listdir(self.path_db):
-            #     self.databases[db_id] = self.get_tables(db_id)
-            with open(self.table_json) as f:
-                tables = json.load(f)
-                for tj in tables:
-                    db_id = tj["db_id"]
-                    self.databases[db_id] = self.get_tables(db_id)
-        return self.databases
-
-    def get_tables(self, db_id):
-        if db_id in self.databases:
-            return self.databases[db_id]
-        else:
-            path_db = os.path.join(self.path_db, db_id, db_id + ".sqlite")
-            tables = get_tables(path_db)
-            self.databases[db_id] = tables
-            return tables
-
     def get_path_sql(self, db_id):
         path_sql = os.path.join(self.path_db, db_id, "schema.sql")
         return path_sql
-
-    def get_table_json(self):
-        return json.load(open(self.table_json, "r"))
-
-    def get_path_db(self, db_id):
-        return os.path.join(self.path_db, db_id, f"{db_id}.sqlite")
-
-    def get_train_questions(self):
-        questions = json.load(open(self.train_json, "r"))
-        return [_["question"] for _ in questions]
 
     def get_mini_index(self):
         if self.mini_test_index_json:
@@ -80,29 +151,7 @@ class BasicDataset(object):
         return [_["question"] for _ in questions]
 
     # get query skeletons
-    def get_pre_skeleton(self, queries=None, schemas=None, mini_set=False):
-        if queries:
-            skeletons = []
-            for query, schema in zip(queries, schemas):
-                skeletons.append(sql2skeleton(query, schema))
-            if mini_set and self.mini_test_index_json:
-                mini_index = self.get_mini_index()
-                skeletons = [skeletons[i] for i in mini_index]
-            return skeletons
-        else:
-            return False
-
     # get all train information
-    def get_train_json(self):
-        datas = json.load(open(self.train_json, "r"))
-        linking_infos = self.get_train_schema_linking()
-        db_id_to_table_json = dict()
-        for table_json in self.get_table_json():
-            db_id_to_table_json[table_json["db_id"]] = table_json
-        schemas = [db_id_to_table_json[d["db_id"]] for d in datas]
-        queries = [data["query"] for data in datas]
-        pre_queries = self.get_pre_skeleton(queries, schemas)
-        return self.data_pre_process(datas, linking_infos, pre_queries)
 
     # get all test information
     def get_test_json(self, mini_set=False):
@@ -177,46 +226,6 @@ class BasicDataset(object):
         return duplicated_index
 
     # get skeletons and schema_linking info
-    def data_pre_process(self, datas, linking_infos=None, pre_queries=None):
-        db_id_to_table_json = dict()
-        for table_json in self.get_table_json():
-            db_id_to_table_json[table_json["db_id"]] = table_json
-        for data in datas:
-            db_id = data["db_id"]
-            data["tables"] = self.get_tables(db_id)
-            if data["query"].strip()[:6] != 'SELECT':
-                data["query_skeleton"] = data["query"]
-            else:
-                data["query_skeleton"] = sql2skeleton(data["query"], db_id_to_table_json[db_id])
-            data["path_db"] = self.get_path_db(db_id)
-        if linking_infos:
-            db_id_to_table_json = dict()
-            for table_json in self.get_table_json():
-                db_id_to_table_json[table_json["db_id"]] = table_json
-            for id in range(min(len(datas), len(linking_infos))):
-                datas[id]["sc_link"] = linking_infos[id]["sc_link"]
-                datas[id]["cv_link"] = linking_infos[id]["cv_link"]
-                datas[id]["question_for_copying"] = linking_infos[id]["question_for_copying"]
-                datas[id]["column_to_table"] = linking_infos[id]["column_to_table"]
-                db_id = datas[id]["db_id"]
-                datas[id]["table_names_original"] = db_id_to_table_json[db_id]["table_names_original"]
-            question_patterns = get_question_pattern_with_schema_linking(datas)
-            for id in range(len(datas)):
-                datas[id]["question_pattern"] = question_patterns[id]
-        if pre_queries:
-            for id in range(min(len(datas), len(pre_queries))):
-                datas[id]["pre_skeleton"] = pre_queries[id]
-        return datas
-
-
-class SpiderDataset(BasicDataset):
-    name = "spider"
-    test_json = "dev.json"
-    test_gold = "dev_gold.sql"
-    train_json = "train_spider_and_others.json"
-    train_gold = "train_gold.sql"
-    table_json = "tables.json"
-    mini_test_index_json = "mini_dev_index.json"
 
 
 class RealisticDataset(BasicDataset):
@@ -239,6 +248,7 @@ class BirdDataset(BasicDataset):
     table_json = "tables.json"
     mini_test_index_json = None
 
+
 class SQLyzr(BasicDataset):
     name = "SQLyzr"
     test_json = "dev.json"
@@ -248,14 +258,10 @@ class SQLyzr(BasicDataset):
     table_json = "tables.json"
     mini_test_index_json = None
 
-def load_data(data_type, path_data, pre_test_result=None):
+
+def load_data(data_type, tables_path, db_dir, input_path, schema_links_path):
     if data_type.lower() == "spider":
-        return SpiderDataset(path_data, pre_test_result)
-    elif data_type.lower() == "realistic":
-        return RealisticDataset(path_data, pre_test_result)
-    elif data_type.lower() == "bird":
-        return BirdDataset(path_data, pre_test_result)
-    elif data_type.lower() == "sqlyzr":
-        return SQLyzr(path_data, pre_test_result)
+        return BasicDataset(tables_path=tables_path, db_path=db_dir, train_json=input_path,
+                            path_train_schema_linking=schema_links_path)
     else:
         raise RuntimeError()

@@ -14,3 +14,4 @@ tmp
 archive
 src/third_party
 .env
+vector_cache

@@ -10,21 +10,20 @@ import random
 from utils.linking_process import SpiderEncoderV2Preproc
 from utils.pretrained_embeddings import GloVe
 from utils.datasets.spider import load_tables
+
+
 # from dataset.process.preprocess_kaggle import gather_questions
 
 
-def schema_linking_producer(test, train, table, db, dataset_dir, compute_cv_link=True):
-
+def schema_linking_producer(input_path, tables_path, db_path, output_path, compute_cv_link=True):
     # load data
-    test_data = json.load(open(os.path.join(dataset_dir, test)))
-    train_data = json.load(open(os.path.join(dataset_dir, train)))
-
+    input_data = json.load(open(input_path))
     # load schemas
-    schemas, _ = load_tables([os.path.join(dataset_dir, table)])
+    schemas, _ = load_tables([tables_path])
 
     # Backup in-memory copies of all the DBs and create the live connections
     for db_id, schema in tqdm(schemas.items(), desc="DB connections"):
-        sqlite_path = Path(dataset_dir) / db / db_id / f"{db_id}.sqlite"
+        sqlite_path = os.path.join(db_path, db_id, f"{db_id}.sqlite")
         source: sqlite3.Connection
         with sqlite3.connect(str(sqlite_path)) as source:
             dest = sqlite3.connect(':memory:')
@@ -33,26 +32,25 @@ def schema_linking_producer(test, train, table, db, dataset_dir, compute_cv_link
         schema.connection = dest
 
     word_emb = GloVe(kind='42B', lemmatize=True)
-    linking_processor = SpiderEncoderV2Preproc(dataset_dir,
-            min_freq=4,
-            max_count=5000,
-            include_table_name_in_column=False,
-            word_emb=word_emb,
-            fix_issue_16_primary_keys=True,
-            compute_sc_link=True,
-            compute_cv_link=compute_cv_link)
+    linking_processor = SpiderEncoderV2Preproc(min_freq=4,
+                                               max_count=5000,
+                                               include_table_name_in_column=False,
+                                               word_emb=word_emb,
+                                               fix_issue_16_primary_keys=True,
+                                               compute_sc_link=True,
+                                               compute_cv_link=compute_cv_link)
 
     # build schema-linking
-    for data, section in zip([test_data, train_data],['test', 'train']):
-        for item in tqdm(data, desc=f"{section} section linking"):
-            db_id = item["db_id"]
-            schema = schemas[db_id]
-            to_add, validation_info = linking_processor.validate_item(item, schema, section)
-            if to_add:
-                linking_processor.add_item(item, schema, section, validation_info)
+    section = "train"
+    for item in tqdm(input_data, desc=f"section linking"):
+        db_id = item["db_id"]
+        schema = schemas[db_id]
+        to_add, validation_info = linking_processor.validate_item(item, schema, section)
+        if to_add:
+            linking_processor.add_item(item, schema, section, validation_info)
 
     # save
-    linking_processor.save()
+    linking_processor.save(output_path, section)
 
 
 def bird_pre_process(bird_dir, with_evidence=False):
@@ -102,40 +100,15 @@ def bird_pre_process(bird_dir, with_evidence=False):
         json.dump(tables, f, indent=4)
 
 
+def preprocess_data(tables_path: str, input_path: str, db_path: str, output_path: str):
+    schema_linking_producer(tables_path=tables_path, input_path=input_path, db_path=db_path, output_path=output_path)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_dir", type=str, default="./dataset/spider")
-    parser.add_argument("--data_type", type=str, choices=["spider", "bird"], default="spider")
+    parser.add_argument("--tables", type=str)
+    parser.add_argument("--db_dir", type=str)
+    parser.add_argument("--output", type=str)
+    parser.add_argument("--input", type=str)
     args = parser.parse_args()
-
-    data_type = args.data_type
-    if data_type == "spider":
-        # merge two training split of Spider
-        spider_dir = args.data_dir
-        split1 = "train_spider.json"
-        split2 = "train_others.json"
-        total_train = []
-        for item in json.load(open(os.path.join(spider_dir, split1))):
-            total_train.append(item)
-        for item in json.load(open(os.path.join(spider_dir, split2))):
-            total_train.append(item)
-        with open(os.path.join(spider_dir, 'train_spider_and_others.json'), 'w') as f:
-            json.dump(total_train, f)
-
-        # schema-linking between questions and databases for Spider
-        spider_dev = "dev.json"
-        spider_train = 'train_spider_and_others.json'
-        spider_table = 'tables.json'
-        spider_db = 'database'
-        schema_linking_producer(spider_dev, spider_train, spider_table, spider_db, spider_dir)
-    elif data_type == "bird":
-        # schema-linking for bird with evidence
-        bird_dir = './dataset/bird'
-        bird_pre_process(bird_dir, with_evidence=True)
-        bird_dev = 'dev.json'
-        bird_train = 'train.json'
-        bird_table = 'tables.json'
-        bird_db = 'databases'
-        ## do not compute the cv_link since it is time-consuming in the huge database in BIRD
-        schema_linking_producer(bird_dev, bird_train, bird_table, bird_db, bird_dir, compute_cv_link=False)
+    preprocess_data(tables_path=args.tables, db_path=args.db_dir, output_path=args.output, input_path=args.input)

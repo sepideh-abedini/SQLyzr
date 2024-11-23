@@ -1,6 +1,3 @@
-import json
-
-
 class SqlExampleStyle(object):
     """Only show sqls as examples
     

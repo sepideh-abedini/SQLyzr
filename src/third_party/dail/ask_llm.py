@@ -1,86 +1,50 @@
 import argparse
-import os
 import json
+import os
 
-import openai
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from llm.chatgpt import init_chatgpt, ask_llm
-from src.models.dail.utils.enums import LLM
-from torch.utils.data import DataLoader
+from src.third_party.dail.llm.chatgpt import init_chatgpt, ask_llm
+from src.third_party.dail.utils.enums import LLM
+from src.third_party.dail.utils.post_process import process_duplication, get_sqls
 
-from src.models.dail.utils.post_process import process_duplication, get_sqls
+MODEL = LLM.GPT_35_TURBO
+BATCH_SIZE = 1
+SELF_CONSISTENT_SET_SIZE = 5
 
-QUESTION_FILE = "questions.json"
 
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--question", type=str)
-    parser.add_argument("--openai_api_key", type=str)
-    parser.add_argument("--openai_group_id", type=str, default="org-ktBefi7n9aK7sZjwc2R9G1Wo")
-    parser.add_argument("--model", type=str, choices=[LLM.TEXT_DAVINCI_003, 
-                                                      LLM.GPT_35_TURBO,
-                                                      LLM.GPT_35_TURBO_0613,
-                                                      # LLM.TONG_YI_QIAN_WEN,
-                                                      LLM.GPT_35_TURBO_16K,
-                                                      LLM.GPT_4],
-                        default=LLM.GPT_35_TURBO)
-    parser.add_argument("--start_index", type=int, default=0)
-    parser.add_argument("--end_index", type=int, default=1000000)
-    parser.add_argument("--temperature", type=float, default=0)
-    parser.add_argument("--output", type=str)
-    parser.add_argument("--mini_index_path", type=str, default="")
-    parser.add_argument("--batch_size", type=int, default=1)
-    parser.add_argument("--n", type=int, default=5, help="Size of self-consistent set")
-    parser.add_argument("--db_dir", type=str, default="dataset/spider/database")
-    args = parser.parse_args()
-
-    # check args
-    assert args.model in LLM.BATCH_FORWARD or \
-           args.model not in LLM.BATCH_FORWARD and args.batch_size == 1, \
-        f"{args.model} doesn't support batch_size > 1"
-
-    questions_json = json.load(open(os.path.join(args.question, QUESTION_FILE), "r"))
+def run_dail(input_path: str, output_path: str, temp: float, db_dir: str):
+    start_index = 0
+    end_index = 100_000
+    questions_json = json.load(open(input_path, "r"))
     questions = [_["prompt"] for _ in questions_json["questions"]]
     db_ids = [_["db_id"] for _ in questions_json["questions"]]
 
     # init openai api
-    init_chatgpt(args.openai_api_key, args.openai_group_id, args.model)
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    openai_group_id = os.getenv("OPENAI_GROUP_ID")
+    init_chatgpt(openai_api_key, openai_group_id, MODEL)
 
-    # if args.start_index == 0:
-    #     mode = "w"
-    # else:
-    #     mode = "a"
-    mode = "w"
-
-    # if args.mini_index_path:
-    #     mini_index = json.load(open(args.mini_index_path, 'r'))
-    #     questions = [questions[i] for i in mini_index]
-    #     out_file = f"{args.question}/RESULTS_MODEL-{args.model}_MINI.txt"
-    # else:
-    #     out_file = f"{args.question}/RESULTS_MODEL-{args.model}.txt"
-    out_file = args.output
-
-    question_loader = DataLoader(questions, batch_size=args.batch_size, shuffle=False, drop_last=False)
+    question_loader = DataLoader(questions, batch_size=BATCH_SIZE, shuffle=False, drop_last=False)
 
     token_cnt = 0
-    print("END INDEX:", args.end_index)
-    with open(out_file, mode) as f:
+    with open(output_path, "w") as f:
         for i, batch in enumerate(tqdm(question_loader)):
-            if i < args.start_index:
+            if i < start_index:
                 continue
-            if i >= args.end_index:
+            if i >= end_index:
                 break
             try:
-                res = ask_llm(args.model, batch, args.temperature, args.n)
+                res = ask_llm(MODEL, batch, temp, SELF_CONSISTENT_SET_SIZE)
             except Exception as e:
                 print(f"The {i}-th question has too much tokens! Return \"SELECT\" instead")
+                print(e)
                 res = ""
 
             # parse result
             token_cnt += res["total_tokens"]
-            if args.n == 1:
+            if SELF_CONSISTENT_SET_SIZE == 1:
                 for sql in res["response"]:
                     # remove \n and extra spaces
                     sql = " ".join(sql.replace("\n", " ").split())
@@ -94,7 +58,7 @@ if __name__ == '__main__':
                         f.write("SELECT " + sql + "\n")
             else:
                 results = []
-                cur_db_ids = db_ids[i * args.batch_size: i * args.batch_size + len(batch)]
+                cur_db_ids = db_ids[i * BATCH_SIZE: i * BATCH_SIZE + len(batch)]
                 for sqls, db_id in zip(res["response"], cur_db_ids):
                     processed_sqls = []
                     for sql in sqls:
@@ -111,9 +75,18 @@ if __name__ == '__main__':
                         'db_id': db_id,
                         'p_sqls': processed_sqls
                     }
-                    final_sqls = get_sqls([result], args.n, args.db_dir)
+                    final_sqls = get_sqls([result], SELF_CONSISTENT_SET_SIZE, db_dir)
 
                     for sql in final_sqls:
                         f.write(sql + "\n")
         f.write(f"tokens:{token_cnt}")
 
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", type=str)
+    parser.add_argument("--output", type=str)
+    parser.add_argument("--temp", type=float)
+    parser.add_argument("--db_dir", type=str)
+    args = parser.parse_args()
+    run_dail(input_path=args.input, output_path=args.output, temp=args.temp, db_dir=args.db_dir)

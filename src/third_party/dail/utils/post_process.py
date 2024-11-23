@@ -1,5 +1,4 @@
 import asyncio
-import json
 import os
 import random
 import re
@@ -8,6 +7,7 @@ import threading
 from collections import defaultdict
 from itertools import product
 from typing import Tuple, Any, List, Set
+
 import sqlparse
 import tqdm
 

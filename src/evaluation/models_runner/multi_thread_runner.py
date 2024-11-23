@@ -1,0 +1,2 @@
+class MultiThreadRunner:
+    pass

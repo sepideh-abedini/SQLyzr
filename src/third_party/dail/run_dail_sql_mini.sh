@@ -1,7 +1,5 @@
 set -eu
 
-TOKEN="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"
-
 echo "data_preprocess"
 #python data_preprocess.py
 
