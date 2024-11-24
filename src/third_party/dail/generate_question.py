@@ -71,7 +71,7 @@ def generate_questions(tables_path, input_path, db_dir, schema_links_path, outpu
 
     # save questions
     task = {
-        "args": vars(args),
+        "args": "",
         "costs": {
             "prompt_tokens_per_prompt": token_cnt,
             "gpt-4": cost_gpt_35_turbo * 20,

@@ -7,9 +7,9 @@ import sqlite3
 from tqdm import tqdm
 import random
 
-from utils.linking_process import SpiderEncoderV2Preproc
-from utils.pretrained_embeddings import GloVe
-from utils.datasets.spider import load_tables
+from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
+from src.third_party.dail.utils.pretrained_embeddings import GloVe
+from src.third_party.dail.utils.datasets.spider import load_tables
 
 
 # from dataset.process.preprocess_kaggle import gather_questions

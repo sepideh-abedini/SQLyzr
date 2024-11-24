@@ -1,2 +1,0 @@
-class SqlyzrConfig:
-    pass
