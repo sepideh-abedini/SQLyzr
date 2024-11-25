@@ -7,7 +7,7 @@ from src.cat.categories import get_all_cats, CATS
 from src.evaluation.evaluator.lib import confidence_level_interval
 from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
 from src.evaluation.evaluator.score_metrics import calc_gold_queries_count, calc_token_usage_score, calc_exact_match, \
-    calc_spider_exact_match, calc_exec_acc, calc_test_suit_acc
+    calc_spider_exact_match, calc_exec_acc, calc_test_suit_acc, calc_total_sql_exec_time
 from src.evaluation.runner.dataset_config import SPIDER_SMALL
 
 score_metrics = {
@@ -16,6 +16,7 @@ score_metrics = {
     'exact_match': calc_exact_match,
     'spider_exact_match': calc_spider_exact_match,
     'exec_score': calc_exec_acc,
+    'total_exec_time': calc_total_sql_exec_time,
     'test_suit_score': calc_test_suit_acc,
 }
 

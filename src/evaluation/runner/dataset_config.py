@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from os import path
 from dataclasses import replace
@@ -25,6 +26,10 @@ class DatasetConfig:
 
     def get_db_path(self):
         return self.get_rel_path(self.db_dir)
+
+    def get_db_file_path(self, db_id: str):
+        db_file = os.path.join(self.db_dir, db_id, f"{db_id}.sqlite")
+        return self.get_rel_path(db_file)
 
 
 SPIDER_SMALL = DatasetConfig(
