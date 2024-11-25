@@ -9,19 +9,19 @@ from src.cat.categories import get_all_cats, CATS
 from src.cat.categorizer import Categorizer
 from src.cat.tag_extractor import TagExtractor
 from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
-from src.evaluation.runner.dataset_config import SPIDER_SMALL
-from src.evaluation.runner.runner_config import RunnerConfig
+from src.evaluation.runner.configs import SPIDER_SMALL
+from src.evaluation.runner.runner_config import SingleRunConfig
 from src.sql_parser.parser import SqlParser
 
 cats = get_all_cats(CATS)
 
 
-def export_evaluation_data(config: RunnerConfig, eval_data_path: str):
+def export_evaluation_data(config: SingleRunConfig):
     parser = SqlParser()
     tag_extractor = TagExtractor()
     categorizer = Categorizer()
 
-    with open(config.output_path) as pred_file, open(config.dataset_config.get_gold_path()) as gold_file:
+    with open(config.get_pred_path()) as pred_file, open(config.dataset_config.get_gold_path()) as gold_file:
         pred_file_lines = pred_file.readlines()
         rows = []
         for i, gold_line in enumerate(gold_file):
@@ -33,8 +33,8 @@ def export_evaluation_data(config: RunnerConfig, eval_data_path: str):
             row = {'idx': i, 'gold': gold_sql, 'pred': pred_sql, 'db_id': db_id, 'cat': cat}
             rows.append(row)
     df = pd.DataFrame(rows)
-    df.to_json(eval_data_path)
-    df.to_csv(Path(eval_data_path).with_suffix(".csv"))
+    df.to_json(config.get_eval_data_path())
+    df.to_csv(Path(config.get_eval_data_path()).with_suffix(".csv"))
 
 
 def export_to_file(df, out_path, row_to_line):
@@ -44,15 +44,15 @@ def export_to_file(df, out_path, row_to_line):
             out_file.write(line)
 
 
-def split_by_categories(config: ModelEvalConfig, temp: float, itr: int):
-    df = pd.read_json(config.get_eval_data_path(temp, itr))
+def split_by_categories(config: SingleRunConfig):
+    df = pd.read_json(config.get_eval_data_path())
     dfs = {cat: sub_df for cat, sub_df in df.groupby('cat')}
     for cat, sub_df in dfs.items():
-        export_to_file(sub_df, config.get_gold_path_per_cat(temp, itr, cat),
+        export_to_file(sub_df, config.get_eval_gold_path_per_cat(cat),
                        lambda row: f"{row['gold']}\t{row['db_id']}\n")
-        export_to_file(sub_df, config.get_pred_path_per_cat(temp, itr, cat),
+        export_to_file(sub_df, config.get_eval_pred_path_per_cat(cat),
                        lambda row: f"{row['pred']}\n")
-        with open(config.get_pred_path_per_cat(temp, itr, cat), 'a') as pred_file:
+        with open(config.get_eval_pred_path_per_cat(cat), 'a') as pred_file:
             pred_file.write(f"tokens:{randrange(15000, 30000)}\n")
 
 
@@ -68,10 +68,8 @@ if __name__ == "__main__":
         eval_dir="data/eval",
         dataset_config=SPIDER_SMALL
     )
+    confs = config.get_run_confs()
 
-    for temp, itr in product(temps, itrs):
-        export_evaluation_data(config.get_runner_conf(temp, itr),
-                               config.get_eval_data_path(temp, itr))
-
-    for temp, itr in product(temps, itrs):
-        split_by_categories(config, temp, itr)
+    for conf in confs:
+        export_evaluation_data(conf)
+        split_by_categories(conf)

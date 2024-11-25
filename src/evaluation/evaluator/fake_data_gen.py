@@ -5,7 +5,7 @@ from itertools import product
 from typing import List
 
 from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
-from src.evaluation.runner.dataset_config import SPIDER_SMALL
+from src.evaluation.runner.configs import SPIDER_SMALL
 
 
 def generate_fake_preds(config: ModelEvalConfig, pred_file: str, temps: List[float], itrs: List[int]):

@@ -5,14 +5,14 @@ from dataclasses import dataclass, replace
 from typing import List, Type
 
 from src.evaluation.runner.dail_runner import DailRunner
-from src.evaluation.runner.dataset_config import SPIDER_SMALL
+from src.evaluation.runner.configs import SPIDER_SMALL
 from src.evaluation.runner.model_runner import ModelRunner
-from src.evaluation.runner.runner_config import RunnerConfig
+from src.evaluation.runner.runner_config import SingleRunConfig
 
 
 @dataclass
 class MultiThreadRunner:
-    config: RunnerConfig
+    config: SingleRunConfig
     runner_type: Type[ModelRunner]
     num_threads: int
 
@@ -30,7 +30,7 @@ class MultiThreadRunner:
 
         self.merge_pred_results(thread_configs)
 
-    def merge_pred_results(self, thread_configs: List[RunnerConfig]):
+    def merge_pred_results(self, thread_configs: List[SingleRunConfig]):
         all_toks = 0
         with open(f"{self.config.output_path}", 'w') as out:
             for config in thread_configs:
@@ -43,7 +43,7 @@ class MultiThreadRunner:
                     out.writelines(count_lines[:-1])
             out.write(f"tokens:{all_toks}")
 
-    def split_dataset(self) -> List[RunnerConfig]:
+    def split_dataset(self) -> List[SingleRunConfig]:
         thread_configs = []
         for i in range(self.num_threads):
             chunk_suffix = f"chunk_{i}"
@@ -74,6 +74,7 @@ class MultiThreadRunner:
 
 if __name__ == "__main__":
     dataset_config = SPIDER_SMALL
-    runner_config = RunnerConfig(dataset_config=SPIDER_SMALL, output_path="data/dum/pred.txt", temp=1.0)
+    runner_config = SingleRunConfig(dataset_config=SPIDER_SMALL, pred_dir="data/dum", eval_dir="data/eval", itr=0,
+                                    temp=1.0)
     runner = MultiThreadRunner(runner_config, DailRunner, 4)
     runner.run()

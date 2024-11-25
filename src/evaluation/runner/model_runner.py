@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from threading import Thread
 
-from src.evaluation.runner.runner_config import RunnerConfig
+from src.evaluation.runner.runner_config import SingleRunConfig
 
 
 class ModelRunner(Thread):
-    config: RunnerConfig
+    config: SingleRunConfig
 
-    def __init__(self, config: RunnerConfig):
+    def __init__(self, config: SingleRunConfig):
         super().__init__()
         self.config = config
 

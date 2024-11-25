@@ -2,9 +2,10 @@ import json
 import math
 import os.path
 
-from src.evaluation.runner.dataset_config import DatasetConfig, SPIDER_SMALL
+from src.evaluation.runner.dataset_config import DatasetConfig
+from src.evaluation.runner.configs import SPIDER_SMALL
 from src.evaluation.runner.model_runner import ModelRunner
-from src.evaluation.runner.runner_config import RunnerConfig
+from src.evaluation.runner.runner_config import SingleRunConfig
 from src.third_party.dail.ask_llm import run_dail
 from src.third_party.dail.data_preprocess import preprocess_data
 from src.third_party.dail.generate_question import generate_questions
@@ -47,6 +48,6 @@ class DailRunner(ModelRunner):
 
 
 if __name__ == "__main__":
-    runner_config = RunnerConfig(dataset_config=SPIDER_SMALL, output_path="data/dail/pred.txt", temp=1.0)
+    runner_config = SingleRunConfig(dataset_config=SPIDER_SMALL, output_path="data/dail/pred.txt", temp=1.0)
     runner = DailRunner(runner_config)
     runner.run()

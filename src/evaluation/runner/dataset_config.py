@@ -1,7 +1,6 @@
 import os
 from dataclasses import dataclass
 from os import path
-from dataclasses import replace
 
 
 @dataclass
@@ -32,10 +31,3 @@ class DatasetConfig:
         return self.get_rel_path(db_file)
 
 
-SPIDER_SMALL = DatasetConfig(
-    dataset_dir="data/spider",
-    data_file="dev.small.json",
-    gold_file="dev.small.gold.txt",
-    tables_file="tables.json",
-    db_dir="database"
-)
