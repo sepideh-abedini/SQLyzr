@@ -1,6 +1,5 @@
-from exact_match import ExactMatchParser
-from src.evaluation.src.evaluator.lib import exec_sql
-from src.evaluation.src.evaluator.model_eval_config import ModelEvalConfig
+from src.evaluation.evaluator.lib import exec_sql
+from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
 from src.third_party.spider.evaluation import eval_exact_match
 from src.third_party.test_suite_acc.evaluation import test_suite_exec_acc
 

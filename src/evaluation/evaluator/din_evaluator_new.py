@@ -7,65 +7,14 @@ import pandas as pd
 from src.cat.categories import get_all_sub_cats, CATS, get_all_cats
 from src.evaluation.src.evaluator import lib
 from src.evaluation.src.evaluator.data_generator import generate_evaluation_data
-from src.evaluation.src.evaluator.model_eval_config import ModelEvalConfig
+from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
 from src.evaluation.src.evaluator.score_metrics import calc_token_usage_score, calc_exact_match, \
     calc_spider_exact_match, calc_exec_acc, calc_test_suit_acc, calc_gold_queries_count
 
 # cats = get_all_sub_cats(CATS)
-cats = get_all_cats(CATS)
 
 
-def export_to_file(df, out_path, row_to_line):
-    with open(out_path, 'w') as out_file:
-        for idx, row in df.iterrows():
-            line = row_to_line(row)
-            out_file.write(line)
 
-
-def split_by_categories(config: ModelEvalConfig, temp: float, itr: int):
-    df = pd.read_json(config.get_eval_data_path(temp, itr))
-    dfs = {cat: sub_df for cat, sub_df in df.groupby('cat')}
-    for cat, sub_df in dfs.items():
-        export_to_file(sub_df, config.get_gold_path_per_cat(temp, itr, cat),
-                       lambda row: f"{row['gold']}\t{row['db_id']}\n")
-        export_to_file(sub_df, config.get_pred_path_per_cat(temp, itr, cat),
-                       lambda row: f"{row['pred']}\n")
-        with open(config.get_pred_path_per_cat(temp, itr, cat), 'a') as pred_file:
-            pred_file.write(f"tokens:{randrange(15000, 30000)}\n")
-
-
-def generate_pred_data(config: ModelEvalConfig, temps, itrs):
-    for temp, itr in product(temps, itrs):
-        generate_evaluation_data(config.get_pred_path(temp, itr),
-                                 config.get_gold_file_path(),
-                                 config.get_eval_data_path(temp, itr),
-                                 1000)
-
-
-score_metrics = {
-    'count': calc_gold_queries_count,
-    'token_score': calc_token_usage_score,
-    'exact_match': calc_exact_match,
-    'spider_exact_match': calc_spider_exact_match,
-    'exec_score': calc_exec_acc,
-    'test_suit_score': calc_test_suit_acc,
-}
-
-
-def calc_score_data_row(config: ModelEvalConfig, temp: float, itr: int, cat: str):
-    score_data_row = {'temp': temp, 'itr': itr, 'cat': cat}
-    pred_path = config.get_pred_path_per_cat(temp, itr, cat)
-    gold_path = config.get_gold_path_per_cat(temp, itr, cat)
-    db_path = config.get_database_path()
-    tables_path = config.get_tables_file_path()
-    for metric_name in score_metrics:
-        if os.path.exists(config.get_gold_path_per_cat(temp, itr, cat)):
-            metric_fun = score_metrics[metric_name]
-            score = metric_fun(config, temp, itr, cat)
-        else:
-            score = 0
-        score_data_row[metric_name] = score
-    return score_data_row
 
 
 def main():

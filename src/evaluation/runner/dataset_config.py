@@ -7,6 +7,7 @@ from dataclasses import replace
 class DatasetConfig:
     dataset_dir: str
     data_file: str
+    gold_file: str
     tables_file: str
     db_dir: str
 
@@ -15,6 +16,9 @@ class DatasetConfig:
 
     def get_data_path(self):
         return self.get_rel_path(self.data_file)
+
+    def get_gold_path(self):
+        return self.get_rel_path(self.gold_file)
 
     def get_tables_path(self):
         return self.get_rel_path(self.tables_file)
@@ -26,6 +30,7 @@ class DatasetConfig:
 SPIDER_SMALL = DatasetConfig(
     dataset_dir="data/spider",
     data_file="dev.small.json",
+    gold_file="dev.small.gold.txt",
     tables_file="tables.json",
     db_dir="database"
 )
