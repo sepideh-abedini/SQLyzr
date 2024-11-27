@@ -8,7 +8,7 @@ from src.evaluation.evaluator.lib import confidence_level_interval
 from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
 from src.evaluation.evaluator.score_metrics import GoldCount, TokenUsage, ExactMatch, SpiderExactMatch, ExecAcc, \
     TotalExecTime, TestSuitAcc
-from src.evaluation.runner.configs import SPIDER_SMALL
+from src.evaluation.runner.configs import SPIDER_SMALL, EVAL_CONF
 from src.evaluation.runner.runner_config import SingleRunConfig
 
 
@@ -81,13 +81,4 @@ def evaluate(config: ModelEvalConfig):
 
 
 if __name__ == "__main__":
-    temps = [0.0, 0.2, 0.4, 0.7, 1.0]
-    num_itrs = 4
-    config = ModelEvalConfig(
-        temps=temps,
-        num_itrs=num_itrs,
-        pred_dir="data/dum",
-        eval_dir="data/eval",
-        dataset_config=SPIDER_SMALL
-    )
-    evaluate(config)
+    evaluate(EVAL_CONF)

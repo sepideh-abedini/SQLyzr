@@ -30,7 +30,7 @@ def run_dail(input_path: str, output_path: str, temp: float, db_dir: str):
 
     token_cnt = 0
     with open(output_path, "w") as f:
-        for i, batch in enumerate(tqdm(question_loader)):
+        for i, batch in enumerate(question_loader):
             if i < start_index:
                 continue
             if i >= end_index:

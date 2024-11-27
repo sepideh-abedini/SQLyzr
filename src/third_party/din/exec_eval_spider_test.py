@@ -532,7 +532,7 @@ def evaluate(gold, predict, db_dir, etype, kmaps):
             "where": []
             }
             eval_err_num += 1
-            print("eval_err_num:{}".format(eval_err_num))
+            # print("eval_err_num:{}".format(eval_err_num))
 
         # rebuild sql for value evaluation
         kmap = kmaps[db_name]
@@ -552,10 +552,10 @@ def evaluate(gold, predict, db_dir, etype, kmaps):
         if etype in ["all", "match"]:
             exact_score = evaluator.eval_exact_match(p_sql, g_sql)
             partial_scores = evaluator.partial_scores
-            if exact_score == 0:
-                print("{} pred: {}".format(hardness,p_str))
-                print("{} gold: {}".format(hardness,g_str))
-                print("")
+            # if exact_score == 0:
+                # print("{} pred: {}".format(hardness,p_str))
+                # print("{} gold: {}".format(hardness,g_str))
+                # print("")
             scores[hardness]['exact'] += exact_score
             scores['all']['exact'] += exact_score
             for type_ in partial_types:

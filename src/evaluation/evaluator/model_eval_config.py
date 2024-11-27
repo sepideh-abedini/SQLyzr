@@ -30,7 +30,7 @@ class ModelEvalConfig:
         return list([conf for ll in self.run_confs.values() for conf in ll])
 
     def get_runner_conf(self, temp: float, itr: int):
-        return self.runner_configs[temp][itr]
+        return self.run_confs[temp][itr]
 
     def get_scores_path(self, sub: str = ""):
         return os.path.join(self.eval_dir, f"scores_{sub}.csv")

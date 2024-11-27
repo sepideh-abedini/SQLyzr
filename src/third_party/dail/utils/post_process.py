@@ -223,7 +223,7 @@ def get_sqls(results, select_number, db_dir):
                 break
         all_p_sqls.append(p_sqls)
     chosen_p_sqls = []
-    for i, db_id in enumerate(tqdm.tqdm(db_ids)):
+    for i, db_id in enumerate(db_ids):
         p_sqls = all_p_sqls[i]
         db_path = f"{db_dir}/{db_id}/{db_id}"
         cluster_sql_list = []
@@ -252,6 +252,6 @@ def get_sqls(results, select_number, db_dir):
         else:
             chosen_p_sqls.append(cluster_sql_list[0][0])
 
-    print("save chosen sqls and results...")
+    # print("save chosen sqls and results...")
 
     return chosen_p_sqls

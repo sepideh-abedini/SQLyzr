@@ -42,7 +42,7 @@ def generate_questions(tables_path, input_path, db_dir, schema_links_path, outpu
     # choose split
     cross_domain = SPLIT == "train"
 
-    for question_json in tqdm(data.get_train_json()):
+    for question_json in data.get_train_json():
         question_format = prompt.format(target=question_json,
                                         max_seq_len=MAX_SEQ_LEN,
                                         max_ans_len=MAX_SEQ_LEN,
@@ -55,8 +55,7 @@ def generate_questions(tables_path, input_path, db_dir, schema_links_path, outpu
 
     # cost estimated
     token_cnt = float(token_cnt) / len(questions)
-    print(
-        f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
+    # print(f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
 
     n_total_tokens = len(questions) * MAX_ANS_LEN + token_cnt
     cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)
@@ -64,10 +63,10 @@ def generate_questions(tables_path, input_path, db_dir, schema_links_path, outpu
     example_quality = prompt.get_example_quality()
     # example_quality_each = prompt.get_example_quality_for_each()
     pattern_similarity = prompt.get_pattern_similarity()
-    print(f"Example quality: {example_quality}")
-    print(f"Estimated cost for {LLM.GPT_4}: {cost_gpt_35_turbo * 20}")
-    print(f"Estimated cost for {LLM.GPT_35_TURBO}: {cost_gpt_35_turbo}")
-    print(f"Estimated cost for {LLM.TEXT_DAVINCI_003}: {cost_text_davinci_003}")
+    # print(f"Example quality: {example_quality}")
+    # print(f"Estimated cost for {LLM.GPT_4}: {cost_gpt_35_turbo * 20}")
+    # print(f"Estimated cost for {LLM.GPT_35_TURBO}: {cost_gpt_35_turbo}")
+    # print(f"Estimated cost for {LLM.TEXT_DAVINCI_003}: {cost_text_davinci_003}")
 
     # save questions
     task = {

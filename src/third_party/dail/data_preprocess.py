@@ -4,12 +4,13 @@ import os
 import pickle
 from pathlib import Path
 import sqlite3
-from tqdm import tqdm
 import random
 
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
 from src.third_party.dail.utils.pretrained_embeddings import GloVe
 from src.third_party.dail.utils.datasets.spider import load_tables
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 # from dataset.process.preprocess_kaggle import gather_questions
@@ -22,7 +23,7 @@ def schema_linking_producer(input_path, tables_path, db_path, output_path, compu
     schemas, _ = load_tables([tables_path])
 
     # Backup in-memory copies of all the DBs and create the live connections
-    for db_id, schema in tqdm(schemas.items(), desc="DB connections"):
+    for db_id, schema in schemas.items():
         sqlite_path = os.path.join(db_path, db_id, f"{db_id}.sqlite")
         source: sqlite3.Connection
         with sqlite3.connect(str(sqlite_path)) as source:
@@ -42,7 +43,7 @@ def schema_linking_producer(input_path, tables_path, db_path, output_path, compu
 
     # build schema-linking
     section = "train"
-    for item in tqdm(input_data, desc=f"section linking"):
+    for item in input_data:
         db_id = item["db_id"]
         schema = schemas[db_id]
         to_add, validation_info = linking_processor.validate_item(item, schema, section)

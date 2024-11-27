@@ -3,7 +3,7 @@ import math
 import os.path
 
 from src.evaluation.runner.dataset_config import DatasetConfig
-from src.evaluation.runner.configs import SPIDER_SMALL
+from src.evaluation.runner.configs import SPIDER_SMALL, EVAL_CONF
 from src.evaluation.runner.model_runner import ModelRunner
 from src.evaluation.runner.runner_config import SingleRunConfig
 from src.third_party.dail.ask_llm import run_dail
@@ -16,17 +16,15 @@ class DailRunner(ModelRunner):
     questions_path = "data/dail/preprocess/questions.json"
 
     def generate_schema_links(self):
-        print("Starting: schema links generation")
         preprocess_data(
             input_path=self.config.dataset_config.get_data_path(),
             output_path=self.schema_links_path,
             db_path=self.config.dataset_config.get_db_path(),
             tables_path=self.config.dataset_config.get_tables_path()
         )
-        print("Finished: schema links generation")
+        print("Preprocessing Done")
 
     def generate_questions(self):
-        print("Starting question generation")
         generate_questions(
             tables_path=self.config.dataset_config.get_tables_path(),
             output_path=self.questions_path,
@@ -34,20 +32,20 @@ class DailRunner(ModelRunner):
             input_path=self.config.dataset_config.get_data_path(),
             schema_links_path=self.schema_links_path
         )
-        print("Finished question generation")
+        print("Question generation done")
 
     def preprocess(self):
         self.generate_schema_links()
         self.generate_questions()
+        print("Preprocessing done")
 
     def run_model(self):
         run_dail(input_path=self.questions_path,
-                 output_path=self.config.output_path,
+                 output_path=self.config.get_pred_path(),
                  db_dir=self.config.dataset_config.get_db_path(),
                  temp=self.config.temp)
 
 
 if __name__ == "__main__":
-    runner_config = SingleRunConfig(dataset_config=SPIDER_SMALL, output_path="data/dail/pred.txt", temp=1.0)
-    runner = DailRunner(runner_config)
+    runner = DailRunner(EVAL_CONF.get_runner_conf(0.0, 0))
     runner.run()
