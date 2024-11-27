@@ -4,11 +4,11 @@ from itertools import product
 import pandas as pd
 
 from src.cat.categories import get_all_cats, CATS
+from src.evaluation.configs import EVAL_CONF
 from src.evaluation.evaluator.lib import confidence_level_interval
 from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
 from src.evaluation.evaluator.score_metrics import GoldCount, TokenUsage, ExactMatch, SpiderExactMatch, ExecAcc, \
     TotalExecTime, TestSuitAcc
-from src.evaluation.runner.configs import SPIDER_SMALL, EVAL_CONF
 from src.evaluation.runner.runner_config import SingleRunConfig
 
 

@@ -1,4 +1,4 @@
-from src.evaluation.runner.configs import SPIDER_SMALL, EVAL_CONF
+from src.evaluation.configs import EVAL_CONF
 from src.evaluation.runner.model_runner import ModelRunner
 from src.evaluation.runner.runner_config import SingleRunConfig
 from src.third_party.din.din import run_din

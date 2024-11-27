@@ -5,9 +5,9 @@ from math import floor
 
 def wait_for_file(file_path: str, timeout=5):
     while timeout > 0:
+        time.sleep(1)
         if os.path.exists(file_path):
             return
-        time.sleep(1)
         timeout -= 1
     raise TimeoutError(f"{file_path} not created!")
 

@@ -8,8 +8,8 @@ import pandas as pd
 from src.cat.categories import get_all_cats, CATS
 from src.cat.categorizer import Categorizer
 from src.cat.tag_extractor import TagExtractor
+from src.evaluation.configs import SPIDER_SMALL
 from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
-from src.evaluation.runner.configs import SPIDER_SMALL
 from src.evaluation.runner.runner_config import SingleRunConfig
 from src.sql_parser.parser import SqlParser
 

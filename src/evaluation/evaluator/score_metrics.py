@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from src.evaluation import lib
 from src.evaluation.evaluator.exact_match import ExactMatchParser
 from src.evaluation.evaluator.lib import exec_sql
 from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
+from src.evaluation.lib import lib
 from src.evaluation.runner.runner_config import SingleRunConfig
 from src.third_party.spider.evaluation import eval_exact_match
 from src.third_party.test_suite_acc.evaluation import test_suite_exec_acc

@@ -1,19 +1,32 @@
+import concurrent
 import json
 import math
 import multiprocessing
 import shutil
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
 from random import randrange
 from typing import List, Type
 from multiprocessing import Pool
 
-# from src.evaluation.runner.dail_runner import DailRunner
-from src.evaluation.runner.configs import SPIDER_SMALL, EVAL_CONF
+from src.evaluation.configs import EVAL_CONF
 from src.evaluation.runner.din_runner import DinRunner
+# from src.evaluation.runner.dail_runner import DailRunner
 from src.evaluation.runner.model_runner import ModelRunner
 from src.evaluation.runner.runner_config import SingleRunConfig
 from src.evaluation.runner.utils import get_chunks
+from multiprocessing.pool import ThreadPool
+
+from src.third_party.din.din import run_din
+
+
+def run_with_conf(config: SingleRunConfig):
+    run_din(input_path=config.dataset_config.get_data_path(),
+            output_path=config.get_pred_path(),
+            tables_path=config.dataset_config.get_tables_path(),
+            temp=config.temp)
 
 
 @dataclass
@@ -24,23 +37,23 @@ class MultiThreadRunner:
 
     def run(self):
         thread_configs = self.split_dataset()
+        threads = []
+        for i, config in enumerate(thread_configs):
+            thread = threading.Thread(target=run_with_conf, args=[config])
+            threads.append(thread)
+            thread.start()
+        print("Waiting for threads")
+        for thread in threads:
+            thread.join()
 
-        with Pool(self.num_threads) as p:
-            for i, config in enumerate(thread_configs):
-                runner = self.runner_type(config)
-                p.apply_async(runner.run)
-                print(f"Started process: {i}")
-            p.close()
-            p.join()
-            print("Processes joined")
-
+        print("Threads ")
         self.merge_pred_results(thread_configs)
 
     def merge_pred_results(self, thread_configs: List[SingleRunConfig]):
         all_toks = 0
         lines = []
         for config in thread_configs:
-            with open(config.get_pred_path()) as file:
+            with open(config.get_pred_path(), "r") as file:
                 count_lines = file.readlines()
                 last_line = count_lines[-1]
                 toks = int(last_line.split(":")[-1])
@@ -78,8 +91,7 @@ class MultiThreadRunner:
 
 if __name__ == "__main__":
     # runner = MultiThreadRunner(EVAL_CONF.get_runner_conf(0.0, 1), DailRunner, 2)
-    runner = MultiThreadRunner(EVAL_CONF.get_runner_conf(0.0, 1), DinRunner, 8)
-    # runner.split_dataset()
+    runner = MultiThreadRunner(EVAL_CONF.get_runner_conf(0.0, 1), DinRunner, 4)
     runner.run()
-    runner.run()
-    runner.run()
+    # runner.run()
+    # runner.run()

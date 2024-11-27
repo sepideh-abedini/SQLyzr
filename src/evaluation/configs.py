@@ -7,7 +7,6 @@ SPIDER_SMALL = DatasetConfig(
     gold_file="dev.small.gold.txt",
     tables_file="tables.json",
     db_dir="database"
-
 )
 
 EVAL_CONF = ModelEvalConfig(

@@ -2,8 +2,8 @@ import json
 import math
 import os.path
 
+from src.evaluation.configs import EVAL_CONF
 from src.evaluation.runner.dataset_config import DatasetConfig
-from src.evaluation.runner.configs import SPIDER_SMALL, EVAL_CONF
 from src.evaluation.runner.model_runner import ModelRunner
 from src.evaluation.runner.runner_config import SingleRunConfig
 from src.third_party.dail.ask_llm import run_dail
