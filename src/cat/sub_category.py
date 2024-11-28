@@ -8,6 +8,7 @@ from src.cat.statement_tag import StatementTag
 class SubCategory:
     name: str
     tags: FrozenSet[StatementTag]
+    description: str = ""
 
     def __ge__(self, other: 'SubCategory'):
         for tag in other.tags:
@@ -22,7 +23,7 @@ class SubCategory:
         return False
 
     def __str__(self):
-        return ",".join([str(f) for f in self.tags])
+        return self.name
 
     def __add__(self, other):
         if isinstance(other, StatementTag):

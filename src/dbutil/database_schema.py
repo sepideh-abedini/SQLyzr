@@ -47,3 +47,12 @@ class DatabaseSchema:
         if len(matched_tables) > 1:
             log(f"Ambiguous column name: {col_name}, matched tables: {matched_tables}")
             return matched_tables[0]
+
+    def __str__(self):
+        res = "\nTables: \n"
+        for table, columns in self.tables.items():
+            res += f"\tTable Name: {table}\n"
+            res += f"\t\tColumns:\n"
+            for col, col_type in columns.items():
+                res += f"\t\t\tColumn Name: {col}, Column type: {col_type}\n"
+        return res

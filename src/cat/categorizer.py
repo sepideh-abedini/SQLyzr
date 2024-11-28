@@ -21,5 +21,6 @@ class Categorizer:
             if sub_cat:
                 # return f"{c.name}_{sub_cat.name}"
                 # return f"{sub_cat.name}"
-                return f"{c.name}"
+                # return f"{c.name}"
+                return sub_cat
         return None

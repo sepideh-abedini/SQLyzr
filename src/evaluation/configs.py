@@ -9,6 +9,14 @@ SPIDER_SMALL = DatasetConfig(
     db_dir="database"
 )
 
+SPIDER_DEV = DatasetConfig(
+    dataset_dir="data/spider",
+    data_file="dev.json",
+    gold_file="dev.gold.txt",
+    tables_file="tables.json",
+    db_dir="database"
+)
+
 EVAL_CONF = ModelEvalConfig(
     temps=[0.0, 0.2, 0.4, 0.7, 1.0],
     num_itrs=4,
