@@ -13,7 +13,6 @@ from multiprocessing import Pool
 
 from src.evaluation.configs import EVAL_CONF
 from src.evaluation.runner.din_runner import DinRunner
-# from src.evaluation.runner.dail_runner import DailRunner
 from src.evaluation.runner.model_runner import ModelRunner
 from src.evaluation.runner.runner_config import SingleRunConfig
 from src.evaluation.runner.utils import get_chunks
@@ -39,6 +38,8 @@ class MultiThreadRunner:
         thread_configs = self.split_dataset()
         threads = []
         for i, config in enumerate(thread_configs):
+            # runner = self.runner_type(config)
+            # thread = threading.Thread(target=runner.run)
             thread = threading.Thread(target=run_with_conf, args=[config])
             threads.append(thread)
             thread.start()
@@ -90,8 +91,8 @@ class MultiThreadRunner:
 
 
 if __name__ == "__main__":
-    # runner = MultiThreadRunner(EVAL_CONF.get_runner_conf(0.0, 1), DailRunner, 2)
-    runner = MultiThreadRunner(EVAL_CONF.get_runner_conf(0.0, 1), DinRunner, 4)
+    runner = MultiThreadRunner(EVAL_CONF.get_runner_conf(0.0, 1), DinRunner, 2)
+    # runner = MultiThreadRunner(EVAL_CONF.get_runner_conf(0.0, 1), DinRunner, 4)
     runner.run()
     # runner.run()
     # runner.run()

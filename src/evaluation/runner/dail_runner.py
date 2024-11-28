@@ -40,6 +40,7 @@ class DailRunner(ModelRunner):
         print("Preprocessing done")
 
     def run_model(self):
+        return
         run_dail(input_path=self.questions_path,
                  output_path=self.config.get_pred_path(),
                  db_dir=self.config.dataset_config.get_db_path(),
