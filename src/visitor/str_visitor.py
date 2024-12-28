@@ -1,11 +1,30 @@
 from src.sql_parser.node import LiteralNode, ExpressionNode, TerminalNode, BinOpExpressionNode, FunctionExpressionNode, \
     ColumnNode, ResultColumnNode, TableOrSubqueryNode, JoinConstraintNode, JoinClauseNode, LimitNode, OrderingTerm, \
     OrderByNode, BetweenExpressionNode, WhereClauseNode, FromClauseNode, GroupClauseNode, SelectClauseNode, \
-    SelectCoreNode, SelectStatementNode
+    SelectCoreNode, SelectStatementNode, CommonTableExpressionNode, WithClauseNode, LiteralListNode, \
+    WindowDefinitionNode, WindowExpressionNode, CastExpressionNode
 from src.visitor.node_visitor import NodeVisitor
 
 
 class StringVisitor(NodeVisitor):
+    def visit_cast_expression(self, node: CastExpressionNode):
+        raise NotImplementedError()
+
+    def visit_window_expression(self, node: WindowExpressionNode):
+        raise NotImplementedError()
+
+    def visit_window_definition(self, node: WindowDefinitionNode):
+        raise NotImplementedError()
+
+    def visit_literal_list(self, node: LiteralListNode):
+        raise NotImplementedError()
+
+    def visit_with_clause(self, node: WithClauseNode):
+        raise NotImplementedError()
+
+    def visit_common_table_expression(self, node: CommonTableExpressionNode):
+        raise NotImplementedError()
+
     cur_level: int
 
     def __init__(self):

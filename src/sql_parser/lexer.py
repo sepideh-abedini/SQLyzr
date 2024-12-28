@@ -119,7 +119,7 @@ def t_STRING(t):
     val = val.replace("\'", "")
     val = val.replace("\''", "")
     val = val.replace("`", "")
-    val = val.lower()
+    # val = val.lower()
     t.value = val
     return t
 
@@ -137,8 +137,12 @@ def t_COMP_OP(t):
 
 def t_ID(t):
     r'\w+'
-    t.value = t.value.lower()
-    t.type = reserved.get(t.value, 'ID')  # Check for reserved words
+    if t.value.lower() in reserved:
+        t.value = t.value.lower()
+        t.type = reserved[t.value.lower()]
+    else:
+        t.value = t.value.lower()
+        t.type = 'ID'  # Check for reserved words
     return t
 
 
@@ -154,4 +158,5 @@ def t_error(t):
 
 def get_lexer():
     lexer = lex.lex(reflags=re.IGNORECASE)
+    # lexer = lex.lex()
     return lexer

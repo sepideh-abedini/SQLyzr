@@ -15,7 +15,8 @@ class ExactMatchParser:
         db_schema = self.db_repo.dbs[db_id]
         column_collector = ColumnCollector(db_schema)
         ast = parser.parse(sql)
-        # draw_graph(ast, "graph")
-        ast.db_schema = db_schema
-        ast.accept(column_collector)
+        if ast:
+            # draw_graph(ast, "graph")
+            ast.db_schema = db_schema
+            ast.accept(column_collector)
         return ast

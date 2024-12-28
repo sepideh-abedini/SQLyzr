@@ -1,6 +1,11 @@
+from difflib import SequenceMatcher
 from typing import Dict, List, Set, Tuple, FrozenSet
 
 from src.util.logger import log
+
+
+def str_similarity(s1, s2):
+    return SequenceMatcher(None, s1.lower(), s2.lower()).ratio()
 
 
 class DatabaseSchema:
@@ -10,6 +15,29 @@ class DatabaseSchema:
     def __init__(self):
         self.tables = {}
         self.foreign_keys = set()
+
+    def find_most_similar_column(self, table_name, col_name, cand_cols: Set[str]):
+        if table_name not in self.tables:
+            log(f"Table not found: {table_name}")
+            return None
+        table = self.tables[table_name]
+        max_sim = 0
+        best_col = None
+        for col in cand_cols:
+            sim = str_similarity(col, col_name)
+            if sim >= max_sim:
+                max_sim = sim
+                best_col = col
+        if max_sim > 0.5:
+            return best_col
+        for col in table:
+            sim = str_similarity(col, col_name)
+            if sim >= max_sim:
+                max_sim = sim
+                best_col = col
+        if max_sim > 0.5:
+            return best_col
+        return None
 
     def get_col_type(self, table_name, col_name) -> str:
         if table_name not in self.tables:

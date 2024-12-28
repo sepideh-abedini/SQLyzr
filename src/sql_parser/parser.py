@@ -487,8 +487,9 @@ class SqlParser:
         self.parser = get_parser()
 
     def parse(self, sql: str) -> SelectStatementNode:
-        ast = self.parser.parse(sql)
-        if ast:
-            # FIXME: Set raw sql
-            pass
-        return ast
+        try:
+            ast = self.parser.parse(sql)
+            return ast
+        except Exception:
+            print("Syntax error!")
+        return None

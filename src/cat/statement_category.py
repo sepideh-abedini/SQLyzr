@@ -11,6 +11,9 @@ class StatementCategory:
         self.name = name
         self.sub_cats = set(tag_sets)
 
+    def __str__(self):
+        return self.name
+
     def matches(self, feature_set: SubCategory):
         for fs in self.sub_cats:
             if feature_set >= fs:

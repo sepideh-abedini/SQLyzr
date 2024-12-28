@@ -1,15 +1,12 @@
-from itertools import product
 from pathlib import Path
 from random import randrange
-from typing import List
 
 import pandas as pd
 
 from src.cat.categories import get_all_cats, CATS
 from src.cat.categorizer import Categorizer
 from src.cat.tag_extractor import TagExtractor
-from src.evaluation.configs import SPIDER_SMALL
-from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
+from src.evaluation.configs import SMALL_EVAL_CONF
 from src.evaluation.runner.runner_config import SingleRunConfig
 from src.sql_parser.parser import SqlParser
 
@@ -30,7 +27,7 @@ def export_evaluation_data(config: SingleRunConfig):
             tags = tag_extractor.extract_tags(ast)
             cat = categorizer.get_category(tags.tag_set)
             pred_sql = pred_file_lines[i].strip()
-            row = {'idx': i, 'gold': gold_sql, 'pred': pred_sql, 'db_id': db_id, 'cat': cat}
+            row = {'idx': i, 'gold': str(gold_sql), 'pred': str(pred_sql), 'db_id': str(db_id), 'cat': str(cat)}
             rows.append(row)
     df = pd.DataFrame(rows)
     df.to_json(config.get_eval_data_path())
@@ -57,19 +54,6 @@ def split_by_categories(config: SingleRunConfig):
 
 
 if __name__ == "__main__":
-    temps = [0.0, 0.2, 0.4, 0.7, 1.0]
-    num_itrs = 4
-    itrs = list(range(num_itrs))
-
-    config = ModelEvalConfig(
-        temps=temps,
-        num_itrs=num_itrs,
-        pred_dir="data/dum",
-        eval_dir="data/eval",
-        dataset_config=SPIDER_SMALL
-    )
-    confs = config.get_run_confs()
-
-    for conf in confs:
+    for conf in SMALL_EVAL_CONF.get_run_confs():
         export_evaluation_data(conf)
         split_by_categories(conf)

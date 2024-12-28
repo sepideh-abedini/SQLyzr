@@ -22,5 +22,16 @@ class Categorizer:
                 # return f"{c.name}_{sub_cat.name}"
                 # return f"{sub_cat.name}"
                 # return f"{c.name}"
+                return c
+        return None
+
+    def get_sub_category(self, tag_set: SubCategory):
+        for c in reversed(self.categories):  # Check to find a match starting from
+            # harder categories
+            sub_cat = c.matches(tag_set)
+            if sub_cat:
+                # return f"{c.name}_{sub_cat.name}"
+                # return f"{sub_cat.name}"
+                # return f"{c.name}"
                 return sub_cat
         return None

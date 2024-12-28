@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import Optional, Union, Tuple, List, Set
+from typing import Optional, Union, Tuple, List, Set, Dict
 
 from src.dbutil.database_schema import DatabaseSchema
 
@@ -11,6 +11,7 @@ class SqlAstNode(ABC):
     raw_sql: str
     question: str
     db_schema: DatabaseSchema
+    cols: Set[str]
 
     @abstractmethod
     def accept(self, visitor):
@@ -160,7 +161,7 @@ class ColumnNode(ExpressionNode):
 
     def exists_in_foreign_keys(self, node: 'ColumnNode'):
         for foreign_key_set in self.db_schema.foreign_keys:
-            if (node.table_name.value, node.column_name.value) in foreign_key_set:
+            if node.table_name and (node.table_name.value, node.column_name.value) in foreign_key_set:
                 return True
         return False
 

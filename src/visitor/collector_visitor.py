@@ -10,6 +10,10 @@ class CollectorVisitor(NodeVisitor):
     """Automatically visits all attributes of a node and
     merges the results."""
 
+    def __init__(self, result_class: Type[MergeableVisitorResult]):
+        super().__init__()
+        self.result_class = result_class
+
     def visit_literal_list(self, node: LiteralListNode):
         return self.visit_node(node)
 
@@ -27,10 +31,6 @@ class CollectorVisitor(NodeVisitor):
 
     def visit_cast_expression(self, node: CastExpressionNode):
         return self.visit_node(node)
-
-    def __init__(self, result_class: Type[MergeableVisitorResult]):
-        super().__init__()
-        self.result_class = result_class
 
     def get_new_result_instance(self, attr: Any):
         return self.result_class()

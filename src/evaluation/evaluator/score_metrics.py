@@ -5,6 +5,8 @@ from src.evaluation.evaluator.lib import exec_sql
 from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
 from src.evaluation.lib import lib
 from src.evaluation.runner.runner_config import SingleRunConfig
+from src.exprimental.matcher.sql_data import SqlInputData
+from src.exprimental.transformer_detector import TransformerDetector
 from src.third_party.spider.evaluation import eval_exact_match
 from src.third_party.test_suite_acc.evaluation import test_suite_exec_acc
 
@@ -55,6 +57,7 @@ class ExactMatch(EvalMetric):
                 if (gold_parser == pred_parser) or (pred_parser == gold_parser):
                     score += 1
             except Exception as e:
+                print(e)
                 parser_errors.append(pred)
         return score
 
@@ -88,6 +91,25 @@ class ExecAcc(EvalMetric):
             pred_sql_exec_res = exec_sql(db_file_path, pred)
             result = (gold_sql_exec_res and pred_sql_exec_res) and (pred_sql_exec_res == gold_sql_exec_res)
             if result:
+                score += 1
+        return score
+
+
+class RelaxedExecAcc(EvalMetric):
+    def __init__(self, conf):
+        super().__init__("rel_exec_acc", conf)
+        self.detector = TransformerDetector()
+
+    def calc(self, cat: str):
+        score = 0
+        pred_path = self.run_conf.get_eval_pred_path_per_cat(cat)
+        gold_path = self.run_conf.get_eval_gold_path_per_cat(cat)
+        data = get_pred_gold_db_id(pred_path, gold_path)
+        for gold, pred, db_id in data:
+            pd = SqlInputData(db_id, pred)
+            gd = SqlInputData(db_id, gold)
+            procs = self.detector.find_working_sub(pd, gd)
+            if procs:
                 score += 1
         return score
 
@@ -132,7 +154,7 @@ class TotalExecTime(EvalMetric):
             timer.start()
             exec_sql(db_file_path, pred)
             pred_sql_exec_time = timer.stop()
-            total_sql_exec_time += pred_sql_exec_time.total_seconds() * 1000000
+            total_sql_exec_time += pred_sql_exec_time.total_seconds()
 
         return total_sql_exec_time
 

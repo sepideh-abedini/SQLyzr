@@ -56,7 +56,7 @@ CAT_6 = StatementCategory(
     SubCategory("s20", frozenset([StructureType.Nested, JoinConditions.UnconditionalJoin]),
                 "Having nested sub-queries plus having JOIN clause without join condition"),
     SubCategory("s21", frozenset([StructureType.Compound, StructureType.Nested]),
-                "Having a composition keyword such as INTERSECT or UNION plus having nested sub-queriesc"),
+                "Having a composition keyword such as (INTERSECT or UNION) and having nested sub-queries"),
 )
 
 CATS = [CAT_1, CAT_2, CAT_3, CAT_4, CAT_5, CAT_6]

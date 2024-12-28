@@ -1,0 +1,75 @@
+Error Type: Wrong order of tuples
+nl = "List all song names by singers above the average age."
+pred = "SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer) ORDER BY Song_Name"
+gold = "SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)"
+-----------------------------------
+PRED: 	[['Gentleman'], ['Sun'], ['You']]
+GOLD: 	[['You'], ['Sun'], ['Gentleman']]
+######################################
+
+######################################
+Error Type: Wrong order of columns
+nl = "Find the maximum weight for each type of pet. List the maximum weight and pet type."
+pred = "SELECT PetType , max(weight) FROM Pets GROUP BY PetType"
+gold = "SELECT max(weight) ,  petType FROM pets GROUP BY petType"
+-----------------------------------
+PRED: 	[['cat', 12.0], ['dog', 13.4]]
+GOLD: 	[[12.0, 'cat'], [13.4, 'dog']]
+######################################
+
+######################################
+Error Type: Wrong literal value, used female instead of F (not fixed)
+nl = "How many dog pets are raised by female students?"
+db_id = "pets_1"
+pred = "SELECT count(*) FROM Pets AS T1 JOIN Has_Pet AS T2 ON T1.PetID = T2.PetID JOIN Student AS T3 ON T2.StuID = T3.StuID WHERE T1.PetType = 'dog' AND T3.Sex = 'female'"
+gold = "SELECT count(*) FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T2.petid  =  T3.petid WHERE T1.sex  =  'F' AND T3.pettype  =  'dog'"
+
+######################################
+
+######################################
+Error Type: Wrong value, used Cat,Dog instead of cat,dog
+nl = "Find the first name and age of students who have a dog but do not have a cat as a pet."
+db_id = "pets_1"
+pred = "SELECT Fname, Age FROM Student WHERE StuID IN (SELECT StuID FROM Has_Pet WHERE PetID IN (SELECT PetID FROM Pets WHERE PetType = 'Dog')) AND StuID NOT IN (SELECT StuID FROM Has_Pet WHERE PetID IN (SELECT PetID FROM Pets WHERE PetType = 'Cat'))"
+gold = "SELECT T1.fname ,  T1.age FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'dog' AND T1.stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat')"
+
+######################################
+Error Type: Wrong column name (name instead of song_name)
+nl = "Show the name and the release year of the song by the youngest singer."
+org_pred = "SELECT T1.Name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC LIMIT 1"
+org_gold = "SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1"
+pred = "SELECT T1.song_name, T1.Song_release_year FROM singer AS T1 ORDER BY T1.Age ASC"
+gold = "SELECT song_name ,  song_release_year FROM singer ORDER BY age"
+
+######################################
+Error Type: Extra tuples in pred
+nl = "What are the different models created by either the car maker General Motors or weighed more than 3500?"
+pred = "SELECT Model FROM model_list AS T1 JOIN car_makers AS T2 ON T1.Maker = T2.Id WHERE T2.Maker = 'General Motors' UNION SELECT T3.Model FROM cars_data AS T4 JOIN car_names AS T3 ON T4.Id = T3.MakeId WHERE T4.Weight > 3500"
+gold = "SELECT DISTINCT T2.Model FROM CAR_NAMES AS T1 JOIN MODEL_LIST AS T2 ON T1.Model  =  T2.Model JOIN CAR_MAKERS AS T3 ON T2.Maker  =  T3.Id JOIN CARS_DATA AS T4 ON T1.MakeId  =  T4.Id WHERE T3.FullName  =  'General Motors' OR T4.weight  >  3500;"
+-----------------------------------
+PRED: 	[['amc'], ['dodge'], ['hi'], ['mercedes-benz'], ['mercury'], ['ford'], ['plymouth'], ['chevrolet'], ['oldsmobile'], ['cadillac'], ['chrysler'], ['buick'], ['pontiac'], ['mercedes']]
+GOLD: 	[['amc'], ['dodge'], ['mercedes-benz'], ['mercury'], ['ford'], ['plymouth'], ['chevrolet'], ['oldsmobile'], ['cadillac'], ['chrysler'], ['buick'], ['pontiac'], ['mercedes']]
+
+######################################
+
+######################################
+Error Type: Extra column in pred
+nl = "List the name, date and result of each battle."
+db_id = "battle_death"
+pred = "SELECT name , date , result FROM battle"
+gold = "SELECT name ,  date FROM battle"
+-----------------------------------
+PRED: 	[['Bulgarian victory', '14 April 1205', 'Battle of Adrianople'], ['Bulgarian victory', 'Battle of Messinopolis', '4 September 1207'], ['Bulgarian victory', 'Battle of Rodosto', 'February 1206'], ['June 1205', 'Bulgarian victory', 'Battle of Boruy'], ['Battle of Rusion', 'Bulgarian victory', '31 January 1206'], ['31 June 1208', 'Latin victory', 'Battle of Philippopolis'], ['1235', 'Siege of Constantinople', 'Two Year Truce'], ['June 1205', 'Bulgarian victory', 'Battle of Serres']]
+GOLD: 	[['June 1205', 'Battle of Serres'], ['Battle of Rusion', '31 January 1206'], ['1235', 'Siege of Constantinople'], ['June 1205', 'Battle of Boruy'], ['14 April 1205', 'Battle of Adrianople'], ['Battle of Rodosto', 'February 1206'], ['Battle of Messinopolis', '4 September 1207'], ['31 June 1208', 'Battle of Philippopolis']]
+######################################
+
+######################################
+Error Type: Limit
+nl = "What is the maker of the carr produced in the earliest year and what year was it?"
+pred = "SELECT T1.Maker, T2.Year FROM car_makers AS T1 JOIN cars_data AS T2 ON T1.Id = T2.Id ORDER BY T2.Year ASC LIMIT 1"
+gold = "SELECT T2.Make ,  T1.Year FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T1.Year  =  (SELECT min(YEAR) FROM CARS_DATA);"
+-----------------------------------
+PRED: 	[['1970', 'amc']]
+GOLD: 	[['plymouth duster', '1970'], ['1970', 'hi 1200d'], ['1970', 'ford torino'], ['chevrolet monte carlo', '1970'], ['buick skylark 320', '1970'], ['1970', 'ford maverick'], ['1970', 'datsun pl510'], ['chevrolet chevelle malibu', '1970'], ['1970', 'chevrolet impala'], ['1970', 'plymouth satellite'], ['1970', 'ford f250'], ['buick estate wagon (sw)', '1970'], ['chevrolet chevelle concours (sw)', '1970'], ['pontiac catalina', '1970'], ['1970', 'toyota corona mark ii'], ['dodge challenger se', '1970'], ['1970', 'amc gremlin'], ['1970', 'amc hornet'], ['saab 99e', '1970'], ['1970', 'plymouth cuda 340'], ['audi 100 ls', '1970'], ['citroen ds-21 pallas', '1970'], ['amc rebel sst (sw)', '1970'], ['peugeot 504', '1970'], ['ford torino (sw)', '1970'], ['1970', 'ford mustang boss 302'], ['plymouth fury iii', '1970'], ['1970', 'volkswagen 1131 deluxe sedan'], ['bmw 2002', '1970'], ['1970', 'amc rebel sst'], ['1970', 'amc ambassador dpl'], ['plymouth satellite (sw)', '1970'], ['1970', 'dodge d200'], ['chevy c20', '1970'], ['1970', 'ford galaxie 500']]
+#################################
+

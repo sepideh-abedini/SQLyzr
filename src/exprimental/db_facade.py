@@ -20,6 +20,7 @@ class DatabaseFacade:
             rows = cursor.fetchall()
         except sqlite3.OperationalError as e:
             rows = None
+            print(e)
         cursor.close()
         connection.close()
         return rows

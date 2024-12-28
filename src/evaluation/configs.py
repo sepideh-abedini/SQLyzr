@@ -26,9 +26,9 @@ EVAL_CONF = ModelEvalConfig(
 )
 
 SMALL_EVAL_CONF = ModelEvalConfig(
-    temps=[0.0, 0.2],
-    num_itrs=3,
+    temps=[0.0],
+    num_itrs=1,
     pred_dir="data/dum",
     eval_dir="data/eval",
-    dataset_config=SPIDER_SMALL
+    dataset_config=SPIDER_DEV
 )

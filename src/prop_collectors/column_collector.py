@@ -25,6 +25,7 @@ class ColumnCollector(CollectorVisitor):
         self.inline_tables = {}
         self.anon_table = False
         self.db_schema = db_schema
+        self.cand_cols = set()
 
     def get_merged_table_dict(self):
         """Get a dict my merging all dicts in table_stack"""
@@ -113,14 +114,14 @@ class ColumnCollector(CollectorVisitor):
         return super().visit_result_column(node)
 
     def visit_column(self, node: ColumnNode):
-        col_name = node.column_name.value
+        col_name = node.column_name.value.lower()
         if col_name in self.col_alias:
             col_name = self.col_alias[col_name]
         node.db_schema = self.db_schema
         if col_name == '*':
             return SqlFeatures(col_set={STAR_COLUMN})
         if node.table_name:
-            table_name = self.resolve_table_alias(node.table_name.value)
+            table_name = self.resolve_table_alias(node.table_name.value.lower())
         elif len(self.alias_dict_stack) > 0 and len(self.alias_dict_stack[-1]) > 0:
             # If no table is specified for a column, then we need to search
             # in the list of columns of each table provided by the database
