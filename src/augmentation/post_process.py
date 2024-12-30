@@ -7,7 +7,7 @@ from src.augmentation.spider.process_sql import tokenize, get_sql
 
 
 def main():
-    data = json.load(open("data/aug/gpt.json"))
+    data = json.load(open("data/aug/gpt.all.json"))
     table_file = "data/spider/tables.json"
     nl_tokenizer = NLTKWordTokenizer()
 

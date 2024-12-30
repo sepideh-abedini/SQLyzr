@@ -4,7 +4,7 @@ import random
 
 from src.augmentation.calculate_cost import calculate_cost
 from src.augmentation.data_generator import Catter, TextSqlPair, DataGenerator
-from src.cat.categories import CATS, CAT_4
+from src.cat.categories import CATS, CAT_4, CAT_6
 from src.cat.sub_category import SubCategory
 from src.evaluation.configs import SPIDER_DEV
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     results = []
     wrong_results = []
     catter = Catter()
-    num = 25
+    num = 50
 
     trunc_logs()
 
@@ -55,6 +55,7 @@ if __name__ == "__main__":
     for s in cat.sub_cats:
         if s in generator.examples.keys():
             sub_cats.append(s)
+    print(f"Generating for sub_cats: {sub_cats}")
 
     for i in range(num):
         sub_cat = random.choice(list(sub_cats))
