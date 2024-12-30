@@ -9,7 +9,7 @@ from src.cat.tag_extractor import TagExtractor
 from src.eval.configs import SMALL_EVAL_CONF, DIN_SMALL_CONF
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.runner_config import SingleRunConfig
-from src.eval.metrics import ExactMatch
+from src.eval.metrics import *
 from src.eval.score_metrics import get_pred_gold_db_id
 from src.parse.parser import SqlParser
 
@@ -95,7 +95,11 @@ def calc_scores(config: ModelEvalConfig):
     categorizer = Categorizer()
     df = pd.DataFrame()
     metrics = [
-        ExactMatch("em", config.get_run_confs()[0].dataset_config)
+        ExactMatch("em", config.dataset_config),
+        ExecAcc("ea", config.dataset_config),
+        TotalExecTime("et", config.dataset_config),
+        SpiderExactMatch("sem", config.dataset_config),
+        Count("count", config.dataset_config)
     ]
     for conf in config.get_run_confs():
         pred_path = conf.get_pred_path()
@@ -114,8 +118,6 @@ def calc_scores(config: ModelEvalConfig):
         ti_df = pd.DataFrame(scores)
         df = pd.concat([df, ti_df])
     df.to_csv("scores.csv")
-
-    print("salam")
 
 
 if __name__ == "__main__":

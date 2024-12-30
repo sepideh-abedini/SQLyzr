@@ -12,11 +12,13 @@ class ModelEvalConfig:
     run_confs: Dict[float, List[SingleRunConfig]]
     eval_dir: str
     pred_dir: str
+    dataset_config: DatasetConfig
 
     def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, dataset_config: DatasetConfig):
         self.pred_dir = pred_dir
         self.eval_dir = eval_dir
         self.run_confs = {}
+        self.dataset_config = dataset_config
         for temp, itr in product(temps, range(num_itrs)):
             conf = SingleRunConfig(dataset_config=dataset_config,
                                    pred_dir=pred_dir,
