@@ -5,6 +5,8 @@ from src.exprimental.transformer_detector import TransformerDetector
 
 # skips = [469, 470, 471, 472]
 skips = []
+
+
 class BatchMatcher:
 
     def __init__(self, tables_path: str, db_dir: str):

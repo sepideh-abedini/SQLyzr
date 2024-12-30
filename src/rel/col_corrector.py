@@ -1,9 +1,9 @@
 from typing import Set, Dict
 
-from src.dbutil.database_schema import DatabaseSchema, str_similarity
-from src.sql_parser.node import TerminalNode, LiteralNode, ColumnNode
-from src.visitor.collector_visitor import CollectorVisitor
-from src.visitor.visitor_result import MergeableVisitorResult
+from src.parse.node import ColumnNode
+from src.parse.visitor.collector_visitor import CollectorVisitor
+from src.parse.visitor.visitor_result import MergeableVisitorResult
+from src.util.database_schema import DatabaseSchema, str_similarity
 
 
 class ColCorrections(MergeableVisitorResult):

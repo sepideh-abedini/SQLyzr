@@ -1,6 +1,6 @@
 from typing import cast
 
-from src.eval.database_column import DatabaseColumn
+from src.eval.database_column import DatabaseColumn, STAR_COLUMN
 from src.eval.sql_features import SqlFeatures
 from src.parse.node import FunctionExpressionNode
 from src.parse.node import ResultColumnNode

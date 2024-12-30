@@ -1,8 +1,8 @@
 from typing import Set
 
-from src.sql_parser.node import TerminalNode, LiteralNode
-from src.visitor.collector_visitor import CollectorVisitor
-from src.visitor.visitor_result import MergeableVisitorResult
+from src.parse.node import LiteralNode
+from src.parse.visitor.collector_visitor import CollectorVisitor
+from src.parse.visitor.visitor_result import MergeableVisitorResult
 
 
 class ValueSet(MergeableVisitorResult):
