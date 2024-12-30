@@ -1,6 +1,5 @@
-from src.cat.tag_collector_result import TagCollectorResult
 from src.cat.tag_collector import *
-from src.sql_parser.node import SqlAstNode
+from src.parse.node import SqlAstNode
 
 
 class TagExtractor:

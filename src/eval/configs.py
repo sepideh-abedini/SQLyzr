@@ -1,5 +1,5 @@
-from src.evaluation.evaluator.model_eval_config import ModelEvalConfig
-from src.evaluation.runner.dataset_config import DatasetConfig
+from src.eval.model_eval_config import ModelEvalConfig
+from src.eval.dataset_config import DatasetConfig
 
 SPIDER_SMALL = DatasetConfig(
     dataset_dir="data/spider",
@@ -30,5 +30,13 @@ SMALL_EVAL_CONF = ModelEvalConfig(
     num_itrs=1,
     pred_dir="data/dum",
     eval_dir="data/eval",
-    dataset_config=SPIDER_DEV
+    dataset_config=SPIDER_SMALL
+)
+
+DIN_SMALL_CONF = ModelEvalConfig(
+    temps=[0.0],
+    num_itrs=1,
+    pred_dir="data/din",
+    eval_dir="data/eval",
+    dataset_config=SPIDER_SMALL
 )

@@ -20,7 +20,7 @@ def calc_score_data_row(config: SingleRunConfig, cat: str):
         # ExactMatch(config),
         # SpiderExactMatch(config),
         # ExecAcc(config),
-        # RelaxedExecAcc(config),
+        RelaxedExecAcc(config),
         TotalExecTime(config),
         # TestSuitAcc(config)
     ]

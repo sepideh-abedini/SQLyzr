@@ -6,9 +6,9 @@ import pandas as pd
 from src.cat.categories import get_all_cats, CATS
 from src.cat.categorizer import Categorizer
 from src.cat.tag_extractor import TagExtractor
-from src.evaluation.configs import SMALL_EVAL_CONF
-from src.evaluation.runner.runner_config import SingleRunConfig
-from src.sql_parser.parser import SqlParser
+from src.eval.configs import SMALL_EVAL_CONF
+from src.eval.runner_config import SingleRunConfig
+from src.parse.parser import SqlParser
 
 cats = get_all_cats(CATS)
 

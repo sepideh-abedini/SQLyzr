@@ -1,8 +1,8 @@
 import os
 from dataclasses import dataclass, replace
 
-from src.evaluation.runner.dataset_config import DatasetConfig
-from src.evaluation.runner.utils import get_num_lines
+from src.eval.dataset_config import DatasetConfig
+from src.util.file_utils import get_num_lines
 
 
 @dataclass
