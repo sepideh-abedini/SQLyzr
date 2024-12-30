@@ -2,7 +2,7 @@ import json
 from os.path import split
 from typing import Dict
 
-from src.dbutil.database_schema import DatabaseSchema
+from src.util.database_schema import DatabaseSchema
 from src.util.str_utils import split_to_snake
 
 
