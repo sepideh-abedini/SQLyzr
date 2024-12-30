@@ -5,7 +5,7 @@ from typing import List, Callable
 
 import pandas as pd
 
-from src.gpt.gpt_utils import process_responses
+from src.gpt.gpt_utils import process_responses, load_responses
 from src.third_party.din.config import DinConfig, DEFAULT_CONF
 from src.gpt.gpt_asker import AsyncGptAsker
 from src.third_party.din.prompt_maker import PromptMaker
@@ -142,6 +142,28 @@ class DinPredictor:
             file.write(f"{sql}\n")
         file.close()
 
+    def get_token_usage(self, file_path: str):
+        token_usage = []
+        responses = load_responses(file_path)
+        for response in responses:
+            token_usage.append(response.usage.total_tokens)
+        return token_usage
+
+    def save_total_token_usage(self):
+        all_usage = []
+        for file in [
+            self.conf.classif_out,
+            self.conf.schema_out,
+            self.conf.sql_out,
+            self.conf.sql_debug_out
+        ]:
+            all_usage.append(self.get_token_usage(file))
+        all_usage = [sum(usages) for usages in zip(*all_usage)]
+        out_file = open(self.run_conf.get_token_path(), "w")
+        for usage in all_usage:
+            out_file.write(f"{usage}\n")
+        out_file.close()
+
     async def run(self):
         conf = self.conf
 
@@ -174,3 +196,5 @@ class DinPredictor:
         sqls = self.post_process(self.sqls)
 
         self.save_sqls(self.run_conf.get_pred_path(), sqls)
+
+        self.save_total_token_usage()

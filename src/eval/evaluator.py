@@ -25,19 +25,25 @@ def calc_scores(config: ModelEvalConfig):
         ExecAcc("ea", config.dataset_config),
         TotalExecTime("et", config.dataset_config),
         SpiderExactMatch("sem", config.dataset_config),
-        RelaxedExecAcc("rea", config.dataset_config),
-        Count("count", config.dataset_config)
+        # RelaxedExecAcc("rea", config.dataset_config),
+        Count("count", config.dataset_config),
+    ]
+    stat_metrics = [
+        TokenUsage("tokens", )
     ]
     for conf in config.get_run_confs():
         pred_path = conf.get_pred_path()
         gold_path = conf.dataset_config.get_gold_path()
         data = get_pred_gold_db_id(pred_path, gold_path)
         scores = []
-        for gold, pred, db_id in data:
+        for i, (gold, pred, db_id) in enumerate(data):
             cat = catter.get_category(gold)
             example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": cat.name}
             for metric in metrics:
                 score = metric.calc(gold, pred, db_id)
+                example_scores[metric.name] = score
+            for metric in stat_metrics:
+                score = metric.calc(i, conf)
                 example_scores[metric.name] = score
             scores.append(example_scores)
         ti_df = pd.DataFrame(scores)

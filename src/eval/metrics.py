@@ -5,6 +5,7 @@ from src.eval import lib
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.eval.lib import exec_sql
+from src.eval.runner_config import SingleRunConfig
 from src.rel.base_matcher import SubsetMatcher
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
@@ -24,6 +25,15 @@ class Metric(ABC):
         pass
 
 
+@dataclass
+class StatMetric(ABC):
+    name: str
+
+    @abstractmethod
+    def calc(self, i: int, run_conf: SingleRunConfig) -> int:
+        pass
+
+
 class ExactMatch(Metric):
     def calc(self, gold: str, pred: str, db_id: str) -> int:
         parser = ExactMatchParser(self.conf.get_tables_path())
@@ -35,6 +45,14 @@ class ExactMatch(Metric):
         except Exception as e:
             log(e)
         return 0
+
+
+class TokenUsage(StatMetric):
+
+    def calc(self, i: int, run_conf: SingleRunConfig) -> int:
+        file = open(run_conf.get_token_path())
+        usage = file.readlines()
+        return int(usage[i])
 
 
 class SpiderExactMatch(Metric):
