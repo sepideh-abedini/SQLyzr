@@ -159,12 +159,3 @@ class TotalExecTime(EvalMetric):
         return total_sql_exec_time
 
 
-def get_pred_gold_db_id(pred_path, gold_path):
-    with open(pred_path) as pred_file, open(gold_path) as gold_file:
-        pred_file_lines = pred_file.readlines()
-        rows = []
-        for i, gold_line in enumerate(gold_file):
-            gold_sql, db_id = gold_line.strip().split("\t")
-            pred_sql = pred_file_lines[i].strip()
-            rows.append((pred_sql, gold_sql, db_id))
-    return rows
