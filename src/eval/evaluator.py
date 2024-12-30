@@ -4,10 +4,14 @@ from itertools import product
 import pandas as pd
 
 from src.cat.categories import get_all_cats, CATS
+from src.cat.categorizer import Categorizer
+from src.cat.tag_extractor import TagExtractor
 from src.eval.configs import SMALL_EVAL_CONF, DIN_SMALL_CONF
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.runner_config import SingleRunConfig
-from src.eval.score_metrics import GoldCount, TotalExecTime, ExactMatch, ExecAcc, SpiderExactMatch
+from src.eval.metrics import ExactMatch
+from src.eval.score_metrics import get_pred_gold_db_id
+from src.parse.parser import SqlParser
 
 
 def calc_score_data_row(config: SingleRunConfig, cat: str):
@@ -85,5 +89,35 @@ def evaluate(config: ModelEvalConfig):
     # final.to_csv(config.get_scores_path("final"))
 
 
+def calc_scores(config: ModelEvalConfig):
+    parser = SqlParser()
+    tag_extractor = TagExtractor()
+    categorizer = Categorizer()
+    df = pd.DataFrame()
+    metrics = [
+        ExactMatch("em", config.get_run_confs()[0].dataset_config)
+    ]
+    for conf in config.get_run_confs():
+        pred_path = conf.get_pred_path()
+        gold_path = conf.dataset_config.get_gold_path()
+        data = get_pred_gold_db_id(pred_path, gold_path)
+        scores = []
+        for gold, pred, db_id in data:
+            ast = parser.parse(gold)
+            tags = tag_extractor.extract_tags(ast)
+            cat = categorizer.get_category(tags.tag_set)
+            example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": cat.name}
+            for metric in metrics:
+                score = metric.calc(gold, pred, db_id)
+                example_scores[metric.name] = score
+            scores.append(example_scores)
+        ti_df = pd.DataFrame(scores)
+        df = pd.concat([df, ti_df])
+    df.to_csv("scores.csv")
+
+    print("salam")
+
+
 if __name__ == "__main__":
-    evaluate(DIN_SMALL_CONF)
+    calc_scores(DIN_SMALL_CONF)
+    # evaluate(DIN_SMALL_CONF)

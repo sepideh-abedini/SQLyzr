@@ -35,7 +35,7 @@ SMALL_EVAL_CONF = ModelEvalConfig(
 
 DIN_SMALL_CONF = ModelEvalConfig(
     temps=[0.0],
-    num_itrs=1,
+    num_itrs=3,
     pred_dir="data/din",
     eval_dir="data/eval",
     dataset_config=SPIDER_SMALL
