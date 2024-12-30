@@ -5,8 +5,6 @@ import subprocess
 
 import pandas as pd
 
-LOG_LEVEL = 'DEBUG'
-
 
 class Timer():
     def __init__(self):
@@ -17,11 +15,6 @@ class Timer():
 
     def stop(self):
         return datetime.datetime.now() - self.start_time
-
-
-def log(*args):
-    if LOG_LEVEL == 'DEBUG':
-        print(*args)
 
 
 def confidence_level_interval(column: pd.Series) -> str:

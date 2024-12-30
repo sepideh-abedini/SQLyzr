@@ -1,6 +1,7 @@
 import pandas as pd
 
 from src.cat.categorizer import Categorizer
+from src.cat.catter import Catter
 from src.cat.tag_extractor import TagExtractor
 from src.eval.configs import DIN_SMALL_CONF
 from src.eval.metrics import *
@@ -20,9 +21,7 @@ def get_pred_gold_db_id(pred_path, gold_path):
 
 
 def calc_scores(config: ModelEvalConfig):
-    parser = SqlParser()
-    tag_extractor = TagExtractor()
-    categorizer = Categorizer()
+    catter = Catter()
     df = pd.DataFrame()
     metrics = [
         ExactMatch("em", config.dataset_config),
@@ -37,9 +36,7 @@ def calc_scores(config: ModelEvalConfig):
         data = get_pred_gold_db_id(pred_path, gold_path)
         scores = []
         for gold, pred, db_id in data:
-            ast = parser.parse(gold)
-            tags = tag_extractor.extract_tags(ast)
-            cat = categorizer.get_category(tags.tag_set)
+            cat = catter.get_category(gold)
             example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": cat.name}
             for metric in metrics:
                 score = metric.calc(gold, pred, db_id)

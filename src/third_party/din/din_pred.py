@@ -4,30 +4,19 @@ import re
 from typing import List, Callable
 
 import pandas as pd
-from openai.types.chat import ChatCompletion
 
+from src.gpt.gpt_utils import process_responses
 from src.third_party.din.config import DinConfig, DEFAULT_CONF
-from src.third_party.din.gpt_asker import AsyncGptAsker
+from src.gpt.gpt_asker import AsyncGptAsker
 from src.third_party.din.prompt_maker import PromptMaker
 from src.eval.runner_config import SingleRunConfig
 from src.util.logger import log
 
 PromptGenerator = Callable[[int, str, str], str]
-ResponseProcessor = Callable[[int, str], str]
 
 
 def load_data(input_path: str):
     return pd.read_json(input_path)
-
-
-def load_responses(in_path: str) -> List[ChatCompletion]:
-    file = open(in_path)
-    data = []
-    for line in file.readlines():
-        response = json.loads(line)
-        response = ChatCompletion.model_validate(response)
-        data.append(response)
-    return data
 
 
 class DinPredictor:
@@ -53,15 +42,6 @@ class DinPredictor:
         self.conf = config
         self.gpt_asker = AsyncGptAsker()
         self.prompt_maker = PromptMaker(run_conf.dataset_config.get_tables_path())
-
-    def process_responses(self, file_path: str, response_processor: ResponseProcessor) -> List[str]:
-        responses = load_responses(file_path)
-        results = []
-        for i, response in enumerate(responses):
-            content = response.choices[0].message.content
-            processed = response_processor(i, content)
-            results.append(processed)
-        return results
 
     def generate_messages_file(self, file_path: str, prompt_gen: PromptGenerator):
         examples = load_data(self.run_conf.dataset_config.get_data_path()).to_dict("records")
@@ -169,27 +149,27 @@ class DinPredictor:
 
         await self.ask_file(conf.schema_in, conf.schema_out, **self.default_params)
 
-        self.schema_links = self.process_responses(conf.schema_out, self.process_schema_response)
+        self.schema_links = process_responses(conf.schema_out, self.process_schema_response)
 
         self.generate_messages_file(conf.classif_in, self.create_classif_prompt)
 
         await self.ask_file(conf.classif_in, conf.classif_out, **self.default_params)
 
-        self.classifs = self.process_responses(conf.classif_out, lambda i, s: s)
+        self.classifs = process_responses(conf.classif_out, lambda i, s: s)
 
-        self.pred_classes = self.process_responses(conf.classif_out, self.process_classif_response)
+        self.pred_classes = process_responses(conf.classif_out, self.process_classif_response)
 
         self.generate_messages_file(conf.sql_in, self.create_sql_prompt)
 
         await self.ask_file(conf.sql_in, conf.sql_out, **self.default_params)
 
-        self.sqls = self.process_responses(conf.sql_out, self.process_sql_responses)
+        self.sqls = process_responses(conf.sql_out, self.process_sql_responses)
 
         self.generate_messages_file(conf.sql_debug_in, self.create_debug_sql_prompt)
 
         await self.ask_file(conf.sql_debug_in, conf.sql_debug_out, **self.debug_params)
 
-        self.sqls = self.process_responses(conf.sql_debug_out, self.process_sql_debug_response)
+        self.sqls = process_responses(conf.sql_debug_out, self.process_sql_debug_response)
 
         sqls = self.post_process(self.sqls)
 
