@@ -1,12 +1,9 @@
 import pandas as pd
 
-from src.cat.categorizer import Categorizer
 from src.cat.catter import Catter
-from src.cat.tag_extractor import TagExtractor
 from src.eval.configs import DIN_SMALL_CONF
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
-from src.parse.parser import SqlParser
 
 
 def get_pred_gold_db_id(pred_path, gold_path):
@@ -28,6 +25,7 @@ def calc_scores(config: ModelEvalConfig):
         ExecAcc("ea", config.dataset_config),
         TotalExecTime("et", config.dataset_config),
         SpiderExactMatch("sem", config.dataset_config),
+        RelaxedExecAcc("rea", config.dataset_config),
         Count("count", config.dataset_config)
     ]
     for conf in config.get_run_confs():

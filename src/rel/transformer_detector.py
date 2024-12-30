@@ -16,14 +16,8 @@ from src.util.meta_utils import powerset
 
 
 class TransformerDetector:
-    def __init__(self, dataset_config: DatasetConfig):
+    def __init__(self, dataset_config: DatasetConfig, processors: List[SqlMatchingProcessor]):
         self.processors = [
-            LimitRemoverTransformer(),
-            LiteralCorrectorTransformer(),
-            ColCorrectorTransformer(),
-            IgnoreListOrderTransformer(),
-            IgnoreColOrderTransformer(),
-            SubsetMatcher()
         ]
         self.db_facade = DatabaseFacade(dataset_config.get_db_path())
         self.parser = ExactMatchParser(dataset_config.get_tables_path())

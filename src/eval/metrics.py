@@ -5,6 +5,11 @@ from src.eval import lib
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.eval.lib import exec_sql
+from src.rel.base_matcher import SubsetMatcher
+from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
+from src.rel.sql_data import SqlInputData
+from src.rel.sql_transformer import LimitRemoverTransformer, LiteralCorrectorTransformer, ColCorrectorTransformer
+from src.rel.transformer_detector import TransformerDetector
 from src.third_party.spider.evaluation import get_spider_exact_match
 from src.util.logger import log
 
@@ -51,6 +56,27 @@ class ExecAcc(Metric):
             return 0
 
 
+class RelaxedExecAcc(Metric):
+
+    def __init__(self, name: str, conf: DatasetConfig):
+        super().__init__(name, conf)
+        self.detector = TransformerDetector(conf, [
+            LiteralCorrectorTransformer(),
+            IgnoreListOrderTransformer(),
+            IgnoreColOrderTransformer(),
+            SubsetMatcher()
+        ])
+
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
+        pd = SqlInputData(db_id, pred)
+        gd = SqlInputData(db_id, gold)
+        working_sub = self.detector.find_working_sub(pd, gd)
+        if working_sub:
+            return 1
+        else:
+            return 0
+
+
 class Count(Metric):
 
     def calc(self, gold: str, pred: str, db_id: str) -> int:
@@ -65,4 +91,3 @@ class TotalExecTime(Metric):
         exec_sql(db_file_path, pred)
         pred_sql_exec_time = timer.stop()
         return pred_sql_exec_time
-
