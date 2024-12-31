@@ -59,10 +59,11 @@ class Matcher:
             if result:
                 break
         if result:
-            print(f"new_pred: {pred_exec.sql}")
-            print(f"new_gold: {gold_exec.sql}")
-            print(f"pred_res: {pred_exec.res}")
-            print(f"gold_res: {gold_exec.res}")
+            pass
+            # print(f"new_pred: {pred_exec.sql}")
+            # print(f"new_gold: {gold_exec.sql}")
+            # print(f"pred_res: {pred_exec.res}")
+            # print(f"gold_res: {gold_exec.res}")
         return result
 
     def get_result(self, data: SqlInputData):

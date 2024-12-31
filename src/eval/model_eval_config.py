@@ -33,5 +33,8 @@ class ModelEvalConfig:
     def get_runner_conf(self, temp: float, itr: int):
         return self.run_confs[temp][itr]
 
+    def get_raw_scores_path(self):
+        return os.path.join(self.eval_dir, f"scores_raw.csv")
+
     def get_scores_path(self, sub: str = ""):
         return os.path.join(self.eval_dir, f"scores{sub}.csv")

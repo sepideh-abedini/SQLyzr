@@ -108,4 +108,4 @@ class TotalExecTime(Metric):
         timer.start()
         exec_sql(db_file_path, pred)
         pred_sql_exec_time = timer.stop()
-        return pred_sql_exec_time.total_seconds()
+        return pred_sql_exec_time.total_seconds() * 1_000_000

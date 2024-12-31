@@ -32,30 +32,32 @@ class Auger:
     examples: Dict[SubCategory, List[TextSqlPairExample]]
     sub_cats: List[SubCategory]
     db_id: str
+    catter: Catter
 
     def __init__(self, out, cat: StatementCategory, db_id: str, dataset_conf: DatasetConfig, conf=DEFAULT_CONF):
         self.out = out
         self.db_id = db_id
         self.conf = conf
+        self.sub_cats = []
+        self.catter = Catter()
         self.dataset_conf = dataset_conf
         self.gpt_asker = AsyncGptFormattedAsker("gpt-4o-mini", TextSqlPair)
         self.schema_repo = DatabaseSchemaRepo(self.dataset_conf.get_tables_path())
         self.examples = self.extract_examples()
-        self.sub_cats = []
         for s in cat.sub_cats:
             if s in self.examples.keys():
                 self.sub_cats.append(s)
         log(f"Generating for sub_cats: {self.sub_cats}")
 
     def extract_examples(self):
-        catter = Catter()
         examples = {}
         with open(self.dataset_conf.get_data_path()) as dataset_file:
             dataset_data = json.load(dataset_file)
             for entry in dataset_data:
                 db_id = entry["db_id"]
                 sql = entry["query"]
-                cat = catter.get_sub_category(sql)
+                root_cat = self.catter.get_category(sql)
+                cat = self.catter.get_sub_category(sql)
                 schema = self.schema_repo.dbs[db_id]
                 ex = TextSqlPairExample(sql=sql, question=entry["question"], schema=schema)
                 examples.setdefault(cat, []).append(ex)
@@ -88,6 +90,7 @@ class Auger:
     def process_response(self, i: int, pair: TextSqlPair) -> Dict:
         d = pair.dict()
         d['db_id'] = self.db_id
+        d['cat'] = str(self.catter.get_category(pair.sql))
         return d
 
     def save_results(self, dicts: List[Dict]):

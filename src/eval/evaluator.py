@@ -37,7 +37,7 @@ def calc_scores(config: ModelEvalConfig):
         gold_path = conf.dataset_config.get_gold_path()
         data = get_pred_gold_db_id(pred_path, gold_path)
         scores = []
-        for i, (gold, pred, db_id) in enumerate(data):
+        for i, (pred, gold, db_id) in enumerate(data):
             cat = catter.get_category(gold)
             example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": str(cat)}
             for metric in metrics:
@@ -49,11 +49,11 @@ def calc_scores(config: ModelEvalConfig):
             scores.append(example_scores)
         ti_df = pd.DataFrame(scores)
         df = pd.concat([df, ti_df])
-    df.to_csv(config.get_scores_path())
+    df.to_csv(config.get_raw_scores_path())
 
 
 def post_process_scores(config: ModelEvalConfig):
-    df = pd.read_csv(config.get_scores_path(), index_col=0)
+    df = pd.read_csv(config.get_raw_scores_path(), index_col=0)
 
     cat_grouped = df.groupby(['tmp', 'itr'], as_index=False).sum()
     cat_grouped['cat'] = 'all'
@@ -82,7 +82,7 @@ def post_process_scores(config: ModelEvalConfig):
 
     final = means.join(cis)
     final = final.round(2)
-    final.to_csv(config.get_scores_path("_final"))
+    final.to_csv(config.get_scores_path())
 
 
 if __name__ == "__main__":
