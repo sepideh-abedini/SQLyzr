@@ -95,7 +95,7 @@ def compute_cell_value_linking(tokens, schema):
         p_str = f"select {column} from {table} where {column} like '{word} %' or {column} like '% {word}' or " \
                 f"{column} like '% {word} %' or {column} like '{word}'"
         try:
-            cursor.execute(p_str)
+            cursor.execute_internal(p_str)
             p_res = cursor.fetchall()
             if len(p_res) == 0:
                 return False
@@ -110,7 +110,7 @@ def compute_cell_value_linking(tokens, schema):
         p_str = f"select {column} from {table} where {column} like '{word}' or {column} like ' {word}' or " \
                 f"{column} like '{word} ' or {column} like ' {word} '"
         try:
-            cursor.execute(p_str)
+            cursor.execute_internal(p_str)
             p_res = cursor.fetchall()
             if len(p_res) == 0:
                 return False

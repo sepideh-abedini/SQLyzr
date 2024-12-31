@@ -10,6 +10,7 @@ from src.util.logger import log
 
 
 class GptAsker:
+    client: AsyncClient
     model: str
 
     def __init__(self, model):

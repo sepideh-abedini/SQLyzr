@@ -12,13 +12,13 @@ def main():
 
     run_din(eval_conf)
 
-    calc_scores(eval_conf)
-
-    post_process_scores(eval_conf)
-
-    find_transformers(eval_conf)
-
-    augment_data(DIN_SPIDER_SMALL)
+    # calc_scores(eval_conf)
+    #
+    # post_process_scores(eval_conf)
+    #
+    # find_transformers(eval_conf)
+    #
+    # augment_data(DIN_SPIDER_SMALL)
 
 
 if __name__ == '__main__':

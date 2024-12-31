@@ -5,7 +5,7 @@ from src.rel.col_collector import ColCollector
 from src.rel.col_corrector import ColCorrector
 from src.rel.sql_data import SqlParsedData
 from src.rel.sql_processor import SqlMatchingProcessor
-from temp_arch.exprimental.terminal_visitor import ValueCollector
+from src.rel.terminal_visitor import ValueCollector
 
 
 class SqlTransformer(SqlMatchingProcessor, ABC):
