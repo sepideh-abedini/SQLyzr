@@ -1,5 +1,4 @@
 from src.aug.augment_data import augment_data
-from src.eval.configs import DIN_SMALL_CONF
 from src.eval.evaluator import calc_scores, post_process_scores
 from src.eval.run_model import run_din
 from src.rel.transformer_eval import find_transformers

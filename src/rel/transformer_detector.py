@@ -28,7 +28,7 @@ class TransformerDetector:
     def find_working_sub(self, pred: SqlInputData, gold: SqlInputData):
         working_sub = None
         procs = []
-        pool = ThreadPool(processes=4)
+        pool = ThreadPool(processes=1)
         for sub in powerset(self.processors):
             # print(f"Checking with: {sub}")
             res = pool.apply_async(func=self.run_with, args=(pred, gold, sub))
