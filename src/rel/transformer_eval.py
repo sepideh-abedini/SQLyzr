@@ -12,7 +12,7 @@ from src.rel.sql_transformer import LimitRemoverTransformer, LiteralCorrectorTra
 from src.rel.transformer_detector import TransformerDetector
 
 
-def eval_transformer(config: ModelEvalConfig):
+def find_transformers(config: ModelEvalConfig):
     detector = TransformerDetector(config.dataset_config, [
         LimitRemoverTransformer(),
         LiteralCorrectorTransformer(),

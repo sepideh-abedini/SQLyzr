@@ -33,4 +33,4 @@ class ModelEvalConfig:
         return self.run_confs[temp][itr]
 
     def get_scores_path(self, sub: str = ""):
-        return os.path.join(self.eval_dir, f"scores_{sub}.csv")
+        return os.path.join(self.eval_dir, f"scores{sub}.csv")

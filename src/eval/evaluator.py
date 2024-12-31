@@ -2,6 +2,7 @@ import pandas as pd
 
 from src.cat.catter import Catter
 from src.eval.configs import DIN_SMALL_CONF
+from src.eval.lib import confidence_level_interval
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
 
@@ -25,11 +26,11 @@ def calc_scores(config: ModelEvalConfig):
         ExecAcc("ea", config.dataset_config),
         TotalExecTime("et", config.dataset_config),
         SpiderExactMatch("sem", config.dataset_config),
-        # RelaxedExecAcc("rea", config.dataset_config),
+        RelaxedExecAcc("rea", config.dataset_config),
         Count("count", config.dataset_config),
     ]
     stat_metrics = [
-        TokenUsage("tokens", )
+        TokenUsage("tokens")
     ]
     for conf in config.get_run_confs():
         pred_path = conf.get_pred_path()
@@ -38,7 +39,7 @@ def calc_scores(config: ModelEvalConfig):
         scores = []
         for i, (gold, pred, db_id) in enumerate(data):
             cat = catter.get_category(gold)
-            example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": cat.name}
+            example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": str(cat)}
             for metric in metrics:
                 score = metric.calc(gold, pred, db_id)
                 example_scores[metric.name] = score
@@ -48,7 +49,40 @@ def calc_scores(config: ModelEvalConfig):
             scores.append(example_scores)
         ti_df = pd.DataFrame(scores)
         df = pd.concat([df, ti_df])
-    df.to_csv("scores.csv")
+    df.to_csv(config.get_scores_path())
+
+
+def post_process_scores(config: ModelEvalConfig):
+    df = pd.read_csv(config.get_scores_path(), index_col=0)
+
+    cat_grouped = df.groupby(['tmp', 'itr'], as_index=False).sum()
+    cat_grouped['cat'] = 'all'
+    cat_grouped.to_csv(config.get_scores_path("_1"))
+    #
+    df = pd.concat([cat_grouped, df], join='inner', ignore_index=True)
+    df.to_csv(config.get_scores_path("_2"))
+    #
+    df = df.groupby(['tmp', 'itr', 'cat'], as_index=False).sum()
+    df.to_csv(config.get_scores_path("_3"))
+
+    scores = ["em", "ea", "sem", "rea"]
+    df[scores] = df[scores].div(df['count'], axis=0)
+    df.to_csv(config.get_scores_path("_4"), index_label="idx")
+
+    means = df.groupby(['tmp', 'cat']).mean()
+    means[scores] = means[scores] * 100
+    means = means.drop(columns=['itr'])
+    means.to_csv(config.get_scores_path("_means"))
+    means.columns = [col + '_mean' for col in means.columns]
+
+    cis = df.groupby(['tmp', 'cat']).agg(confidence_level_interval)
+    cis = cis.drop(columns=['itr'])
+    cis.to_csv(config.get_scores_path("cis"))
+    cis.columns = [col + '_ci' for col in cis.columns]
+
+    final = means.join(cis)
+    final = final.round(2)
+    final.to_csv(config.get_scores_path("_final"))
 
 
 if __name__ == "__main__":

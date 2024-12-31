@@ -10,10 +10,10 @@ from src.util.logger import log
 
 
 class GptAsker:
-    model = "gpt-4o-mini"
-    # model = "gpt-3.5-turbo"
+    model: str
 
-    def __init__(self):
+    def __init__(self, model):
+        self.model = model
         self.client = AsyncClient(
             organization=os.getenv("OPENAI_GROUP_ID"),
             project=os.getenv("OPENAI_PROJ_ID"),
@@ -70,8 +70,8 @@ class AsyncGptAsker(GptAsker):
 class AsyncGptFormattedAsker(AsyncGptAsker):
     response_format: Type[BaseModel]
 
-    def __init__(self, response_format: Type[BaseModel]):
-        super().__init__()
+    def __init__(self, model, response_format: Type[BaseModel]):
+        super().__init__(model)
         self.response_format = response_format
 
     async def ask_message(self, message, **kwargs):

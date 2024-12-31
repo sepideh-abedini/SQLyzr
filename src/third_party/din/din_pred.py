@@ -40,7 +40,7 @@ class DinPredictor:
     def __init__(self, run_conf: SingleRunConfig, config: DinConfig = DEFAULT_CONF):
         self.run_conf = run_conf
         self.conf = config
-        self.gpt_asker = AsyncGptAsker()
+        self.gpt_asker = AsyncGptAsker("gpt-3.5-turbo")
         self.prompt_maker = PromptMaker(run_conf.dataset_config.get_tables_path())
 
     def generate_messages_file(self, file_path: str, prompt_gen: PromptGenerator):

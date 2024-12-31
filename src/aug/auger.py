@@ -38,7 +38,7 @@ class Auger:
         self.db_id = db_id
         self.conf = conf
         self.dataset_conf = dataset_conf
-        self.gpt_asker = AsyncGptFormattedAsker(TextSqlPair)
+        self.gpt_asker = AsyncGptFormattedAsker("gpt-4o-mini", TextSqlPair)
         self.schema_repo = DatabaseSchemaRepo(self.dataset_conf.get_tables_path())
         self.examples = self.extract_examples()
         self.sub_cats = []

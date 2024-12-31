@@ -1,22 +1,22 @@
-import asyncio
-
 from src.eval.configs import DIN_SMALL_CONF
-from src.eval.evaluator import calc_scores
-from src.third_party.din.din_pred import DinPredictor
+from src.eval.evaluator import calc_scores, post_process_scores
+from src.rel.transformer_eval import find_transformers
 
 
 def main():
     print("################# SQLyzr Productions #################")
-    for conf in DIN_SMALL_CONF.get_run_confs():
-        predictor = DinPredictor(conf)
-        asyncio.run(predictor.run())
 
-    calc_scores(DIN_SMALL_CONF)
+    conf = DIN_SMALL_CONF
 
-    # eval_transformer(DIN_SMALL_CONF)
+    # run_din(conf)
 
-    # auger = Auger("data/aug/gen.jsonl", CAT_2, "concert_singer", DIN_SMALL_CONF.dataset_config)
-    # asyncio.run(auger.run())
+    # calc_scores(conf)
+
+    post_process_scores(conf)
+
+    # find_transformers(conf)
+
+    # augment_data(conf)
 
 
 if __name__ == '__main__':
