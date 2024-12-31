@@ -1,8 +1,12 @@
+import os.path
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 from openai import NotFoundError, APIError
+from pydantic import ValidationError
 
 from src.gpt.gpt_client import GptClient
+from src.gpt.models import BatchInputRequest
 
 
 class CommandException(RuntimeError):
@@ -47,3 +51,32 @@ class ListFiles(GptCliCommand):
 
     def execute_internal(self):
         return self.gpt_client.list_files()
+
+
+class CreateFile(GptCliCommand):
+    file_path: str
+
+    def __init__(self, *args):
+        if len(args) != 1:
+            raise CommandException("Expected one arg: file_path")
+        self.file_path = args[0]
+
+    def execute_internal(self):
+        self.validate_file()
+        file = open(self.file_path, "rb")
+        file_name = os.path.basename(self.file_path)
+        self.gpt_client.create_file(file_name, file, "batch")
+
+    def validate_file(self):
+        path = Path(self.file_path)
+        if not path.exists():
+            raise CommandException(f"File not exists!: {self.file_path}")
+        if path.is_dir():
+            raise CommandException(f"Is a dir!: {self.file_path}")
+        file = open(self.file_path)
+        for i, line in enumerate(file.readlines()):
+            try:
+                BatchInputRequest.model_validate_json(line)
+            except ValidationError as v:
+                print(v)
+                raise CommandException(f"Invalid line {self.file_path}:{i + 1}")

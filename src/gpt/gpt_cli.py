@@ -1,6 +1,6 @@
 from typing import Dict, Type
 
-from src.gpt.gpt_comand import GptCliCommand, CommandException, ListFiles, DeleteFile
+from src.gpt.gpt_comand import GptCliCommand, CommandException, ListFiles, DeleteFile, CreateFile
 
 
 class GptCli:
@@ -9,7 +9,8 @@ class GptCli:
     def __init__(self):
         self.cmds = {
             "fls": ListFiles,
-            "fd": DeleteFile
+            "fd": DeleteFile,
+            "fc": CreateFile
         }
 
     def run(self):

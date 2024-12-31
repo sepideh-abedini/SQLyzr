@@ -1,6 +1,8 @@
 import os
+from typing import IO
 
 from openai import Client
+from openai.types import FilePurpose
 
 
 class GptClient:
@@ -12,6 +14,13 @@ class GptClient:
             project=os.getenv("OPENAI_PROJ_ID"),
             timeout=5
         )
+
+    def create_file(self, name: str, file: IO[bytes], purpose: FilePurpose):
+        result = self.__gpt.files.create(
+            file=(name, file),
+            purpose=purpose
+        )
+        return result.to_json()
 
     def list_files(self):
         result = self.__gpt.files.list()
