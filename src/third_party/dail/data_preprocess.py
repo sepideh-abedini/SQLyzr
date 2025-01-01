@@ -1,15 +1,11 @@
-import argparse
 import json
 import os
-import pickle
-from pathlib import Path
 import sqlite3
-import random
 
 from src.third_party.dail.dail_conf import DailConfig
+from src.third_party.dail.utils.datasets.spider import load_tables
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
 from src.third_party.dail.utils.pretrained_embeddings import GloVe
-from src.third_party.dail.utils.datasets.spider import load_tables
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 

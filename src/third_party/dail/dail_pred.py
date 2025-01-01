@@ -3,13 +3,12 @@ import os
 from typing import Callable, List
 
 from src.gpt.gpt_asker import GptAsker, BatchGptAsker, AsyncGptAsker
-from src.gpt.gpt_utils import load_responses, process_responses
+from src.gpt.gpt_utils import load_responses
 from src.gpt.models import BatchInputRequest
 from src.third_party.dail.dail_conf import DailConfig
-from src.third_party.dail.llm.chatgpt import init_chatgpt, ask_llm
-from src.third_party.dail.utils.enums import LLM
+from src.third_party.dail.data_preprocess import schema_linking_producer
+from src.third_party.dail.generate_question import generate_questions
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
-from src.util.file_utils import get_num_lines
 from src.util.logger import log
 
 BatchRequestGenerator = Callable[[int, str, str], BatchInputRequest]
@@ -39,6 +38,11 @@ class DailPredictor:
         file.close()
 
     async def run(self):
+
+        schema_linking_producer(self.conf)
+
+        generate_questions(self.conf)
+        
         self.generate_batch_file()
 
         await self.ask_file(self.conf.get_batch_path("in"), self.conf.get_batch_path("out"))
@@ -111,7 +115,7 @@ class DailPredictor:
                     'p_sqls': processed_sqls
                 }
                 final_sqls = await get_sqls([result], self.conf.self_consistent_set_size,
-                                      self.conf.run_conf.dataset_config.get_db_path())
+                                            self.conf.run_conf.dataset_config.get_db_path())
                 results.extend(final_sqls)
         return results
 
@@ -121,67 +125,3 @@ class DailPredictor:
             log(f"Output path exists: {out_path}, skip asking gpt.")
             return
         await self.gpt_asker.ask_file(in_path, out_path)
-
-
-def run_dail(conf: DailConfig):
-    if not conf.force and os.path.exists(conf.run_conf.get_pred_path()) and get_num_lines(
-            conf.run_conf.get_pred_path()) > 0:
-        print(f"Pred file exists: {conf.run_conf.get_pred_path()}, skipping!")
-        return
-
-    start_index = 0
-    end_index = 100_000
-
-    # init openai api
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    openai_group_id = os.getenv("OPENAI_GROUP_ID")
-    init_chatgpt(openai_api_key, openai_group_id, MODEL)
-
-    token_cnt = 0
-    with open(conf.run_conf.get_pred_path(), "w") as f, open(conf.run_conf.get_token_path(), "w") as tokens_f:
-        for i, question in enumerate(questions):
-            if i < start_index:
-                continue
-            if i >= end_index:
-                break
-            try:
-                res = ask_llm(MODEL, question, conf.run_conf.temp, SELF_CONSISTENT_SET_SIZE)
-            except Exception as e:
-                print(f"The {i}-th question has too much tokens! Return \"SELECT\" instead")
-                print(e)
-                res = ""
-
-            tokens_f.write(f"{res['total_tokens']}\n")
-            if SELF_CONSISTENT_SET_SIZE == 1:
-                for sql in res["response"]:
-                    sql = " ".join(sql.replace("\n", " ").split())
-                    sql = process_duplication(sql)
-                    if sql.startswith("SELECT"):
-                        f.write(sql + "\n")
-                    elif sql.startswith(" "):
-                        f.write("SELECT" + sql + "\n")
-                    else:
-                        f.write("SELECT " + sql + "\n")
-            else:
-                db_id = db_ids[i]
-                sqls = res["response"]
-                processed_sqls = []
-                for sql in sqls:
-                    sql = " ".join(sql.replace("\n", " ").split())
-                    sql = process_duplication(sql)
-                    if sql.startswith("SELECT"):
-                        pass
-                    elif sql.startswith(" "):
-                        sql = "SELECT" + sql
-                    else:
-                        sql = "SELECT " + sql
-                    processed_sqls.append(sql)
-                result = {
-                    'db_id': db_id,
-                    'p_sqls': processed_sqls
-                }
-                final_sqls = get_sqls([result], SELF_CONSISTENT_SET_SIZE,
-                                      conf.run_conf.dataset_config.get_db_path())
-
-                for sql in final_sqls:
-                    f.write(sql + "\n")
