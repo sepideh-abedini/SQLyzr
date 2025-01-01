@@ -51,36 +51,10 @@ def ask_chat(model, messages: list, temperature, n):
     )
 
 
-def ask_llm(model: str, batch: list, temperature: float, n:int):
-    n_repeat = 0
-    while True:
-        try:
-            if model in LLM.TASK_COMPLETIONS:
-                # TODO: self-consistency in this mode
-                assert n == 1
-                response = ask_completion(model, batch, temperature)
-            elif model in LLM.TASK_CHAT:
-                # batch size must be 1
-                assert len(batch) == 1, "batch must be 1 in this mode"
-                messages = [{"role": "user", "content": batch[0]}]
-                response = ask_chat(model, messages, temperature, n)
-                response['response'] = [response['response']]
-            break
-        except openai.error.RateLimitError:
-            n_repeat += 1
-            print(f"Repeat for the {n_repeat} times for RateLimitError", end="\n")
-            time.sleep(1)
-            continue
-        except json.decoder.JSONDecodeError:
-            n_repeat += 1
-            print(f"Repeat for the {n_repeat} times for JSONDecodeError", end="\n")
-            time.sleep(1)
-            continue
-        except Exception as e:
-            n_repeat += 1
-            print(f"Repeat for the {n_repeat} times for exception: {e}", end="\n")
-            time.sleep(1)
-            continue
+def ask_llm(model: str, question: str, temperature: float, n:int):
+    messages = [{"role": "user", "content": question}]
+    response = ask_chat(model, messages, temperature, n)
+    # response['response'] = [response['response']]
 
     return response
 
