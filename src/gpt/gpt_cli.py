@@ -1,6 +1,7 @@
 from typing import Dict, Type
 
-from src.gpt.gpt_comand import GptCliCommand, CommandException, ListFiles, DeleteFile, CreateFile
+from src.gpt.gpt_comand import GptCliCommand, CommandException, ListFiles, DeleteFile, CreateFile, ListBatches, \
+    CreateBatch, DeleteBatch, RetrieveBatch, RetrieveFileContent
 
 
 class GptCli:
@@ -10,7 +11,12 @@ class GptCli:
         self.cmds = {
             "fls": ListFiles,
             "fd": DeleteFile,
-            "fc": CreateFile
+            "fc": CreateFile,
+            "fr": RetrieveFileContent,
+            "bls": ListBatches,
+            "bc": CreateBatch,
+            "bd": DeleteBatch,
+            "br": RetrieveBatch
         }
 
     def run(self):

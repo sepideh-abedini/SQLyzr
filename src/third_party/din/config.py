@@ -14,6 +14,7 @@ class DinConfig:
     sql_debug_in: str
     sql_debug_out: str
     force: bool
+    model: str = "gpt-3.5-turbo"
 
 
 DEFAULT_CONF = DinConfig(

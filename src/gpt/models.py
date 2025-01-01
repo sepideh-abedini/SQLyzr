@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional, Dict
 
 from openai import BaseModel
 
@@ -9,8 +9,14 @@ class GptMessage(BaseModel):
 
 
 class RequestBody(BaseModel):
-    model: Literal["gpt-4o-mini"] = "gpt-4o-mini"
+    model: Literal["gpt-4o-mini", "gpt-3.5-turbo"]
     messages: list[GptMessage]
+    max_completion_tokens: Optional[int] = None
+    stop: list[str] = []
+    n: int = 1
+    stream: bool = False
+    frequency_penalty: float = 0.0
+    presence_penalty: float = 0.0
 
 
 class BatchInputRequest(BaseModel):
@@ -19,13 +25,21 @@ class BatchInputRequest(BaseModel):
     url: Literal['/v1/chat/completions'] = '/v1/chat/completions'
     body: RequestBody
 
+    @staticmethod
+    def create_prompt_req(custom_id: str, model: str, prompt: str, extra_params: Dict):
+        body = {
+            "model": model,
+            "messages": [{
+                "role": "user",
+                "content": prompt
+            }]
+        }
+        body.update(extra_params)
+        return BatchInputRequest.model_validate(
+            {
+                "custom_id": custom_id,
+                "body": body
+            }
+        )
 
-def main():
-    file = open("data/batch/reqs.jsonl")
-    for line in file.readlines():
-        person = BatchInputRequest.model_validate_json(line)
-        print(person)
 
-
-if __name__ == '__main__':
-    main()

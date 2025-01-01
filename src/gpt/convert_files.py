@@ -20,9 +20,3 @@ def convert_message_file_to_req(in_path: str, out_path: str):
     out_file.close()
 
 
-def main():
-    convert_message_file_to_req("data/din/schema.in.jsonl", "data/batch/schema.jsonl")
-
-
-if __name__ == '__main__':
-    main()

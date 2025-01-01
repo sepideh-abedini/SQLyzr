@@ -6,6 +6,7 @@ from typing import Type
 
 from openai import AsyncClient
 
+from src.gpt.models import BatchInputRequest
 from src.util.logger import log
 
 
@@ -25,22 +26,16 @@ class GptAsker:
 class AsyncGptAsker(GptAsker):
     rps = 4
 
-    async def ask_message(self, message, **kwargs):
+    async def process_request(self, request: BatchInputRequest):
         log("Sending GPT Request")
         result = await self.client.chat.completions.create(
-            messages=[message],
-            model=self.model,
-            n=1,
-            stream=False,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
-            **kwargs
+            **request.body.dict()
         )
         log("Received GPT Response")
         return result
 
-    async def ask_file(self, in_path: str, out_path: str, **kwargs):
-        responses = await self.get_responses(in_path, **kwargs)
+    async def ask_file(self, in_path: str, out_path: str):
+        responses = await self.get_responses(in_path)
         self.save_responses(responses, out_path)
 
     def save_responses(self, responses, out_path: str):
@@ -49,12 +44,12 @@ class AsyncGptAsker(GptAsker):
             out_file.write(f"{response.json()}\n")
         out_file.close()
 
-    async def get_responses(self, in_path: str, **kwargs):
+    async def get_responses(self, in_path: str):
         in_file = open(in_path)
         futures = []
         for line in in_file.readlines():
-            message = json.loads(line)
-            future = self.ask_message(message, **kwargs)
+            message = BatchInputRequest.model_validate_json(line)
+            future = self.process_request(message)
             futures.append(future)
         in_file.close()
 
@@ -75,7 +70,7 @@ class AsyncGptFormattedAsker(AsyncGptAsker):
         super().__init__(model)
         self.response_format = response_format
 
-    async def ask_message(self, message, **kwargs):
+    async def process_request(self, message, **kwargs):
         log("Sending formatted GPT Request")
         result = await self.client.beta.chat.completions.parse(
             model=self.model,

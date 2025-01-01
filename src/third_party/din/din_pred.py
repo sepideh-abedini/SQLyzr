@@ -1,18 +1,18 @@
-import json
 import os
 import re
 from typing import List, Callable
 
 import pandas as pd
 
-from src.gpt.gpt_utils import process_responses, load_responses
-from src.third_party.din.config import DinConfig, DEFAULT_CONF
-from src.gpt.gpt_asker import AsyncGptAsker
-from src.third_party.din.prompt_maker import PromptMaker
 from src.eval.runner_config import SingleRunConfig
+from src.gpt.gpt_asker import AsyncGptAsker
+from src.gpt.gpt_utils import process_responses, load_responses
+from src.gpt.models import BatchInputRequest
+from src.third_party.din.config import DinConfig, DEFAULT_CONF
+from src.third_party.din.prompt_maker import PromptMaker
 from src.util.logger import log
 
-PromptGenerator = Callable[[int, str, str], str]
+BatchRequestGenerator = Callable[[int, str, str], BatchInputRequest]
 
 
 def load_data(input_path: str):
@@ -43,51 +43,56 @@ class DinPredictor:
         self.gpt_asker = AsyncGptAsker("gpt-3.5-turbo")
         self.prompt_maker = PromptMaker(run_conf.dataset_config.get_tables_path())
 
-    def generate_messages_file(self, file_path: str, prompt_gen: PromptGenerator):
+    def generate_batch_file(self, file_path: str, req_generator: BatchRequestGenerator):
         examples = load_data(self.run_conf.dataset_config.get_data_path()).to_dict("records")
         file = open(file_path, "w")
         for i, example in enumerate(examples):
             db_id = example['db_id']
             question = example['question']
-            content = prompt_gen(i, db_id, question)
-            message = {"role": "user", "content": content}
-            file.write(f"{json.dumps(message)}\n")
+            request = req_generator(i, db_id, question)
+            file.write(f"{request.json()}\n")
         file.close()
 
-    async def ask_file(self, in_path: str, out_path: str, **kwargs):
+    async def ask_file(self, in_path: str, out_path: str):
         print(f"Asking GPT {in_path} ==> {out_path}")
         if os.path.exists(out_path) and not self.conf.force:
             log(f"Output path exists: {out_path}, skip asking gpt.")
             return
-        await self.gpt_asker.ask_file(in_path, out_path, **kwargs)
+        await self.gpt_asker.ask_file(in_path, out_path)
 
-    def create_schema_link_prompt(self, i: int, db_id: str, question: str) -> str:
-        return self.prompt_maker.schema_linking_prompt_maker(question, db_id)
+    def create_batch_req(self, idx: str, prompt: str, extra_params):
+        return BatchInputRequest.create_prompt_req(idx, self.conf.model, prompt, extra_params)
 
-    def create_classif_prompt(self, i: int, db_id: str, question: str) -> str:
+    def generate_schema_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
+        prompt = self.prompt_maker.schema_linking_prompt_maker(question, db_id)
+        return self.create_batch_req(f"s{i}", prompt, self.default_params)
+
+    def generate_classif_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         schema_link = self.schema_links[i]
-        return self.prompt_maker.classification_prompt_maker(question, db_id, schema_link[1:])
+        prompt = self.prompt_maker.classification_prompt_maker(question, db_id, schema_link[1:])
+        return self.create_batch_req(f"c{i}", prompt, self.default_params)
 
-    def create_sql_prompt(self, i: int, db_id: str, question: str) -> str:
+    def create_sql_prompt(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         pred_class = self.pred_classes[i]
         classif = self.classifs[i]
         schema_link = self.schema_links[i]
         if '"EASY"' in pred_class:
-            content = self.prompt_maker.easy_prompt_maker(question, db_id, schema_link)
+            prompt = self.prompt_maker.easy_prompt_maker(question, db_id, schema_link)
         elif '"NON-NESTED"' in pred_class:
-            content = self.prompt_maker.medium_prompt_maker(question, db_id, schema_link)
+            prompt = self.prompt_maker.medium_prompt_maker(question, db_id, schema_link)
         else:
             if 'questions =[' in classif:
                 sub_questions = classif.split('questions = ["')[1].split('"]')[0]
             else:
                 print("No sub questions found! :(")
                 sub_questions = []
-            content = self.prompt_maker.hard_prompt_maker(question, db_id, schema_link, sub_questions)
-        return content
+            prompt = self.prompt_maker.hard_prompt_maker(question, db_id, schema_link, sub_questions)
+        return self.create_batch_req(f"s{i}", prompt, self.default_params)
 
-    def create_debug_sql_prompt(self, i: int, db_id: str, question: str) -> str:
+    def create_debug_sql_prompt(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         sql = self.sqls[i]
-        return self.prompt_maker.debuger(question, db_id, sql)
+        prompt = self.prompt_maker.debuger(question, db_id, sql)
+        return self.create_batch_req(f"sd{i}", prompt, self.debug_params)
 
     def process_schema_response(self, i: int, content: str) -> str:
         try:
@@ -167,29 +172,29 @@ class DinPredictor:
     async def run(self):
         conf = self.conf
 
-        self.generate_messages_file(conf.schema_in, self.create_schema_link_prompt)
+        self.generate_batch_file(conf.schema_in, self.generate_schema_req)
 
-        await self.ask_file(conf.schema_in, conf.schema_out, **self.default_params)
+        await self.ask_file(conf.schema_in, conf.schema_out)
 
         self.schema_links = process_responses(conf.schema_out, self.process_schema_response)
 
-        self.generate_messages_file(conf.classif_in, self.create_classif_prompt)
+        self.generate_batch_file(conf.classif_in, self.generate_classif_req)
 
-        await self.ask_file(conf.classif_in, conf.classif_out, **self.default_params)
+        await self.ask_file(conf.classif_in, conf.classif_out)
 
         self.classifs = process_responses(conf.classif_out, lambda i, s: s)
 
         self.pred_classes = process_responses(conf.classif_out, self.process_classif_response)
 
-        self.generate_messages_file(conf.sql_in, self.create_sql_prompt)
+        self.generate_batch_file(conf.sql_in, self.create_sql_prompt)
 
-        await self.ask_file(conf.sql_in, conf.sql_out, **self.default_params)
+        await self.ask_file(conf.sql_in, conf.sql_out)
 
         self.sqls = process_responses(conf.sql_out, self.process_sql_responses)
 
-        self.generate_messages_file(conf.sql_debug_in, self.create_debug_sql_prompt)
+        self.generate_batch_file(conf.sql_debug_in, self.create_debug_sql_prompt)
 
-        await self.ask_file(conf.sql_debug_in, conf.sql_debug_out, **self.debug_params)
+        await self.ask_file(conf.sql_debug_in, conf.sql_debug_out)
 
         self.sqls = process_responses(conf.sql_debug_out, self.process_sql_debug_response)
 
@@ -198,3 +203,5 @@ class DinPredictor:
         self.save_sqls(self.run_conf.get_pred_path(), sqls)
 
         self.save_total_token_usage()
+
+        exit(0)

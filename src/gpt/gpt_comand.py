@@ -41,7 +41,7 @@ class DeleteFile(GptCliCommand):
         self.file_id = args[0]
 
     def execute_internal(self):
-        self.gpt_client.delete_file(self.file_id)
+        return self.gpt_client.delete_file(self.file_id)
 
 
 class ListFiles(GptCliCommand):
@@ -65,7 +65,7 @@ class CreateFile(GptCliCommand):
         self.validate_file()
         file = open(self.file_path, "rb")
         file_name = os.path.basename(self.file_path)
-        self.gpt_client.create_file(file_name, file, "batch")
+        return self.gpt_client.create_file(file_name, file, "batch")
 
     def validate_file(self):
         path = Path(self.file_path)
@@ -80,3 +80,52 @@ class CreateFile(GptCliCommand):
             except ValidationError as v:
                 print(v)
                 raise CommandException(f"Invalid line {self.file_path}:{i + 1}")
+
+
+class ListBatches(GptCliCommand):
+    def __init__(self, *args):
+        if len(args) > 0:
+            raise CommandException("No args expected!")
+
+    def execute_internal(self):
+        return self.gpt_client.list_batches()
+
+
+class CreateBatch(GptCliCommand):
+    def __init__(self, *args):
+        if len(args) != 1:
+            raise CommandException("Expected one argument: file_id")
+        self.file_id = args[0]
+
+    def execute_internal(self):
+        return self.gpt_client.create_batch(self.file_id)
+
+
+class DeleteBatch(GptCliCommand):
+    def __init__(self, *args):
+        if len(args) != 1:
+            raise CommandException("Expected one argument: batch_id")
+        self.batch_id = args[0]
+
+    def execute_internal(self):
+        return self.gpt_client.delete_batch(self.batch_id)
+
+
+class RetrieveBatch(GptCliCommand):
+    def __init__(self, *args):
+        if len(args) != 1:
+            raise CommandException("Expected one argument: batch_id")
+        self.batch_id = args[0]
+
+    def execute_internal(self):
+        return self.gpt_client.retrieve_batch(self.batch_id)
+
+
+class RetrieveFileContent(GptCliCommand):
+    def __init__(self, *args):
+        if len(args) != 1:
+            raise CommandException("Expected one argument: file_id")
+        self.file_id = args[0]
+
+    def execute_internal(self):
+        return self.gpt_client.retrieve_file_content(self.file_id)
