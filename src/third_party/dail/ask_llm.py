@@ -16,6 +16,10 @@ SELF_CONSISTENT_SET_SIZE = 5
 
 
 def run_dail(conf: DailConfig):
+    if not conf.force and os.path.exists(conf.run_conf.get_pred_path()):
+        print(f"Pred file exists: {conf.run_conf.get_pred_path()}, skipping!")
+        return
+
     start_index = 0
     end_index = 100_000
     questions_json = json.load(open(conf.questions_path(), "r"))
@@ -30,7 +34,7 @@ def run_dail(conf: DailConfig):
     question_loader = DataLoader(questions, batch_size=BATCH_SIZE, shuffle=False, drop_last=False)
 
     token_cnt = 0
-    with open(conf.run_conf.get_pred_path(), "w") as f:
+    with open(conf.run_conf.get_pred_path(), "w") as f, open(conf.run_conf.get_token_path(), "w") as tokens_f:
         for i, batch in enumerate(question_loader):
             if i < start_index:
                 continue
@@ -44,7 +48,8 @@ def run_dail(conf: DailConfig):
                 res = ""
 
             # parse result
-            token_cnt += res["total_tokens"]
+            tokens_f.write(f"{res['total_tokens']}\n")
+            # token_cnt += res["total_tokens"]
             if SELF_CONSISTENT_SET_SIZE == 1:
                 for sql in res["response"]:
                     # remove \n and extra spaces
@@ -81,4 +86,3 @@ def run_dail(conf: DailConfig):
 
                     for sql in final_sqls:
                         f.write(sql + "\n")
-        f.write(f"tokens:{token_cnt}")
