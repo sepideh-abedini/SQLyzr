@@ -8,7 +8,7 @@ from src.eval.runner_config import SingleRunConfig
 from src.gpt.gpt_asker import AsyncGptAsker, GptAsker, BatchGptAsker
 from src.gpt.gpt_utils import process_responses, load_responses
 from src.gpt.models import BatchInputRequest
-from src.third_party.din.config import DinConfig, DEFAULT_CONF
+from src.third_party.din.config import DinConfig
 from src.third_party.din.prompt_maker import PromptMaker
 from src.util.logger import log
 
@@ -37,10 +37,13 @@ class DinPredictor:
         "stop": ["#", ";", "\n\n"]
     }
 
-    def __init__(self, run_conf: SingleRunConfig, config: DinConfig = DEFAULT_CONF):
+    def __init__(self, run_conf: SingleRunConfig):
         self.run_conf = run_conf
-        self.conf = config
-        self.gpt_asker = BatchGptAsker()
+        self.conf = DinConfig(self.run_conf.get_pred_path())
+        if self.run_conf.batch:
+            self.gpt_asker = BatchGptAsker()
+        else:
+            self.gpt_asker = AsyncGptAsker()
         self.prompt_maker = PromptMaker(run_conf.dataset_config.get_tables_path())
 
     def generate_batch_file(self, file_path: str, req_generator: BatchRequestGenerator):
@@ -157,10 +160,10 @@ class DinPredictor:
     def save_total_token_usage(self):
         all_usage = []
         for file in [
-            self.conf.classif_out,
-            self.conf.schema_out,
-            self.conf.sql_out,
-            self.conf.sql_debug_out
+            self.conf.get_path("classif", "out"),
+            self.conf.get_path("schema", "out"),
+            self.conf.get_path("sql", "out"),
+            self.conf.get_path("sql_debug", "out")
         ]:
             all_usage.append(self.get_token_usage(file))
         all_usage = [sum(usages) for usages in zip(*all_usage)]
@@ -172,36 +175,35 @@ class DinPredictor:
     async def run(self):
         conf = self.conf
 
-        self.generate_batch_file(conf.schema_in, self.generate_schema_req)
+        self.generate_batch_file(conf.get_path("schema", "in"), self.generate_schema_req)
 
-        await self.ask_file(conf.schema_in, conf.schema_out)
 
-        self.schema_links = process_responses(conf.schema_out, self.process_schema_response)
+        await self.ask_file(conf.get_path("schema", "in"), conf.get_path("schema", "out"))
 
-        self.generate_batch_file(conf.classif_in, self.generate_classif_req)
+        self.schema_links = process_responses(conf.get_path("schema", "out"), self.process_schema_response)
 
-        await self.ask_file(conf.classif_in, conf.classif_out)
+        self.generate_batch_file(conf.get_path("classif", "in"), self.generate_classif_req)
 
-        self.classifs = process_responses(conf.classif_out, lambda i, s: s)
+        await self.ask_file(conf.get_path("classif", "in"), conf.get_path("classif", "out"))
 
-        self.pred_classes = process_responses(conf.classif_out, self.process_classif_response)
+        self.classifs = process_responses(conf.get_path("classif", "out"), lambda i, s: s)
 
-        self.generate_batch_file(conf.sql_in, self.create_sql_prompt)
+        self.pred_classes = process_responses(conf.get_path("classif", "out"), self.process_classif_response)
 
-        await self.ask_file(conf.sql_in, conf.sql_out)
+        self.generate_batch_file(conf.get_path("sql", "in"), self.create_sql_prompt)
 
-        self.sqls = process_responses(conf.sql_out, self.process_sql_responses)
+        await self.ask_file(conf.get_path("sql", "in"), conf.get_path("sql", "out"))
 
-        self.generate_batch_file(conf.sql_debug_in, self.create_debug_sql_prompt)
+        self.sqls = process_responses(conf.get_path("sql", "out"), self.process_sql_responses)
 
-        await self.ask_file(conf.sql_debug_in, conf.sql_debug_out)
+        self.generate_batch_file(conf.get_path("sql_debug", "in"), self.create_debug_sql_prompt)
 
-        self.sqls = process_responses(conf.sql_debug_out, self.process_sql_debug_response)
+        await self.ask_file(conf.get_path("sql_debug", "in"), conf.get_path("sql_debug", "out"))
+
+        self.sqls = process_responses(conf.get_path("sql_debug", "out"), self.process_sql_debug_response)
 
         sqls = self.post_process(self.sqls)
 
         self.save_sqls(self.run_conf.get_pred_path(), sqls)
 
         self.save_total_token_usage()
-
-        exit(0)
