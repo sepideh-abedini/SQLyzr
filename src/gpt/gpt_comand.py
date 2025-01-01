@@ -5,7 +5,7 @@ from pathlib import Path
 from openai import NotFoundError, APIError
 from pydantic import ValidationError
 
-from src.gpt.gpt_client import GptClient
+from src.gpt.gpt_client import GptBatchClient
 from src.gpt.models import BatchInputRequest
 
 
@@ -15,7 +15,7 @@ class CommandException(RuntimeError):
 
 
 class GptCliCommand(ABC):
-    gpt_client = GptClient()
+    gpt_client = GptBatchClient()
 
     @abstractmethod
     def __init__(self, *args):

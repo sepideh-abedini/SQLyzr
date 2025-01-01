@@ -2,10 +2,10 @@ import os
 from typing import IO
 
 from openai import Client
-from openai.types import FilePurpose
+from openai.types import FilePurpose, FileObject
 
 
-class GptClient:
+class GptBatchClient:
     __gpt: Client
 
     def __init__(self):
@@ -15,12 +15,12 @@ class GptClient:
             timeout=5
         )
 
-    def create_file(self, name: str, file: IO[bytes], purpose: FilePurpose):
+    def create_file(self, name: str, file: IO[bytes], purpose: FilePurpose) -> FileObject:
         result = self.__gpt.files.create(
             file=(name, file),
             purpose=purpose
         )
-        return result.to_json()
+        return result
 
     def list_files(self):
         result = self.__gpt.files.list()
