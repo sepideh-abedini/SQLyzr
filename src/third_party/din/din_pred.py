@@ -4,7 +4,6 @@ from typing import List, Callable
 
 import pandas as pd
 
-from src.eval.runner_config import SingleRunConfig
 from src.gpt.gpt_asker import AsyncGptAsker, GptAsker, BatchGptAsker
 from src.gpt.gpt_utils import process_responses, load_responses
 from src.gpt.models import BatchInputRequest
@@ -23,7 +22,6 @@ class DinPredictor:
     conf: DinConfig
     prompt_maker: PromptMaker
     gpt_asker: GptAsker
-    run_conf: SingleRunConfig
     schema_links: List[str]
     classifs: List[str]
     pred_classes: List[str]
@@ -37,17 +35,16 @@ class DinPredictor:
         "stop": ["#", ";", "\n\n"]
     }
 
-    def __init__(self, run_conf: SingleRunConfig):
-        self.run_conf = run_conf
-        self.conf = DinConfig(self.run_conf.get_pred_path())
-        if self.run_conf.batch:
+    def __init__(self, conf: DinConfig):
+        self.conf = conf
+        if self.conf.run_conf.batch:
             self.gpt_asker = BatchGptAsker()
         else:
             self.gpt_asker = AsyncGptAsker()
-        self.prompt_maker = PromptMaker(run_conf.dataset_config.get_tables_path())
+        self.prompt_maker = PromptMaker(self.conf.run_conf.dataset_config.get_tables_path())
 
     def generate_batch_file(self, file_path: str, req_generator: BatchRequestGenerator):
-        examples = load_data(self.run_conf.dataset_config.get_data_path()).to_dict("records")
+        examples = load_data(self.conf.run_conf.dataset_config.get_data_path()).to_dict("records")
         file = open(file_path, "w")
         for i, example in enumerate(examples):
             db_id = example['db_id']
@@ -64,6 +61,7 @@ class DinPredictor:
         await self.gpt_asker.ask_file(in_path, out_path)
 
     def create_batch_req(self, idx: str, prompt: str, extra_params):
+        extra_params['temperature'] = self.conf.run_conf.temp
         return BatchInputRequest.create_prompt_req(idx, self.conf.model, prompt, extra_params)
 
     def generate_schema_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
@@ -167,7 +165,7 @@ class DinPredictor:
         ]:
             all_usage.append(self.get_token_usage(file))
         all_usage = [sum(usages) for usages in zip(*all_usage)]
-        out_file = open(self.run_conf.get_token_path(), "w")
+        out_file = open(self.conf.run_conf.get_token_path(), "w")
         for usage in all_usage:
             out_file.write(f"{usage}\n")
         out_file.close()
@@ -203,6 +201,6 @@ class DinPredictor:
 
         sqls = self.post_process(self.sqls)
 
-        self.save_sqls(self.run_conf.get_pred_path(), sqls)
+        self.save_sqls(self.conf.run_conf.get_pred_path(), sqls)
 
         self.save_total_token_usage()

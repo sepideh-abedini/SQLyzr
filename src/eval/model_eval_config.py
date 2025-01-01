@@ -4,7 +4,7 @@ from itertools import product
 from typing import List, Dict
 
 from src.eval.dataset_config import DatasetConfig
-from src.eval.runner_config import SingleRunConfig
+from src.eval.single_run_config import SingleRunConfig
 
 
 @dataclass

@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 
 from src.eval.dataset_config import DatasetConfig
 from src.util.file_utils import get_num_lines

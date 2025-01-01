@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from src.eval.runner_config import SingleRunConfig
+from src.eval.single_run_config import SingleRunConfig
 
 
 @dataclass
 class DailConfig:
     run_conf: SingleRunConfig
-    batch: bool = True
+    batch: bool = False
     force: bool = False
     compute_cv_link: bool = True
     model: str = "gpt-3.5-turbo"

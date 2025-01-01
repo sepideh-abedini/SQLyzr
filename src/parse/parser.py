@@ -257,11 +257,9 @@ def p_fun_expr(p):
         else:
             p[0] = FunctionExpressionNode(p[1], [p[4]], distinct=True)
     elif len(p) == 7:
-        if isinstance(p[3], SelectStatementNode):
-            p[0] = FunctionExpressionNode(p[1], [p[3], p[5]])
+        p[0] = FunctionExpressionNode(p[1], [p[3], p[5]])
     elif len(p) == 8:
-        if isinstance(p[3], SelectStatementNode):
-            p[0] = FunctionExpressionNode(p[1], [p[3], p[5], p[7]])
+        p[0] = FunctionExpressionNode(p[1], [p[3], p[5], p[7]])
 
 
 # expr bin_op expr

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.eval.configs import DIN_SMALL_CONF, DAIL_SMALL_CONF
+from src.eval.configs import DIN_SPIDER_SMALL_EVAL, DAIL_SPIDER_SMALL_EVAL, DIN_BIRD_SMALL_EVAL
 from src.eval.model_eval_config import ModelEvalConfig
 
 
@@ -12,13 +12,19 @@ class SQLyzrConfig:
 
 
 DIN_SPIDER_SMALL = SQLyzrConfig(
-    eval_conf=DIN_SMALL_CONF,
+    eval_conf=DIN_SPIDER_SMALL_EVAL,
     aug_out="data/aug/gen.jsonl",
     aug_db_id="concert_singer"
 )
 
 DAIL_SPIDER_SMALL = SQLyzrConfig(
-    eval_conf=DAIL_SMALL_CONF,
+    eval_conf=DAIL_SPIDER_SMALL_EVAL,
+    aug_out="data/aug/gen.jsonl",
+    aug_db_id="concert_singer"
+)
+
+DIN_BIRD_SMALL = SQLyzrConfig(
+    eval_conf=DIN_BIRD_SMALL_EVAL,
     aug_out="data/aug/gen.jsonl",
     aug_db_id="concert_singer"
 )

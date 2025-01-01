@@ -26,6 +26,7 @@ class DailPredictor:
             self.gpt_asker = AsyncGptAsker()
 
     def create_batch_req(self, idx: str, prompt: str, extra_params):
+        extra_params['temperature'] = self.conf.run_conf.temp
         return BatchInputRequest.create_prompt_req(idx, self.conf.model, prompt, extra_params)
 
     def generate_batch_file(self):
@@ -42,7 +43,7 @@ class DailPredictor:
         schema_linking_producer(self.conf)
 
         generate_questions(self.conf)
-        
+
         self.generate_batch_file()
 
         await self.ask_file(self.conf.get_batch_path("in"), self.conf.get_batch_path("out"))

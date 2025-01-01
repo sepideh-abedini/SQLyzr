@@ -5,7 +5,7 @@ from src.eval import lib
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.eval.lib import exec_sql
-from src.eval.runner_config import SingleRunConfig
+from src.eval.single_run_config import SingleRunConfig
 from src.rel.base_matcher import SubsetMatcher
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData

@@ -1,6 +1,22 @@
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.dataset_config import DatasetConfig
 
+BIRD_SMALL = DatasetConfig(
+    dataset_dir="data/bird",
+    data_file="dev.conv.small.json",
+    gold_file="dev.conv.small.gold.txt",
+    tables_file="dev_tables.json",
+    db_dir="dev_databases"
+)
+
+BIRD_DEV = DatasetConfig(
+    dataset_dir="data/bird",
+    data_file="dev.conv.json",
+    gold_file="dev.gold.txt",
+    tables_file="dev_tables.json",
+    db_dir="dev_databases"
+)
+
 SPIDER_SMALL = DatasetConfig(
     dataset_dir="data/spider",
     data_file="dev.small.json",
@@ -17,23 +33,7 @@ SPIDER_DEV = DatasetConfig(
     db_dir="database"
 )
 
-EVAL_CONF = ModelEvalConfig(
-    temps=[0.0, 0.2, 0.4, 0.7, 1.0],
-    num_itrs=4,
-    pred_dir="data/dum",
-    eval_dir="data/eval",
-    dataset_config=SPIDER_SMALL
-)
-
-SMALL_EVAL_CONF = ModelEvalConfig(
-    temps=[0.0],
-    num_itrs=1,
-    pred_dir="data/dum",
-    eval_dir="data/eval",
-    dataset_config=SPIDER_SMALL
-)
-
-DIN_SMALL_CONF = ModelEvalConfig(
+DIN_SPIDER_SMALL_EVAL = ModelEvalConfig(
     temps=[0.0],
     num_itrs=3,
     pred_dir="data/din",
@@ -41,10 +41,18 @@ DIN_SMALL_CONF = ModelEvalConfig(
     dataset_config=SPIDER_SMALL
 )
 
-DAIL_SMALL_CONF = ModelEvalConfig(
+DAIL_SPIDER_SMALL_EVAL = ModelEvalConfig(
     temps=[0.0],
     num_itrs=3,
     pred_dir="data/dail",
     eval_dir="data/ev",
     dataset_config=SPIDER_SMALL
+)
+
+DIN_BIRD_SMALL_EVAL = ModelEvalConfig(
+    temps=[0.0],
+    num_itrs=3,
+    pred_dir="data/din",
+    eval_dir="data/ev",
+    dataset_config=BIRD_SMALL
 )
