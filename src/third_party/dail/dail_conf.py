@@ -7,7 +7,7 @@ from src.eval.runner_config import SingleRunConfig
 @dataclass
 class DailConfig:
     run_conf: SingleRunConfig
-    batch: bool = False
+    batch: bool = True
     force: bool = False
     compute_cv_link: bool = True
     model: str = "gpt-3.5-turbo"
