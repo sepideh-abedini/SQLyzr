@@ -5,10 +5,9 @@ from src.util.logger import log
 
 
 class Catter:
-    def __init__(self):
-        self.parser = SqlParser()
-        self.tag_extractor = TagExtractor()
-        self.categorizer = Categorizer()
+    parser = SqlParser()
+    tag_extractor = TagExtractor()
+    categorizer = Categorizer()
 
     def get_category(self, sql: str):
         try:

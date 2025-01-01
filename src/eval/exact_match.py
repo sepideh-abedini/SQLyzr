@@ -7,8 +7,9 @@ parser = SqlParser()
 
 
 class ExactMatchParser:
+    parser = SqlParser()
+
     def __init__(self, tables_json_path):
-        self.parser = SqlParser()
         self.db_repo = DatabaseSchemaRepo(tables_json_path)
 
     def parse(self, sql: str, db_id: str) -> SqlAstNode:
