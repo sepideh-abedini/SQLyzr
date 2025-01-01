@@ -2,7 +2,7 @@ import os
 from typing import IO
 
 from openai import Client
-from openai.types import FilePurpose, FileObject
+from openai.types import FilePurpose, FileObject, Batch
 
 
 class GptBatchClient:
@@ -34,22 +34,20 @@ class GptBatchClient:
         result = self.__gpt.batches.list()
         return result.to_json()
 
-    def create_batch(self, file_id: str):
+    def create_batch(self, file_id: str) -> Batch:
         result = self.__gpt.batches.create(input_file_id=file_id, endpoint="/v1/chat/completions",
                                            completion_window="24h")
-        return result.to_json()
+        return result
 
     def delete_batch(self, batch_id: str):
         result = self.__gpt.batches.cancel(batch_id)
         return result.to_json()
 
-    def retrieve_batch(self, batch_id: str):
+    def retrieve_batch(self, batch_id: str) -> Batch:
         result = self.__gpt.batches.retrieve(batch_id)
-        return result.to_json()
+        return result
 
-    def retrieve_file_content(self, file_id: str):
+    def retrieve_file_content(self, file_id: str) -> str:
         file_info = self.__gpt.files.retrieve(file_id)
         content = self.__gpt.files.retrieve_content(file_id)
-        with open(os.path.join("data", "batch", file_info.filename), "w") as file:
-            file.write(content)
-        return file_info.to_json()
+        return content

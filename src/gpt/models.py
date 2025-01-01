@@ -1,6 +1,7 @@
 from typing import Literal, Optional, Dict
 
 from openai import BaseModel
+from openai.types.chat import ChatCompletion
 
 
 class GptMessage(BaseModel):
@@ -43,3 +44,10 @@ class BatchInputRequest(BaseModel):
         )
 
 
+class BatchResponse(BaseModel):
+    body: ChatCompletion
+
+
+class BatchRequestOutput(BaseModel):
+    custom_id: str
+    response: BatchResponse

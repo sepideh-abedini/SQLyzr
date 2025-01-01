@@ -5,7 +5,7 @@ from typing import List, Callable
 import pandas as pd
 
 from src.eval.runner_config import SingleRunConfig
-from src.gpt.gpt_asker import AsyncGptAsker
+from src.gpt.gpt_asker import AsyncGptAsker, GptAsker, BatchGptAsker
 from src.gpt.gpt_utils import process_responses, load_responses
 from src.gpt.models import BatchInputRequest
 from src.third_party.din.config import DinConfig, DEFAULT_CONF
@@ -22,7 +22,7 @@ def load_data(input_path: str):
 class DinPredictor:
     conf: DinConfig
     prompt_maker: PromptMaker
-    gpt_asker: AsyncGptAsker
+    gpt_asker: GptAsker
     run_conf: SingleRunConfig
     schema_links: List[str]
     classifs: List[str]
@@ -40,7 +40,7 @@ class DinPredictor:
     def __init__(self, run_conf: SingleRunConfig, config: DinConfig = DEFAULT_CONF):
         self.run_conf = run_conf
         self.conf = config
-        self.gpt_asker = AsyncGptAsker("gpt-3.5-turbo")
+        self.gpt_asker = BatchGptAsker()
         self.prompt_maker = PromptMaker(run_conf.dataset_config.get_tables_path())
 
     def generate_batch_file(self, file_path: str, req_generator: BatchRequestGenerator):

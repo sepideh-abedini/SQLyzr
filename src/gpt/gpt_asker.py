@@ -11,7 +11,7 @@ from typing import Type, Optional
 from openai import AsyncClient, APIError
 
 from src.gpt.gpt_client import GptBatchClient
-from src.gpt.models import BatchInputRequest
+from src.gpt.models import BatchInputRequest, BatchRequestOutput
 from src.util.logger import log
 
 
@@ -33,7 +33,9 @@ class GptAsker(ABC):
 
 class BatchState:
     path: str
-    file_id: Optional[str]
+    file_id: Optional[str] = None
+    batch_id: Optional[str] = None
+    out_file_id: Optional[str] = None
 
     def __init__(self, path: str):
         if os.path.exists(path):
@@ -60,13 +62,8 @@ class BatchGptAsker(GptAsker):
     def __init__(self):
         self.client = GptBatchClient()
 
-    def load_state(self, in_path: str) -> BatchState:
-        state_path = f"{in_path}.state.json"
-        file = open(state_path)
-        state = json.loads(file.read())
-
     async def get_responses(self, in_path: str) -> list[ChatCompletion]:
-        state = self.load_state(in_path)
+        state = BatchState(f"{in_path}.state.json")
 
         if not state.file_id:
             file_name = os.path.basename(in_path)
@@ -74,22 +71,59 @@ class BatchGptAsker(GptAsker):
             try:
                 response = self.client.create_file(file_name, file_content, "batch")
                 state.file_id = response.id
-                print("File uploaded")
-                state.file_id = response
                 log(response)
+                print(f"File uploaded {in_path} => {state.file_id}")
             except APIError as e:
-                log(e)
                 print(f"Failed to upload batch request file: {in_path}")
-        print("Batch file uploaded:")
+                raise e
+
+        if not state.batch_id:
+            try:
+                response = self.client.create_batch(state.file_id)
+                state.batch_id = response.id
+                log(response)
+                print(f"Batch job created: {state.batch_id}")
+            except APIError as e:
+                print(f"Failed to create batch job\n{e}")
+                raise e
+
+        if not state.out_file_id:
+            try:
+                response = self.client.retrieve_batch(state.batch_id)
+                while response.status != "completed":
+                    print(f"Batch job: {state.batch_id} not completed yet! Current status: {response.status}")
+                    print("Polling for job status")
+                    await asyncio.sleep(5)
+                    try:
+                        response = self.client.retrieve_batch(state.batch_id)
+                    except APIError as e:
+                        print(f"Failed to retrieve job status\n{e}")
+                        raise e
+                print(f"Batch job: {state.batch_id} completed! out_file_id: {response.output_file_id}")
+                state.out_file_id = response.output_file_id
+            except APIError as e:
+                print(f"Failed to retrieve batch job\n{e}")
+                raise e
+
+        try:
+            content = self.client.retrieve_file_content(state.out_file_id)
+            responses = []
+            for line in content.strip().split("\n"):
+                response = BatchRequestOutput.model_validate_json(line)
+                responses.append(response)
+            responses = sorted(responses, key=lambda r: r.custom_id)
+            responses = list(map(lambda r: r.response.body, responses))
+            return responses
+        except APIError as e:
+            print(f"Failed to retrieve output file\n{e}")
+            raise e
 
 
 class AsyncGptAsker(GptAsker):
     client: AsyncClient
-    model: str
     rps = 4
 
-    def __init__(self, model):
-        self.model = model
+    def __init__(self):
         self.client = AsyncClient(
             organization=os.getenv("OPENAI_GROUP_ID"),
             project=os.getenv("OPENAI_PROJ_ID"),

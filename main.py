@@ -10,11 +10,8 @@ def main():
     print("################# SQLyzr Productions #################")
 
     eval_conf = DIN_SPIDER_SMALL.eval_conf
-    state = BatchState("/tmp/state.json")
-    # state.file_id = "baz"
-    # state.file_id = "bal"
-    print(state)
-    # run_din(eval_conf)
+
+    run_din(eval_conf)
 
     # calc_scores(eval_conf)
     #
