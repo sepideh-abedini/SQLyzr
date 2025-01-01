@@ -5,6 +5,7 @@ import os
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.llm.chatgpt import init_chatgpt, ask_llm
 from src.third_party.dail.utils.enums import LLM
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
@@ -14,10 +15,10 @@ BATCH_SIZE = 1
 SELF_CONSISTENT_SET_SIZE = 5
 
 
-def run_dail(input_path: str, output_path: str, temp: float, db_dir: str):
+def run_dail(conf: DailConfig):
     start_index = 0
     end_index = 100_000
-    questions_json = json.load(open(input_path, "r"))
+    questions_json = json.load(open(conf.questions_path(), "r"))
     questions = [_["prompt"] for _ in questions_json["questions"]]
     db_ids = [_["db_id"] for _ in questions_json["questions"]]
 
@@ -29,14 +30,14 @@ def run_dail(input_path: str, output_path: str, temp: float, db_dir: str):
     question_loader = DataLoader(questions, batch_size=BATCH_SIZE, shuffle=False, drop_last=False)
 
     token_cnt = 0
-    with open(output_path, "w") as f:
+    with open(conf.run_conf.get_pred_path(), "w") as f:
         for i, batch in enumerate(question_loader):
             if i < start_index:
                 continue
             if i >= end_index:
                 break
             try:
-                res = ask_llm(MODEL, batch, temp, SELF_CONSISTENT_SET_SIZE)
+                res = ask_llm(MODEL, batch, conf.run_conf.temp, SELF_CONSISTENT_SET_SIZE)
             except Exception as e:
                 print(f"The {i}-th question has too much tokens! Return \"SELECT\" instead")
                 print(e)
@@ -75,18 +76,9 @@ def run_dail(input_path: str, output_path: str, temp: float, db_dir: str):
                         'db_id': db_id,
                         'p_sqls': processed_sqls
                     }
-                    final_sqls = get_sqls([result], SELF_CONSISTENT_SET_SIZE, db_dir)
+                    final_sqls = get_sqls([result], SELF_CONSISTENT_SET_SIZE,
+                                          conf.run_conf.dataset_config.get_db_path())
 
                     for sql in final_sqls:
                         f.write(sql + "\n")
         f.write(f"tokens:{token_cnt}")
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=str)
-    parser.add_argument("--output", type=str)
-    parser.add_argument("--temp", type=float)
-    parser.add_argument("--db_dir", type=str)
-    args = parser.parse_args()
-    run_dail(input_path=args.input, output_path=args.output, temp=args.temp, db_dir=args.db_dir)

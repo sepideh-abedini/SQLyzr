@@ -40,3 +40,11 @@ DIN_SMALL_CONF = ModelEvalConfig(
     eval_dir="data/ev",
     dataset_config=SPIDER_SMALL
 )
+
+DAIL_SMALL_CONF = ModelEvalConfig(
+    temps=[0.0],
+    num_itrs=3,
+    pred_dir="data/dail",
+    eval_dir="data/ev",
+    dataset_config=SPIDER_SMALL
+)

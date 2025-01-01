@@ -6,6 +6,7 @@ from pathlib import Path
 import sqlite3
 import random
 
+from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
 from src.third_party.dail.utils.pretrained_embeddings import GloVe
 from src.third_party.dail.utils.datasets.spider import load_tables
@@ -16,15 +17,19 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 # from dataset.process.preprocess_kaggle import gather_questions
 
 
-def schema_linking_producer(input_path, tables_path, db_path, output_path, compute_cv_link=True):
+def schema_linking_producer(conf: DailConfig):
+    if not conf.force and os.path.exists(conf.schema_path()):
+        print(f"Schema file exists: {conf.schema_path()}, skipping!")
+        return
+
     # load data
-    input_data = json.load(open(input_path))
+    input_data = json.load(open(conf.run_conf.dataset_config.get_data_path()))
     # load schemas
-    schemas, _ = load_tables([tables_path])
+    schemas, _ = load_tables([conf.run_conf.dataset_config.get_tables_path()])
 
     # Backup in-memory copies of all the DBs and create the live connections
     for db_id, schema in schemas.items():
-        sqlite_path = os.path.join(db_path, db_id, f"{db_id}.sqlite")
+        sqlite_path = os.path.join(conf.run_conf.dataset_config.get_db_file_path(db_id))
         source: sqlite3.Connection
         with sqlite3.connect(str(sqlite_path)) as source:
             dest = sqlite3.connect(':memory:')
@@ -39,7 +44,7 @@ def schema_linking_producer(input_path, tables_path, db_path, output_path, compu
                                                word_emb=word_emb,
                                                fix_issue_16_primary_keys=True,
                                                compute_sc_link=True,
-                                               compute_cv_link=compute_cv_link)
+                                               compute_cv_link=conf.compute_cv_link)
 
     # build schema-linking
     section = "train"
@@ -51,7 +56,7 @@ def schema_linking_producer(input_path, tables_path, db_path, output_path, compu
             linking_processor.add_item(item, schema, section, validation_info)
 
     # save
-    linking_processor.save(output_path, section)
+    linking_processor.save(conf.schema_path(), section)
 
 
 def bird_pre_process(bird_dir, with_evidence=False):
@@ -99,17 +104,3 @@ def bird_pre_process(bird_dir, with_evidence=False):
         tables.extend(json.load(f))
     with open(os.path.join(bird_dir, 'tables.json'), 'w') as f:
         json.dump(tables, f, indent=4)
-
-
-def preprocess_data(tables_path: str, input_path: str, db_path: str, output_path: str):
-    schema_linking_producer(tables_path=tables_path, input_path=input_path, db_path=db_path, output_path=output_path)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--tables", type=str)
-    parser.add_argument("--db_dir", type=str)
-    parser.add_argument("--output", type=str)
-    parser.add_argument("--input", type=str)
-    args = parser.parse_args()
-    preprocess_data(tables_path=args.tables, db_path=args.db_dir, output_path=args.output, input_path=args.input)
