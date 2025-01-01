@@ -51,10 +51,9 @@ def ask_chat(model, messages: list, temperature, n):
     )
 
 
-def ask_llm(model: str, question: str, temperature: float, n:int):
+def ask_llm(model: str, question: str, temperature: float, n: int):
     messages = [{"role": "user", "content": question}]
     response = ask_chat(model, messages, temperature, n)
     # response['response'] = [response['response']]
 
     return response
-

@@ -177,7 +177,6 @@ class DinPredictor:
 
         self.generate_batch_file(conf.get_path("schema", "in"), self.generate_schema_req)
 
-
         await self.ask_file(conf.get_path("schema", "in"), conf.get_path("schema", "out"))
 
         self.schema_links = process_responses(conf.get_path("schema", "out"), self.process_schema_response)

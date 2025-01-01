@@ -1,5 +1,7 @@
+import asyncio
+
 from src.sqlyzr_conf import DIN_SPIDER_SMALL, DAIL_SPIDER_SMALL
-from src.third_party.dail.ask_llm import run_dail
+from src.third_party.dail.ask_llm import run_dail, DailPredictor
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.data_preprocess import schema_linking_producer
 from src.third_party.dail.generate_question import generate_questions
@@ -12,7 +14,10 @@ def main():
 
     generate_questions(conf)
 
-    run_dail(conf)
+    dp = DailPredictor(conf)
+
+    asyncio.run(dp.run())
+    # run_dail(conf)
     print("Hello")
 
 

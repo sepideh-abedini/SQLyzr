@@ -17,6 +17,7 @@ def process_duplication(sql):
     sql = sql.strip().split("/*")[0]
     return sql
 
+
 threadLock = threading.Lock()
 TIMEOUT = 60
 EXEC_TMP_DIR = os.path.join(os.path.dirname(__file__), "tmp")
@@ -144,7 +145,7 @@ def get_cursor_from_path(sqlite_path: str):
     return cursor
 
 
-async def exec_on_db_(sqlite_path: str, query: str) -> Tuple[str, Any]:
+async def exec_on_db(sqlite_path: str, query: str) -> Tuple[str, Any]:
     query = replace_cur_year(query)
     cursor = get_cursor_from_path(sqlite_path)
     try:
@@ -159,11 +160,11 @@ async def exec_on_db_(sqlite_path: str, query: str) -> Tuple[str, Any]:
         return "exception", e
 
 
-async def exec_on_db(
+async def exec_on_db_timeout(
         sqlite_path: str, query: str, process_id: str = "", timeout: int = TIMEOUT
 ) -> Tuple[str, Any]:
     try:
-        return await asyncio.wait_for(exec_on_db_(sqlite_path, query), timeout)
+        return await asyncio.wait_for(exec_on_db(sqlite_path, query), timeout)
     except asyncio.TimeoutError:
         return ('exception', TimeoutError)
     except Exception as e:
@@ -176,11 +177,13 @@ def postprocess(query: str) -> str:
     query = query.replace("> =", ">=").replace("< =", "<=").replace("! =", "!=")
     return query
 
+
 def remove_distinct(s):
     toks = [t.value for t in list(sqlparse.parse(s)[0].flatten())]
     return "".join([t for t in toks if t.lower() != "distinct"])
 
-def get_exec_output(
+
+async def get_exec_output(
         db: str,
         sql: str,
         plug_value: bool = False,
@@ -206,12 +209,12 @@ def get_exec_output(
     else:
         ranger = db_paths
     for db_path in ranger:
-        flag, sql_denotation = asyncio.run(exec_on_db(db_path, sql))
+        flag, sql_denotation = await exec_on_db_timeout(db_path, sql)
         # print(sql_denotation)
         return flag, sql_denotation
 
 
-def get_sqls(results, select_number, db_dir):
+async def get_sqls(results, select_number, db_dir):
     db_ids = []
     all_p_sqls = []
     for item in results:
@@ -219,7 +222,7 @@ def get_sqls(results, select_number, db_dir):
         db_ids.append(item['db_id'])
         for i, x in enumerate(item['p_sqls']):
             p_sqls.append(x)
-            if i+1 == select_number:
+            if i + 1 == select_number:
                 break
         all_p_sqls.append(p_sqls)
     chosen_p_sqls = []
@@ -229,7 +232,7 @@ def get_sqls(results, select_number, db_dir):
         cluster_sql_list = []
         map_sql2denotation = {}
         for sql in p_sqls:
-            flag, denotation = get_exec_output(
+            flag, denotation = await get_exec_output(
                 db_path,
                 sql,
             )
