@@ -6,8 +6,8 @@ import pandas as pd
 from src.aug.auger import Auger
 from src.cat.categories import CATS
 from src.cat.statement_category import StatementCategory
+from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
-from src.sqlyzr_conf import SQLyzrConfig
 
 
 def find_worst_cat(config: ModelEvalConfig):

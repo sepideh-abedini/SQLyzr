@@ -14,6 +14,7 @@ from src.cat.sub_category import SubCategory
 from src.eval.dataset_config import DatasetConfig
 from src.gpt.gpt_asker import AsyncGptAsker, AsyncGptFormattedAsker
 from src.gpt.gpt_utils import process_responses, process_formatted_responses
+from src.gpt.models import BatchInputRequest
 from src.util.logger import log
 from src.util.schema_repo import DatabaseSchemaRepo
 
@@ -41,7 +42,7 @@ class Auger:
         self.sub_cats = []
         self.catter = Catter()
         self.dataset_conf = dataset_conf
-        self.gpt_asker = AsyncGptFormattedAsker("gpt-4o-mini", TextSqlPair)
+        self.gpt_asker = AsyncGptFormattedAsker(TextSqlPair)
         self.schema_repo = DatabaseSchemaRepo(self.dataset_conf.get_tables_path())
         self.examples = self.extract_examples()
         for s in cat.sub_cats:
@@ -71,21 +72,24 @@ class Auger:
         prompt = GptPromptSubCat(schema=self.schema_repo.dbs[self.db_id], cat=cat, examples=sub_cat_examples)
         return prompt
 
-    def generate_messages(self, file_path: str):
+    def create_batch_req(self, idx: str, prompt: str, extra_params):
+        return BatchInputRequest.create_prompt_req(idx, self.conf.model, prompt, extra_params)
+
+    def generate_batch_file(self, file_path: str):
         file = open(file_path, "w")
         for i in range(self.conf.gen_num):
             sub_cat = random.choice(list(self.sub_cats))
             prompt = self.get_gen_prompt_for_sub_cat(sub_cat)
-            message = {"role": "user", "content": str(prompt)}
-            file.write(f"{json.dumps(message)}\n")
+            request = self.create_batch_req(f"a{i}", str(prompt), dict())
+            file.write(f"{request.json()}\n")
         file.close()
 
-    async def ask_file(self, in_path: str, out_path: str, **kwargs):
+    async def ask_file(self, in_path: str, out_path: str):
         print(f"Asking GPT {in_path} ==> {out_path}")
         if os.path.exists(out_path) and not self.force:
             log(f"Output path exists: {out_path}, skip asking gpt.")
             return
-        await self.gpt_asker.ask_file(in_path, out_path, **kwargs)
+        await self.gpt_asker.ask_file(in_path, out_path)
 
     def process_response(self, i: int, pair: TextSqlPair) -> Dict:
         d = pair.dict()
@@ -100,7 +104,7 @@ class Auger:
 
     async def run(self):
         conf = self.conf
-        self.generate_messages(conf.gen_in)
+        self.generate_batch_file(conf.gen_in)
         await self.ask_file(conf.gen_in, conf.gen_out)
         resps = process_formatted_responses(conf.gen_out, TextSqlPair, self.process_response)
         self.save_results(resps)

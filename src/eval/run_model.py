@@ -12,7 +12,7 @@ def run_din(config: ModelEvalConfig):
         din_conf = DinConfig(run_conf)
         predictor = DinPredictor(din_conf)
         asyncio.run(predictor.run())
-        print(f"Running for conf = {run_conf}")
+        print(f"Run started for conf = {run_conf}")
 
 
 async def run_din_async(config: ModelEvalConfig):

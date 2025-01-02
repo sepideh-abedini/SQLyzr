@@ -15,7 +15,7 @@ class RequestBody(BaseModel):
     max_completion_tokens: Optional[int] = None
     stop: list[str] = []
     n: int = 1
-    stream: bool = False
+    # stream: bool = False
     frequency_penalty: float = 0.0
     presence_penalty: float = 0.0
 

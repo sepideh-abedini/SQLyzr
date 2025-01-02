@@ -14,7 +14,7 @@ class SingleRunConfig:
     itr: int
     pred_file_name: str = "pred"
     token_file_name: str = "tokens"
-    batch: bool = True
+    batch: bool = False
 
     def get_pred_path(self):
         return os.path.join(self.pred_dir, f"{self.pred_file_name}_{self.temp}_{self.itr}.txt")

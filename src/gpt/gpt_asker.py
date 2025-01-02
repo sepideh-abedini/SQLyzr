@@ -6,7 +6,7 @@ from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 import json
 import os
-from typing import Type, Optional
+from typing import Type, Optional, TypeVar
 
 from openai import AsyncClient, APIError
 
@@ -157,20 +157,20 @@ class AsyncGptAsker(GptAsker):
         return responses
 
 
-class AsyncGptFormattedAsker(AsyncGptAsker):
-    response_format: Type[BaseModel]
+T = TypeVar('T', bound=BaseModel)
 
-    def __init__(self, model, response_format: Type[BaseModel]):
-        super().__init__(model)
+
+class AsyncGptFormattedAsker(AsyncGptAsker):
+    response_format: Type[T]
+
+    def __init__(self, response_format: Type[T]):
+        super().__init__()
         self.response_format = response_format
 
-    async def process_request(self, message, **kwargs):
+    async def process_request(self, request: BatchInputRequest) -> T:
         log("Sending formatted GPT Request")
         result = await self.client.beta.chat.completions.parse(
-            model=self.model,
-            n=1,
-            messages=[message],
             response_format=self.response_format,
-            **kwargs
+            **request.body.dict()
         )
         return result
