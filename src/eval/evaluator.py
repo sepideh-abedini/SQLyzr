@@ -1,7 +1,7 @@
 import pandas as pd
 
 from src.cat.catter import Catter
-from src.eval.configs import DIN_SPIDER_SMALL_EVAL
+from src.configs.eval import DIN_SPIDER_SMALL_EVAL
 from src.eval.lib import confidence_level_interval
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig

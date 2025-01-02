@@ -14,7 +14,7 @@ class SingleRunConfig:
     itr: int
     pred_file_name: str = "pred"
     token_file_name: str = "tokens"
-    batch: bool = False
+    batch: bool = True
 
     def get_pred_path(self):
         return os.path.join(self.pred_dir, f"{self.pred_file_name}_{self.temp}_{self.itr}.txt")
@@ -25,3 +25,6 @@ class SingleRunConfig:
     def is_pred_file_valid(self):
         return os.path.exists(self.get_pred_path()) and get_num_lines(self.get_pred_path()) == get_num_lines(
             self.dataset_config.get_gold_path())
+
+    def __str__(self):
+        return f"temp = {self.temp}, iter={self.itr}"
