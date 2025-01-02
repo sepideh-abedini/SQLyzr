@@ -5,6 +5,7 @@ import random
 from asyncio import Lock
 from typing import List
 
+import backoff
 from openai import AsyncClient
 from openai.types.chat import ChatCompletion
 
@@ -32,7 +33,7 @@ class GptGatewayException(Exception):
 
 
 class GptRateLimits:
-    tokens_per_min: int = 200_000
+    tokens_per_min: int = 4_000
     batch_queue: int = 2_000_000
     req_per_min: int = 500
 
@@ -106,6 +107,10 @@ class GptUsageTracker:
         return GptUsageTracker.__instance
 
 
+def bar(details):
+    print("salam")
+
+
 class GptGateway:
     client: AsyncClient
     tracker: GptUsageTracker
@@ -126,7 +131,9 @@ class GptGateway:
         print("Received GPT Response")
         return result
 
+    @backoff.on_exception(backoff.constant, interval=60, on_backoff=bar, max_tries=5, exception=GptGatewayException)
     async def track_and_send(self, request: BatchInputRequest):
+        print(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()
         can_send = await self.tracker.check_limit(tokens)
         if can_send:
@@ -136,19 +143,6 @@ class GptGateway:
             return result
         else:
             raise GptGatewayException("Token limit hit!")
-
-
-async def bar(i):
-    gw = GptUsageTracker.get_instance()
-    await asyncio.sleep(random.randint(1, 20))
-    tokens = await gw.__update_total_tokens()
-    print(f"[{i}]: Before {tokens}")
-    new_toks = random.randint(100, 200)
-    print(f"[{i}]: Adding {new_toks}")
-    await gw.add_usage(new_toks)
-    tokens = await gw.__update_total_tokens()
-    print(f"[{i}]: After {tokens}")
-    await asyncio.sleep(random.randint(1, 4))
 
 
 async def main():
