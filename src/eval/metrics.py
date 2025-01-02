@@ -89,7 +89,7 @@ class RelaxedExecAcc(Metric):
         pd = SqlInputData(db_id, pred)
         gd = SqlInputData(db_id, gold)
         working_sub = self.detector.find_working_sub(pd, gd)
-        if working_sub:
+        if working_sub is not None:
             return 1
         else:
             return 0

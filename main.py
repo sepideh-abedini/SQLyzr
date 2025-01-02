@@ -20,15 +20,15 @@ def main():
     # eval_conf = DAIL_SPIDER_SMALL.eval_conf
     # eval_conf = DIN_BIRD_SMALL.eval_conf
 
-    # validate_dataset(eval_conf.dataset_config)
+    validate_dataset(eval_conf.dataset_config)
 
-    # run_din(eval_conf)
+    run_din(eval_conf)
 
-    # calc_scores(eval_conf)
+    calc_scores(eval_conf)
 
-    # post_process_scores(eval_conf)
+    post_process_scores(eval_conf)
 
-    # find_transformers(eval_conf)
+    find_transformers(eval_conf)
 
     augment_data(sqlyzr_conf)
 

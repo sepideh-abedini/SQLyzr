@@ -46,7 +46,7 @@ class TransformerDetector:
             for p in procs:
                 if p.ready():
                     x = p.get(1)
-                    if x:
+                    if x is not None:
                         pool.terminate()
                         return x
             count -= 1
