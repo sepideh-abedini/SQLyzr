@@ -1,4 +1,5 @@
 from typing import Literal, Optional, Dict
+import tiktoken
 
 from openai import BaseModel
 from openai.types.chat import ChatCompletion
@@ -42,6 +43,13 @@ class BatchInputRequest(BaseModel):
                 "body": body
             }
         )
+
+    def get_token_usage(self):
+        encoding = tiktoken.encoding_for_model(self.body.model)
+        total_tokens = 0
+        for msg in self.body.messages:
+            total_tokens = len(encoding.encode(msg.content))
+        return total_tokens
 
 
 class BatchResponse(BaseModel):
