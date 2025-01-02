@@ -108,7 +108,7 @@ class DeleteBatch(GptCliCommand):
         self.batch_id = args[0]
 
     def execute_internal(self):
-        return self.gpt_client.delete_batch(self.batch_id)
+        return self.gpt_client.cancel_batch(self.batch_id)
 
 
 class RetrieveBatch(GptCliCommand):

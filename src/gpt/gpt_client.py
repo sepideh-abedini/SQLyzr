@@ -2,6 +2,7 @@ import os
 from typing import IO
 
 from openai import Client
+from openai.pagination import SyncCursorPage
 from openai.types import FilePurpose, FileObject, Batch
 
 
@@ -30,16 +31,16 @@ class GptBatchClient:
         result = self.__gpt.files.delete(file_id)
         return result.to_json()
 
-    def list_batches(self):
+    def list_batches(self) -> SyncCursorPage[Batch]:
         result = self.__gpt.batches.list()
-        return result.to_json()
+        return result
 
     def create_batch(self, file_id: str) -> Batch:
         result = self.__gpt.batches.create(input_file_id=file_id, endpoint="/v1/chat/completions",
                                            completion_window="24h")
         return result
 
-    def delete_batch(self, batch_id: str):
+    def cancel_batch(self, batch_id: str):
         result = self.__gpt.batches.cancel(batch_id)
         return result.to_json()
 
