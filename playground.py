@@ -1,16 +1,8 @@
 import asyncio
-import os
-from datetime import datetime, timezone, timedelta
-import random
-from asyncio import Lock
-from typing import List
-
-import backoff
-from openai import AsyncClient
-from openai.types.chat import ChatCompletion
 
 from src.cat.catter import Catter
 from src.eval.lib import Timer
+from src.gpt.gpt_gateway import GptGateway
 from src.gpt.models import BatchInputRequest
 from src.parse.graph_drawer import draw_graph
 from src.parse.parser import SqlParser
@@ -27,122 +19,6 @@ from src.parse.parser import SqlParser
 # cat = catter.get_category(sql)
 # print(cat)
 
-class GptGatewayException(Exception):
-    def __init__(self, msg):
-        super().__init__(msg)
-
-
-class GptRateLimits:
-    tokens_per_min: int = 4_000
-    batch_queue: int = 2_000_000
-    req_per_min: int = 500
-
-
-class GptUsage:
-    tokens: int
-    expires_at: datetime
-
-    def __init__(self, tokens: int):
-        self.tokens = tokens
-        self.expires_at = datetime.utcnow() + timedelta(seconds=60)
-
-    def expired(self) -> bool:
-        return datetime.utcnow() > self.expires_at
-
-    def expire(self):
-        self.expires_at = datetime.utcnow()
-
-
-class GptUsageTracker:
-    __instance: 'GptUsageTracker' = None
-    limits: GptRateLimits
-
-    __usage: List[GptUsage]
-    total_tokens: int
-    lock: Lock
-
-    def __init__(self):
-        self.__usage = []
-        self.total_tokens = 0
-        self.lock = asyncio.Lock()
-        self.limits = GptRateLimits()
-
-    async def check_limit(self, tokens: int):
-        await self.lock.acquire()
-        try:
-            self.__update_total_tokens()
-            print(f"Checking Limit: {tokens}+{self.total_tokens}/{self.limits.tokens_per_min}")
-            if tokens + self.total_tokens > self.limits.tokens_per_min:
-                return False
-            return True
-        finally:
-            self.lock.release()
-
-    async def add_usage(self, tokens: int):
-        await self.lock.acquire()
-        try:
-            usage = GptUsage(tokens)
-            old_total = self.total_tokens
-            self.__usage.append(usage)
-            self.total_tokens += usage.tokens
-            print(f"Usage added: {old_total} => {self.total_tokens}")
-            return usage
-        finally:
-            self.lock.release()
-
-    def __update_total_tokens(self):
-        while len(self.__usage) > 0:
-            usage = self.__usage[0]
-            if not usage.expired():
-                break
-            old_tokens = self.total_tokens
-            self.total_tokens -= usage.tokens
-            self.__usage.pop(0)
-            print(f"Expired token: {usage.tokens}, {old_tokens} => {self.total_tokens}")
-
-    @staticmethod
-    def get_instance():
-        if not GptUsageTracker.__instance:
-            GptUsageTracker.__instance = GptUsageTracker()
-        return GptUsageTracker.__instance
-
-
-def bar(details):
-    print("salam")
-
-
-class GptGateway:
-    client: AsyncClient
-    tracker: GptUsageTracker
-
-    def __init__(self):
-        self.client = AsyncClient(
-            organization=os.getenv("OPENAI_GROUP_ID"),
-            project=os.getenv("OPENAI_PROJ_ID"),
-            timeout=5
-        )
-        self.tracker = GptUsageTracker.get_instance()
-
-    async def __send_without_tracking(self, request: BatchInputRequest):
-        print("Sending GPT Request")
-        result = await self.client.chat.completions.create(
-            **request.body.dict()
-        )
-        print("Received GPT Response")
-        return result
-
-    @backoff.on_exception(backoff.constant, interval=60, on_backoff=bar, max_tries=5, exception=GptGatewayException)
-    async def track_and_send(self, request: BatchInputRequest):
-        print(f"Sending [{request.custom_id}]")
-        tokens = request.get_token_usage()
-        can_send = await self.tracker.check_limit(tokens)
-        if can_send:
-            usage = await self.tracker.add_usage(tokens)
-            result = await self.__send_without_tracking(request)
-            usage.expire()
-            return result
-        else:
-            raise GptGatewayException("Token limit hit!")
 
 
 async def main():
