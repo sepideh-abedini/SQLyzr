@@ -32,7 +32,7 @@ class GptGateway:
         print("Received GPT Response")
         return result
 
-    @backoff.on_exception(backoff.constant, interval=60, max_tries=5, exception=GptGatewayException)
+    @backoff.on_exception(backoff.constant, interval=10, max_tries=5, exception=GptGatewayException)
     async def track_and_send(self, request: BatchInputRequest):
         print(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()
