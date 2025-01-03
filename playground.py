@@ -1,7 +1,10 @@
 import asyncio
+import time
 
 from src.cat.catter import Catter
 from src.eval.lib import Timer
+from src.gpt.gpt_batch_gateway import GptBatchGateway
+from src.gpt.gpt_from_file_sender import GptSingleSender
 from src.gpt.gpt_gateway import GptGateway
 from src.gpt.models import BatchInputRequest
 from src.parse.graph_drawer import draw_graph
@@ -19,28 +22,42 @@ from src.parse.parser import SqlParser
 # cat = catter.get_category(sql)
 # print(cat)
 
+class Bar:
+    def __del__(self):
+        print("SALAM")
+
+
+async def baz():
+    await asyncio.sleep(10)
 
 
 async def main():
     timer = Timer()
     timer.start()
-    gw = GptGateway()
+    # gw = GptGateway()
+    gw = GptBatchGateway()
     reqs = []
-    with open("data/din/pred_0.0_0.txt.classif.in.jsonl") as file:
-        for line in file.readlines():
-            req = BatchInputRequest.model_validate_json(line)
-            reqs.append(req)
-
+    # sender = GptSingleSender()
     futures = []
-    for req in reqs:
-        future = gw.track_and_send(req)
+    for i in range(1, 9):
+        future = gw.send_batch(f"data/din/P{i}.jsonl")
         futures.append(future)
-        print(f"{req.custom_id} sent")
-        # print(res)
-        # futures.append(gw.track_and_send(req))
-
-    ress = await asyncio.gather(*futures)
-    print(ress)
+    await asyncio.gather(*futures)
+    # await sender.send_from_file(in_file, out_file)
+    # with open("data/din/pred_0.0_0.txt.classif.in.jsonl") as file:
+    #     for line in file.readlines():
+    #         req = BatchInputRequest.model_validate_json(line)
+    #         reqs.append(req)
+    #
+    # futures = []
+    # for req in reqs:
+    #     future = gw.track_and_send(req)
+    #     futures.append(future)
+    #     print(f"{req.custom_id} sent")
+    #     # print(res)
+    #     # futures.append(gw.track_and_send(req))
+    #
+    # ress = await asyncio.gather(*futures)
     print(timer.stop())
 
 

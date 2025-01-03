@@ -1,4 +1,5 @@
 import asyncio
+from abc import ABC, abstractmethod
 from typing import List
 
 from openai.types.chat import ChatCompletion
@@ -7,7 +8,13 @@ from src.gpt.gpt_gateway import GptGateway
 from src.gpt.models import BatchInputRequest
 
 
-class GptFromFileSender:
+class GptFromFileSender(ABC):
+    @abstractmethod
+    async def send_from_file(self, in_path: str, out_path: str):
+        pass
+
+
+class GptSingleSender(GptFromFileSender):
     gateway: GptGateway
 
     def __init__(self):
