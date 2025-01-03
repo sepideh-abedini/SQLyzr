@@ -15,7 +15,7 @@ from src.gpt.models import BatchInputRequest, BatchRequestOutput
 from src.util.logger import log
 
 
-class GptAsker(ABC):
+class GptFromFileSender(ABC):
     async def ask_file(self, in_path: str, out_path: str):
         responses = await self.get_responses(in_path)
         self.save_responses(responses, out_path)
@@ -57,7 +57,7 @@ class BatchState:
             file.write(json.dumps(self.__dict__))
 
 
-class BatchGptAsker(GptAsker):
+class BatchGptAsker(GptFromFileSender):
 
     def __init__(self):
         self.client = GptBatchClient()
@@ -119,7 +119,7 @@ class BatchGptAsker(GptAsker):
             raise e
 
 
-class AsyncGptAsker(GptAsker):
+class AsyncGptAsker(GptFromFileSender):
     client: AsyncClient
     rps = 4
 

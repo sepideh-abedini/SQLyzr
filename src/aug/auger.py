@@ -12,8 +12,8 @@ from src.cat.catter import Catter
 from src.cat.statement_category import StatementCategory
 from src.cat.sub_category import SubCategory
 from src.eval.dataset_config import DatasetConfig
-from src.gpt.gpt_asker import AsyncGptAsker, AsyncGptFormattedAsker
-from src.gpt.gpt_utils import process_responses, process_formatted_responses
+from src.gpt.gpt_from_file_sender import GptFormattedSingleSender, GptFromFileSender
+from src.gpt.gpt_utils import process_formatted_responses
 from src.gpt.models import BatchInputRequest
 from src.util.logger import log
 from src.util.schema_repo import DatabaseSchemaRepo
@@ -25,7 +25,7 @@ class TextSqlPair(BaseModel):
 
 
 class Auger:
-    gpt_asker: AsyncGptAsker
+    gpt_sender: GptFromFileSender
     conf: AugerConf
     dataset_conf: DatasetConfig
     force: bool = False
@@ -42,7 +42,7 @@ class Auger:
         self.sub_cats = []
         self.catter = Catter()
         self.dataset_conf = dataset_conf
-        self.gpt_asker = AsyncGptFormattedAsker(TextSqlPair)
+        self.gpt_sender = GptFormattedSingleSender(TextSqlPair)
         self.schema_repo = DatabaseSchemaRepo(self.dataset_conf.get_tables_path())
         self.examples = self.extract_examples()
         for s in cat.sub_cats:
@@ -89,7 +89,7 @@ class Auger:
         if os.path.exists(out_path) and not self.force:
             log(f"Output path exists: {out_path}, skip asking gpt.")
             return
-        await self.gpt_asker.ask_file(in_path, out_path)
+        await self.gpt_sender.send_and_save(in_path, out_path)
 
     def process_response(self, i: int, pair: TextSqlPair) -> Dict:
         d = pair.dict()

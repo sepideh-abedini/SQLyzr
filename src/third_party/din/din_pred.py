@@ -4,7 +4,7 @@ from typing import List, Callable
 
 import pandas as pd
 
-from src.gpt.gpt_asker import AsyncGptAsker, GptAsker, BatchGptAsker
+from src.gpt.gpt_from_file_sender import GptFromFileSender, GptBatchSender, GptSingleSender
 from src.gpt.gpt_utils import process_responses, load_responses
 from src.gpt.models import BatchInputRequest
 from src.third_party.din.config import DinConfig
@@ -21,26 +21,26 @@ def load_data(input_path: str):
 class DinPredictor:
     conf: DinConfig
     prompt_maker: PromptMaker
-    gpt_asker: GptAsker
+    gpt_sender: GptFromFileSender
     schema_links: List[str]
     classifs: List[str]
     pred_classes: List[str]
     sqls: List[str]
     default_params = {
-        'max_tokens': 600,
+        'max_completion_tokens': 600,
         'stop': ["Q:"]
     }
     debug_params = {
-        "max_tokens": 350,
+        "max_completion_tokens": 350,
         "stop": ["#", ";", "\n\n"]
     }
 
     def __init__(self, conf: DinConfig):
         self.conf = conf
         if self.conf.run_conf.batch:
-            self.gpt_asker = BatchGptAsker()
+            self.gpt_sender = GptBatchSender()
         else:
-            self.gpt_asker = AsyncGptAsker()
+            self.gpt_sender = GptSingleSender()
         self.prompt_maker = PromptMaker(self.conf.run_conf.dataset_config.get_tables_path())
 
     def generate_batch_file(self, file_path: str, req_generator: BatchRequestGenerator):
@@ -58,7 +58,7 @@ class DinPredictor:
         if os.path.exists(out_path) and not self.conf.force:
             log(f"Output path exists: {out_path}, skip asking gpt.")
             return
-        await self.gpt_asker.ask_file(in_path, out_path)
+        await self.gpt_sender.send_and_save(in_path, out_path)
 
     def create_batch_req(self, idx: str, prompt: str, extra_params):
         extra_params['temperature'] = self.conf.run_conf.temp

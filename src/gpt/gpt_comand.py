@@ -88,7 +88,10 @@ class ListBatches(GptCliCommand):
             raise CommandException("No args expected!")
 
     def execute_internal(self):
-        return self.gpt_client.list_batches()
+        all_data = []
+        page = self.gpt_client.list_batches()
+        for entry in page.data:
+            print(f"{entry.id}: {entry.status} {entry.errors}")
 
 
 class CreateBatch(GptCliCommand):

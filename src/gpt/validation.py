@@ -1,13 +1,13 @@
 import json
-import tiktoken  # for token counting
+import tiktoken
 import numpy as np
 from collections import defaultdict
 
-data_path = "data/gpt/fine_tune.jsonl"
+data_path = "data/din/pred_0.0_0.txt.schema.in.jsonl"
 
 # Load the dataset
 with open(data_path, 'r', encoding='utf-8') as f:
-    dataset = [json.loads(line) for line in f]
+    dataset = [json.loads(line)["body"] for line in f]
 
 # Initial dataset stats
 print("Num examples:", len(dataset))

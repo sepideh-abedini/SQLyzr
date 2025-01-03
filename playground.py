@@ -1,9 +1,11 @@
 import asyncio
 import time
+from datetime import datetime, timedelta
 
 from src.cat.catter import Catter
 from src.eval.lib import Timer
 from src.gpt.gpt_batch_gateway import GptBatchGateway
+from src.gpt.gpt_client import GptBatchClient
 from src.gpt.gpt_from_file_sender import GptSingleSender
 from src.gpt.gpt_gateway import GptGateway
 from src.gpt.models import BatchInputRequest
@@ -22,27 +24,24 @@ from src.parse.parser import SqlParser
 # cat = catter.get_category(sql)
 # print(cat)
 
-class Bar:
-    def __del__(self):
-        print("SALAM")
-
-
-async def baz():
-    await asyncio.sleep(10)
-
 
 async def main():
+    bar = GptBatchClient()
     timer = Timer()
     timer.start()
+    bar.list_cur_batches()
+    print(timer.stop().seconds)
+    # timer = Timer()
+    # timer.start()
     # gw = GptGateway()
-    gw = GptBatchGateway()
-    reqs = []
+    # gw = GptBatchGateway()
+    # reqs = []
     # sender = GptSingleSender()
-    futures = []
-    for i in range(1, 9):
-        future = gw.send_batch(f"data/din/P{i}.jsonl")
-        futures.append(future)
-    await asyncio.gather(*futures)
+    # futures = []
+    # for i in range(1, 9):
+    #     future = gw.send_batch(f"data/din/P{i}.jsonl")
+    #     futures.append(future)
+    # await asyncio.gather(*futures)
     # await sender.send_from_file(in_file, out_file)
     # with open("data/din/pred_0.0_0.txt.classif.in.jsonl") as file:
     #     for line in file.readlines():
@@ -58,7 +57,7 @@ async def main():
     #     # futures.append(gw.track_and_send(req))
     #
     # ress = await asyncio.gather(*futures)
-    print(timer.stop())
+    # print(timer.stop())
 
 
 if __name__ == '__main__':

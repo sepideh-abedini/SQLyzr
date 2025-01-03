@@ -2,7 +2,7 @@ import json
 import os
 from typing import Callable, List
 
-from src.gpt.gpt_asker import GptAsker, BatchGptAsker, AsyncGptAsker
+from src.gpt.gpt_from_file_sender import GptFromFileSender, GptBatchSender, GptSingleSender
 from src.gpt.gpt_utils import load_responses
 from src.gpt.models import BatchInputRequest
 from src.third_party.dail.dail_conf import DailConfig
@@ -16,14 +16,14 @@ BatchRequestGenerator = Callable[[int, str, str], BatchInputRequest]
 
 class DailPredictor:
     conf: DailConfig
-    gpt_asker: GptAsker
+    gpt_sender: GptFromFileSender
 
     def __init__(self, conf: DailConfig):
         self.conf = conf
-        if self.conf.batch:
-            self.gpt_asker = BatchGptAsker()
+        if self.conf.run_conf.batch:
+            self.gpt_sender = GptBatchSender()
         else:
-            self.gpt_asker = AsyncGptAsker()
+            self.gpt_sender = GptSingleSender()
 
     def create_batch_req(self, idx: str, prompt: str, extra_params):
         extra_params['temperature'] = self.conf.run_conf.temp
@@ -125,4 +125,4 @@ class DailPredictor:
         if os.path.exists(out_path) and not self.conf.force:
             log(f"Output path exists: {out_path}, skip asking gpt.")
             return
-        await self.gpt_asker.ask_file(in_path, out_path)
+        await self.gpt_sender.send_and_save(in_path, out_path)

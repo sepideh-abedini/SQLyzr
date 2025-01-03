@@ -49,6 +49,8 @@ class BatchInputRequest(BaseModel):
         total_tokens = 0
         for msg in self.body.messages:
             total_tokens = len(encoding.encode(msg.content))
+        if self.body.max_completion_tokens:
+            total_tokens += self.body.max_completion_tokens
         return total_tokens
 
 

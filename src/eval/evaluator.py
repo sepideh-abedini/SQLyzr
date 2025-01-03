@@ -37,6 +37,7 @@ def calc_scores(config: ModelEvalConfig):
         gold_path = conf.dataset_config.get_gold_path()
         data = get_pred_gold_db_id(pred_path, gold_path)
         scores = []
+        print(f"Calculating scores for {conf}")
         for i, (pred, gold, db_id) in enumerate(data):
             cat = catter.get_category(gold)
             example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": str(cat)}

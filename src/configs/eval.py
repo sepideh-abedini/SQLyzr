@@ -25,6 +25,14 @@ DAIL_SPIDER_SMALL_EVAL = ModelEvalConfig(
     dataset_config=SPIDER_SMALL
 )
 
+DAIL_SPIDER_DEV_EVAL = ModelEvalConfig(
+    temps=[0.0],
+    num_itrs=3,
+    pred_dir="data/dail",
+    eval_dir="data/ev",
+    dataset_config=SPIDER_DEV
+)
+
 DIN_BIRD_SMALL_EVAL = ModelEvalConfig(
     temps=[0.0],
     num_itrs=3,

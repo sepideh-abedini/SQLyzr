@@ -24,6 +24,11 @@ class GptBatchNotCompletedException(GptGatewayException):
         super().__init__("Batch not completed exception")
 
 
+class GptBatchFailedException(GptGatewayException):
+    def __init__(self, msg):
+        super().__init__(msg)
+
+
 class GptGateway:
     client: AsyncClient
     tracker: GptUsageTracker
