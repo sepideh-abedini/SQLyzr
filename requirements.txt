@@ -4,6 +4,7 @@ aiosignal==1.3.1
 annotated-types==0.7.0
 anyio==4.6.2.post1
 attrs==24.2.0
+backoff==2.2.1
 certifi==2024.8.30
 charset-normalizer==3.4.0
 click==8.1.7
@@ -68,6 +69,7 @@ stanford-corenlp==3.9.2
 sympy==1.13.1
 tdqm==0.0.1
 threadpoolctl==3.5.0
+tiktoken==0.8.0
 tokenizers==0.21.0
 torch==2.1.2
 torchdata==0.7.1
