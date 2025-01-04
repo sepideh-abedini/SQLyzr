@@ -3,7 +3,7 @@ from src.eval.model_eval_config import ModelEvalConfig
 
 DIN_SPIDER_SMALL_EVAL = ModelEvalConfig(
     temps=[0.0],
-    num_itrs=1,
+    num_itrs=3,
     pred_dir="data/din",
     eval_dir="data/ev",
     dataset_config=SPIDER_SMALL

@@ -1,3 +1,4 @@
+import json
 import os.path
 import os.path
 from typing import List, Literal, Optional
@@ -118,6 +119,11 @@ class GptBatchGateway:
         batches = list(filter(lambda b: b.status != "completed" and b.status != "failed", batches))
         return batches
 
+    async def save_batch_stats(self, info: BatchInfo):
+        batch = await self.retrieve_batch(info)
+        with open(f"{info.in_path}.batch.stats.json", "w") as file:
+            file.write(json.dumps(batch.dict(), indent=4))
+
     @backoff.on_exception(backoff.constant, on_backoff=on_rate_limit, interval=10, max_tries=50,
                           exception=GptRateLimitException)
     @backoff.on_exception(backoff.constant, on_backoff=on_failed, interval=10, max_tries=50,
@@ -138,5 +144,7 @@ class GptBatchGateway:
 
         responses = await self.download_batch_output(info)
         print(f"[{in_path}]:\tOutfile downloaded")
+
+        await self.save_batch_stats(info)
 
         return responses

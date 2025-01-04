@@ -3,6 +3,7 @@ from typing import TypeVar, Type
 
 import backoff
 from openai import AsyncClient
+from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
 from src.gpt.gpt_tracker import GptUsageTracker
@@ -41,7 +42,7 @@ class GptGateway:
         )
         self.tracker = GptUsageTracker.get_instance()
 
-    async def send_without_tracking(self, request: BatchInputRequest):
+    async def send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
         print("Sending GPT Request")
         result = await self.client.chat.completions.create(
             **request.body.dict()

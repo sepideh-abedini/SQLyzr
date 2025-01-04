@@ -1,15 +1,19 @@
+import json
 import os
 import re
 from typing import List, Callable
+import cProfile
 
 import pandas as pd
 
+from src.eval.lib import Timer
 from src.gpt.gpt_from_file_sender import GptFromFileSender, GptBatchSender, GptSingleSender
 from src.gpt.gpt_utils import process_responses, load_responses
 from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
 from src.third_party.din.config import DinConfig
 from src.third_party.din.prompt_maker import PromptMaker
+from src.third_party.model_stats import ModelRunStats
 from src.util.logger import log
 
 BatchRequestGenerator = Callable[[int, str, str], BatchInputRequest]
@@ -28,6 +32,7 @@ class DinPredictor:
     pred_classes: List[str]
     sqls: List[str]
     parser: SqlParser
+    stats: ModelRunStats
     default_params = {
         'max_completion_tokens': 600,
         'stop': ["Q:"]
@@ -45,6 +50,7 @@ class DinPredictor:
         else:
             self.gpt_sender = GptSingleSender()
         self.prompt_maker = PromptMaker(self.conf.run_conf.dataset_config.get_tables_path())
+        self.stats = ModelRunStats(dict())
 
     def generate_batch_file(self, file_path: str, req_generator: BatchRequestGenerator):
         examples = load_data(self.conf.run_conf.dataset_config.get_data_path()).to_dict("records")
@@ -61,7 +67,12 @@ class DinPredictor:
         if os.path.exists(out_path) and not self.conf.force:
             log(f"Output path exists: {out_path}, skip asking gpt.")
             return
+        timer = Timer()
+        timer.start()
         await self.gpt_sender.send_and_save(in_path, out_path)
+        elapsed_time = timer.stop()
+        with open(self.conf.run_conf.get_stats_path(), "a") as file:
+            file.write(f"{in_path}:{elapsed_time.total_seconds()}\n")
 
     def create_batch_req(self, idx: str, prompt: str, extra_params):
         extra_params['temperature'] = self.conf.run_conf.temp
@@ -125,8 +136,10 @@ class DinPredictor:
             content = re.sub(pattern, r'\1', content)
         return content
 
-    def process_gpt_4o_mini_debug(self, content: str) -> str:
+    def process_gpt_4o_mini_debug(self, i: int, content: str) -> str:
         content = content.replace("\n", " ")
+        if "SELECT" not in content:
+            return self.sqls[i]
         pattern = r'.*```sql\s*([^`]*).*'
         sql = re.sub(pattern, r'\1', content)
         sql = sql.strip()
@@ -165,7 +178,7 @@ class DinPredictor:
                 sql = "SELECT " + content
                 return sql
             case "gpt-4o-mini":
-                sql = self.process_gpt_4o_mini_debug(content)
+                sql = self.process_gpt_4o_mini_debug(i, content)
                 return sql
             case _:
                 raise RuntimeError(f"Unknown model: {self.conf.model}")
@@ -209,8 +222,14 @@ class DinPredictor:
             out_file.write(f"{usage}\n")
         out_file.close()
 
+    def save_stats(self, stats: ModelRunStats):
+        with open(self.conf.run_conf.get_stats_path(), "w") as file:
+            file.write(json.dumps(stats.__dict__, indent=4))
+
     async def run(self):
         conf = self.conf
+        timer = Timer()
+        timer.start()
 
         self.generate_batch_file(conf.get_path("schema", "in"), self.generate_schema_req)
 
@@ -243,3 +262,4 @@ class DinPredictor:
         self.save_sqls(self.conf.run_conf.get_pred_path(), sqls)
 
         self.save_total_token_usage()
+

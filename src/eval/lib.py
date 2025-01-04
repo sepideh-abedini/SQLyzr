@@ -6,14 +6,14 @@ import subprocess
 import pandas as pd
 
 
-class Timer():
+class Timer:
     def __init__(self):
         pass
 
     def start(self):
         self.start_time = datetime.datetime.now()
 
-    def stop(self):
+    def stop(self) -> datetime.timedelta:
         return datetime.datetime.now() - self.start_time
 
 
