@@ -7,6 +7,7 @@ import pandas as pd
 from src.gpt.gpt_from_file_sender import GptFromFileSender, GptBatchSender, GptSingleSender
 from src.gpt.gpt_utils import process_responses, load_responses
 from src.gpt.models import BatchInputRequest
+from src.parse.parser import SqlParser
 from src.third_party.din.config import DinConfig
 from src.third_party.din.prompt_maker import PromptMaker
 from src.util.logger import log
@@ -26,6 +27,7 @@ class DinPredictor:
     classifs: List[str]
     pred_classes: List[str]
     sqls: List[str]
+    parser: SqlParser
     default_params = {
         'max_completion_tokens': 600,
         'stop': ["Q:"]
@@ -36,6 +38,7 @@ class DinPredictor:
     }
 
     def __init__(self, conf: DinConfig):
+        self.parser = SqlParser()
         self.conf = conf
         if self.conf.run_conf.batch:
             self.gpt_sender = GptBatchSender()
@@ -111,7 +114,25 @@ class DinPredictor:
             predicted_class = '"NESTED"'
         return predicted_class
 
-    def process_sql_responses(self, i: int, content: str) -> str:
+    def process_gpt_4o_mini_sql(self, i: int, content: str) -> str:
+        content = content.strip()
+        content = content.replace("\n", " ")
+        if "SQL: `" in content:
+            pattern = r'.*SQL: `\s*(SELECT.*)\s*`'
+            content = re.sub(pattern, r'\1', content)
+        if "```sql" in content:
+            pattern = r'.*```sql\s*(SELECT.*)\s*```'
+            content = re.sub(pattern, r'\1', content)
+        return content
+
+    def process_gpt_4o_mini_debug(self, content: str) -> str:
+        content = content.replace("\n", " ")
+        pattern = r'.*```sql\s*([^`]*).*'
+        sql = re.sub(pattern, r'\1', content)
+        sql = sql.strip()
+        return sql
+
+    def process_gpt_35_sql(self, i: int, content: str) -> str:
         pred_class = self.pred_classes[i]
         if '"EASY"' in pred_class:
             sql = content
@@ -129,11 +150,29 @@ class DinPredictor:
                 sql = "SELECT"
         return sql
 
+    def process_sql_responses(self, i: int, content: str) -> str:
+        match self.conf.model:
+            case "gpt-3.5-turbo":
+                return self.process_gpt_35_sql(i, content)
+            case "gpt-4o-mini":
+                return self.process_gpt_4o_mini_sql(i, content)
+            case _:
+                raise RuntimeError(f"Unknown model: {self.conf.model}")
+
     def process_sql_debug_response(self, i: int, content: str) -> str:
-        sql = "SELECT " + content
-        pattern = r'SELECT\s*```sql ([^`]*).*'
-        sql = re.sub(pattern, r'\1', sql)
-        return sql
+        match self.conf.model:
+            case "gpt-3.5-turbo":
+                sql = "SELECT " + content
+                return sql
+            case "gpt-4o-mini":
+                sql = self.process_gpt_4o_mini_debug(content)
+                return sql
+            case _:
+                raise RuntimeError(f"Unknown model: {self.conf.model}")
+        # sql = "SELECT " + content
+        # pattern = r'SELECT\s*```sql ([^`]*).*'
+        # sql = re.sub(pattern, r'\1', sql)
+        # return sql
 
     def post_process(self, sqls: List[str]) -> List[str]:
         result = []
