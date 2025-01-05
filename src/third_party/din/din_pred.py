@@ -34,11 +34,11 @@ class DinPredictor:
     parser: SqlParser
     stats: ModelRunStats
     default_params = {
-        'max_completion_tokens': 600,
+        'max_completion_tokens': 2,
         'stop': ["Q:"]
     }
     debug_params = {
-        "max_completion_tokens": 350,
+        "max_completion_tokens": 2,
         "stop": ["#", ";", "\n\n"]
     }
 
@@ -50,7 +50,7 @@ class DinPredictor:
         else:
             self.gpt_sender = GptSingleSender()
         self.prompt_maker = PromptMaker(self.conf.run_conf.dataset_config.get_tables_path())
-        self.stats = ModelRunStats(dict())
+        self.stats = ModelRunStats()
 
     def generate_batch_file(self, file_path: str, req_generator: BatchRequestGenerator):
         examples = load_data(self.conf.run_conf.dataset_config.get_data_path()).to_dict("records")
@@ -67,12 +67,7 @@ class DinPredictor:
         if os.path.exists(out_path) and not self.conf.force:
             log(f"Output path exists: {out_path}, skip asking gpt.")
             return
-        timer = Timer()
-        timer.start()
         await self.gpt_sender.send_and_save(in_path, out_path)
-        elapsed_time = timer.stop()
-        with open(self.conf.run_conf.get_stats_path(), "a") as file:
-            file.write(f"{in_path}:{elapsed_time.total_seconds()}\n")
 
     def create_batch_req(self, idx: str, prompt: str, extra_params):
         extra_params['temperature'] = self.conf.run_conf.temp
@@ -99,7 +94,7 @@ class DinPredictor:
             if 'questions =[' in classif:
                 sub_questions = classif.split('questions = ["')[1].split('"]')[0]
             else:
-                print("No sub questions found! :(")
+                # print("No sub questions found! :(")
                 sub_questions = []
             prompt = self.prompt_maker.hard_prompt_maker(question, db_id, schema_link, sub_questions)
         return self.create_batch_req(f"s{i}", prompt, self.default_params)
@@ -128,8 +123,8 @@ class DinPredictor:
     def process_gpt_4o_mini_sql(self, i: int, content: str) -> str:
         content = content.strip()
         content = content.replace("\n", " ")
-        if "SQL: `" in content:
-            pattern = r'.*SQL: `\s*(SELECT.*)\s*`'
+        if "SQL:" in content:
+            pattern = r'.*SQL:[\s`]*(SELECT.*)[\s`]*'
             content = re.sub(pattern, r'\1', content)
         if "```sql" in content:
             pattern = r'.*```sql\s*(SELECT.*)\s*```'
@@ -222,9 +217,22 @@ class DinPredictor:
             out_file.write(f"{usage}\n")
         out_file.close()
 
-    def save_stats(self, stats: ModelRunStats):
+    def save_stats(self):
+        total_seconds = 0
+        for file in [
+            self.conf.get_path("classif", "in"),
+            self.conf.get_path("schema", "in"),
+            self.conf.get_path("sql", "in"),
+            self.conf.get_path("sql_debug", "in")
+        ]:
+            time_file = f"{file}.time"
+            with open(time_file) as f:
+                pred_seconds = float(f.read())
+                total_seconds += pred_seconds
+
+        self.stats.total_pred_seconds = total_seconds
         with open(self.conf.run_conf.get_stats_path(), "w") as file:
-            file.write(json.dumps(stats.__dict__, indent=4))
+            file.write(json.dumps(self.stats.__dict__, indent=4))
 
     async def run(self):
         conf = self.conf
@@ -263,3 +271,4 @@ class DinPredictor:
 
         self.save_total_token_usage()
 
+        self.save_stats()

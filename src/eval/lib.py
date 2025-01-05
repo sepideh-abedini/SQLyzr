@@ -40,9 +40,8 @@ def exec_sql(db_path, sql):
         cursor.execute(sql)
         res = cursor.fetchall()
         return res
-    except sqlite3.OperationalError as e:
-        print(e)
-        return False
+    except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
+        return None
 
 
 def execute_command(command: str):

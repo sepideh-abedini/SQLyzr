@@ -3,6 +3,7 @@ from dataclasses import dataclass, replace
 from typing import Optional, Union, Tuple, List, Set, Dict
 
 from src.util.database_schema import DatabaseSchema
+from src.util.logger import log
 
 
 class SqlAstNode(ABC):
@@ -19,14 +20,6 @@ class SqlAstNode(ABC):
 
     def __hash__(self):
         return 1
-
-
-LOG_LEVEL = "INFO"
-
-
-def log(msg):
-    if LOG_LEVEL == "DEBUG":
-        print(msg)
 
 
 @dataclass

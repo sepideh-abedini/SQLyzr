@@ -2,6 +2,8 @@ import sqlite3
 from os import path
 from typing import List, Tuple
 
+import aiosqlite
+
 
 class DatabaseFacade:
     dbs_dir: str
@@ -18,9 +20,19 @@ class DatabaseFacade:
         try:
             cursor.execute(sql)
             rows = cursor.fetchall()
-        except sqlite3.OperationalError as e:
+        except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
             rows = None
-            print(e)
         cursor.close()
         connection.close()
         return rows
+
+    async def exec_query_async(self, db_id: str, sql: str) -> List[Tuple]:
+        try:
+            db = await aiosqlite.connect(self.get_db_path(db_id))
+            cursor = await db.execute(sql)
+            rows = await cursor.fetchall()
+            await cursor.close()
+            await db.close()
+            return rows
+        except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
+            return None

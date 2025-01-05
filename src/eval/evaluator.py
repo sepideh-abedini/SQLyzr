@@ -1,10 +1,12 @@
 import pandas as pd
+from tqdm import tqdm
 
 from src.cat.catter import Catter
 from src.configs.eval import DIN_SPIDER_SMALL_EVAL
 from src.eval.lib import confidence_level_interval
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
+from src.parse.parser import SqlParser
 
 
 def get_pred_gold_db_id(pred_path, gold_path):
@@ -20,14 +22,15 @@ def get_pred_gold_db_id(pred_path, gold_path):
 
 def calc_scores(config: ModelEvalConfig):
     catter = Catter()
+    parser = SqlParser()
     df = pd.DataFrame()
     metrics = [
         ExactMatch("em", config.dataset_config),
-        ExecAcc("ea", config.dataset_config),
-        TotalExecTime("et", config.dataset_config),
-        SpiderExactMatch("sem", config.dataset_config),
-        RelaxedExecAcc("rea", config.dataset_config),
-        Count("count", config.dataset_config),
+        # ExecAcc("ea", config.dataset_config),
+        # TotalExecTime("et", config.dataset_config),
+        # SpiderExactMatch("sem", config.dataset_config),
+        # RelaxedExecAcc("rea", config.dataset_config),
+        # Count("count", config.dataset_config),
     ]
     stat_metrics = [
         TokenUsage("tokens")
@@ -38,11 +41,17 @@ def calc_scores(config: ModelEvalConfig):
         data = get_pred_gold_db_id(pred_path, gold_path)
         scores = []
         print(f"Calculating scores for {conf}")
-        for i, (pred, gold, db_id) in enumerate(data):
+        for i, (pred, gold, db_id) in tqdm(enumerate(data), total=len(data)):
+            # if i <= 438:
+            #     continue
             cat = catter.get_category(gold)
+            past = parser.parse(pred)
             example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": str(cat)}
             for metric in metrics:
-                score = metric.calc(gold, pred, db_id)
+                if past:
+                    score = metric.calc(gold, pred, db_id)
+                else:
+                    score = 0
                 example_scores[metric.name] = score
             for metric in stat_metrics:
                 score = metric.calc(i, conf)

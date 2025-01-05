@@ -9,7 +9,7 @@ class DailConfig:
     run_conf: SingleRunConfig
     force: bool = False
     compute_cv_link: bool = True
-    model: str = "gpt-3.5-turbo"
+    model: str = "gpt-4o-mini"
     self_consistent_set_size: int = 5
 
     def schema_path(self):

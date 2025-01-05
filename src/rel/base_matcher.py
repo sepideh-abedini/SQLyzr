@@ -7,6 +7,7 @@ from src.rel.result_transformer import ResultTransformer
 from src.rel.sql_data import SqlInputData, SqlParsedData, SqlExecResult
 from src.rel.sql_processor import ResultMatcher, SqlMatchingProcessor
 from src.rel.sql_transformer import SqlTransformer
+from src.util.logger import log
 
 
 class Matcher:
@@ -36,19 +37,26 @@ class Matcher:
             print("salam")
 
     def parse(self, data: SqlInputData) -> SqlParsedData:
-        ast = self.parser.parse(data.sql, data.db_id)
-        return data.to_parsed(ast)
+        try:
+            ast = self.parser.parse(data.sql, data.db_id)
+            return data.to_parsed(ast)
+        except Exception as e:
+            log(e)
+        return None
 
-    def exec(self, data: SqlParsedData) -> SqlExecResult:
-        res = self.db_facade.execute_query(data.db_id, data.sql)
+    async def exec(self, data: SqlParsedData) -> SqlExecResult:
+        res = await self.db_facade.exec_query_async(data.db_id, data.sql)
         return data.to_result(res)
 
-    def match(self, pred: SqlInputData, gold: SqlInputData):
+    async def match(self, pred: SqlInputData, gold: SqlInputData):
         pred_parsed, gold_parsed = self.parse(pred), self.parse(gold)
+        if pred_parsed is None or gold_parsed is None:
+            return False
+
         for transformer in self.pre_exec_transformers:
             pred_parsed, gold_parsed = transformer.transform_sql(pred_parsed, gold_parsed)
 
-        pred_exec, gold_exec = self.exec(pred_parsed), self.exec(gold_parsed)
+        pred_exec, gold_exec = await self.exec(pred_parsed), await self.exec(gold_parsed)
         for transformer in sorted(self.post_exec_transformers):
             pred_exec = transformer.transform_result(pred_exec)
             gold_exec = transformer.transform_result(gold_exec)

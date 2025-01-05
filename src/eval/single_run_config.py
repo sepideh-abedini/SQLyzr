@@ -15,7 +15,7 @@ class SingleRunConfig:
     pred_file_name: str = "pred"
     token_file_name: str = "tokens"
     stats_file_name: str = "stats"
-    batch: bool = True
+    batch: bool = False
 
     def get_pred_path(self):
         return os.path.join(self.pred_dir, f"{self.pred_file_name}_{self.temp}_{self.itr}.txt")
@@ -24,7 +24,7 @@ class SingleRunConfig:
         return os.path.join(self.pred_dir, f"{self.token_file_name}_{self.temp}_{self.itr}.txt")
 
     def get_stats_path(self):
-        return os.path.join(self.pred_dir, f"{self.stats_file_name}_{self.temp}_{self.itr}.txt")
+        return os.path.join(self.pred_dir, f"{self.stats_file_name}_{self.temp}_{self.itr}.json")
 
     def is_pred_file_valid(self):
         return os.path.exists(self.get_pred_path()) and get_num_lines(self.get_pred_path()) == get_num_lines(

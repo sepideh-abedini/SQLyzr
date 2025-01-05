@@ -5,6 +5,7 @@ from typing import List, Type, TypeVar
 from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
+from src.eval.lib import Timer
 from src.gpt.gpt_batch_gateway import GptBatchGateway
 from src.gpt.gpt_gateway import GptGateway, FormattedGptGateway
 from src.gpt.models import BatchInputRequest
@@ -46,7 +47,11 @@ class GptSingleSender(GptFromFileSender):
 
     async def send_from_file(self, in_path: str):
         reqs = self.load_reqs_from_file(in_path)
+        timer = Timer()
+        timer.start()
         responses = await self.send_reqs(reqs)
+        with open(f"{in_path}.time", "w") as file:
+            file.write(f"{timer.stop().total_seconds()}\n")
         return responses
 
     async def send_reqs(self, reqs: List[BatchInputRequest]) -> List[ChatCompletion]:

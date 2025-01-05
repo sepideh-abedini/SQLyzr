@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -88,7 +89,7 @@ class RelaxedExecAcc(Metric):
     def calc(self, gold: str, pred: str, db_id: str) -> int:
         pd = SqlInputData(db_id, pred)
         gd = SqlInputData(db_id, gold)
-        working_sub = self.detector.find_working_sub(pd, gd)
+        working_sub = asyncio.run(self.detector.find_working_sub_sync(pd, gd))
         if working_sub is not None:
             return 1
         else:

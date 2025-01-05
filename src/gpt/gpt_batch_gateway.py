@@ -1,9 +1,11 @@
+import datetime
 import json
 import os.path
 import os.path
 from typing import List, Literal, Optional
 
 import backoff
+from natsort import natsorted
 
 from src.gpt.gpt_batch_tracker import BatchTracker
 from src.gpt.gpt_client import GptBatchClient
@@ -76,11 +78,13 @@ class GptBatchGateway:
 
     async def download_batch_output(self, info: BatchInfo) -> List[BatchRequestOutput]:
         content = self.client.retrieve_file_content(info.get_value("oid"))
+        with open(f"{info.in_path}.outfile.jsonl", "w") as file:
+            file.write(content)
         responses = []
         for line in content.strip().split("\n"):
             response = BatchRequestOutput.model_validate_json(line)
             responses.append(response)
-        responses = sorted(responses, key=lambda r: r.custom_id)
+        responses = natsorted(responses, key=lambda r: r.custom_id)
         return responses
 
     async def create_batch_if_not_exist(self, info: BatchInfo):
@@ -119,16 +123,24 @@ class GptBatchGateway:
         batches = list(filter(lambda b: b.status != "completed" and b.status != "failed", batches))
         return batches
 
+    async def update_tokens_usage(self, info: BatchInfo):
+        await self.tracker.init_batch(info.in_path)
+        await self.tracker.commit_batch(info.in_path, info.get_value("bid"))
+
     async def save_batch_stats(self, info: BatchInfo):
         batch = await self.retrieve_batch(info)
         with open(f"{info.in_path}.batch.stats.json", "w") as file:
             file.write(json.dumps(batch.dict(), indent=4))
+        with open(f"{info.in_path}.time", "w") as file:
+            completion_time = datetime.datetime.fromtimestamp(batch.completed_at) - datetime.datetime.fromtimestamp(
+                batch.created_at)
+            file.write(f"{completion_time.total_seconds()}\n")
 
     @backoff.on_exception(backoff.constant, on_backoff=on_rate_limit, interval=10, max_tries=50,
                           exception=GptRateLimitException)
     @backoff.on_exception(backoff.constant, on_backoff=on_failed, interval=10, max_tries=50,
                           exception=GptBatchFailedException)
-    @backoff.on_exception(backoff.constant, on_backoff=on_not_complete, interval=10, max_tries=60,
+    @backoff.on_exception(backoff.constant, on_backoff=on_not_complete, interval=10, max_tries=None,
                           exception=GptBatchNotCompletedException)
     async def send_batch(self, in_path: str) -> List[BatchRequestOutput]:
         info = BatchInfo(in_path)
@@ -138,6 +150,8 @@ class GptBatchGateway:
 
         await self.create_batch_if_not_exist(info)
         print(f"[{in_path}]:\tBatch created")
+
+        await self.update_tokens_usage(info)
 
         await self.retrieve_out_file_id(info)
         print(f"[{in_path}]:\tOutput File id retrieved")

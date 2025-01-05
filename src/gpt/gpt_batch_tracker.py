@@ -66,8 +66,13 @@ class BatchTracker:
         cur_batches = self.batch_client.list_cur_batches()
         cur_batches = filter(self.should_count, cur_batches)
         tokens = 0
+        max_tokens = max(self.batch_tokens.values())
         for batch in cur_batches:
-            tokens += self.batch_tokens[batch.id]
+            if batch.id in self.batch_tokens:
+                tokens += self.batch_tokens[batch.id]
+            else:
+                print(f"Warning! Batch not exists in stored state: {batch.id}")
+                tokens += max_tokens
         return tokens
 
     def tokens_exceed_limit(self, tokens: int):
@@ -86,6 +91,8 @@ class BatchTracker:
     def commit_batch(self, in_path: str, bid: str):
         try:
             tokens = get_req_file_token_usage(in_path)
+            if bid in self.batch_tokens:
+                print(f"Updating tokens usage: {self.batch_tokens[bid]} => {tokens}")
             self.batch_tokens[bid] = tokens
         finally:
             self.lock.release()

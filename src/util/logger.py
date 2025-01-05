@@ -1,4 +1,4 @@
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
 
 
 def log(msg):
