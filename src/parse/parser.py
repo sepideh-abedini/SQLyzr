@@ -11,11 +11,13 @@ precedence = (
     ('left', 'COMP_OP', 'ARITH_OP')
 )
 
+NULL_LITERAL = LiteralNode("NULL")
+
 
 def p_select_statement(p):
     '''select_statement : select_core
-                        | with_clause select_statement
                         | select_statement set_op select_core
+                        | with_clause select_statement
                         | select_statement order_by
                         | select_statement limit'''
     if len(p) == 2:
@@ -27,8 +29,8 @@ def p_select_statement(p):
             p[0] = replace(p[1], orderby=p[2])
         elif isinstance(p[2], LimitNode):
             p[0] = replace(p[1], limit=p[2])
-        elif isinstance(p[2], WithClauseNode):
-            p[0] = replace(p[1], with_clause=p[2])
+        elif isinstance(p[1], WithClauseNode):
+            p[0] = replace(p[2], with_clause=p[1])
 
 
 def p_select_core(p):
@@ -280,7 +282,7 @@ def p_bin_op_expr(p):
     if len(p) == 4:
         p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', p[2]), p[3])
     elif len(p) == 5:
-        p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', 'NOT LIKE'), p[4])
+        p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', f"{p[2]} {p[3]}"), p[4])
     elif len(p) == 6:
         p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', 'IN'), p[4])
     elif len(p) == 7:
@@ -304,7 +306,7 @@ def p_expr(p):
             '''
     if len(p) == 2:
         if type(p[1]) is str and p[1] == 'null':
-            p[0] = LiteralNode('NULL')
+            p[0] = NULL_LITERAL
         else:
             p[0] = p[1]
     elif len(p) == 4:

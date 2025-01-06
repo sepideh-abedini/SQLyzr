@@ -1,5 +1,7 @@
 from src.cat.tag_collector import *
+from src.cat.tags.complex_keys import ComplexKeywords
 from src.cat.tags.expr_type import ExprType
+from src.cat.tags.extra import ExtraKeywords
 from src.cat.tags.group_cond import GroupType
 from src.cat.tags.join_cond import JoinConditions
 from src.cat.tags.join_num import NumJoins
@@ -20,8 +22,10 @@ class TagExtractor:
             GroupType.Collector(),
             JoinConditions.Collector(),
             JoinTables.Collector(),
-            # JoinType(),
-            # NestLevel(),
+            ExtraKeywords.Collector(),
+            ComplexKeywords.Collector(),
+            JoinType.Collector(),
+            NestLevel.Collector(),
             StructureType.Collector(),
             WhereType.Collector()
         ]

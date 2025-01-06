@@ -13,13 +13,17 @@ class StructureType(SqlTag):
     @staticmethod
     class Collector(TagCollector):
         cur_level: int
+        max_level: int
 
         def __init__(self):
             super().__init__()
             self.cur_level = 0
+            self.max_level = 0
 
         def visit_select_statement(self, node: SelectStatementNode):
             self.cur_level += 1
+            if self.cur_level > self.max_level:
+                self.max_level = self.cur_level
             tags = super().visit_select_statement(node)
             if len(node.set_ops) > 0:
                 tags += TagCollectorResult(StructureType.Compound)

@@ -10,6 +10,7 @@ class SelectColumns(OrderedTag):
 
     @staticmethod
     class Collector(TagCollector):
+
         def visit_select_clause(self, node: SelectClauseNode):
             if len(node.result_columns) == 1:
                 return TagCollectorResult(SelectColumns.SingleColumn)
