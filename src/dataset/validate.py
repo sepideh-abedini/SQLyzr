@@ -1,5 +1,7 @@
 import json
 
+from tqdm import tqdm
+
 from src.cat.catter import Catter
 from src.eval.dataset_config import DatasetConfig
 from src.dataset.models import SpiderExample
@@ -11,7 +13,7 @@ def validate_dataset(conf: DatasetConfig):
     total = 0
     with open(conf.get_data_path()) as file:
         data = json.load(file)
-        for i, entry in enumerate(data):
+        for i, entry in tqdm(enumerate(data), total=len(data)):
             example = SpiderExample.model_validate(entry)
             cat = catter.get_category(example.query)
             total += 1

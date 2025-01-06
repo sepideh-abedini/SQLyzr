@@ -6,7 +6,7 @@ from src.parse.visitor.visitor_result import MergeableVisitorResult
 class TagCollectorResult(MergeableVisitorResult):
     tag_set: SubCategory
 
-    def __init__(self, *tags: StatementTag):
+    def __init__(self, *tags: SqlTag):
         self.tag_set = SubCategory('', frozenset([*tags]))
 
     def merge(self, other):
@@ -14,7 +14,7 @@ class TagCollectorResult(MergeableVisitorResult):
             self.tag_set += other.tag_set
         return self
 
-    def add(self, tag: StatementTag):
+    def add(self, tag: SqlTag):
         self.tag_set += tag
 
     def __str__(self):

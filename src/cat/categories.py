@@ -2,16 +2,23 @@ from typing import List
 
 from src.cat.statement_category import StatementCategory
 from src.cat.sub_category import SubCategory
-from src.cat.statement_tag import *
+from src.cat.tags.expr_type import ExprType
+from src.cat.tags.extra import ExtraKeywords
+from src.cat.tags.group_cond import GroupType
+from src.cat.tags.join_cond import JoinConditions
+from src.cat.tags.join_tables import JoinTables
+from src.cat.tags.select_columns import SelectColumns
+from src.cat.tags.structure import StructureType
+from src.cat.tags.where_exprs import WhereType
 
 CAT_1 = StatementCategory(
     "c1",
-    SubCategory("s1", frozenset([SelectType.SingleColumn]), "Having single column in SELECT clause")
+    SubCategory("s1", frozenset([SelectColumns.SingleColumn]), "Having single column in SELECT clause")
 )
 
 CAT_2 = StatementCategory(
     "c2",
-    SubCategory("s2", frozenset([SelectType.MultiColumn]), "Having multiple columns in SELECT clause"),
+    SubCategory("s2", frozenset([SelectColumns.MultiColumn]), "Having multiple columns in SELECT clause"),
     SubCategory("s3", frozenset([ExtraKeywords.OrderBy]), "Having ORDER_BY keyword")
 )
 

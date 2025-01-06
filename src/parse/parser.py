@@ -236,9 +236,9 @@ def p_column(p):
 
 
 def p_fun_expr(p):
-    '''fun_expr : EXISTS LPAREN select_statement RPAREN
+    '''fun_expr : fun_name LPAREN RPAREN
+                | EXISTS LPAREN select_statement RPAREN
                 | fun_name LPAREN expr RPAREN
-                | fun_name LPAREN RPAREN
                 | NOT EXISTS LPAREN select_statement RPAREN
                 | fun_name LPAREN DISTINCT expr RPAREN
                 | fun_name LPAREN expr COMMA expr RPAREN
@@ -258,7 +258,7 @@ def p_fun_expr(p):
             p[0] = FunctionExpressionNode(p[1], [p[4]], distinct=True)
     elif len(p) == 7:
         p[0] = FunctionExpressionNode(p[1], [p[3], p[5]])
-    elif len(p) == 8:
+    elif len(p) == 9:
         p[0] = FunctionExpressionNode(p[1], [p[3], p[5], p[7]])
 
 

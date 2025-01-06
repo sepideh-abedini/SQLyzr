@@ -9,11 +9,19 @@ BIRD_SMALL = DatasetConfig(
 )
 
 BIRD_DEV = DatasetConfig(
-    dataset_dir="data/bird",
+    dataset_dir="data/bird/dev",
     data_file="dev.conv.json",
     gold_file="dev.gold.txt",
     tables_file="dev_tables.json",
     db_dir="dev_databases"
+)
+
+BIRD_TRAIN = DatasetConfig(
+    dataset_dir="data/bird/train",
+    data_file="train.conv.json",
+    gold_file="train.conv.gold.txt",
+    tables_file="train_tables.json",
+    db_dir="train_databases"
 )
 
 SPIDER_SMALL = DatasetConfig(

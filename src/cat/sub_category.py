@@ -1,13 +1,13 @@
 from dataclasses import dataclass, replace
 from typing import FrozenSet, Type, Set
 
-from src.cat.statement_tag import StatementTag
+from src.cat.statement_tag import SqlTag
 
 
 @dataclass(eq=True, frozen=True)
 class SubCategory:
     name: str
-    tags: FrozenSet[StatementTag]
+    tags: FrozenSet[SqlTag]
     description: str = ""
 
     def __ge__(self, other: 'SubCategory'):
@@ -16,7 +16,7 @@ class SubCategory:
                 return False
         return True
 
-    def has_greater(self, tag: StatementTag):
+    def has_greater(self, tag: SqlTag):
         for t in self.tags:
             if t >= tag:
                 return True
@@ -26,13 +26,13 @@ class SubCategory:
         return self.name
 
     def __add__(self, other):
-        if isinstance(other, StatementTag):
+        if isinstance(other, SqlTag):
             return replace(self, tags=self.tags.union({other}))
         if isinstance(other, SubCategory):
             return replace(self, tags=self.tags.union(other.tags))
         raise RuntimeError(f"Invalid add operand type {type(other)}")
 
-    def get_val(self, tag_type: Type[StatementTag]) -> str:
+    def get_val(self, tag_type: Type[SqlTag]) -> str:
         intersection = self.tags.intersection(tag_type.__members__.values())
         if len(intersection) > 0:
             return next(iter(intersection)).name
