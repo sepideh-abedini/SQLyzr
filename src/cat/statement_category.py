@@ -15,7 +15,10 @@ class StatementCategory:
         return self.name
 
     def matches(self, feature_set: SubCategory):
+        matchs = []
         for fs in self.sub_cats:
             if feature_set >= fs:
-                return fs
+                matchs.append(fs)
+        if len(matchs) > 0:
+            return matchs
         return None

@@ -16,8 +16,9 @@ from src.cat.tags.where_exprs import WhereType
 
 CAT_1 = StatementCategory(
     "c1",
+    # SubCategory("s0", frozenset([SelectColumns.SingleColumn]), "Having single column in SELECT clause"),
     SubCategory("s1", frozenset([SelectColumns.MultiColumn]), "Having single column in SELECT clause"),
-    SubCategory("s2", frozenset([SelectColumns.MultiColumn]), "Having single column in SELECT clause")
+    SubCategory("s2", frozenset([SelectColumns.StarColumn]), "Having single star column in the SELECT clause")
 )
 
 CAT_2 = StatementCategory(
@@ -30,7 +31,7 @@ CAT_2 = StatementCategory(
     SubCategory("s7", frozenset([ExtraKeywords.Limit]), "Having LIMIT keyword"),
     SubCategory("s8", frozenset([ExtraKeywords.Distinct]), "Having Distinct Keyword"),
     SubCategory("s9", frozenset([GroupType.UnconditionalGroup]), "Having GROUP BY clause without HAVING clause"),
-    SubCategory("s10", frozenset([JoinType.EquiJoin]), "Having equi-join"),
+    SubCategory("s10", frozenset([JoinTables.SingleJoin, JoinType.NaturalJoin]), "Having equi-join"),
 )
 
 CAT_3 = StatementCategory(
@@ -55,11 +56,11 @@ CAT_4 = StatementCategory(
     SubCategory("s20", frozenset([NestLevel.One]), "Having exactly one level of nested queries"),
     SubCategory("s21", frozenset([StructureType.Compound]), "Having a composition keyword such as INTERSECT or UNION"),
     SubCategory("s22", frozenset([JoinTables.MultiJoin]), "Having more than two joins"),
-    SubCategory("s23", frozenset([StructureType.Nested, ExtraKeywords.EXISTS]),
+    SubCategory("s23", frozenset([NestLevel.One, ExtraKeywords.EXISTS]),
                 "Having nested subqueries with Exists expressions"),
-    SubCategory("s24", frozenset([StructureType.Nested, ExtraKeywords.IN]),
+    SubCategory("s24", frozenset([NestLevel.One, ExtraKeywords.IN]),
                 "Having nested subqueries with IN expressions"),
-    SubCategory("s25", frozenset([StructureType.Nested, ExtraKeywords.IN]), "Having inner,outer joins"),
+    SubCategory("s25", frozenset([JoinType.NonSimpleJoin]), "Having inner,outer joins"),
 )
 
 CAT_5 = StatementCategory(
@@ -78,12 +79,12 @@ CAT_6 = StatementCategory(
     SubCategory("s30", frozenset([NestLevel.Many]), "Having at more than two level of nested sub-queries"),
     SubCategory("s31", frozenset([StructureType.Compound, StructureType.Nested]),
                 "Having a composition keyword such as (INTERSECT or UNION) and having nested sub-queries"),
-    SubCategory("s32", frozenset([ComplexKeywords.CTE]),
-                "Having a cte"),
-    SubCategory("s32", frozenset([ComplexKeywords.WindowFunction]),
-                "Having a window function"),
     SubCategory("s32", frozenset([ComplexKeywords.CaseExpr]),
-                "Having a case expression")
+                "Having case expressions"),
+    SubCategory("s33", frozenset([ComplexKeywords.CTE]),
+                "Having a cte"),
+    SubCategory("s34", frozenset([ComplexKeywords.WindowFunction]),
+                "Having a window function"),
 )
 
 CATS = [CAT_1, CAT_2, CAT_3, CAT_4, CAT_5, CAT_6]

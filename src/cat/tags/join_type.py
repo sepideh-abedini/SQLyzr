@@ -10,6 +10,7 @@ class JoinType(SqlTag):
     NaturalJoin = 0
     EquiJoin = 1
     NonEquiJoin = 2
+    NonSimpleJoin = 3
 
     @staticmethod
     class Collector(TagCollector):
@@ -18,6 +19,8 @@ class JoinType(SqlTag):
             tags = super().visit_join_clause(node)
             if all(constr is None for constr in node.constraints):
                 tags += TagCollectorResult(JoinType.NaturalJoin)
+            if any(op.value.lower() != "join" for op in node.ops):
+                tags += TagCollectorResult(JoinType.NonSimpleJoin)
             return tags
 
         def visit_join_constraint(self, node: JoinConstraintNode):

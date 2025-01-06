@@ -16,6 +16,9 @@ class SubCategory:
                 return False
         return True
 
+    def __lt__(self, other):
+        return not (self >= other)
+
     def has_greater(self, tag: SqlTag):
         for t in self.tags:
             if t >= tag:

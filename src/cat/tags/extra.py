@@ -4,7 +4,7 @@ from src.cat.tag_collector import TagCollector
 from src.cat.tag_collector_result import TagCollectorResult
 from src.cat.tags.sql_tag import SqlTag
 from src.parse.node import LimitNode, OrderByNode, SelectClauseNode, ResultColumnNode, FunctionExpressionNode, \
-    BinOpExpressionNode
+    BinOpExpressionNode, BetweenExpressionNode
 from src.parse.parser import NULL_LITERAL
 
 
@@ -25,6 +25,11 @@ class ExtraKeywords(SqlTag):
 
     @staticmethod
     class Collector(TagCollector):
+        def visit_between_expression(self, node: BetweenExpressionNode):
+            tags = super().visit_between_expression(node)
+            tags += TagCollectorResult(ExtraKeywords.BETWEEN)
+            return tags
+
         def visit_function_expression(self, node: FunctionExpressionNode):
             tags = super().visit_function_expression(node)
             if node.fun_name.value == "exists":
@@ -54,6 +59,8 @@ class ExtraKeywords(SqlTag):
         def visit_bin_op_expression(self, node: BinOpExpressionNode):
             tags = super().visit_bin_op_expression(node)
             # FIXME: Use objects for terminal Literals like these
+            if node.op.value.lower() == "like":
+                tags += TagCollectorResult(ExtraKeywords.LIKE)
             if node.op.value.lower() == "in":
                 tags += TagCollectorResult(ExtraKeywords.IN)
             if node.op.value.lower() in ["is not", "is"] and (node.left == NULL_LITERAL or node.right == NULL_LITERAL):
