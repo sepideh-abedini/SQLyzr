@@ -22,3 +22,6 @@ class Catter:
         ast = self.parser.parse(sql)
         tags = self.tag_extractor.extract_tags(ast)
         return self.categorizer.get_sub_category(tags.tag_set)
+
+    def categorize(self, sql: str):
+        return self.get_category(sql), self.get_sub_category(sql)

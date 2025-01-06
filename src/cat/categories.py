@@ -2,68 +2,88 @@ from typing import List
 
 from src.cat.statement_category import StatementCategory
 from src.cat.sub_category import SubCategory
+from src.cat.tags.complex_keys import ComplexKeywords
 from src.cat.tags.expr_type import ExprType
 from src.cat.tags.extra import ExtraKeywords
 from src.cat.tags.group_cond import GroupType
 from src.cat.tags.join_cond import JoinConditions
 from src.cat.tags.join_tables import JoinTables
+from src.cat.tags.join_type import JoinType
+from src.cat.tags.nest_level import NestLevel
 from src.cat.tags.select_columns import SelectColumns
 from src.cat.tags.structure import StructureType
 from src.cat.tags.where_exprs import WhereType
 
 CAT_1 = StatementCategory(
     "c1",
-    SubCategory("s1", frozenset([SelectColumns.SingleColumn]), "Having single column in SELECT clause")
+    SubCategory("s1", frozenset([SelectColumns.MultiColumn]), "Having single column in SELECT clause"),
+    SubCategory("s2", frozenset([SelectColumns.MultiColumn]), "Having single column in SELECT clause")
 )
 
 CAT_2 = StatementCategory(
     "c2",
-    SubCategory("s2", frozenset([SelectColumns.MultiColumn]), "Having multiple columns in SELECT clause"),
-    SubCategory("s3", frozenset([ExtraKeywords.OrderBy]), "Having ORDER_BY keyword")
+    SubCategory("s3", frozenset([ExtraKeywords.OrderBy]), "Having ORDER_BY keyword"),
+    SubCategory("s4", frozenset([WhereType.SingleWhereExpr, ExprType.SingleBinExpr]),
+                "Having a single binary expression in the where clause"),
+    SubCategory("s5", frozenset([ExprType.ArithExpr]), "Only having arithmetic expressions"),
+    SubCategory("s6", frozenset([ExtraKeywords.AGGREGATE]), "Having aggregate functions"),
+    SubCategory("s7", frozenset([ExtraKeywords.Limit]), "Having LIMIT keyword"),
+    SubCategory("s8", frozenset([ExtraKeywords.Distinct]), "Having Distinct Keyword"),
+    SubCategory("s9", frozenset([GroupType.UnconditionalGroup]), "Having GROUP BY clause without HAVING clause"),
+    SubCategory("s10", frozenset([JoinType.EquiJoin]), "Having equi-join"),
 )
 
 CAT_3 = StatementCategory(
     "c3",
-    SubCategory("s4", frozenset([WhereType.SingleWhereExpr, ExprType.SingleBinExpr]),
-                "Having single binary expression in the WHERE clause"),
-    SubCategory("s5", frozenset([ExprType.ArithExpr]), "Only having arithmetic expressions"),
-    SubCategory("s6", frozenset([ExtraKeywords.Limit]), "Having LIMIT keyword"),
-    SubCategory("s7", frozenset([ExtraKeywords.Distinct]), "Having Distinct Keyword"),
-    SubCategory("s8", frozenset([GroupType.UnconditionalGroup]), "Having GROUP BY clause without HAVING clause"),
-    SubCategory("s9", frozenset([JoinConditions.UnconditionalJoin, JoinTables.SingleJoin]),
-                "Having JOIN clause over at most two tables without join condition"),
+    SubCategory("s11", frozenset([JoinType.NonEquiJoin]), "Having non-equi-joins"),
+    SubCategory("s12", frozenset([ExtraKeywords.BETWEEN]), "Having between expressions"),
+    SubCategory("s13", frozenset([JoinConditions.UnconditionalJoin, WhereType.SingleWhereExpr]),
+                "Having a JOIN clause without join condition plus having single expression in WHERE clause"),
+    SubCategory("s14", frozenset([GroupType.UnconditionalGroup, WhereType.SingleWhereExpr]),
+                "Having GROUP BY clause without HAVING clause plus having single expression in WHERE clause"),
+    SubCategory("s15",
+                frozenset([GroupType.UnconditionalGroup, JoinConditions.UnconditionalJoin]),
+                "Having GROUP BY clause without condition plus having JOIN clause without join condition"),
+    SubCategory("s16", frozenset([GroupType.ConditionalGroup]), "Having GROUP BY clause without condition"),
+    SubCategory("s17", frozenset([ExtraKeywords.LIKE]), "Having like expressions"),
+    SubCategory("s18", frozenset([ExtraKeywords.IS_NULL]), "Having is null expressions"),
+    SubCategory("s19", frozenset([WhereType.MultipleWhereExpr]), "Having multiple expressions in WHERE clause"),
 )
 
 CAT_4 = StatementCategory(
     "c4",
-    SubCategory("s10", frozenset([WhereType.MultipleWhereExpr]), "Having multiple expressions in WHERE clause"),
-    SubCategory("s11", frozenset([ExprType.ComplexExpr]), "Having complex expression in WHERE clause"),
-    SubCategory("s12",
-                frozenset([GroupType.UnconditionalGroup, WhereType.SingleWhereExpr]),
-                "Having GROUP BY clause without HAVING clause plus having single expression in WHERE clause"),
-    SubCategory("s13", frozenset([JoinConditions.UnconditionalJoin, WhereType.SingleWhereExpr]),
-                "Having a JOIN clause without join condition plus having single expression in WHERE clause"),
-    SubCategory("s14",
-                frozenset([GroupType.UnconditionalGroup, JoinConditions.UnconditionalJoin]),
-                "Having GROUP BY clause without condition plus having JOIN clause without join condition"),
-    SubCategory("s15", frozenset([GroupType.ConditionalGroup]), "Having GROUP BY clause without condition"),
-    SubCategory("s16", frozenset([JoinConditions.ConditionalJoin]), "Having JOIN clause with join condition"),
-    SubCategory("s17", frozenset([StructureType.Compound]), "Having a composition keyword such as INTERSECT or UNION")
+    SubCategory("s20", frozenset([NestLevel.One]), "Having exactly one level of nested queries"),
+    SubCategory("s21", frozenset([StructureType.Compound]), "Having a composition keyword such as INTERSECT or UNION"),
+    SubCategory("s22", frozenset([JoinTables.MultiJoin]), "Having more than two joins"),
+    SubCategory("s23", frozenset([StructureType.Nested, ExtraKeywords.EXISTS]),
+                "Having nested subqueries with Exists expressions"),
+    SubCategory("s24", frozenset([StructureType.Nested, ExtraKeywords.IN]),
+                "Having nested subqueries with IN expressions"),
+    SubCategory("s25", frozenset([StructureType.Nested, ExtraKeywords.IN]), "Having inner,outer joins"),
 )
 
 CAT_5 = StatementCategory(
     "c5",
-    SubCategory("s18", frozenset([StructureType.Nested]), "Having nested sub-queries")
+    SubCategory("s26", frozenset([StructureType.Nested, GroupType.UnconditionalGroup]),
+                "Having nested sub-queries plus having GROUP BY clause without condition"),
+    SubCategory("s27", frozenset([StructureType.Nested, JoinConditions.UnconditionalJoin]),
+                "Having nested sub-queries plus with a joing clause without a condition"),
+    SubCategory("s28", frozenset([StructureType.Nested, ExtraKeywords.AGGREGATE]),
+                "Having nested sub-queries plus with aggregate functions"),
+    SubCategory("s29", frozenset([NestLevel.Two]), "Having exactly two level of nested sub-queries")
 )
 
 CAT_6 = StatementCategory(
     "c6",
-    SubCategory("s19", frozenset([StructureType.Nested, GroupType.UnconditionalGroup]),
-                "Having nested sub-queries plus having GROUP BY clause without condition"),
-    SubCategory("s20", frozenset([StructureType.Nested, JoinConditions.UnconditionalJoin]),
-                "Having nested sub-queries plus having JOIN clause without join condition"),
-    SubCategory("s21", frozenset([StructureType.Compound, StructureType.Nested]),
+    SubCategory("s30", frozenset([NestLevel.Many]), "Having at more than two level of nested sub-queries"),
+    SubCategory("s31", frozenset([StructureType.Compound, StructureType.Nested]),
                 "Having a composition keyword such as (INTERSECT or UNION) and having nested sub-queries"),
+    SubCategory("s32", frozenset([ComplexKeywords.CTE]),
+                "Having a cte"),
+    SubCategory("s32", frozenset([ComplexKeywords.WindowFunction]),
+                "Having a window function"),
+    SubCategory("s32", frozenset([ComplexKeywords.CaseExpr]),
+                "Having a case expression")
 )
 
 CATS = [CAT_1, CAT_2, CAT_3, CAT_4, CAT_5, CAT_6]

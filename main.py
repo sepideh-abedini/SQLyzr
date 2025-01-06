@@ -2,6 +2,7 @@ import asyncio
 import json
 
 from assets.print_logo import print_logo
+from src.configs.dataset import BIRD_TRAIN, BIRD_DEV
 from src.configs.sqlyzr import DIN_SPIDER_DEV, DIN_SPIDER_SMALL
 from src.dataset.validate import validate_dataset
 from src.eval.evaluator import calc_scores, post_process_scores
@@ -35,21 +36,23 @@ def validate_preds(conf: ModelEvalConfig):
 def main():
     print_logo()
 
-    sqlyzr_conf = DIN_SPIDER_SMALL
+    # sqlyzr_conf = DIN_SPIDER_SMALL
     # sqlyzr_conf = DIN_SPIDER_DEV
     # sqlyzr_conf = DAIL_SPIDER_SMALL
     # sqlyzr_conf = DAIL_SPIDER_DEV
-    eval_conf = sqlyzr_conf.eval_conf
+    # eval_conf = sqlyzr_conf.eval_conf
     # eval_conf = DIN_SPIDER_DEV.eval_conf
     # eval_conf = DAIL_SPIDER_SMALL.eval_conf
     # eval_conf = DAIL_SPIDER_SMALL.eval_conf
     # eval_conf = DIN_BIRD_SMALL.eval_conf
+    dataset_conf = BIRD_DEV
+    # dataset_conf = BIRD_TRAIN
 
-    # validate_dataset(eval_conf.dataset_config)
+    validate_dataset(dataset_conf)
 
     # run_din(eval_conf)
     #
-    asyncio.run(run_din_async(eval_conf))
+    # asyncio.run(run_din_async(eval_conf))
 
     # validate_preds(eval_conf)
 

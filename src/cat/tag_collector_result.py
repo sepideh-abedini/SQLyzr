@@ -1,5 +1,6 @@
 from src.cat.sub_category import SubCategory
-from src.cat.statement_tag import *
+
+from src.cat.tags.sql_tag import SqlTag
 from src.parse.visitor.visitor_result import MergeableVisitorResult
 
 

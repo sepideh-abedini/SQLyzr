@@ -1,4 +1,3 @@
-from src.cat.statement_tag import *
 from src.cat.tag_collector_result import TagCollectorResult
 from src.parse.node import *
 from src.parse.visitor.collector_visitor import CollectorVisitor
@@ -7,14 +6,6 @@ from src.parse.visitor.collector_visitor import CollectorVisitor
 class TagCollector(CollectorVisitor):
     def __init__(self):
         super().__init__(TagCollectorResult)
-
-
-class SelectTagCollector(TagCollector):
-    def visit_select_clause(self, node: SelectClauseNode):
-        if len(node.result_columns) == 1:
-            return TagCollectorResult(SelectType.SingleColumn)
-        else:
-            return TagCollectorResult(SelectType.MultiColumn)
 
 
 class TableCountCollector(TagCollector):
