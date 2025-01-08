@@ -1,7 +1,5 @@
 import asyncio
 from asyncio import FIRST_COMPLETED
-from multiprocessing.pool import ThreadPool
-from time import sleep
 from typing import List
 
 from src.eval.dataset_config import DatasetConfig

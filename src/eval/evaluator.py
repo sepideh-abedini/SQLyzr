@@ -31,7 +31,7 @@ def calc_scores(config: ModelEvalConfig):
     parser = SqlParser()
     df = pd.DataFrame()
     metrics = []
-    for metric_name, metric_class in config.metrics:
+    for metric_name, metric_class in config.metrics.items():
         metrics.append(metric_class(metric_name, config.dataset_config))
 
     stat_metrics = [
@@ -98,7 +98,6 @@ def post_process_scores(config: ModelEvalConfig):
     cis = means.groupby(['tmp', 'cat', "sub_cat"]).agg(confidence_level_interval)
     cis = cis.drop(columns=['itr'])
     cis.to_csv(config.get_scores_path("_cis"))
-
 
     final = means_per_temp.join(cis, lsuffix="_mean", rsuffix="_ci")
     final = final.round(2)

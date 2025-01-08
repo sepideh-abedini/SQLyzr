@@ -7,7 +7,7 @@ from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.eval.lib import exec_sql
 from src.eval.single_run_config import SingleRunConfig
-from src.rel.base_matcher import SubsetMatcher
+from src.rel.base_matcher import SubsetMatcher, ExtraColumnRemoverMatcher
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_transformer import LimitRemoverTransformer, LiteralCorrectorTransformer, ColCorrectorTransformer
@@ -83,7 +83,7 @@ class RelaxedExecAcc(Metric):
             LiteralCorrectorTransformer(),
             IgnoreListOrderTransformer(),
             IgnoreColOrderTransformer(),
-            SubsetMatcher()
+            ExtraColumnRemoverMatcher()
         ])
 
     def calc(self, gold: str, pred: str, db_id: str) -> int:

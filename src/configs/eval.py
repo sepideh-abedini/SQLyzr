@@ -1,10 +1,10 @@
 from src.configs.dataset import SPIDER_SMALL, BIRD_SMALL, SPIDER_DEV, BIRD_DEV
-from src.eval.metrics import ExactMatch, Count
+from src.eval.metrics import ExactMatch, Count, ExecAcc
 from src.eval.model_eval_config import ModelEvalConfig
 
 SPIDER_METRICS = {
     "em": ExactMatch,
-    # ExecAcc("ea", config.dataset_config),
+    "ea": ExecAcc,
     # TotalExecTime("et", config.dataset_config),
     # SpiderExactMatch("sem", config.dataset_config),
     # RelaxedExecAcc("rea", config.dataset_config),

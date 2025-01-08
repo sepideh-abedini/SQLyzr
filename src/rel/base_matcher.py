@@ -84,6 +84,38 @@ class ExactMatcher(ResultMatcher):
         return pred.res == gold.res
 
 
+class ExtraTupleRemoverMatcher(ResultMatcher):
+    def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
+        matched = set()
+        if pred.res is None or gold.res is None:
+            return False
+        for g in gold.res:
+            g = frozenset(g)
+            if g in pred.res:
+                matched.add(g)
+        if matched == gold.res:
+            return True
+        else:
+            return False
+
+
+class ExtraColumnRemoverMatcher(ResultMatcher):
+    def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
+        matched = set()
+        if pred.res is None or gold.res is None:
+            return False
+        for g in gold.res:
+            g = frozenset(g)
+            for p in pred.res:
+                p = frozenset(p)
+                if g.issubset(p):
+                    matched.add(g)
+        if matched == gold.res and len(gold.res) == len(pred.res):
+            return True
+        else:
+            return False
+
+
 class SubsetMatcher(ResultMatcher):
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
         matched = set()

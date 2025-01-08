@@ -10,6 +10,7 @@ from src.eval.exact_match import ExactMatchParser
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.run_model import run_din_async, run_din
 from src.parse.parser import SqlParser
+from src.rel.transformer_eval import find_transformers
 
 
 def validate_preds(conf: ModelEvalConfig):
@@ -58,11 +59,11 @@ def main():
 
     # asyncio.run(run_dail_async(eval_conf))
 
-    # calc_scores(eval_conf)
+    calc_scores(eval_conf)
 
     post_process_scores(eval_conf)
     #
-    # find_transformers(eval_conf)
+    find_transformers(eval_conf)
     #
     # augment_data(sqlyzr_conf)
 
