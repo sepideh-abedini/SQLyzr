@@ -1,9 +1,10 @@
 import os
 from dataclasses import dataclass
 from itertools import product
-from typing import List, Dict
+from typing import List, Dict, Type
 
 from src.eval.dataset_config import DatasetConfig
+from src.eval.metrics import Metric
 from src.eval.single_run_config import SingleRunConfig
 
 
@@ -13,8 +14,11 @@ class ModelEvalConfig:
     eval_dir: str
     pred_dir: str
     dataset_config: DatasetConfig
+    metrics: Dict[str, Type[Metric]]
+    force: bool = False
 
-    def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, dataset_config: DatasetConfig):
+    def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, dataset_config: DatasetConfig,
+                 metrics: Dict[str, Type[Metric]]):
         self.pred_dir = pred_dir
         self.eval_dir = eval_dir
         self.run_confs = {}
@@ -26,6 +30,7 @@ class ModelEvalConfig:
                                    temp=temp,
                                    itr=itr)
             self.run_confs.setdefault(temp, []).append(conf)
+        self.metrics = metrics
 
     def get_run_confs(self):
         return list([conf for ll in self.run_confs.values() for conf in ll])
@@ -38,3 +43,6 @@ class ModelEvalConfig:
 
     def get_scores_path(self, sub: str = ""):
         return os.path.join(self.eval_dir, f"scores{sub}.csv")
+
+    def get_metric_names(self):
+        return list(self.metrics.keys())

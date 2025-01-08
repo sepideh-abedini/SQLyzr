@@ -37,18 +37,18 @@ def main():
     print_logo()
 
     # sqlyzr_conf = DIN_SPIDER_SMALL
-    # sqlyzr_conf = DIN_SPIDER_DEV
+    sqlyzr_conf = DIN_SPIDER_DEV
     # sqlyzr_conf = DAIL_SPIDER_SMALL
     # sqlyzr_conf = DAIL_SPIDER_DEV
-    # eval_conf = sqlyzr_conf.eval_conf
+    eval_conf = sqlyzr_conf.eval_conf
     # eval_conf = DIN_SPIDER_DEV.eval_conf
     # eval_conf = DAIL_SPIDER_SMALL.eval_conf
     # eval_conf = DAIL_SPIDER_SMALL.eval_conf
     # eval_conf = DIN_BIRD_SMALL.eval_conf
-    dataset_conf = BIRD_DEV
+    # dataset_conf = BIRD_DEV
     # dataset_conf = BIRD_TRAIN
 
-    validate_dataset(dataset_conf)
+    # validate_dataset(dataset_conf)
 
     # run_din(eval_conf)
     #
@@ -60,7 +60,7 @@ def main():
 
     # calc_scores(eval_conf)
 
-    # post_process_scores(eval_conf)
+    post_process_scores(eval_conf)
     #
     # find_transformers(eval_conf)
     #

@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 from tqdm import tqdm
 
@@ -21,17 +23,17 @@ def get_pred_gold_db_id(pred_path, gold_path):
 
 
 def calc_scores(config: ModelEvalConfig):
+    if not config.force and os.path.exists(config.get_raw_scores_path()):
+        print(f"Raw scores exists: {config.get_raw_scores_path()}, skipping calculation.")
+        return
+
     catter = Catter()
     parser = SqlParser()
     df = pd.DataFrame()
-    metrics = [
-        ExactMatch("em", config.dataset_config),
-        # ExecAcc("ea", config.dataset_config),
-        # TotalExecTime("et", config.dataset_config),
-        # SpiderExactMatch("sem", config.dataset_config),
-        # RelaxedExecAcc("rea", config.dataset_config),
-        # Count("count", config.dataset_config),
-    ]
+    metrics = []
+    for metric_name, metric_class in config.metrics:
+        metrics.append(metric_class(metric_name, config.dataset_config))
+
     stat_metrics = [
         TokenUsage("tokens")
     ]
@@ -42,15 +44,15 @@ def calc_scores(config: ModelEvalConfig):
         scores = []
         print(f"Calculating scores for {conf}")
         for i, (pred, gold, db_id) in tqdm(enumerate(data), total=len(data)):
-            # if i <= 438:
-            #     continue
-            cat = catter.get_category(gold)
+            cat, sub_cat = catter.categorize(gold)
             past = parser.parse(pred)
-            example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": str(cat)}
+            example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": str(cat), "sub_cat": sub_cat}
             for metric in metrics:
-                if past:
+                # if past:
+                try:
                     score = metric.calc(gold, pred, db_id)
-                else:
+                except Exception as e:
+                    log(e)
                     score = 0
                 example_scores[metric.name] = score
             for metric in stat_metrics:
@@ -64,33 +66,41 @@ def calc_scores(config: ModelEvalConfig):
 
 def post_process_scores(config: ModelEvalConfig):
     df = pd.read_csv(config.get_raw_scores_path(), index_col=0)
+    df['count'] = 1
 
-    cat_grouped = df.groupby(['tmp', 'itr'], as_index=False).sum()
-    cat_grouped['cat'] = 'all'
-    cat_grouped.to_csv(config.get_scores_path("_1"))
+    all_sub_cats = df.groupby(['tmp', 'itr', "cat"], as_index=False).sum()
+    all_sub_cats['sub_cat'] = 'all'
+    all_sub_cats.to_csv(config.get_scores_path("_all_sub_cats"))
+
+    all_cats = df.groupby(['tmp', 'itr'], as_index=False).sum()
+    all_cats['cat'] = 'all'
+    all_cats['sub_cat'] = 'all'
+    all_cats.to_csv(config.get_scores_path("_all_cats"))
     #
-    df = pd.concat([cat_grouped, df], join='inner', ignore_index=True)
-    df.to_csv(config.get_scores_path("_2"))
+    combined = pd.concat([all_cats, all_sub_cats, df], join='inner', ignore_index=True)
+    combined.to_csv(config.get_scores_path("_combined"))
+
+    sums = combined.groupby(['tmp', 'itr', 'cat', "sub_cat"], as_index=False).sum()
+    sums.to_csv(config.get_scores_path("_sum"))
+
+    metric_names = config.get_metric_names()
+    means = sums.copy()
+    means[metric_names] = sums[metric_names].div(sums['count'], axis=0)
+    means.to_csv(config.get_scores_path("_means"), index_label="idx")
+
+    means_per_temp = means.groupby(['tmp', 'cat', "sub_cat"]).mean()
+    means_per_temp[metric_names] = means_per_temp[metric_names] * 100
+    means_per_temp = means_per_temp.drop(columns=['itr'])
+    means_per_temp.to_csv(config.get_scores_path("_means_per_temp"))
+
+    # means_per_temp = means_per_temp.drop(columns=['itr'])
     #
-    df = df.groupby(['tmp', 'itr', 'cat'], as_index=False).sum()
-    df.to_csv(config.get_scores_path("_3"))
-
-    scores = ["em", "ea", "sem", "rea"]
-    df[scores] = df[scores].div(df['count'], axis=0)
-    df.to_csv(config.get_scores_path("_4"), index_label="idx")
-
-    means = df.groupby(['tmp', 'cat']).mean()
-    means[scores] = means[scores] * 100
-    means = means.drop(columns=['itr'])
-    means.to_csv(config.get_scores_path("_means"))
-    means.columns = [col + '_mean' for col in means.columns]
-
-    cis = df.groupby(['tmp', 'cat']).agg(confidence_level_interval)
+    cis = means.groupby(['tmp', 'cat', "sub_cat"]).agg(confidence_level_interval)
     cis = cis.drop(columns=['itr'])
-    cis.to_csv(config.get_scores_path("cis"))
-    cis.columns = [col + '_ci' for col in cis.columns]
+    cis.to_csv(config.get_scores_path("_cis"))
 
-    final = means.join(cis)
+
+    final = means_per_temp.join(cis, lsuffix="_mean", rsuffix="_ci")
     final = final.round(2)
     final.to_csv(config.get_scores_path())
 
