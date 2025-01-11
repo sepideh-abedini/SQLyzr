@@ -1,7 +1,11 @@
 import asyncio
 import json
+import time
+
+from tqdm import tqdm
 
 from assets.print_logo import print_logo
+from src.aug.augment_data import augment_data
 from src.configs.dataset import BIRD_TRAIN, BIRD_DEV
 from src.configs.sqlyzr import DIN_SPIDER_DEV, DIN_SPIDER_SMALL
 from src.dataset.validate import validate_dataset
@@ -34,8 +38,8 @@ def validate_preds(conf: ModelEvalConfig):
             print(f"{run_conf.get_pred_path()} errors: {len(errors)}/{len(data)}")
 
 
-def main():
-    print_logo()
+async def main():
+    # print_logo()
 
     # sqlyzr_conf = DIN_SPIDER_SMALL
     sqlyzr_conf = DIN_SPIDER_DEV
@@ -54,19 +58,19 @@ def main():
     # run_din(eval_conf)
     #
     # asyncio.run(run_din_async(eval_conf))
-
+    #
     # validate_preds(eval_conf)
 
     # asyncio.run(run_dail_async(eval_conf))
 
-    calc_scores(eval_conf)
+    # calc_scores(eval_conf)
 
     post_process_scores(eval_conf)
     #
-    find_transformers(eval_conf)
+    # await find_transformers(eval_conf)
     #
     # augment_data(sqlyzr_conf)
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())

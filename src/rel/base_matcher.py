@@ -45,13 +45,15 @@ class Matcher:
         return None
 
     async def exec(self, data: SqlParsedData) -> SqlExecResult:
-        res = await self.db_facade.exec_query_async(data.db_id, data.sql)
+        # res = await self.db_facade.exec_query_async(data.db_id, data.sql)
+        res = self.db_facade.exec_query_sync(data.db_id, data.sql)
         return data.to_result(res)
 
     async def match(self, pred: SqlInputData, gold: SqlInputData):
         pred_parsed, gold_parsed = self.parse(pred), self.parse(gold)
         if pred_parsed is None or gold_parsed is None:
             return False
+        old_pred_exec, old_gold_exec = await self.exec(pred_parsed), await self.exec(gold_parsed)
 
         for transformer in self.pre_exec_transformers:
             pred_parsed, gold_parsed = transformer.transform_sql(pred_parsed, gold_parsed)
@@ -66,12 +68,13 @@ class Matcher:
             result = matcher.check_res(pred_exec, gold_exec)
             if result:
                 break
-        if result:
-            pass
-            # print(f"new_pred: {pred_exec.sql}")
-            # print(f"new_gold: {gold_exec.sql}")
-            # print(f"pred_res: {pred_exec.res}")
-            # print(f"gold_res: {gold_exec.res}")
+        if old_pred_exec.res != old_gold_exec.res and result:
+            log(f"new_pred: {pred_exec.sql}")
+            log(f"new_gold: {gold_exec.sql}")
+            log(f"old_pres: {pred_exec.res}")
+            log(f"old_gres: {gold_exec.res}")
+            log(f"pres: {old_pred_exec.res}")
+            log(f"gres: {old_gold_exec.res}")
         return result
 
     def get_result(self, data: SqlInputData):
@@ -127,7 +130,7 @@ class SubsetMatcher(ResultMatcher):
                 p = frozenset(p)
                 if g.issubset(p):
                     matched.add(g)
-        if matched == gold.res:
+        if len(matched) == len(gold.res):
             return True
         else:
             return False

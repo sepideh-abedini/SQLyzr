@@ -2,6 +2,8 @@ import asyncio
 from asyncio import FIRST_COMPLETED
 from typing import List
 
+from tqdm.auto import tqdm
+
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.rel.base_matcher import Matcher
@@ -17,7 +19,8 @@ class TransformerDetector:
         self.db_facade = DatabaseFacade(dataset_config.get_db_path())
         self.parser = ExactMatchParser(dataset_config.get_tables_path())
 
-    async def run_with(self, pred: SqlInputData, gold: SqlInputData, procs: List[SqlMatchingProcessor]):
+    async def run_with(self, pred: SqlInputData, gold: SqlInputData, procs: List[SqlMatchingProcessor]) \
+            -> List[SqlMatchingProcessor]:
         matcher = Matcher(self.db_facade, self.parser, procs)
         res = await matcher.match(pred, gold)
         if res:
@@ -28,7 +31,7 @@ class TransformerDetector:
     async def find_sub(self, pred: SqlInputData, gold: SqlInputData):
         pows = powerset(self.processors)
         tasks = []
-        for sub in pows:
+        for sub in tqdm(pows, position=1, leave=False, total=len(pows)):
             res = await self.run_with(pred, gold, list(sub))
             if res is not None:
                 return res

@@ -3,6 +3,7 @@ import os
 import random
 from typing import List, Dict
 
+import tqdm
 from pydantic import BaseModel
 
 from src.aug.auger_conf import AugerConf, DEFAULT_CONF
@@ -35,15 +36,15 @@ class Auger:
     db_id: str
     catter: Catter
 
-    def __init__(self, out, cat: StatementCategory, db_id: str, dataset_conf: DatasetConfig, conf=DEFAULT_CONF):
+    def __init__(self, out, cat: StatementCategory, dataset_conf: DatasetConfig, conf=DEFAULT_CONF):
         self.out = out
-        self.db_id = db_id
         self.conf = conf
         self.sub_cats = []
         self.catter = Catter()
         self.dataset_conf = dataset_conf
         self.gpt_sender = GptFormattedSingleSender(TextSqlPair)
         self.schema_repo = DatabaseSchemaRepo(self.dataset_conf.get_tables_path())
+        self.db_id = self.schema_repo.get_db_id_with_most_columns()
         self.examples = self.extract_examples()
         for s in cat.sub_cats:
             if s in self.examples.keys():
@@ -54,7 +55,7 @@ class Auger:
         examples = {}
         with open(self.dataset_conf.get_data_path()) as dataset_file:
             dataset_data = json.load(dataset_file)
-            for entry in dataset_data:
+            for entry in tqdm.tqdm(dataset_data, total=len(dataset_data)):
                 db_id = entry["db_id"]
                 sql = entry["query"]
                 root_cat = self.catter.get_category(sql)

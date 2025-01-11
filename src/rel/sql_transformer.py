@@ -27,6 +27,21 @@ class LimitRemoverTransformer(SqlTransformer):
         return pred, gold
 
 
+class AddLimitTransformer(SqlTransformer):
+
+    def replace_limit_expr(self, sql: str, gold_limit_expr) -> str:
+        s = f"\\g<1>\\g<2>{gold_limit_expr}\\g<4>"
+        return re.sub(r'(.*)(limit\s*)([^\s]*)(.*)', s , sql, flags=re.IGNORECASE)
+
+    def transform_sql(self, pred: SqlParsedData, gold: SqlParsedData) -> (SqlParsedData, SqlParsedData):
+        match = re.match(r'(.*)limit\s*([^\s]*)(.*)', gold.sql, flags=re.IGNORECASE)
+        if match is not None:
+            gold_limit_expr = match.groups()[1]
+            old_sql = pred.sql
+            pred.sql = self.replace_limit_expr(pred.sql, gold_limit_expr)
+        return pred, gold
+
+
 def str_match(s1: str, s2: str):
     return s1.lower() == s2.lower()
 

@@ -75,6 +75,16 @@ class ExecAcc(Metric):
             return 0
 
 
+class GoldNotEmpty(Metric):
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
+        db_file_path = self.conf.get_db_file_path(db_id)
+        gold_sql_exec_res = exec_sql(db_file_path, gold)
+        if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
+            return 1
+        else:
+            return 0
+
+
 class RelaxedExecAcc(Metric):
 
     def __init__(self, name: str, conf: DatasetConfig):
@@ -86,10 +96,10 @@ class RelaxedExecAcc(Metric):
             ExtraColumnRemoverMatcher()
         ])
 
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    async def calc(self, gold: str, pred: str, db_id: str) -> int:
         pd = SqlInputData(db_id, pred)
         gd = SqlInputData(db_id, gold)
-        working_sub = asyncio.run(self.detector.find_working_sub_sync(pd, gd))
+        working_sub = await self.detector.find_working_sub_sync(pd, gd)
         if working_sub is not None:
             return 1
         else:

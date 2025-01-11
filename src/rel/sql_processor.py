@@ -11,6 +11,7 @@ class SqlMatchingProcessor(ABC):
         return self.__class__.__name__
 
 
+
 class ResultMatcher(SqlMatchingProcessor, ABC):
     @abstractmethod
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:

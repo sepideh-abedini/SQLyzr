@@ -39,3 +39,15 @@ SPIDER_DEV = DatasetConfig(
     tables_file="tables.json",
     db_dir="database"
 )
+
+DATASETS = {
+    "bird": {
+        "small": BIRD_SMALL,
+        "dev": BIRD_DEV,
+        "train": BIRD_TRAIN
+    },
+    "spider": {
+        "small": SPIDER_SMALL,
+        "dev": SPIDER_DEV
+    }
+}

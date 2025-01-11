@@ -36,3 +36,14 @@ class DatabaseSchemaRepo:
                     schema.foreign_keys.add(frozenset(foreign_keys_set))
 
                 self.dbs[db['db_id']] = schema
+
+    def get_db_id_with_most_columns(self):
+        best_db_id = None
+        max_cols = 0
+        for db_id, schema in self.dbs.items():
+            num_cols = sum(len(table.keys()) for table in schema.tables.values())
+            if num_cols > max_cols:
+                max_cols = num_cols
+                best_db_id = db_id
+        print(f"DB with most columns: {best_db_id}:{max_cols}")
+        return best_db_id

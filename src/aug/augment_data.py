@@ -10,12 +10,14 @@ from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 
 
-def find_worst_cat(config: ModelEvalConfig):
-    scores = pd.read_csv(config.get_scores_path())
-    scores = scores.sort_values('rea_mean')
-    scores = scores[scores['cat'] != "all"]
-    scores = scores.head(1)
-    return scores['cat'].item()
+def find_cats_with_low_scores(config: SQLyzrConfig):
+    scores = pd.read_csv(config.eval_conf.get_scores_path())
+    scores = scores.sort_values('ea_mean')
+    scores = scores[scores['sub_cat'] != "all"]
+    scores = scores[scores['ea_mean'] < config.error_threshold]
+    if scores.shape[0] < 1:
+        raise RuntimeError(f"No category found with score below: {config.error_threshold}")
+    return set(list(map(find_cat, list(scores['cat']))))
 
 
 def find_cat(cat_name: str) -> Optional[StatementCategory]:
@@ -26,8 +28,7 @@ def find_cat(cat_name: str) -> Optional[StatementCategory]:
 
 
 def augment_data(config: SQLyzrConfig):
-    worst_cat = find_worst_cat(config.eval_conf)
-    print(f"Worst category is: {worst_cat}")
-    cat = find_cat(worst_cat)
-    auger = Auger(config.aug_out, cat, config.aug_db_id, config.eval_conf.dataset_config)
+    sub_cats = find_cats_with_low_scores(config)
+    print(f"Generating data for sub_categories: {sub_cats}")
+    auger = Auger(config.aug_out, cat, config.eval_conf.dataset_config)
     asyncio.run(auger.run())
