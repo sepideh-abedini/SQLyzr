@@ -340,11 +340,12 @@ def p_join_op(p):
     '''join_op : JOIN
                | INNER JOIN
                | LEFT JOIN
+               | LEFT OUTER JOIN
                | RIGHT JOIN'''
     if len(p) == 2:
         p[0] = TerminalNode('join_op', p[1])
     else:
-        p[0] = TerminalNode('join_op', p[1] + " " + p[2])
+        p[0] = TerminalNode('join_op', " ".join(p[1:]))
 
 
 def p_type_name(p):
@@ -388,7 +389,7 @@ def p_fun_name(p):
 def p_literal_value(p):
     '''literal_value : NUMBER
                      | STRING
-                     | DATE
+                     | DATE_LITERAL
                      | NULL'''
     p[0] = LiteralNode(p[1])
 
@@ -405,22 +406,39 @@ def p_column_name(p):
 
 
 def p_win_expr(p):
-    '''win_expr : win_fun LPAREN RPAREN OVER LPAREN win_def RPAREN'''
-    p[0] = WindowExpressionNode(p[1], p[6])
+    '''win_expr : win_fun LPAREN RPAREN OVER LPAREN win_def RPAREN
+                | fun_name LPAREN expr RPAREN OVER LPAREN win_def RPAREN
+                | fun_name LPAREN DISTINCT expr RPAREN OVER LPAREN win_def RPAREN
+                | fun_name LPAREN expr COMMA expr RPAREN OVER LPAREN win_def RPAREN'''
+    if len(p) == 8:
+        p[0] = WindowExpressionNode(p[1], [], p[6])
+    elif len(p) == 9:
+        p[0] = WindowExpressionNode(p[1], [p[3], p[4]], p[6])
+    elif len(p) == 10:
+        p[0] = WindowExpressionNode(p[1], [p[3], p[4]], p[6], distinct=True)
+    elif len(p) == 11:
+        p[0] = WindowExpressionNode(p[1], [p[3], p[4]], p[6])
 
 
-def p_over_expr(p):
-    '''over_expr : expr OVER LPAREN PARTITION BY result_column order_by RPAREN'''
-    p[0] = WindowDefinitionNode(p[7], p[6])
+# def p_over_expr(p):
+#     '''over_expr : expr OVER LPAREN PARTITION BY result_column order_by RPAREN'''
+#     p[0] = WindowDefinitionNode(p[7], p[6])
 
 
 def p_win_def(p):
     '''win_def : order_by
+               | PARTITION BY result_column
+               | win_def COMMA result_column
                | PARTITION BY result_column order_by'''
     if len(p) == 2:
-        p[0] = WindowDefinitionNode(p[1])
-    else:
-        p[0] = WindowDefinitionNode(p[4], p[3])
+        p[0] = WindowDefinitionNode([], p[1])
+    if len(p) == 4:
+        if p[2] != ",":
+            p[0] = WindowDefinitionNode([p[3]], None)
+        else:
+            p[0] = p[1] + p[3]
+    elif len(p) == 5:
+        p[0] = WindowDefinitionNode([p[3]], p[4])
 
 
 def p_win_fun(p):
@@ -489,6 +507,7 @@ class SqlParser:
         try:
             ast = self.parser.parse(sql)
             return ast
-        except Exception:
+        except Exception as e:
+            log(e)
             log("Syntax error!")
         return None

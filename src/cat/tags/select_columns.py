@@ -7,7 +7,7 @@ from src.parse.node import SelectClauseNode, TerminalNode, ResultColumnNode, Col
 
 
 class SelectColumns(SqlTag):
-    # SingleColumn = 1
+    SingleColumn = auto()
     StarColumn = auto()
     MultiColumn = auto()
 
@@ -23,6 +23,8 @@ class SelectColumns(SqlTag):
             tags = super().visit_select_clause(node)
             if len(node.result_columns) > 1:
                 tags += TagCollectorResult(SelectColumns.MultiColumn)
+            elif len(node.result_columns) == 1:
+                tags += TagCollectorResult(SelectColumns.SingleColumn)
             return tags
 
             # if len(node.result_columns) == 1:

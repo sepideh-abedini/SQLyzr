@@ -53,6 +53,7 @@ keywords = {
     'float': 'FLOAT',
     'real': 'REAL',
     'left': 'LEFT',
+    'outer': 'OUTER',
     'right': 'RIGHT',
     'rank': 'RANK',
     'dense_rank': 'DENSE_RANK',
@@ -80,13 +81,13 @@ tokens = [
              'RPAREN',
              'COMP_OP',
              'ARITH_OP',
-             'DATE',
              'NUMBER',
              'DOT',
              'STRING',
              'STAR',
              'ID',
-             'ORR'
+             'ORR',
+             'DATE_LITERAL'
          ] + list(reserved.values())
 
 t_COMMA = r','
@@ -97,7 +98,7 @@ t_DOT = r'\.'
 t_ORR = r'\|\|'
 
 
-def t_DATE(t):
+def t_DATE_LITERAL(t):
     r'\d{4}-\d{2}-\d{2}'  # Match dates in YYYY-MM-DD format
     return t
 

@@ -15,5 +15,5 @@ archive
 .env
 vector_cache
 *.zip
-.env.old
+.env*
 .batch.tokens.json

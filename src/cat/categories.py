@@ -16,7 +16,7 @@ from src.cat.tags.where_exprs import WhereType
 
 CAT_1 = StatementCategory(
     "c1",
-    # SubCategory("s0", frozenset([SelectColumns.SingleColumn]), "Having single column in SELECT clause"),
+    SubCategory("s0", frozenset([SelectColumns.SingleColumn]), "Having single column in SELECT clause"),
     SubCategory("s1", frozenset([SelectColumns.MultiColumn]), "Having single column in SELECT clause"),
     SubCategory("s2", frozenset([SelectColumns.StarColumn]), "Having single star column in the SELECT clause")
 )

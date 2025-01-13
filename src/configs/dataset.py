@@ -40,6 +40,14 @@ SPIDER_DEV = DatasetConfig(
     db_dir="database"
 )
 
+BEAVER_DEV = DatasetConfig(
+    dataset_dir="data/beaver",
+    data_file="dev.conv.json",
+    gold_file="dev.conv.gold.txt",
+    tables_file="tables.json",
+    db_dir="database"
+)
+
 DATASETS = {
     "bird": {
         "small": BIRD_SMALL,

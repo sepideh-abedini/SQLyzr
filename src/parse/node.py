@@ -631,11 +631,17 @@ class CastExpressionNode(ExpressionNode):
 
 @dataclass
 class WindowDefinitionNode(SqlAstNode):
-    orderby: OrderByNode
-    col: Optional[ColumnNode] = None
+    cols: List[ResultColumnNode]
+    orderby: Optional[OrderByNode] = None
 
     def accept(self, visitor):
         return visitor.visit_window_definition(self)
+
+    def __add__(self, other):
+        if isinstance(other, ResultColumnNode):
+            return replace(self, cols=self.cols + [other])
+        else:
+            raise RuntimeError("Invalid operand type: {}".format(type(other)))
 
     def __eq__(self, other):
         if not isinstance(other, WindowDefinitionNode):
@@ -652,8 +658,10 @@ class WindowDefinitionNode(SqlAstNode):
 
 @dataclass
 class WindowExpressionNode(ExpressionNode):
-    win_def: WindowDefinitionNode
     win_fun: TerminalNode
+    win_fun_exprs: List[ExpressionNode]
+    win_def: WindowDefinitionNode
+    distinct: bool = False
 
     def accept(self, visitor):
         return visitor.visit_window_expression(self)
