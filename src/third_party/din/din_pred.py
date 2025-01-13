@@ -34,11 +34,11 @@ class DinPredictor:
     parser: SqlParser
     stats: ModelRunStats
     default_params = {
-        'max_completion_tokens': 2,
+        'max_completion_tokens': 600,
         'stop': ["Q:"]
     }
     debug_params = {
-        "max_completion_tokens": 2,
+        "max_completion_tokens": 350,
         "stop": ["#", ";", "\n\n"]
     }
 
@@ -271,4 +271,4 @@ class DinPredictor:
 
         self.save_total_token_usage()
 
-        self.save_stats()
+        # self.save_stats()
