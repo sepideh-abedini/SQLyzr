@@ -65,9 +65,9 @@ async def main():
 
     # calc_scores(eval_conf)
 
-    post_process_scores(eval_conf)
+    # post_process_scores(eval_conf)
     #
-    # await find_transformers(eval_conf)
+    await find_transformers(eval_conf)
     #
     # augment_data(sqlyzr_conf)
 

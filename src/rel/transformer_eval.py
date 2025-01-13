@@ -32,7 +32,6 @@ def calc_rea_score(working_sub: List[SqlMatchingProcessor], config: ModelEvalCon
 async def find_transformers(config: ModelEvalConfig):
     ea = ExecAcc("ea", config.dataset_config)
     detector = TransformerDetector(config.dataset_config, [
-        LimitRemoverTransformer(),
         AddLimitTransformer(),
         LiteralCorrectorTransformer(),
         ColCorrectorTransformer(),
@@ -46,10 +45,6 @@ async def find_transformers(config: ModelEvalConfig):
         data = get_pred_gold_db_id(pred_path, gold_path)
         results = []
         for idx, (pred_str, gold_str, db_id) in tqdm(enumerate(data), leave=False, position=0, total=len(data)):
-            if idx != 14:
-                continue
-            # if idx < 460:
-            #     continue
             pred = SqlInputData(db_id, pred_str)
             gold = SqlInputData(db_id, gold_str)
             working_sub = await detector.find_working_sub_sync(pred, gold)
