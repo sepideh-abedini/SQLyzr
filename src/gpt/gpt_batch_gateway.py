@@ -6,11 +6,13 @@ from typing import List, Literal, Optional
 
 import backoff
 from natsort import natsorted
+from openai.types import Batch
 
 from src.gpt.gpt_batch_tracker import BatchTracker
 from src.gpt.gpt_client import GptBatchClient
 from src.gpt.gpt_gateway import GptRateLimitException, GptBatchNotCompletedException, \
     GptBatchFailedException
+from src.gpt.gpt_usage_stats import GptUsageStats
 from src.gpt.models import BatchRequestOutput
 
 
@@ -135,6 +137,13 @@ class GptBatchGateway:
             completion_time = datetime.datetime.fromtimestamp(batch.completed_at) - datetime.datetime.fromtimestamp(
                 batch.created_at)
             file.write(f"{completion_time.total_seconds()}\n")
+        return batch
+
+    def get_total_token_usage(self, responses: List[BatchRequestOutput]) -> int:
+        total_tokens = 0
+        for res in responses:
+            total_tokens += res.response.body.usage.total_tokens
+        return total_tokens
 
     @backoff.on_exception(backoff.constant, on_backoff=on_rate_limit, interval=10, max_tries=50,
                           exception=GptRateLimitException)
@@ -159,6 +168,7 @@ class GptBatchGateway:
         responses = await self.download_batch_output(info)
         print(f"[{in_path}]:\tOutfile downloaded")
 
-        await self.save_batch_stats(info)
+        batch = await self.save_batch_stats(info)
+
 
         return responses

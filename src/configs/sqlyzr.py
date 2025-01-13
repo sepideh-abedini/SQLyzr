@@ -16,7 +16,7 @@ class SQLyzrConfig:
 DIN_SPIDER_SMALL = SQLyzrConfig(
     eval_conf=DIN_SPIDER_SMALL_EVAL,
     aug_out="data/aug/gen.jsonl",
-    error_threshold=80,
+    error_threshold=101,
 )
 
 DIN_SPIDER_DEV = SQLyzrConfig(

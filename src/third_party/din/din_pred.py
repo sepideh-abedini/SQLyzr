@@ -8,6 +8,7 @@ import pandas as pd
 
 from src.eval.lib import Timer
 from src.gpt.gpt_from_file_sender import GptFromFileSender, GptBatchSender, GptSingleSender
+from src.gpt.gpt_usage_stats import GptUsageStats
 from src.gpt.gpt_utils import process_responses, load_responses
 from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
@@ -62,12 +63,8 @@ class DinPredictor:
             file.write(f"{request.json()}\n")
         file.close()
 
-    async def ask_file(self, in_path: str, out_path: str):
-        print(f"Asking GPT {in_path} ==> {out_path}")
-        if os.path.exists(out_path) and not self.conf.force:
-            log(f"Output path exists: {out_path}, skip asking gpt.")
-            return
-        await self.gpt_sender.send_and_save(in_path, out_path)
+    async def ask_file(self, in_path: str, out_path: str) -> GptUsageStats:
+        return await self.gpt_sender.send_and_save(in_path, out_path)
 
     def create_batch_req(self, idx: str, prompt: str, extra_params):
         extra_params['temperature'] = self.conf.run_conf.temp
@@ -234,20 +231,24 @@ class DinPredictor:
         with open(self.conf.run_conf.get_stats_path(), "w") as file:
             file.write(json.dumps(self.stats.__dict__, indent=4))
 
+    def save_usage_stats(self, stats: GptUsageStats):
+        with open(self.conf.run_conf.get_stats_path(), "w") as file:
+            file.write(json.dumps(stats.__dict__, indent=4))
+
     async def run(self):
         conf = self.conf
-        timer = Timer()
-        timer.start()
+
+        usage = GptUsageStats()
 
         self.generate_batch_file(conf.get_path("schema", "in"), self.generate_schema_req)
 
-        await self.ask_file(conf.get_path("schema", "in"), conf.get_path("schema", "out"))
+        usage += await self.ask_file(conf.get_path("schema", "in"), conf.get_path("schema", "out"))
 
         self.schema_links = process_responses(conf.get_path("schema", "out"), self.process_schema_response)
 
         self.generate_batch_file(conf.get_path("classif", "in"), self.generate_classif_req)
 
-        await self.ask_file(conf.get_path("classif", "in"), conf.get_path("classif", "out"))
+        usage += await self.ask_file(conf.get_path("classif", "in"), conf.get_path("classif", "out"))
 
         self.classifs = process_responses(conf.get_path("classif", "out"), lambda i, s: s)
 
@@ -255,13 +256,13 @@ class DinPredictor:
 
         self.generate_batch_file(conf.get_path("sql", "in"), self.create_sql_prompt)
 
-        await self.ask_file(conf.get_path("sql", "in"), conf.get_path("sql", "out"))
+        usage += await self.ask_file(conf.get_path("sql", "in"), conf.get_path("sql", "out"))
 
         self.sqls = process_responses(conf.get_path("sql", "out"), self.process_sql_responses)
 
         self.generate_batch_file(conf.get_path("sql_debug", "in"), self.create_debug_sql_prompt)
 
-        await self.ask_file(conf.get_path("sql_debug", "in"), conf.get_path("sql_debug", "out"))
+        usage += await self.ask_file(conf.get_path("sql_debug", "in"), conf.get_path("sql_debug", "out"))
 
         self.sqls = process_responses(conf.get_path("sql_debug", "out"), self.process_sql_debug_response)
 
@@ -269,6 +270,4 @@ class DinPredictor:
 
         self.save_sqls(self.conf.run_conf.get_pred_path(), sqls)
 
-        self.save_total_token_usage()
-
-        # self.save_stats()
+        self.save_usage_stats(usage)

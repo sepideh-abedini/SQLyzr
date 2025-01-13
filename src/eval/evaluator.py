@@ -34,9 +34,6 @@ def calc_scores(config: ModelEvalConfig):
     for metric_name, metric_class in config.metrics.items():
         metrics.append(metric_class(metric_name, config.dataset_config))
 
-    stat_metrics = [
-        TokenUsage("tokens")
-    ]
     for conf in config.get_run_confs():
         pred_path = conf.get_pred_path()
         gold_path = conf.dataset_config.get_gold_path()
@@ -54,9 +51,6 @@ def calc_scores(config: ModelEvalConfig):
                 except Exception as e:
                     log(e)
                     score = 0
-                example_scores[metric.name] = score
-            for metric in stat_metrics:
-                score = metric.calc(i, conf)
                 example_scores[metric.name] = score
             scores.append(example_scores)
         ti_df = pd.DataFrame(scores)
@@ -82,6 +76,19 @@ def post_process_scores(config: ModelEvalConfig):
 
     sums = combined.groupby(['tmp', 'itr', 'cat', "sub_cat"], as_index=False).sum()
     sums.to_csv(config.get_scores_path("_sum"))
+
+    # stat_metrics = [
+    #     TokenUsage("tokens")
+    # ]
+    # stats_rows = []
+    # for run_conf in config.get_run_confs():
+    #     row = {'tmp': run_conf.temp, 'itr': run_conf.itr}
+    #     for metric in stat_metrics:
+    #         row[metric.name] = metric.calc(run_conf)
+    #     stats_rows.append(row)
+    # stats = pd.DataFrame(stats_rows)
+    # sums = pd.merge(sums, stats, on=["tmp", "itr"], how="inner")
+    # sums.to_csv(config.get_scores_path("_stats"))
 
     metric_names = config.get_metric_names()
     means = sums.copy()

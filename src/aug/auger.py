@@ -12,6 +12,7 @@ from src.aug.text_sql_pair_example import TextSqlPairExample
 from src.cat.catter import Catter
 from src.cat.statement_category import StatementCategory
 from src.cat.sub_category import SubCategory
+from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.dataset_config import DatasetConfig
 from src.gpt.gpt_from_file_sender import GptFormattedSingleSender, GptFromFileSender
 from src.gpt.gpt_utils import process_formatted_responses
@@ -36,24 +37,21 @@ class Auger:
     db_id: str
     catter: Catter
 
-    def __init__(self, out, cat: StatementCategory, dataset_conf: DatasetConfig, conf=DEFAULT_CONF):
-        self.out = out
+    def __init__(self, sqlyzr_config: SQLyzrConfig, sub_cats: List[SubCategory], conf=DEFAULT_CONF):
+        self.out = sqlyzr_config.aug_out
+        self.sqlyzr_conf = sqlyzr_config
         self.conf = conf
-        self.sub_cats = []
+        self.sub_cats = sub_cats
         self.catter = Catter()
-        self.dataset_conf = dataset_conf
         self.gpt_sender = GptFormattedSingleSender(TextSqlPair)
-        self.schema_repo = DatabaseSchemaRepo(self.dataset_conf.get_tables_path())
+        self.schema_repo = DatabaseSchemaRepo(self.sqlyzr_conf.eval_conf.dataset_config.get_tables_path())
         self.db_id = self.schema_repo.get_db_id_with_most_columns()
         self.examples = self.extract_examples()
-        for s in cat.sub_cats:
-            if s in self.examples.keys():
-                self.sub_cats.append(s)
         log(f"Generating for sub_cats: {self.sub_cats}")
 
     def extract_examples(self):
         examples = {}
-        with open(self.dataset_conf.get_data_path()) as dataset_file:
+        with open(self.sqlyzr_conf.eval_conf.dataset_config.get_data_path()) as dataset_file:
             dataset_data = json.load(dataset_file)
             for entry in tqdm.tqdm(dataset_data, total=len(dataset_data)):
                 db_id = entry["db_id"]
@@ -78,11 +76,11 @@ class Auger:
 
     def generate_batch_file(self, file_path: str):
         file = open(file_path, "w")
-        for i in range(self.conf.gen_num):
-            sub_cat = random.choice(list(self.sub_cats))
-            prompt = self.get_gen_prompt_for_sub_cat(sub_cat)
-            request = self.create_batch_req(f"a{i}", str(prompt), dict())
-            file.write(f"{request.json()}\n")
+        for sub_cat in self.sub_cats:
+            for i in range(self.sqlyzr_conf.aug_per_sub_cat):
+                prompt = self.get_gen_prompt_for_sub_cat(sub_cat)
+                request = self.create_batch_req(f"a{i}", str(prompt), dict())
+                file.write(f"{request.json()}\n")
         file.close()
 
     async def ask_file(self, in_path: str, out_path: str):
@@ -95,7 +93,7 @@ class Auger:
     def process_response(self, i: int, pair: TextSqlPair) -> Dict:
         d = pair.dict()
         d['db_id'] = self.db_id
-        d['cat'] = str(self.catter.get_category(pair.sql))
+        d['sub_cat'] = str(self.catter.get_sub_category(pair.sql))
         return d
 
     def save_results(self, dicts: List[Dict]):

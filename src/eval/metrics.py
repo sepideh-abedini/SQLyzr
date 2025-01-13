@@ -1,4 +1,5 @@
 import asyncio
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -31,7 +32,7 @@ class StatMetric(ABC):
     name: str
 
     @abstractmethod
-    def calc(self, i: int, run_conf: SingleRunConfig) -> int:
+    def calc(self, run_conf: SingleRunConfig) -> int:
         pass
 
 
@@ -50,10 +51,10 @@ class ExactMatch(Metric):
 
 class TokenUsage(StatMetric):
 
-    def calc(self, i: int, run_conf: SingleRunConfig) -> int:
-        file = open(run_conf.get_token_path())
-        usage = file.readlines()
-        return int(usage[i])
+    def calc(self, run_conf: SingleRunConfig) -> int:
+        with open(run_conf.get_stats_path()) as file:
+            data = json.load(file)
+            return int(data["total_tokens"])
 
 
 class SpiderExactMatch(Metric):

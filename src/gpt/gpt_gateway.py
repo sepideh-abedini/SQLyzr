@@ -1,4 +1,5 @@
 import os
+import time
 from typing import TypeVar, Type
 
 import backoff
@@ -8,6 +9,7 @@ from pydantic import BaseModel
 
 from src.gpt.gpt_tracker import GptUsageTracker
 from src.gpt.models import BatchInputRequest
+from src.gpt.sqlyzr_chat_completion import SqlyzrChatCompletion
 
 
 class GptGatewayException(Exception):
@@ -51,15 +53,16 @@ class GptGateway:
         return result
 
     @backoff.on_exception(backoff.constant, interval=10, max_tries=5, exception=GptRateLimitException)
-    async def track_and_send(self, request: BatchInputRequest):
+    async def track_and_send(self, request: BatchInputRequest) -> SqlyzrChatCompletion:
         print(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()
         can_send = await self.tracker.check_limit(tokens)
         if can_send:
             usage = await self.tracker.add_usage(tokens)
             result = await self.send_without_tracking(request)
+            result_extended = SqlyzrChatCompletion(**result.dict(), completed_at=int(time.time()))
             usage.expire()
-            return result
+            return result_extended
         else:
             raise GptRateLimitException()
 
