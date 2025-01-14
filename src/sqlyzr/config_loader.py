@@ -80,7 +80,8 @@ def load_config() -> SQLyzrConfig:
         pred_dir=conf_data.get_pred_dir(),
         eval_dir=conf_data.get_eval_dir(),
         dataset_config=dataset_conf,
-        metrics=METRICS[conf_data.dataset]
+        metrics=METRICS[conf_data.dataset],
+        batch=conf_data.batch
     )
     conf = SQLyzrConfig(
         eval_conf=eval_conf,

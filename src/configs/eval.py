@@ -10,7 +10,8 @@ DIN_SPIDER_SMALL_EVAL = ModelEvalConfig(
     pred_dir="data/small_din",
     eval_dir="data/ev",
     dataset_config=SPIDER_SMALL,
-    metrics=SPIDER_METRICS
+    metrics=SPIDER_METRICS,
+    batch=False
 )
 
 DIN_SPIDER_DEV_EVAL = ModelEvalConfig(
@@ -21,7 +22,8 @@ DIN_SPIDER_DEV_EVAL = ModelEvalConfig(
     pred_dir="data/din",
     eval_dir="data/ev",
     dataset_config=SPIDER_DEV,
-    metrics=SPIDER_METRICS
+    metrics=SPIDER_METRICS,
+    batch=False
 )
 
 DAIL_SPIDER_SMALL_EVAL = ModelEvalConfig(
@@ -30,7 +32,8 @@ DAIL_SPIDER_SMALL_EVAL = ModelEvalConfig(
     pred_dir="data/dail",
     eval_dir="data/ev",
     dataset_config=SPIDER_SMALL,
-    metrics=SPIDER_METRICS
+    metrics=SPIDER_METRICS,
+    batch=False
 )
 
 DAIL_SPIDER_DEV_EVAL = ModelEvalConfig(
@@ -39,7 +42,8 @@ DAIL_SPIDER_DEV_EVAL = ModelEvalConfig(
     pred_dir="data/dail",
     eval_dir="data/ev",
     dataset_config=SPIDER_DEV,
-    metrics=SPIDER_METRICS
+    metrics=SPIDER_METRICS,
+    batch=False
 )
 
 DIN_BIRD_SMALL_EVAL = ModelEvalConfig(
@@ -48,7 +52,8 @@ DIN_BIRD_SMALL_EVAL = ModelEvalConfig(
     pred_dir="data/din",
     eval_dir="data/ev",
     dataset_config=BIRD_SMALL,
-    metrics=SPIDER_METRICS
+    metrics=SPIDER_METRICS,
+    batch=False
 )
 
 DIN_BIRD_DEV_EVAL = ModelEvalConfig(
@@ -57,5 +62,6 @@ DIN_BIRD_DEV_EVAL = ModelEvalConfig(
     pred_dir="data/din",
     eval_dir="data/ev",
     dataset_config=BIRD_DEV,
-    metrics=SPIDER_METRICS
+    metrics=SPIDER_METRICS,
+    batch=False
 )

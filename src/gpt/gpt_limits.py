@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 
+# FIXME: use in config
 @dataclass
 class GptRateLimits:
     tokens_per_min: int = 150_000

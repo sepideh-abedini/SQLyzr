@@ -17,7 +17,7 @@ class ModelEvalConfig:
     metrics: Dict[str, Type[Metric]]
 
     def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, dataset_config: DatasetConfig,
-                 metrics: Dict[str, Type[Metric]]):
+                 metrics: Dict[str, Type[Metric]], batch: bool):
         self.pred_dir = pred_dir
         self.eval_dir = eval_dir
         self.run_confs = {}
@@ -27,7 +27,8 @@ class ModelEvalConfig:
                                    pred_dir=pred_dir,
                                    eval_dir=eval_dir,
                                    temp=temp,
-                                   itr=itr)
+                                   itr=itr,
+                                   batch=batch)
             self.run_confs.setdefault(temp, []).append(conf)
         self.metrics = metrics
 

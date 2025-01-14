@@ -10,6 +10,7 @@ from src.gpt.gpt_client import GptBatchClient
 from src.gpt.gpt_gateway import GptRateLimitException
 from src.gpt.gpt_limits import GptRateLimits
 from src.gpt.models import BatchInputRequest
+from src.util.logger import debug_log, log
 
 
 def get_req_file_token_usage(in_path: str):
@@ -38,7 +39,7 @@ class BatchTracker:
         self.load()
         self.lock = asyncio.Lock()
         self.limits = GptRateLimits()
-        print(f"Current token usage: {self.total_tokens()}/{self.limits.batch_tokens_per_day}")
+        log(f"Current token usage: {self.total_tokens()}/{self.limits.batch_tokens_per_day}")
 
     def save(self):
         with open(self.save_path, "w") as file:
@@ -53,9 +54,12 @@ class BatchTracker:
         cur_bids = set(map(lambda b: b.id, cur_batches))
         with open(self.save_path) as file:
             self.batch_tokens = json.load(file)
+        expired_bids = []
         for bid in self.batch_tokens.keys():
             if bid not in cur_bids:
-                self.batch_tokens.pop(bid)
+                expired_bids.append(bid)
+        for bid in expired_bids:
+            self.batch_tokens.pop(bid)
 
     def should_count(self, batch: Batch) -> bool:
         if not batch.in_progress_at and batch.status != "validating":
@@ -66,19 +70,19 @@ class BatchTracker:
         cur_batches = self.batch_client.list_cur_batches()
         cur_batches = filter(self.should_count, cur_batches)
         tokens = 0
-        max_tokens = max(self.batch_tokens.values())
+        max_tokens = max(self.batch_tokens.values(), default=0)
         for batch in cur_batches:
             if batch.id in self.batch_tokens:
                 tokens += self.batch_tokens[batch.id]
             else:
-                print(f"Warning! Batch not exists in stored state: {batch.id}")
+                log(f"Warning! Batch not exists in stored state: {batch.id}")
                 tokens += max_tokens
         return tokens
 
     def tokens_exceed_limit(self, tokens: int):
         total_tokens = self.total_tokens()
         new_total = tokens + total_tokens
-        print(f"Checking Token Limit: {tokens}+{total_tokens} = {new_total} /{self.limits.batch_tokens_per_day}")
+        debug_log(f"Checking Token Limit: {tokens}+{total_tokens} = {new_total} /{self.limits.batch_tokens_per_day}")
         return new_total > self.limits.batch_tokens_per_day
 
     async def init_batch(self, in_path):
@@ -92,7 +96,7 @@ class BatchTracker:
         try:
             tokens = get_req_file_token_usage(in_path)
             if bid in self.batch_tokens:
-                print(f"Updating tokens usage: {self.batch_tokens[bid]} => {tokens}")
+                debug_log(f"Updating tokens usage: {self.batch_tokens[bid]} => {tokens}")
             self.batch_tokens[bid] = tokens
         finally:
             self.lock.release()

@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import List, Type, TypeVar
 
 from openai.types import Batch
+from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
 from src.gpt.gpt_batch_gateway import GptBatchGateway
@@ -33,17 +34,17 @@ class GptFromFileSender(ABC):
     def get_usage(self, in_path: str, out_path: str) -> GptUsageStats:
         pass
 
-    def save_to_file(self, responses: list[SqlyzrChatCompletion], out_path: str):
+    def save_to_file(self, responses: list[ChatCompletion], out_path: str):
         out_file = open(out_path, "w")
         for response in responses:
             out_file.write(f"{response.json()}\n")
         out_file.close()
 
-    def load_resps_from_file(self, out_path) -> List[SqlyzrChatCompletion]:
+    def load_resps_from_file(self, out_path) -> List[ChatCompletion]:
         out_file = open(out_path)
         resps = []
         for line in out_file.readlines():
-            res = SqlyzrChatCompletion.model_validate_json(line)
+            res = ChatCompletion.model_validate_json(line)
             resps.append(res)
         return resps
 
@@ -55,9 +56,9 @@ class GptBatchSender(GptFromFileSender):
         self.gateway = GptBatchGateway()
 
     async def send_from_file(self, in_path: str) -> list[SqlyzrChatCompletion]:
-        output, usage = await self.gateway.send_batch(in_path)
+        output = await self.gateway.send_batch(in_path)
         result = list(map(lambda o: o.response.body, output))
-        return result, usage
+        return result
 
     def get_usage(self, in_path: str, out_path: str) -> GptUsageStats:
         with open(f"{in_path}.batch.stats.json") as file:
@@ -66,7 +67,7 @@ class GptBatchSender(GptFromFileSender):
         resps = self.load_resps_from_file(out_path)
         total_tokens = 0
         for res in resps:
-            total_tokens += res.response.body.usage.total_tokens
+            total_tokens += res.usage.total_tokens
         usage = GptUsageStats(total_time=completion_time, total_tokens=total_tokens)
         return usage
 
@@ -101,6 +102,14 @@ class GptSingleSender(GptFromFileSender):
             req = BatchInputRequest.model_validate_json(line)
             reqs.append(req)
         return reqs
+
+    def load_resps_from_file(self, out_path) -> List[SqlyzrChatCompletion]:
+        out_file = open(out_path)
+        resps = []
+        for line in out_file.readlines():
+            res = SqlyzrChatCompletion.model_validate_json(line)
+            resps.append(res)
+        return resps
 
     def get_usage(self, in_path: str, out_path: str) -> GptUsageStats:
         resps = self.load_resps_from_file(out_path)
