@@ -88,7 +88,7 @@ class GptSingleSender(GptFromFileSender):
         for req in reqs:
             future = self.send_single_req(req)
             futures.append(future)
-            print(f"{req.custom_id} sent")
+            debug_log(f"{req.custom_id} sent")
         resps = await asyncio.gather(*futures)
         return resps
 

@@ -4,6 +4,7 @@ from typing import List
 
 from src.gpt.gpt_limits import GptRateLimits
 from src.gpt.gpt_usage import GptUsage
+from src.util.logger import debug_log
 
 
 class GptUsageTracker:
@@ -26,10 +27,10 @@ class GptUsageTracker:
         await self.lock.acquire()
         try:
             self.__update_total_tokens()
-            print(f"Checking Token Limit: {tokens}+{self.total_tokens}/{self.limits.tokens_per_min}")
+            debug_log(f"Checking Token Limit: {tokens}+{self.total_tokens}/{self.limits.tokens_per_min}")
             if tokens + self.total_tokens > self.limits.tokens_per_min:
                 return False
-            print(f"Checking RPM Limit: {self.reqs}/{self.limits.req_per_min}")
+            debug_log(f"Checking RPM Limit: {self.reqs}/{self.limits.req_per_min}")
             if self.reqs + 1 >= self.limits.req_per_min:
                 return False
             return True
@@ -45,8 +46,8 @@ class GptUsageTracker:
             self.__usage.append(usage)
             self.total_tokens += usage.tokens
             self.reqs += 1
-            print(f"Token usage added: {old_total} => {self.total_tokens}")
-            print(f"Request added: {old_req} => {self.reqs}")
+            debug_log(f"Token usage added: {old_total} => {self.total_tokens}")
+            debug_log(f"Request added: {old_req} => {self.reqs}")
             return usage
         finally:
             self.lock.release()
@@ -61,8 +62,8 @@ class GptUsageTracker:
             self.total_tokens -= usage.tokens
             self.reqs -= 1
             self.__usage.pop(0)
-            print(f"Expired token: {usage.tokens}, {old_tokens} => {self.total_tokens}")
-            print(f"Expired req: {old_reqs} => {self.reqs}")
+            debug_log(f"Expired token: {usage.tokens}, {old_tokens} => {self.total_tokens}")
+            debug_log(f"Expired req: {old_reqs} => {self.reqs}")
 
     @staticmethod
     def get_instance():

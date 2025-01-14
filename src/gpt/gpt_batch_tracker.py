@@ -8,7 +8,7 @@ from openai.types import Batch
 
 from src.gpt.gpt_client import GptBatchClient
 from src.gpt.gpt_gateway import GptRateLimitException
-from src.gpt.gpt_limits import GptRateLimits
+from src.gpt.gpt_limits import GptRateLimits, LIMITS
 from src.gpt.models import BatchInputRequest
 from src.util.logger import debug_log, log
 
@@ -38,7 +38,7 @@ class BatchTracker:
         self.batch_client = GptBatchClient()
         self.load()
         self.lock = asyncio.Lock()
-        self.limits = GptRateLimits()
+        self.limits = LIMITS[os.environ.get("OPENAI_USAGE_TIER", "tier1")]
         log(f"Current token usage: {self.total_tokens()}/{self.limits.batch_tokens_per_day}")
 
     def save(self):

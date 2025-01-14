@@ -5,6 +5,7 @@ from typing import Literal
 from src.configs.eval import DIN_SPIDER_DEV_EVAL, DIN_SPIDER_SMALL_EVAL, DAIL_SPIDER_SMALL_EVAL, DIN_BIRD_SMALL_EVAL, \
     DAIL_SPIDER_DEV_EVAL, DIN_BIRD_DEV_EVAL
 from src.eval.model_eval_config import ModelEvalConfig
+from src.gpt.gpt_limits import GptRateLimits, TIER1_LIMITS
 from src.sqlyzr.pipeline_config import PipelineConfig
 
 

@@ -10,6 +10,7 @@ from src.cat.sub_category import SubCategory
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.sqlyzr_processor import SqlyzrProcessor
+from src.util.logger import log
 
 
 class DatasetAugmentor(SqlyzrProcessor):
@@ -37,6 +38,6 @@ def find_cat(cat_name: str) -> Optional[SubCategory]:
 
 async def augment_data(config: SQLyzrConfig):
     sub_cats = find_cats_with_low_scores(config)
-    print(f"Generating data for sub_categories: {sub_cats}")
+    log(f"Generating data for sub_categories: {sub_cats}")
     auger = Auger(config, sub_cats)
     await auger.run()

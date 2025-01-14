@@ -7,8 +7,7 @@
     0.0
   ],
   "itrs": 2,
-  "model": "dail",
-  "gpt_usage_tier": "tier1",
+  "model": "din",
   "batch": false,
   "force": false,
   "pipeline": {

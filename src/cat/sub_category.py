@@ -50,3 +50,6 @@ class SubCategory:
                 if t != ot and ot >= t:
                     to_remove.add(t)
         return SubCategory(frozenset(self.tags.difference(to_remove)))
+
+    def __repr__(self):
+        return str(self)

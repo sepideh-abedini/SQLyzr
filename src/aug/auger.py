@@ -47,7 +47,6 @@ class Auger:
         self.schema_repo = DatabaseSchemaRepo(self.sqlyzr_conf.eval_conf.dataset_config.get_tables_path())
         self.db_id = self.schema_repo.get_db_id_with_most_columns()
         self.examples = self.extract_examples()
-        log(f"Generating for sub_cats: {self.sub_cats}")
 
     def extract_examples(self):
         examples = {}

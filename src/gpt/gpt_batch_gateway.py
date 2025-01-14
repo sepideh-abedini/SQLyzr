@@ -2,11 +2,16 @@ import datetime
 import json
 import os.path
 import os.path
+import random
+from os.path import basename
 from typing import List, Literal, Optional
 
 import backoff
+from alive_progress import alive_bar
 from natsort import natsorted
 from openai.types import Batch
+from progress.bar import Bar
+from tqdm import tqdm
 
 from src.gpt.gpt_batch_tracker import BatchTracker
 from src.gpt.gpt_client import GptBatchClient
@@ -14,18 +19,25 @@ from src.gpt.gpt_gateway import GptRateLimitException, GptBatchNotCompletedExcep
     GptBatchFailedException
 from src.gpt.gpt_usage_stats import GptUsageStats
 from src.gpt.models import BatchRequestOutput
+from src.util.logger import debug_log, log
 
+
+# bar = alive_bar(100, stats=False, title=f"Prog", manual=True, bar='blocks', spinner='waves')
+# update = bar.__enter__()
+# bar(0.3)
+#
 
 def on_rate_limit(details):
-    print(f"Hit rate limit, retrying!")
+    log(f"Hit rate limit, retrying!")
 
 
 def on_failed(details):
-    print(f"Batch failed, retrying!")
+    log(f"Batch failed, retrying!")
 
 
 def on_not_complete(details):
-    print(f"Batch not completed yet, retrying!")
+    debug_log(f"Batch not completed yet, retrying!")
+    # update(random.randint(0, 100) / 100)
 
 
 BatchInfoProps = Literal["fid", "bid", "oid"]
@@ -63,17 +75,21 @@ class GptBatchGateway:
     def __init__(self):
         self.client = GptBatchClient()
         self.tracker = BatchTracker.get_instance()
+        self.pbar = None
+        self.update = None
 
     async def upload_file(self, info: BatchInfo):
         if info.get_value("fid"):
-            print(f"[{info.in_path}]:\tFile exists")
+            debug_log(f"[{info.in_path}]:\tFile exists")
         else:
             file_name = os.path.basename(info.in_path)
             file_content = open(info.in_path, "rb")
             response = self.client.create_file(file_name, file_content, "batch")
             info.set_value("fid", response.id)
+            log(f"File created for {info.in_path}")
 
-    async def retrieve_batch(self, info: BatchInfo):
+    # FIXME: Print progress of bacth
+    async def retrieve_batch(self, info: BatchInfo) -> Batch:
         bid = info.get_value("bid")
         response = self.client.retrieve_batch(bid)
         return response
@@ -91,20 +107,21 @@ class GptBatchGateway:
 
     async def create_batch_if_not_exist(self, info: BatchInfo):
         if info.get_value("bid"):
-            print(f"[{info.in_path}]:\tBatch exists")
+            debug_log(f"[{info.in_path}]:\tBatch exists")
         else:
             await self.tracker.init_batch(info.in_path)
             response = self.client.create_batch(info.get_value("fid"))
             bid = response.id
             info.set_value("bid", bid)
-            print(f"Batch created: {bid}")
+            log(f"Batch created: {basename(info.in_path)}")
             self.tracker.commit_batch(info.in_path, bid)
 
     async def retrieve_out_file_id(self, info: BatchInfo):
         if info.get_value("oid"):
-            print(f"[{info.in_path}]:\tOut file exists")
+            debug_log(f"[{info.in_path}]:\tOut file exists")
         else:
             batch = await self.retrieve_batch(info)
+            log(f"\rBatch [{basename(info.in_path)}]: \t Completion: {batch.request_counts.completed}/{batch.request_counts.total}")
             status = batch.status
             if status != "completed":
                 if status == "failed":
@@ -113,6 +130,7 @@ class GptBatchGateway:
                     raise GptBatchFailedException(f"Batch job failed for {info.in_path} ==> {batch_id}")
                 else:
                     raise GptBatchNotCompletedException()
+            log(f"Batch {basename(info.in_path)} completed!")
             info.set_value("oid", batch.output_file_id)
 
     def save_responses(self, responses: List[BatchRequestOutput], info: BatchInfo):
@@ -127,7 +145,7 @@ class GptBatchGateway:
 
     async def update_tokens_usage(self, info: BatchInfo):
         await self.tracker.init_batch(info.in_path)
-        await self.tracker.commit_batch(info.in_path, info.get_value("bid"))
+        self.tracker.commit_batch(info.in_path, info.get_value("bid"))
 
     async def save_batch_stats(self, info: BatchInfo):
         batch = await self.retrieve_batch(info)
@@ -155,20 +173,15 @@ class GptBatchGateway:
         info = BatchInfo(in_path)
 
         await self.upload_file(info)
-        print(f"[{in_path}]:\tFile uploaded")
 
         await self.create_batch_if_not_exist(info)
-        print(f"[{in_path}]:\tBatch created")
 
         await self.update_tokens_usage(info)
 
         await self.retrieve_out_file_id(info)
-        print(f"[{in_path}]:\tOutput File id retrieved")
 
         responses = await self.download_batch_output(info)
-        print(f"[{in_path}]:\tOutfile downloaded")
 
         batch = await self.save_batch_stats(info)
-
 
         return responses

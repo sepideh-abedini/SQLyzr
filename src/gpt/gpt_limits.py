@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 # FIXME: use in config
-@dataclass
+@dataclass(frozen=True)
 class GptRateLimits:
     tokens_per_min: int = 150_000
     batch_tokens_per_day: int = 1_500_000_000
@@ -25,3 +25,4 @@ LIMITS = {
     "tier1": TIER1_LIMITS,
     "tier5": TIER5_LIMITS
 }
+
