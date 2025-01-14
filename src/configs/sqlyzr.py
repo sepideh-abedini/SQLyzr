@@ -5,6 +5,7 @@ from typing import Literal
 from src.configs.eval import DIN_SPIDER_DEV_EVAL, DIN_SPIDER_SMALL_EVAL, DAIL_SPIDER_SMALL_EVAL, DIN_BIRD_SMALL_EVAL, \
     DAIL_SPIDER_DEV_EVAL, DIN_BIRD_DEV_EVAL
 from src.eval.model_eval_config import ModelEvalConfig
+from src.sqlyzr.pipeline_config import PipelineConfig
 
 
 @dataclass
@@ -15,6 +16,7 @@ class SQLyzrConfig:
     error_threshold: float
     rel_dir: str
     aug_per_sub_cat: int = 2
+    pipeline: PipelineConfig = PipelineConfig
 
     def get_aug_out(self):
         return os.path.join(self.aug_dir, "gen.jsonl")

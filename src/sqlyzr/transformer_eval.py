@@ -15,6 +15,12 @@ from src.rel.sql_transformer import LiteralCorrectorTransformer, ColCorrectorTra
     AddLimitTransformer
 from src.rel.transformer_detector import TransformerDetector
 from src.sqlyzr.evaluator import get_pred_gold_db_id
+from src.sqlyzr.sqlyzr_processor import SqlyzrProcessor
+
+
+class TransformerFinder(SqlyzrProcessor):
+    async def run(self):
+        await find_transformers(self.conf)
 
 
 def get_transformers_classes(working_sub: List[SqlMatchingProcessor]) -> Set[Type[SqlMatchingProcessor]]:

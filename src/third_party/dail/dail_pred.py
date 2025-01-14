@@ -1,8 +1,10 @@
 import json
 import os
+import re
 from typing import Callable, List
 
 from src.gpt.gpt_from_file_sender import GptFromFileSender, GptBatchSender, GptSingleSender
+from src.gpt.gpt_usage_stats import GptUsageStats
 from src.gpt.gpt_utils import load_responses
 from src.gpt.models import BatchInputRequest
 from src.third_party.dail.dail_conf import DailConfig
@@ -38,7 +40,12 @@ class DailPredictor:
             file.write(f"{request.json()}\n")
         file.close()
 
+    def save_usage_stats(self, stats: GptUsageStats):
+        with open(self.conf.run_conf.get_stats_path(), "w") as file:
+            file.write(json.dumps(stats.__dict__, indent=4))
+
     async def run(self):
+        usage = GptUsageStats()
 
         schema_linking_producer(self.conf)
 
@@ -46,13 +53,13 @@ class DailPredictor:
 
         self.generate_batch_file()
 
-        await self.ask_file(self.conf.get_batch_path("in"), self.conf.get_batch_path("out"))
+        usage += await self.ask_file(self.conf.get_batch_path("in"), self.conf.get_batch_path("out"))
 
         sqls = await self.process_responses(self.conf.get_batch_path("out"))
 
         self.save_sqls(self.conf.run_conf.get_pred_path(), sqls)
 
-        self.save_total_token_usage()
+        self.save_usage_stats(usage)
 
     def save_sqls(self, out_path, sqls: List[str]):
         file = open(out_path, 'w')
@@ -79,6 +86,17 @@ class DailPredictor:
             out_file.write(f"{usage}\n")
         out_file.close()
 
+    def process_gpt_4o_mini_sql(self, content: str) -> str:
+        content = content.strip()
+        content = content.replace("\n", " ")
+        if "SQL:" in content:
+            pattern = r'.*SQL:[\s`]*(SELECT.*)[\s`]*'
+            content = re.sub(pattern, r'\1', content)
+        if "```sql" in content:
+            pattern = r'.*```sql\s*(SELECT.*)\s*```.*'
+            content = re.sub(pattern, r'\1', content)
+        return content
+
     async def process_responses(self, file_path) -> List[str]:
         with open(self.conf.run_conf.dataset_config.get_data_path()) as data_file:
             data = json.load(data_file)
@@ -104,6 +122,7 @@ class DailPredictor:
                 for sql in sqls:
                     sql = " ".join(sql.replace("\n", " ").split())
                     sql = process_duplication(sql)
+                    sql = self.process_gpt_4o_mini_sql(sql)
                     if sql.startswith("SELECT"):
                         pass
                     elif sql.startswith(" "):
@@ -120,9 +139,5 @@ class DailPredictor:
                 results.extend(final_sqls)
         return results
 
-    async def ask_file(self, in_path: str, out_path: str):
-        debug_log(f"Asking GPT {in_path} ==> {out_path}")
-        if os.path.exists(out_path) and not self.conf.force:
-            debug_log(f"Output path exists: {out_path}, skip asking gpt.")
-            return
-        await self.gpt_sender.send_and_save(in_path, out_path)
+    async def ask_file(self, in_path: str, out_path: str) -> GptUsageStats:
+        return await self.gpt_sender.send_and_save(in_path, out_path)

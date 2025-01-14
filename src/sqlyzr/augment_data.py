@@ -9,6 +9,12 @@ from src.cat.statement_category import StatementCategory
 from src.cat.sub_category import SubCategory
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
+from src.sqlyzr.sqlyzr_processor import SqlyzrProcessor
+
+
+class DatasetAugmentor(SqlyzrProcessor):
+    async def run(self):
+        await augment_data(self.conf)
 
 
 def find_cats_with_low_scores(config: SQLyzrConfig) -> List[SubCategory]:

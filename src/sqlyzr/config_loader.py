@@ -1,5 +1,4 @@
 import os.path
-from dataclasses import dataclass
 from typing import Literal, List
 
 from pydantic import BaseModel
@@ -8,6 +7,7 @@ from src.configs.dataset import BIRD_SMALL, BIRD_DEV, BIRD_TRAIN, SPIDER_SMALL, 
 from src.configs.metrics import SPIDER_METRICS, BIRD_METRICS
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
+from src.sqlyzr.pipeline_config import PipelineConfig
 
 CONFIG_PATH = "conf.json"
 
@@ -24,6 +24,7 @@ class ConfigData(BaseModel):
     batch: bool = False
     gpt_usage_tier: Literal["tier1", "tier5"] = "tier1"
     force: bool = False
+    pipeline: PipelineConfig = PipelineConfig()
 
     def get_model_dataset_dir(self):
         return os.path.join(self.data_dir, f"{self.model}_{self.dataset}_{self.dataset_size}")
@@ -87,7 +88,8 @@ def load_config() -> SQLyzrConfig:
         error_threshold=conf_data.error_threshold,
         aug_per_sub_cat=conf_data.aug_per_sub_cat,
         model=conf_data.model,
-        rel_dir=conf_data.get_rel_dir()
+        rel_dir=conf_data.get_rel_dir(),
+        pipeline=conf_data.pipeline
     )
 
     return conf

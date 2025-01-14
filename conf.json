@@ -7,8 +7,15 @@
     0.0
   ],
   "itrs": 2,
-  "model": "din",
+  "model": "dail",
   "gpt_usage_tier": "tier1",
   "batch": false,
-  "force": false
+  "force": false,
+  "pipeline": {
+    "verify": true,
+    "predict": true,
+    "eval": true,
+    "transformers": true,
+    "augment": true
+  }
 }

@@ -7,7 +7,13 @@ from src.configs.sqlyzr import SQLyzrConfig
 from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
 from src.eval.model_eval_config import ModelEvalConfig
+from src.sqlyzr.sqlyzr_processor import SqlyzrProcessor
 from src.util.logger import log
+
+
+class DatasetValidator(SqlyzrProcessor):
+    async def run(self):
+        validate_dataset(self.conf)
 
 
 def validate_dataset(conf: SQLyzrConfig):

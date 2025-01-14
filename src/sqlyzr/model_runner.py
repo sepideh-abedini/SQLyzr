@@ -4,12 +4,18 @@ from abc import ABC, abstractmethod
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import SingleRunConfig
+from src.sqlyzr.sqlyzr_processor import SqlyzrProcessor
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.dail_pred import DailPredictor
 from src.third_party.din.config import DinConfig
 from src.third_party.din.din_pred import DinPredictor
 from src.util.logger import log
 from src.util.system_utils import ProcessUsage
+
+
+class SqlPredictor(SqlyzrProcessor):
+    async def run(self):
+        await run_model(self.conf)
 
 
 class ModelRunner(ABC):
