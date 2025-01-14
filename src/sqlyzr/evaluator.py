@@ -5,10 +5,12 @@ from tqdm import tqdm
 
 from src.cat.catter import Catter
 from src.configs.eval import DIN_SPIDER_SMALL_EVAL
+from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.lib import confidence_level_interval
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
 from src.parse.parser import SqlParser
+from src.util.logger import debug_log
 
 
 def get_pred_gold_db_id(pred_path, gold_path):
@@ -22,9 +24,10 @@ def get_pred_gold_db_id(pred_path, gold_path):
     return rows
 
 
-def calc_scores(config: ModelEvalConfig):
-    if not config.force and os.path.exists(config.get_raw_scores_path()):
-        print(f"Raw scores exists: {config.get_raw_scores_path()}, skipping calculation.")
+def calc_scores(sqlyzr_conf: SQLyzrConfig):
+    config = sqlyzr_conf.eval_conf
+    if os.path.exists(config.get_raw_scores_path()):
+        debug_log(f"Raw scores exists: {config.get_raw_scores_path()}, skipping calculation.")
         return
 
     catter = Catter()
@@ -57,8 +60,11 @@ def calc_scores(config: ModelEvalConfig):
         df = pd.concat([df, ti_df])
     df.to_csv(config.get_raw_scores_path())
 
+    log("Score calculation finished!")
 
-def post_process_scores(config: ModelEvalConfig):
+
+def post_process_scores(sqlyzr_conf: SQLyzrConfig):
+    config = sqlyzr_conf.eval_conf
     df = pd.read_csv(config.get_raw_scores_path(), index_col=0)
     df['count'] = 1
 

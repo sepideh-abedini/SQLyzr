@@ -18,7 +18,3 @@ BIRD_METRICS = {
     # RelaxedExecAcc("rea", config.dataset_config),
 }
 
-METRICS = {
-    "spider": SPIDER_METRICS,
-    "bird": BIRD_METRICS
-}

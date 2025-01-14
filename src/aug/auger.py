@@ -17,7 +17,7 @@ from src.eval.dataset_config import DatasetConfig
 from src.gpt.gpt_from_file_sender import GptFormattedSingleSender, GptFromFileSender
 from src.gpt.gpt_utils import process_formatted_responses
 from src.gpt.models import BatchInputRequest
-from src.util.logger import log
+from src.util.logger import log, debug_log
 from src.util.schema_repo import DatabaseSchemaRepo
 
 
@@ -38,9 +38,9 @@ class Auger:
     catter: Catter
 
     def __init__(self, sqlyzr_config: SQLyzrConfig, sub_cats: List[SubCategory], conf=DEFAULT_CONF):
-        self.out = sqlyzr_config.aug_out
+        self.out = sqlyzr_config.get_aug_out()
         self.sqlyzr_conf = sqlyzr_config
-        self.conf = conf
+        self.conf = AugerConf(sqlyzr_config.aug_dir)
         self.sub_cats = sub_cats
         self.catter = Catter()
         self.gpt_sender = GptFormattedSingleSender(TextSqlPair)
@@ -84,9 +84,9 @@ class Auger:
         file.close()
 
     async def ask_file(self, in_path: str, out_path: str):
-        print(f"Asking GPT {in_path} ==> {out_path}")
+        debug_log(f"Asking GPT {in_path} ==> {out_path}")
         if os.path.exists(out_path) and not self.force:
-            log(f"Output path exists: {out_path}, skip asking gpt.")
+            debug_log(f"Output path exists: {out_path}, skip asking gpt.")
             return
         await self.gpt_sender.send_and_save(in_path, out_path)
 
@@ -103,7 +103,7 @@ class Auger:
 
     async def run(self):
         conf = self.conf
-        self.generate_batch_file(conf.gen_in)
-        await self.ask_file(conf.gen_in, conf.gen_out)
-        resps = process_formatted_responses(conf.gen_out, TextSqlPair, self.process_response)
+        self.generate_batch_file(conf.get_aug_in())
+        await self.ask_file(conf.get_aug_in(), conf.get_aug_out())
+        resps = process_formatted_responses(conf.get_aug_out(), TextSqlPair, self.process_response)
         self.save_results(resps)

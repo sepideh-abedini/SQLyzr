@@ -1,0 +1,14 @@
+{
+  "aug_per_sub_cat": 2,
+  "error_threshold": 101,
+  "dataset": "spider",
+  "dataset_size": "small",
+  "temps": [
+    0.0
+  ],
+  "itrs": 2,
+  "model": "din",
+  "gpt_usage_tier": "tier1",
+  "batch": false,
+  "force": false
+}

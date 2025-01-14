@@ -15,7 +15,6 @@ class ModelEvalConfig:
     pred_dir: str
     dataset_config: DatasetConfig
     metrics: Dict[str, Type[Metric]]
-    force: bool = False
 
     def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, dataset_config: DatasetConfig,
                  metrics: Dict[str, Type[Metric]]):

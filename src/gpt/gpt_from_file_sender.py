@@ -11,14 +11,14 @@ from src.gpt.gpt_gateway import GptGateway, FormattedGptGateway
 from src.gpt.gpt_usage_stats import GptUsageStats
 from src.gpt.models import BatchInputRequest
 from src.gpt.sqlyzr_chat_completion import SqlyzrChatCompletion
-from src.util.logger import log
+from src.util.logger import log, debug_log
 
 
 class GptFromFileSender(ABC):
     async def send_and_save(self, in_path: str, out_path: str) -> GptUsageStats:
-        print(f"Asking GPT {in_path} ==> {out_path}")
+        debug_log(f"Asking GPT {in_path} ==> {out_path}")
         if os.path.exists(out_path):
-            log(f"Output path exists: {out_path}, skip asking gpt.")
+            debug_log(f"Output path exists: {out_path}, skip asking gpt.")
         else:
             responses = await self.send_from_file(in_path)
             self.save_to_file(responses, out_path)

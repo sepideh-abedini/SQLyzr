@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from src.gpt.gpt_tracker import GptUsageTracker
 from src.gpt.models import BatchInputRequest
 from src.gpt.sqlyzr_chat_completion import SqlyzrChatCompletion
+from src.util.logger import log
 
 
 class GptGatewayException(Exception):
@@ -45,16 +46,16 @@ class GptGateway:
         self.tracker = GptUsageTracker.get_instance()
 
     async def send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
-        print("Sending GPT Request")
+        log("Sending GPT Request")
         result = await self.client.chat.completions.create(
             **request.body.dict()
         )
-        print("Received GPT Response")
+        log("Received GPT Response")
         return result
 
     @backoff.on_exception(backoff.constant, interval=10, max_tries=5, exception=GptRateLimitException)
     async def track_and_send(self, request: BatchInputRequest) -> SqlyzrChatCompletion:
-        print(f"Sending [{request.custom_id}]")
+        log(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()
         can_send = await self.tracker.check_limit(tokens)
         if can_send:

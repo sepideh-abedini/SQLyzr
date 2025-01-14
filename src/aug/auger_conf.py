@@ -1,17 +1,26 @@
+import os.path
 from dataclasses import dataclass
 
 
 @dataclass
 class AugerConf:
-    gen_in: str
-    gen_out: str
-    num_examples: int
-    model: str
+    aug_dir: str
+    num_examples: int = 1
+    model: str = "gpt-4o-mini"
+    gen_in: str = "gen.in.jsonl"
+    gen_out: str = "gen.out.jsonl"
+
+    def get_aug_in(self):
+        return os.path.join(self.aug_dir, self.gen_in)
+
+    def get_aug_out(self):
+        return os.path.join(self.aug_dir, self.gen_out)
 
 
 DEFAULT_CONF = AugerConf(
-    gen_in="data/aug/gen.in.jsonl",
-    gen_out="data/aug/gen.out.jsonl",
+    aug_dir="data/aug",
+    gen_in="gen.in.jsonl",
+    gen_out="gen.out.jsonl",
     num_examples=1,
     model="gpt-4o-mini"
 )

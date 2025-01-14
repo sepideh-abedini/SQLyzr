@@ -9,7 +9,7 @@ from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.data_preprocess import schema_linking_producer
 from src.third_party.dail.generate_question import generate_questions
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
-from src.util.logger import log
+from src.util.logger import log, debug_log
 
 BatchRequestGenerator = Callable[[int, str, str], BatchInputRequest]
 
@@ -121,8 +121,8 @@ class DailPredictor:
         return results
 
     async def ask_file(self, in_path: str, out_path: str):
-        print(f"Asking GPT {in_path} ==> {out_path}")
+        debug_log(f"Asking GPT {in_path} ==> {out_path}")
         if os.path.exists(out_path) and not self.conf.force:
-            log(f"Output path exists: {out_path}, skip asking gpt.")
+            debug_log(f"Output path exists: {out_path}, skip asking gpt.")
             return
         await self.gpt_sender.send_and_save(in_path, out_path)
