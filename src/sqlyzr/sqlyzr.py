@@ -28,6 +28,5 @@ class Sqlyzr:
             await find_transformers(self.conf)
             post_process_transformers(self.conf)
 
-
         if self.conf.pipeline.augment:
             await augment_data(self.conf)

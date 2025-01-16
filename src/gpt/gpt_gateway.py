@@ -19,7 +19,7 @@ class GptGatewayException(Exception):
 
 
 class GptRateLimitException(GptGatewayException):
-    def __init__(self, msg = ""):
+    def __init__(self, msg=""):
         super().__init__("Token limit hit! " + msg)
 
 

@@ -1,8 +1,9 @@
 import asyncio
+import os
 from asyncio import Lock
 from typing import List
 
-from src.gpt.gpt_limits import GptRateLimits
+from src.gpt.gpt_limits import GptRateLimits, LIMITS
 from src.gpt.gpt_usage import GptUsage
 from src.util.logger import debug_log, log
 
@@ -20,7 +21,7 @@ class GptUsageTracker:
         self.__usage = []
         self.total_tokens = 0
         self.lock = asyncio.Lock()
-        self.limits = GptRateLimits()
+        self.limits = LIMITS[os.environ.get("OPENAI_USAGE_TIER", "tier1")]
         self.reqs = 0
 
     async def check_limit(self, tokens: int):

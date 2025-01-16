@@ -8,7 +8,7 @@ class LogLevel(Enum):
     DEBUG = 1
 
 
-LOG_LEVEL = LogLevel[os.environ.get("LOG_LEVEL", "INFO")]
+LOG_LEVEL = LogLevel[os.environ.get("LOG_LEVEL", "INFO").upper()]
 
 
 def log(msg, msg_level: LOG_LEVEL = LogLevel.INFO):
