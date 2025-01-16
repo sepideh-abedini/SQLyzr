@@ -4,7 +4,7 @@ from typing import List
 
 from src.gpt.gpt_limits import GptRateLimits
 from src.gpt.gpt_usage import GptUsage
-from src.util.logger import debug_log
+from src.util.logger import debug_log, log
 
 
 class GptUsageTracker:
@@ -29,9 +29,11 @@ class GptUsageTracker:
             self.__update_total_tokens()
             debug_log(f"Checking Token Limit: {tokens}+{self.total_tokens}/{self.limits.tokens_per_min}")
             if tokens + self.total_tokens > self.limits.tokens_per_min:
+                log(f"Exceeding token limit: {tokens}+{self.total_tokens}/{self.limits.tokens_per_min}")
                 return False
             debug_log(f"Checking RPM Limit: {self.reqs}/{self.limits.req_per_min}")
             if self.reqs + 1 >= self.limits.req_per_min:
+                log(f"Exceeding RPM limit: {self.reqs}/{self.limits.req_per_min}")
                 return False
             return True
         finally:

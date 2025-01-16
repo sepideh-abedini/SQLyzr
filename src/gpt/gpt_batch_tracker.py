@@ -62,13 +62,14 @@ class BatchTracker:
             self.batch_tokens.pop(bid)
 
     def should_count(self, batch: Batch) -> bool:
+        #  Never started                Being initialized
         if not batch.in_progress_at and batch.status != "validating":
             return False
         return True
 
     def total_tokens(self) -> int:
         cur_batches = self.batch_client.list_cur_batches()
-        cur_batches = filter(self.should_count, cur_batches)
+        cur_batches = list(filter(self.should_count, cur_batches))
         tokens = 0
         max_tokens = max(self.batch_tokens.values(), default=0)
         for batch in cur_batches:
@@ -83,6 +84,8 @@ class BatchTracker:
         total_tokens = self.total_tokens()
         new_total = tokens + total_tokens
         debug_log(f"Checking Token Limit: {tokens}+{total_tokens} = {new_total} /{self.limits.batch_tokens_per_day}")
+        if new_total > self.limits.batch_tokens_per_day:
+            log(f"Exceeding token limit: {tokens}+{total_tokens} = {new_total} /{self.limits.batch_tokens_per_day}")
         return new_total > self.limits.batch_tokens_per_day
 
     async def init_batch(self, in_path):

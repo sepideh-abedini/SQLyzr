@@ -19,8 +19,8 @@ class GptGatewayException(Exception):
 
 
 class GptRateLimitException(GptGatewayException):
-    def __init__(self):
-        super().__init__("Token limit hit!")
+    def __init__(self, msg = ""):
+        super().__init__("Token limit hit! " + msg)
 
 
 class GptBatchNotCompletedException(GptGatewayException):
@@ -41,7 +41,7 @@ class GptGateway:
         self.client = AsyncClient(
             organization=os.getenv("OPENAI_GROUP_ID"),
             project=os.getenv("OPENAI_PROJ_ID"),
-            timeout=5
+            timeout=20
         )
         self.tracker = GptUsageTracker.get_instance()
 
@@ -53,7 +53,7 @@ class GptGateway:
         debug_log("Received GPT Response")
         return result
 
-    @backoff.on_exception(backoff.constant, interval=10, max_tries=5, exception=GptRateLimitException)
+    @backoff.on_exception(backoff.constant, interval=30, max_tries=100, exception=GptRateLimitException)
     async def track_and_send(self, request: BatchInputRequest) -> SqlyzrChatCompletion:
         debug_log(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()

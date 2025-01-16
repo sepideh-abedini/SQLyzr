@@ -13,19 +13,22 @@ class ModelEvalConfig:
     run_confs: Dict[float, List[SingleRunConfig]]
     eval_dir: str
     pred_dir: str
+    trs_dir: str
     dataset_config: DatasetConfig
     metrics: Dict[str, Type[Metric]]
 
-    def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, dataset_config: DatasetConfig,
+    def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str,
+                 dataset_config: DatasetConfig,
                  metrics: Dict[str, Type[Metric]], batch: bool):
         self.pred_dir = pred_dir
         self.eval_dir = eval_dir
+        self.trs_dir = trs_dir
         self.run_confs = {}
         self.dataset_config = dataset_config
         for temp, itr in product(temps, range(num_itrs)):
             conf = SingleRunConfig(dataset_config=dataset_config,
                                    pred_dir=pred_dir,
-                                   eval_dir=eval_dir,
+                                   trs_dir=trs_dir,
                                    temp=temp,
                                    itr=itr,
                                    batch=batch)
@@ -46,3 +49,6 @@ class ModelEvalConfig:
 
     def get_metric_names(self):
         return list(self.metrics.keys())
+
+    def get_trs_result_path(self):
+        return os.path.join(self.trs_dir, f"trs.csv")

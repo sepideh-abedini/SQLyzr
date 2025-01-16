@@ -32,6 +32,7 @@ class TagExtractor:
 
         tags = TagCollectorResult()
         for collector in collectors:
-            tags += ast.accept(collector)
+            if ast is not None:
+                tags += ast.accept(collector)
 
         return tags

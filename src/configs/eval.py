@@ -3,11 +3,11 @@ from src.configs.metrics import SPIDER_METRICS
 from src.eval.metrics import ExactMatch, Count, ExecAcc
 from src.eval.model_eval_config import ModelEvalConfig
 
-
 DIN_SPIDER_SMALL_EVAL = ModelEvalConfig(
     temps=[0.0],
     num_itrs=3,
     pred_dir="data/small_din",
+    trs_dir="data/trs",
     eval_dir="data/ev",
     dataset_config=SPIDER_SMALL,
     metrics=SPIDER_METRICS,
@@ -20,6 +20,7 @@ DIN_SPIDER_DEV_EVAL = ModelEvalConfig(
     # num_itrs=3,
     num_itrs=2,
     pred_dir="data/din",
+    trs_dir="data/trs",
     eval_dir="data/ev",
     dataset_config=SPIDER_DEV,
     metrics=SPIDER_METRICS,
@@ -30,6 +31,7 @@ DAIL_SPIDER_SMALL_EVAL = ModelEvalConfig(
     temps=[0.0],
     num_itrs=3,
     pred_dir="data/dail",
+    trs_dir="data/trs",
     eval_dir="data/ev",
     dataset_config=SPIDER_SMALL,
     metrics=SPIDER_METRICS,
@@ -40,6 +42,7 @@ DAIL_SPIDER_DEV_EVAL = ModelEvalConfig(
     temps=[0.0],
     num_itrs=3,
     pred_dir="data/dail",
+    trs_dir="data/trs",
     eval_dir="data/ev",
     dataset_config=SPIDER_DEV,
     metrics=SPIDER_METRICS,
@@ -50,6 +53,7 @@ DIN_BIRD_SMALL_EVAL = ModelEvalConfig(
     temps=[0.0],
     num_itrs=3,
     pred_dir="data/din",
+    trs_dir="data/trs",
     eval_dir="data/ev",
     dataset_config=BIRD_SMALL,
     metrics=SPIDER_METRICS,
@@ -60,6 +64,7 @@ DIN_BIRD_DEV_EVAL = ModelEvalConfig(
     temps=[0.0],
     num_itrs=3,
     pred_dir="data/din",
+    trs_dir="data/trs",
     eval_dir="data/ev",
     dataset_config=BIRD_DEV,
     metrics=SPIDER_METRICS,

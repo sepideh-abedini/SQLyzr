@@ -15,7 +15,6 @@ class SQLyzrConfig:
     model: Literal["din", "dail"]
     aug_dir: str
     error_threshold: float
-    rel_dir: str
     aug_per_sub_cat: int = 2
     pipeline: PipelineConfig = PipelineConfig
 
@@ -28,7 +27,6 @@ DIN_SPIDER_SMALL = SQLyzrConfig(
     aug_dir="data/aug",
     error_threshold=101,
     model="din",
-    rel_dir="data/rel"
 )
 
 DIN_SPIDER_DEV = SQLyzrConfig(
@@ -36,7 +34,6 @@ DIN_SPIDER_DEV = SQLyzrConfig(
     aug_dir="data/aug",
     error_threshold=80,
     model="dail",
-    rel_dir="data/rel"
 )
 
 DAIL_SPIDER_SMALL = SQLyzrConfig(
@@ -44,7 +41,6 @@ DAIL_SPIDER_SMALL = SQLyzrConfig(
     aug_dir="data/aug",
     error_threshold=80,
     model="dail",
-    rel_dir="data/rel"
 )
 
 DAIL_SPIDER_DEV = SQLyzrConfig(
@@ -52,7 +48,6 @@ DAIL_SPIDER_DEV = SQLyzrConfig(
     aug_dir="data/aug",
     error_threshold=80,
     model="dail",
-    rel_dir="data/rel"
 )
 
 DIN_BIRD_SMALL = SQLyzrConfig(
@@ -60,7 +55,6 @@ DIN_BIRD_SMALL = SQLyzrConfig(
     aug_dir="data/aug",
     error_threshold=80,
     model="din",
-    rel_dir="data/rel"
 )
 
 DIN_BIRD_DEV = SQLyzrConfig(
@@ -68,5 +62,4 @@ DIN_BIRD_DEV = SQLyzrConfig(
     aug_dir="data/aug",
     error_threshold=80,
     model="din",
-    rel_dir="data/rel"
 )

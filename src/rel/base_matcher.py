@@ -7,7 +7,7 @@ from src.rel.result_transformer import ResultTransformer
 from src.rel.sql_data import SqlInputData, SqlParsedData, SqlExecResult
 from src.rel.sql_processor import ResultMatcher, SqlMatchingProcessor
 from src.rel.sql_transformer import SqlTransformer
-from src.util.logger import log
+from src.util.logger import log, debug_log
 
 
 class Matcher:
@@ -69,12 +69,12 @@ class Matcher:
             if result:
                 break
         if old_pred_exec.res != old_gold_exec.res and result:
-            log(f"new_pred: {pred_exec.sql}")
-            log(f"new_gold: {gold_exec.sql}")
-            log(f"old_pres: {pred_exec.res}")
-            log(f"old_gres: {gold_exec.res}")
-            log(f"pres: {old_pred_exec.res}")
-            log(f"gres: {old_gold_exec.res}")
+            debug_log(f"new_pred: {pred_exec.sql}")
+            debug_log(f"new_gold: {gold_exec.sql}")
+            debug_log(f"old_pres: {pred_exec.res}")
+            debug_log(f"old_gres: {gold_exec.res}")
+            debug_log(f"pres: {old_pred_exec.res}")
+            debug_log(f"gres: {old_gold_exec.res}")
         return result
 
     def get_result(self, data: SqlInputData):

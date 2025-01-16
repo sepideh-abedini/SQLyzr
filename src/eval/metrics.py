@@ -1,4 +1,3 @@
-import asyncio
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -8,10 +7,10 @@ from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.eval.lib import exec_sql
 from src.eval.single_run_config import SingleRunConfig
-from src.rel.base_matcher import SubsetMatcher, ExtraColumnRemoverMatcher
+from src.rel.base_matcher import ExtraColumnRemoverMatcher
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
-from src.rel.sql_transformer import LimitRemoverTransformer, LiteralCorrectorTransformer, ColCorrectorTransformer
+from src.rel.sql_transformer import LiteralCorrectorTransformer
 from src.rel.transformer_detector import TransformerDetector
 from src.third_party.spider.evaluation import get_spider_exact_match
 from src.util.logger import log
@@ -23,7 +22,7 @@ class Metric(ABC):
     conf: DatasetConfig
 
     @abstractmethod
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    async def calc(self, gold: str, pred: str, db_id: str) -> int:
         pass
 
 
@@ -32,12 +31,12 @@ class StatMetric(ABC):
     name: str
 
     @abstractmethod
-    def calc(self, run_conf: SingleRunConfig) -> int:
+    async def calc(self, run_conf: SingleRunConfig) -> int:
         pass
 
 
 class ExactMatch(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    async def calc(self, gold: str, pred: str, db_id: str) -> int:
         parser = ExactMatchParser(self.conf.get_tables_path())
         try:
             gold_parser = parser.parse(gold, db_id)
@@ -51,21 +50,21 @@ class ExactMatch(Metric):
 
 class TokenUsage(StatMetric):
 
-    def calc(self, run_conf: SingleRunConfig) -> int:
+    async def calc(self, run_conf: SingleRunConfig) -> int:
         with open(run_conf.get_stats_path()) as file:
             data = json.load(file)
             return int(data["total_tokens"])
 
 
 class SpiderExactMatch(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    async def calc(self, gold: str, pred: str, db_id: str) -> int:
         score = get_spider_exact_match(pred, f"{gold}\t{db_id}", self.conf.get_db_path(),
                                        self.conf.get_tables_path())
         return score
 
 
 class ExecAcc(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    async def calc(self, gold: str, pred: str, db_id: str) -> int:
         db_file_path = self.conf.get_db_file_path(db_id)
         gold_sql_exec_res = exec_sql(db_file_path, gold)
         pred_sql_exec_res = exec_sql(db_file_path, pred)
@@ -77,7 +76,7 @@ class ExecAcc(Metric):
 
 
 class GoldNotEmpty(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    async def calc(self, gold: str, pred: str, db_id: str) -> int:
         db_file_path = self.conf.get_db_file_path(db_id)
         gold_sql_exec_res = exec_sql(db_file_path, gold)
         if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
@@ -109,12 +108,12 @@ class RelaxedExecAcc(Metric):
 
 class Count(Metric):
 
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    async def calc(self, gold: str, pred: str, db_id: str) -> int:
         return 1
 
 
 class TotalExecTime(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    async def calc(self, gold: str, pred: str, db_id: str) -> int:
         db_file_path = self.conf.get_db_file_path(db_id)
         timer = lib.Timer()
         timer.start()

@@ -45,6 +45,9 @@ class DailPredictor:
             file.write(json.dumps(stats.__dict__, indent=4))
 
     async def run(self):
+        if os.path.exists(self.conf.run_conf.get_pred_path()):
+            return
+
         usage = GptUsageStats()
 
         schema_linking_producer(self.conf)

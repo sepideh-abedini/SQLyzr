@@ -1,3 +1,4 @@
+import json
 import os
 
 import pandas as pd
@@ -15,7 +16,7 @@ from src.util.logger import debug_log
 
 class ScoreCalculator(SqlyzrProcessor):
     async def run(self):
-        calc_scores(self.conf)
+        # calc_scores(self.conf)
         post_process_scores(self.conf)
 
 
@@ -30,7 +31,7 @@ def get_pred_gold_db_id(pred_path, gold_path):
     return rows
 
 
-def calc_scores(sqlyzr_conf: SQLyzrConfig):
+async def calc_scores(sqlyzr_conf: SQLyzrConfig):
     config = sqlyzr_conf.eval_conf
     if os.path.exists(config.get_raw_scores_path()):
         debug_log(f"Raw scores exists: {config.get_raw_scores_path()}, skipping calculation.")
@@ -56,7 +57,7 @@ def calc_scores(sqlyzr_conf: SQLyzrConfig):
             for metric in metrics:
                 # if past:
                 try:
-                    score = metric.calc(gold, pred, db_id)
+                    score = await metric.calc(gold, pred, db_id)
                 except Exception as e:
                     log(e)
                     score = 0
@@ -81,6 +82,15 @@ def post_process_scores(sqlyzr_conf: SQLyzrConfig):
     all_cats = df.groupby(['tmp', 'itr'], as_index=False).sum()
     all_cats['cat'] = 'all'
     all_cats['sub_cat'] = 'all'
+    for run_conf in sqlyzr_conf.eval_conf.get_run_confs():
+        with open(run_conf.get_stats_path()) as file:
+            usage_stats = json.load(file)
+        # with open(run_conf.get_util_path()) as file:
+        #     utils_stats = json.load(file)
+        all_stats = usage_stats
+        all_cats.loc[
+            (all_cats['tmp'] == run_conf.temp) & (all_cats['itr'] == run_conf.itr), all_stats.keys()] = all_stats.values()
+
     all_cats.to_csv(config.get_scores_path("_all_cats"))
     #
     combined = pd.concat([all_cats, all_sub_cats, df], join='inner', ignore_index=True)

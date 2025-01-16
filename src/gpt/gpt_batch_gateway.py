@@ -32,6 +32,7 @@ def on_rate_limit(details):
 
 
 def on_failed(details):
+    log(details)
     log(f"Batch failed, retrying!")
 
 
@@ -121,13 +122,17 @@ class GptBatchGateway:
             debug_log(f"[{info.in_path}]:\tOut file exists")
         else:
             batch = await self.retrieve_batch(info)
-            log(f"\rBatch [{basename(info.in_path)}]: \t Completion: {batch.request_counts.completed}/{batch.request_counts.total}")
+            log(f"\rBatch [{basename(info.in_path)}]: \t Status: {batch.status} Completion: {batch.request_counts.completed}/{batch.request_counts.total}")
             status = batch.status
             if status != "completed":
                 if status == "failed":
                     batch_id = info.get_value("bid")
                     info.set_value("bid", None)
                     raise GptBatchFailedException(f"Batch job failed for {info.in_path} ==> {batch_id}")
+                elif status == "expired":
+                    batch_id = info.get_value("bid")
+                    info.set_value("bid", None)
+                    raise GptBatchFailedException(f"Batch expired for {info.in_path} ==> {batch_id}")
                 else:
                     raise GptBatchNotCompletedException()
             log(f"Batch {basename(info.in_path)} completed!")
@@ -176,7 +181,7 @@ class GptBatchGateway:
 
         await self.create_batch_if_not_exist(info)
 
-        await self.update_tokens_usage(info)
+        # await self.update_tokens_usage(info)
 
         await self.retrieve_out_file_id(info)
 

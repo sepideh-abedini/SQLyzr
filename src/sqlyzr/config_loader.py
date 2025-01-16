@@ -38,8 +38,8 @@ class ConfigData(BaseModel):
     def get_eval_dir(self):
         return os.path.join(self.get_model_dataset_dir(), "eval")
 
-    def get_rel_dir(self):
-        return os.path.join(self.get_model_dataset_dir(), "rel")
+    def get_trs_dir(self):
+        return os.path.join(self.get_model_dataset_dir(), "trs")
 
     @staticmethod
     def load():
@@ -69,7 +69,7 @@ METRICS = {
 def load_config() -> SQLyzrConfig:
     conf_data = ConfigData.load()
     dataset_conf = DATASETS[conf_data.dataset][conf_data.dataset_size]
-    dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_rel_dir()]
+    dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir()]
     for d in dirs:
         if conf_data.force:
             os.rmdir(d)
@@ -79,6 +79,7 @@ def load_config() -> SQLyzrConfig:
         num_itrs=conf_data.itrs,
         pred_dir=conf_data.get_pred_dir(),
         eval_dir=conf_data.get_eval_dir(),
+        trs_dir=conf_data.get_trs_dir(),
         dataset_config=dataset_conf,
         metrics=METRICS[conf_data.dataset],
         batch=conf_data.batch
@@ -89,7 +90,6 @@ def load_config() -> SQLyzrConfig:
         error_threshold=conf_data.error_threshold,
         aug_per_sub_cat=conf_data.aug_per_sub_cat,
         model=conf_data.model,
-        rel_dir=conf_data.get_rel_dir(),
         pipeline=conf_data.pipeline
     )
 
