@@ -2,6 +2,7 @@ import datetime
 import math
 import sqlite3
 import subprocess
+from loguru import logger
 
 import pandas as pd
 
@@ -41,6 +42,7 @@ def exec_sql(db_path, sql):
         res = cursor.fetchall()
         return res
     except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
+        logger.error(e)
         return None
 
 

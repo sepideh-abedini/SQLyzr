@@ -68,8 +68,11 @@ class ExecAcc(Metric):
         db_file_path = self.conf.get_db_file_path(db_id)
         gold_sql_exec_res = exec_sql(db_file_path, gold)
         pred_sql_exec_res = exec_sql(db_file_path, pred)
-        result = (gold_sql_exec_res and pred_sql_exec_res) and (pred_sql_exec_res == gold_sql_exec_res)
-        if result:
+        if gold_sql_exec_res is None:
+            raise RuntimeError("Gold result is None!")
+        if pred_sql_exec_res is None:
+            return 0
+        if pred_sql_exec_res == gold_sql_exec_res:
             return 1
         else:
             return 0

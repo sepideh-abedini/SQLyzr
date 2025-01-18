@@ -1,39 +1,56 @@
-import asyncio
 import os
-import time
-from datetime import datetime, timedelta
+import os
+
 import psutil
-from progress.spinner import Spinner, PieSpinner, MoonSpinner, PixelSpinner
+from loguru import logger
 
-from resource import getrusage, RUSAGE_SELF
-
-from src.cat.categorizer import Categorizer
-from src.cat.catter import Catter
-from src.cat.tag_extractor import TagExtractor
-from src.cat.tags.structure import StructureType
+import bar
 from src.configs.dataset import SPIDER_DEV
-from src.eval.lib import Timer
-from src.gpt.gpt_batch_gateway import GptBatchGateway
-from src.gpt.gpt_client import GptBatchClient
-from src.gpt.gpt_from_file_sender import GptSingleSender
-from src.gpt.gpt_gateway import GptGateway
-from src.gpt.models import BatchInputRequest
-from src.parse.graph_drawer import draw_graph
-from src.parse.parser import SqlParser
+from src.configs.eval import DIN_SPIDER_DEV_EVAL
+from src.eval.metrics import ExecAcc, GoldNotEmpty
 from src.rel.base_matcher import SubsetMatcher
-from src.rel.db_facade import DatabaseFacade
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
-from src.rel.sql_transformer import LimitRemoverTransformer, AddLimitTransformer, LiteralCorrectorTransformer, \
+from src.rel.sql_transformer import AddLimitTransformer, LiteralCorrectorTransformer, \
     ColCorrectorTransformer
 from src.rel.transformer_detector import TransformerDetector
-from src.util.system_utils import ProcessUsage
+from src.sqlyzr.transformer_eval import calc_rea_score
 
-# time.sleep(3)
-# print(getrusage(RUSAGE_SELF))
-from progress.bar import Bar
-import time
+logger.error("Failed to connect to the database.")
+bar.baz()
 
+exit(0)
+
+gold_str = "SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000"
+pred_str = "SELECT Location, Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000;"
+
+
+async def main():
+    db_id = "concert_singer"
+    ea = ExecAcc("ea", SPIDER_DEV)
+    gne = GoldNotEmpty("gne", SPIDER_DEV)
+    detector = TransformerDetector(SPIDER_DEV, [
+        AddLimitTransformer(),
+        LiteralCorrectorTransformer(),
+        ColCorrectorTransformer(),
+        IgnoreListOrderTransformer(),
+        IgnoreColOrderTransformer(),
+        SubsetMatcher()
+    ])
+    pred = SqlInputData(db_id, pred_str)
+    gold = SqlInputData(db_id, gold_str)
+    working_sub = await detector.find_working_sub_sync(pred, gold)
+    rea_score = calc_rea_score(working_sub, DIN_SPIDER_DEV_EVAL)
+    ea_score = await ea.calc(gold_str, pred_str, db_id)
+    gold_is_empty = 1 - await gne.calc(gold_str, pred_str, db_id)
+    print(rea_score)
+    print(ea_score)
+    print(gold_is_empty)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
+    exit(0)
 # Initialize the progress bar
 spinner = PixelSpinner('Loading ')
 for i in range(20):

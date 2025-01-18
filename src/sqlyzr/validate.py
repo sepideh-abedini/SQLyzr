@@ -6,6 +6,7 @@ from src.cat.catter import Catter
 from src.configs.sqlyzr import SQLyzrConfig
 from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
+from src.eval.lib import exec_sql
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.sqlyzr_processor import SqlyzrProcessor
 from src.util.logger import log
@@ -16,19 +17,23 @@ class DatasetValidator(SqlyzrProcessor):
         validate_dataset(self.conf)
 
 
-def validate_dataset(conf: SQLyzrConfig):
+def validate_dataset(conf: SQLyzrConfig, output: str):
     catter = Catter()
     errors = []
     total = 0
+    valid_examples = []
     with open(conf.eval_conf.dataset_config.get_data_path()) as file:
         data = json.load(file)
         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
                              desc=f"Validating dataset: {conf.eval_conf.dataset_config.dataset_dir}"):
             example = SpiderExample.model_validate(entry)
             cat = catter.get_category(example.query)
-            total += 1
-            if cat is None:
+            exec_res = exec_sql(conf.eval_conf.dataset_config.get_db_file_path(example.db_id), example.query)
+            if exec_res is None or cat is None:
                 errors.append((i, example.query))
+            else:
+                valid_examples.append(entry)
+            total += 1
 
     with open(f"{conf.eval_conf.dataset_config.get_data_path()}.err", "w") as errors_file:
         for error in errors:
@@ -38,6 +43,9 @@ def validate_dataset(conf: SQLyzrConfig):
         log(f"Num dataset errors: {len(errors)}/{total}")
     else:
         log("Dataset is valid!")
+
+    with open(output, "w") as out_file:
+        out_file.write(json.dumps(valid_examples, indent=True))
 
 
 def validate_preds(conf: ModelEvalConfig):
