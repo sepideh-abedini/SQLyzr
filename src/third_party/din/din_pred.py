@@ -1,54 +1,15 @@
-import json
 import re
-from abc import ABC
-from typing import List, Callable
-
-import pandas as pd
+from typing import List
 
 from src.eval.single_run_config import SingleRunConfig
-from src.gpt.gpt_from_file_sender import GptFromFileSender, GptBatchSender, GptSingleSender
-from src.gpt.gpt_usage_stats import GptUsageStats
+from src.gpt.gpt_from_file_sender import GptFromFileSender
 from src.gpt.models import BatchInputRequest
-from src.gpt.utils import process_responses, load_responses
+from src.gpt.utils import process_responses
 from src.parse.parser import SqlParser
+from src.pred.predictor import Predictor
 from src.third_party.din.config import DinConfig
 from src.third_party.din.prompt_maker import PromptMaker
 from src.third_party.model_stats import ModelRunStats
-
-BatchRequestGenerator = Callable[[int, str, str], BatchInputRequest]
-
-
-def load_data(input_path: str):
-    return pd.read_json(input_path)
-
-
-class Predictor(ABC):
-    run_conf: SingleRunConfig
-
-    def __init__(self, run_conf: SingleRunConfig):
-        self.run_conf = run_conf
-        self.parser = SqlParser()
-        if self.run_conf.batch:
-            self.gpt_sender = GptBatchSender()
-        else:
-            self.gpt_sender = GptSingleSender()
-
-    async def ask_file(self, in_path: str, out_path: str):
-        return await self.gpt_sender.send_and_save(in_path, out_path)
-
-    def gen_batch_file(self, file_path: str, gen_req: BatchRequestGenerator):
-        examples = load_data(self.run_conf.dataset_config.get_data_path()).to_dict("records")
-        file = open(file_path, "w")
-        for i, example in enumerate(examples):
-            db_id = example['db_id']
-            question = example['question']
-            request = gen_req(i, db_id, question)
-            file.write(f"{request.json()}\n")
-        file.close()
-
-    def create_batch_req(self, idx: str, prompt: str, extra_params):
-        extra_params['temperature'] = self.run_conf.temp
-        return BatchInputRequest.create_prompt_req(idx, prompt, extra_params)
 
 
 class DinPredictor(Predictor):
@@ -189,13 +150,6 @@ class DinPredictor(Predictor):
             result.append(sql)
         return result
 
-    @staticmethod
-    def save_sqls(out_path, sqls: List[str]):
-        file = open(out_path, 'w')
-        for sql in sqls:
-            file.write(f"{sql}\n")
-        file.close()
-
     async def run(self):
         conf = self.conf
 
@@ -227,4 +181,4 @@ class DinPredictor(Predictor):
 
         sqls = self.post_process(self.sqls)
 
-        self.save_sqls(self.run_conf.get_pred_path(), sqls)
+        self.save_sqls(sqls)

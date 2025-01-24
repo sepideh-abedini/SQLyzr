@@ -1,95 +1,58 @@
 import json
 import os
 import re
-from typing import Callable, List
+from typing import List
 
-from src.gpt.gpt_from_file_sender import GptFromFileSender, GptBatchSender, GptSingleSender
+from src.eval.single_run_config import SingleRunConfig
+from src.gpt.gpt_from_file_sender import GptFromFileSender
 from src.gpt.gpt_usage_stats import GptUsageStats
 from src.gpt.models import BatchInputRequest
 from src.gpt.utils import load_responses
+from src.pred.predictor import Predictor
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.data_preprocess import schema_linking_producer
 from src.third_party.dail.generate_question import generate_questions
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
-from src.util.logger import log, debug_log
-
-BatchRequestGenerator = Callable[[int, str, str], BatchInputRequest]
 
 
-class DailPredictor:
+class DailPredictor(Predictor):
     conf: DailConfig
     gpt_sender: GptFromFileSender
+    questions: List[str]
 
-    def __init__(self, conf: DailConfig):
-        self.conf = conf
-        if self.conf.run_conf.batch:
-            self.gpt_sender = GptBatchSender()
-        else:
-            self.gpt_sender = GptSingleSender()
+    def __init__(self, run_conf: SingleRunConfig):
+        super().__init__(run_conf)
+        self.conf = DailConfig(run_conf.get_pred_path())
 
-    def create_batch_req(self, idx: str, prompt: str, extra_params):
-        extra_params['temperature'] = self.conf.run_conf.temp
-        return BatchInputRequest.create_prompt_req(idx, self.conf.model, prompt, extra_params)
+    def gen_sql_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
+        dail_question = self.questions[i]
+        request = self.create_batch_req(f"i{i}", dail_question, self.conf.params)
+        return request
 
-    def generate_batch_file(self):
+    def load_questions(self):
         questions_json = json.load(open(self.conf.questions_path(), "r"))
-        questions = [_["prompt"] for _ in questions_json["questions"]]
-        file = open(self.conf.get_batch_path("in"), "w")
-        for i, question in enumerate(questions):
-            request = self.create_batch_req(f"i{i}", question, {"n": self.conf.self_consistent_set_size})
-            file.write(f"{request.json()}\n")
-        file.close()
-
-    def save_usage_stats(self, stats: GptUsageStats):
-        with open(self.conf.run_conf.get_stats_path(), "w") as file:
-            file.write(json.dumps(stats.__dict__, indent=4))
+        self.questions = [_["prompt"] for _ in questions_json["questions"]]
 
     async def run(self):
-        if os.path.exists(self.conf.run_conf.get_pred_path()):
+        if os.path.exists(self.run_conf.get_pred_path()):
             return
 
-        usage = GptUsageStats()
+        schema_linking_producer(self.conf, self.run_conf)
 
-        schema_linking_producer(self.conf)
+        generate_questions(self.conf, self.run_conf)
 
-        generate_questions(self.conf)
+        self.load_questions()
 
-        self.generate_batch_file()
+        self.gen_batch_file(self.conf.get_path("in"), self.gen_sql_req)
 
-        usage += await self.ask_file(self.conf.get_batch_path("in"), self.conf.get_batch_path("out"))
+        await self.ask_file(self.conf.get_path("in"), self.conf.get_path("out"))
 
-        sqls = await self.process_responses(self.conf.get_batch_path("out"))
+        sqls = await self.process_responses(self.conf.get_path("out"))
 
-        self.save_sqls(self.conf.run_conf.get_pred_path(), sqls)
+        self.save_sqls(sqls)
 
-        self.save_usage_stats(usage)
-
-    def save_sqls(self, out_path, sqls: List[str]):
-        file = open(out_path, 'w')
-        for sql in sqls:
-            file.write(f"{sql}\n")
-        file.close()
-
-    def get_token_usage(self, file_path: str):
-        token_usage = []
-        responses = load_responses(file_path)
-        for response in responses:
-            token_usage.append(response.usage.total_tokens)
-        return token_usage
-
-    def save_total_token_usage(self):
-        all_usage = []
-        for file in [
-            self.conf.get_batch_path("out")
-        ]:
-            all_usage.append(self.get_token_usage(file))
-        all_usage = [sum(usages) for usages in zip(*all_usage)]
-        out_file = open(self.conf.run_conf.get_token_path(), "w")
-        for usage in all_usage:
-            out_file.write(f"{usage}\n")
-        out_file.close()
-
-    def process_gpt_4o_mini_sql(self, content: str) -> str:
+    @staticmethod
+    def process_gpt_4o_mini_sql(content: str) -> str:
         content = content.strip()
         content = content.replace("\n", " ")
         if "SQL:" in content:
@@ -101,14 +64,14 @@ class DailPredictor:
         return content
 
     async def process_responses(self, file_path) -> List[str]:
-        with open(self.conf.run_conf.dataset_config.get_data_path()) as data_file:
+        with open(self.run_conf.dataset_config.get_data_path()) as data_file:
             data = json.load(data_file)
             db_ids = [example['db_id'] for example in data]
         responses = load_responses(file_path)
         results = []
         for i, response in enumerate(responses):
             contents = [choice.message.content for choice in response.choices]
-            if self.conf.self_consistent_set_size == 1:
+            if self.conf.params['n'] == 1:
                 for sql in contents:
                     sql = " ".join(sql.replace("\n", " ").split())
                     sql = process_duplication(sql)
@@ -137,8 +100,8 @@ class DailPredictor:
                     'db_id': db_id,
                     'p_sqls': processed_sqls
                 }
-                final_sqls = await get_sqls([result], self.conf.self_consistent_set_size,
-                                            self.conf.run_conf.dataset_config.get_db_path())
+                final_sqls = await get_sqls([result], self.conf.params['n'],
+                                            self.run_conf.dataset_config.get_db_path())
                 results.extend(final_sqls)
         return results
 

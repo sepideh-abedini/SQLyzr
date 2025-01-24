@@ -41,8 +41,7 @@ class ModelRunner(ABC):
 class DailRunner(ModelRunner):
 
     async def run_single_internal(self, run_conf: SingleRunConfig):
-        dail_conf = DailConfig(run_conf)
-        predictor = DailPredictor(dail_conf)
+        predictor = DailPredictor(run_conf)
         result = await predictor.run()
         return result
 

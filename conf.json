@@ -7,7 +7,7 @@
     0.2
   ],
   "itrs": 2,
-  "model": "din",
+  "model": "dail",
   "batch": false,
   "force": false,
   "pipeline": {

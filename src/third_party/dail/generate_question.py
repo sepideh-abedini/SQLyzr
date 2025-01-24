@@ -6,6 +6,7 @@ import os
 import sys
 import json
 
+from src.eval.single_run_config import SingleRunConfig
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.prompt.prompt_builder import prompt_factory
 from src.third_party.dail.utils.data_builder import load_data
@@ -26,16 +27,16 @@ SCOPE_FACTOR = 100
 SPLIT = "test"
 
 
-def generate_questions(conf: DailConfig):
-    if not conf.force and os.path.exists(conf.questions_path()):
-        print(f"Questions file exists: {conf.questions_path()}, skipping!")
+def generate_questions(dail_conf: DailConfig, run_conf: SingleRunConfig):
+    if os.path.exists(dail_conf.questions_path()):
+        print(f"Questions file exists: {dail_conf.questions_path()}, skipping!")
         return
 
     # load test dataset here
-    data = load_data(DATASET_TYPE, tables_path=conf.run_conf.dataset_config.get_tables_path(),
-                     input_path=conf.run_conf.dataset_config.get_data_path(),
-                     db_dir=conf.run_conf.dataset_config.get_db_path(),
-                     schema_links_path=conf.schema_path())
+    data = load_data(DATASET_TYPE, tables_path=run_conf.dataset_config.get_tables_path(),
+                     input_path=run_conf.dataset_config.get_data_path(),
+                     db_dir=run_conf.dataset_config.get_db_path(),
+                     schema_links_path=dail_conf.schema_path())
 
     # Read all tables into a dict
     databases = data.get_databases()
@@ -92,7 +93,7 @@ def generate_questions(conf: DailConfig):
     }
 
     # path_generate = f"dataset/process/{args.data_type.upper()}-{args.split.upper()}_{prompt.name}_CTX-{args.max_ans_len}_ANS-{args.max_seq_len}"
-    json.dump(task, open(conf.questions_path(), "w"), indent=4)
+    json.dump(task, open(dail_conf.questions_path(), "w"), indent=4)
 
 
 if __name__ == '__main__':

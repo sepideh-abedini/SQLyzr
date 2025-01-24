@@ -2,6 +2,7 @@ import json
 import os
 import sqlite3
 
+from src.eval.single_run_config import SingleRunConfig
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.datasets.spider import load_tables
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
@@ -13,19 +14,19 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 # from dataset.process.preprocess_kaggle import gather_questions
 
 
-def schema_linking_producer(conf: DailConfig):
-    if not conf.force and os.path.exists(conf.schema_path()):
-        print(f"Schema file exists: {conf.schema_path()}, skipping!")
+def schema_linking_producer(dail_conf: DailConfig, run_conf: SingleRunConfig):
+    if os.path.exists(dail_conf.schema_path()):
+        print(f"Schema file exists: {dail_conf.schema_path()}, skipping!")
         return
 
     # load data
-    input_data = json.load(open(conf.run_conf.dataset_config.get_data_path()))
+    input_data = json.load(open(run_conf.dataset_config.get_data_path()))
     # load schemas
-    schemas, _ = load_tables([conf.run_conf.dataset_config.get_tables_path()])
+    schemas, _ = load_tables([run_conf.dataset_config.get_tables_path()])
 
     # Backup in-memory copies of all the DBs and create the live connections
     for db_id, schema in schemas.items():
-        sqlite_path = os.path.join(conf.run_conf.dataset_config.get_db_file_path(db_id))
+        sqlite_path = os.path.join(run_conf.dataset_config.get_db_file_path(db_id))
         source: sqlite3.Connection
         with sqlite3.connect(str(sqlite_path)) as source:
             dest = sqlite3.connect(':memory:')
@@ -40,7 +41,7 @@ def schema_linking_producer(conf: DailConfig):
                                                word_emb=word_emb,
                                                fix_issue_16_primary_keys=True,
                                                compute_sc_link=True,
-                                               compute_cv_link=conf.compute_cv_link)
+                                               compute_cv_link=dail_conf.compute_cv_link)
 
     # build schema-linking
     section = "train"
@@ -52,7 +53,7 @@ def schema_linking_producer(conf: DailConfig):
             linking_processor.add_item(item, schema, section, validation_info)
 
     # save
-    linking_processor.save(conf.schema_path(), section)
+    linking_processor.save(dail_conf.schema_path(), section)
 
 
 def bird_pre_process(bird_dir, with_evidence=False):
