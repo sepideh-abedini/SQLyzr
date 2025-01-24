@@ -7,7 +7,6 @@ from src.configs.dataset import BIRD_SMALL, BIRD_DEV, BIRD_TRAIN, SPIDER_SMALL, 
 from src.configs.metrics import SPIDER_METRICS, BIRD_METRICS
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
-from src.gpt.gpt_limits import TIER1_LIMITS, TIER5_LIMITS
 from src.sqlyzr.pipeline_config import PipelineConfig
 
 CONFIG_PATH = "conf.json"

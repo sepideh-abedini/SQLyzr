@@ -6,7 +6,7 @@ from typing import Dict, Literal
 
 from openai.types import Batch
 
-from src.gpt.gpt_client import GptBatchClient
+from src.gpt.batch.batch_client import GptBatchClient
 from src.gpt.gpt_gateway import GptRateLimitException
 from src.gpt.gpt_limits import GptRateLimits, LIMITS
 from src.gpt.models import BatchInputRequest

@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import SingleRunConfig
-from src.sqlyzr.sqlyzr_processor import SqlyzrProcessor
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.dail_pred import DailPredictor
 from src.third_party.din.config import DinConfig
@@ -12,10 +11,6 @@ from src.third_party.din.din_pred import DinPredictor
 from src.util.logger import log
 from src.util.system_utils import ProcessUsage
 
-
-class SqlPredictor(SqlyzrProcessor):
-    async def run(self):
-        await run_model(self.conf)
 
 
 class ModelRunner(ABC):
@@ -54,8 +49,7 @@ class DailRunner(ModelRunner):
 
 class DinRunner(ModelRunner):
     async def run_single_internal(self, run_conf: SingleRunConfig):
-        din_conf = DinConfig(run_conf)
-        predictor = DinPredictor(din_conf)
+        predictor = DinPredictor(run_conf)
         result = await predictor.run()
         return result
 

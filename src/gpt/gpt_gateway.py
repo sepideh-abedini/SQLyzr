@@ -7,30 +7,10 @@ from openai import AsyncClient
 from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
+from src.gpt.gateway_exceptions import GptRateLimitException
 from src.gpt.gpt_tracker import GptUsageTracker
-from src.gpt.models import BatchInputRequest
-from src.gpt.sqlyzr_chat_completion import SqlyzrChatCompletion
-from src.util.logger import log, debug_log
-
-
-class GptGatewayException(Exception):
-    def __init__(self, msg):
-        super().__init__(msg)
-
-
-class GptRateLimitException(GptGatewayException):
-    def __init__(self, msg=""):
-        super().__init__("Token limit hit! " + msg)
-
-
-class GptBatchNotCompletedException(GptGatewayException):
-    def __init__(self):
-        super().__init__("Batch not completed exception")
-
-
-class GptBatchFailedException(GptGatewayException):
-    def __init__(self, msg):
-        super().__init__(msg)
+from src.gpt.models import BatchInputRequest, SqlyzrChatCompletion
+from src.util.logger import debug_log
 
 
 class GptGateway:

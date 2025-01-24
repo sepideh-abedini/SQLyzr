@@ -7,31 +7,24 @@ from openai.types import Batch
 from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
-from src.gpt.gpt_batch_gateway import GptBatchGateway
+from src.gpt.batch.batch_gateway import GptBatchGateway
 from src.gpt.gpt_gateway import GptGateway, FormattedGptGateway
 from src.gpt.gpt_usage_stats import GptUsageStats
-from src.gpt.models import BatchInputRequest
-from src.gpt.sqlyzr_chat_completion import SqlyzrChatCompletion
+from src.gpt.models import BatchInputRequest, SqlyzrChatCompletion
 from src.util.logger import log, debug_log
 
 
 class GptFromFileSender(ABC):
-    async def send_and_save(self, in_path: str, out_path: str) -> GptUsageStats:
+    async def send_and_save(self, in_path: str, out_path: str):
         debug_log(f"Asking GPT {in_path} ==> {out_path}")
         if os.path.exists(out_path):
             debug_log(f"Output path exists: {out_path}, skip asking gpt.")
         else:
             responses = await self.send_from_file(in_path)
             self.save_to_file(responses, out_path)
-        usage = self.get_usage(in_path, out_path)
-        return usage
 
     @abstractmethod
     async def send_from_file(self, in_path: str) -> list[SqlyzrChatCompletion]:
-        pass
-
-    @abstractmethod
-    def get_usage(self, in_path: str, out_path: str) -> GptUsageStats:
         pass
 
     def save_to_file(self, responses: list[ChatCompletion], out_path: str):

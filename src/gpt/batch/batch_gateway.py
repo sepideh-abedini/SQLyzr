@@ -2,30 +2,20 @@ import datetime
 import json
 import os.path
 import os.path
-import random
 from os.path import basename
-from typing import List, Literal, Optional
+from typing import List
 
 import backoff
-from alive_progress import alive_bar
 from natsort import natsorted
 from openai.types import Batch
-from progress.bar import Bar
-from tqdm import tqdm
 
-from src.gpt.gpt_batch_tracker import BatchTracker
-from src.gpt.gpt_client import GptBatchClient
-from src.gpt.gpt_gateway import GptRateLimitException, GptBatchNotCompletedException, \
-    GptBatchFailedException
-from src.gpt.gpt_usage_stats import GptUsageStats
+from src.gpt.batch.batch_client import GptBatchClient
+from src.gpt.batch.batch_info import BatchInfo
+from src.gpt.batch.batch_tracker import BatchTracker
+from src.gpt.gateway_exceptions import GptBatchFailedException, GptBatchNotCompletedException, GptRateLimitException
 from src.gpt.models import BatchRequestOutput
 from src.util.logger import debug_log, log
 
-
-# bar = alive_bar(100, stats=False, title=f"Prog", manual=True, bar='blocks', spinner='waves')
-# update = bar.__enter__()
-# bar(0.3)
-#
 
 def on_rate_limit(details):
     log(f"Hit rate limit, retrying!")
@@ -39,34 +29,6 @@ def on_failed(details):
 def on_not_complete(details):
     debug_log(f"Batch not completed yet, retrying!")
     # update(random.randint(0, 100) / 100)
-
-
-BatchInfoProps = Literal["fid", "bid", "oid"]
-
-
-class BatchInfo:
-    in_path: str
-
-    def __init__(self, in_path: str):
-        self.in_path = in_path
-
-    def __file_path(self, key: BatchInfoProps):
-        return f"{self.in_path}.{key}"
-
-    def get_value(self, key: BatchInfoProps):
-        if os.path.exists(self.__file_path(key)):
-            with open(self.__file_path(key)) as file:
-                return file.read()
-        else:
-            return None
-
-    def set_value(self, key: BatchInfoProps, value: Optional[str]):
-        if not value:
-            if os.path.exists(self.__file_path(key)):
-                os.remove(self.__file_path(key))
-        else:
-            with open(self.__file_path(key), "w") as file:
-                file.write(value)
 
 
 class GptBatchGateway:

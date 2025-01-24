@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Dict
+from typing import Literal, Optional, Dict, TypedDict
 import tiktoken
 
 from openai import BaseModel
@@ -21,6 +21,10 @@ class RequestBody(BaseModel):
     presence_penalty: float = 0.0
 
 
+class ExtraParams(TypedDict):
+    model: Literal['gpt-4o-min', 'gpt-3.5-turbo']
+
+
 class BatchInputRequest(BaseModel):
     custom_id: str
     method: Literal['POST'] = 'POST'
@@ -28,9 +32,8 @@ class BatchInputRequest(BaseModel):
     body: RequestBody
 
     @staticmethod
-    def create_prompt_req(custom_id: str, model: str, prompt: str, extra_params: Dict):
+    def create_prompt_req(custom_id: str, prompt: str, extra_params: ExtraParams):
         body = {
-            "model": model,
             "messages": [{
                 "role": "user",
                 "content": prompt
@@ -61,3 +64,7 @@ class BatchResponse(BaseModel):
 class BatchRequestOutput(BaseModel):
     custom_id: str
     response: BatchResponse
+
+
+class SqlyzrChatCompletion(ChatCompletion):
+    completed_at: int

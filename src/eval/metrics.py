@@ -2,6 +2,7 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from src.cat.catter import Catter
 from src.eval import lib
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
@@ -73,6 +74,19 @@ class ExecAcc(Metric):
         if pred_sql_exec_res is None:
             return 0
         if pred_sql_exec_res == gold_sql_exec_res:
+            return 1
+        else:
+            return 0
+
+
+class ComplexityConsistency(Metric):
+    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+        catter = Catter()
+        c_gold = catter.get_category(gold)
+        c_pred = catter.get_category(pred)
+        if c_pred is None:
+            return 0
+        if c_pred <= c_gold:
             return 1
         else:
             return 0

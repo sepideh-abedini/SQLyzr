@@ -1,6 +1,6 @@
+from src.configs.config_loader import load_config
 from src.configs.sqlyzr import SQLyzrConfig
 from src.sqlyzr.augment_data import augment_data
-from src.sqlyzr.config_loader import load_config
 from src.sqlyzr.evaluator import post_process_scores, calc_scores
 from src.sqlyzr.model_runner import run_model
 from src.sqlyzr.transformer_eval import find_transformers, post_process_transformers

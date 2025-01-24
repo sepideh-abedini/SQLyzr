@@ -15,14 +15,14 @@ from src.cat.tags.structure import StructureType
 from src.cat.tags.where_exprs import WhereType
 
 CAT_1 = StatementCategory(
-    "c1",
+    1,
     SubCategory("s0", frozenset([SelectColumns.SingleColumn]), "Having single column in SELECT clause"),
     SubCategory("s1", frozenset([SelectColumns.MultiColumn]), "Having single column in SELECT clause"),
     SubCategory("s2", frozenset([SelectColumns.StarColumn]), "Having single star column in the SELECT clause")
 )
 
 CAT_2 = StatementCategory(
-    "c2",
+    2,
     SubCategory("s3", frozenset([ExtraKeywords.OrderBy]), "Having ORDER_BY keyword"),
     SubCategory("s4", frozenset([WhereType.SingleWhereExpr, ExprType.SingleBinExpr]),
                 "Having a single binary expression in the where clause"),
@@ -35,7 +35,7 @@ CAT_2 = StatementCategory(
 )
 
 CAT_3 = StatementCategory(
-    "c3",
+    3,
     SubCategory("s11", frozenset([JoinType.NonEquiJoin]), "Having non-equi-joins"),
     SubCategory("s12", frozenset([ExtraKeywords.BETWEEN]), "Having between expressions"),
     SubCategory("s13", frozenset([JoinConditions.UnconditionalJoin, WhereType.SingleWhereExpr]),
@@ -52,7 +52,7 @@ CAT_3 = StatementCategory(
 )
 
 CAT_4 = StatementCategory(
-    "c4",
+    4,
     SubCategory("s20", frozenset([NestLevel.One]), "Having exactly one level of nested queries"),
     SubCategory("s21", frozenset([StructureType.Compound]), "Having a composition keyword such as INTERSECT or UNION"),
     SubCategory("s22", frozenset([JoinTables.MultiJoin]), "Having more than two joins"),
@@ -64,7 +64,7 @@ CAT_4 = StatementCategory(
 )
 
 CAT_5 = StatementCategory(
-    "c5",
+    5,
     SubCategory("s26", frozenset([StructureType.Nested, GroupType.UnconditionalGroup]),
                 "Having nested sub-queries plus having GROUP BY clause without condition"),
     SubCategory("s27", frozenset([StructureType.Nested, JoinConditions.UnconditionalJoin]),
@@ -75,7 +75,7 @@ CAT_5 = StatementCategory(
 )
 
 CAT_6 = StatementCategory(
-    "c6",
+    6,
     SubCategory("s30", frozenset([NestLevel.Many]), "Having at more than two level of nested sub-queries"),
     SubCategory("s31", frozenset([StructureType.Compound, StructureType.Nested]),
                 "Having a composition keyword such as (INTERSECT or UNION) and having nested sub-queries"),

@@ -5,8 +5,8 @@ from typing import Callable, List
 
 from src.gpt.gpt_from_file_sender import GptFromFileSender, GptBatchSender, GptSingleSender
 from src.gpt.gpt_usage_stats import GptUsageStats
-from src.gpt.gpt_utils import load_responses
 from src.gpt.models import BatchInputRequest
+from src.gpt.utils import load_responses
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.data_preprocess import schema_linking_producer
 from src.third_party.dail.generate_question import generate_questions

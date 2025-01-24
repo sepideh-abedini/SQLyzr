@@ -10,14 +10,13 @@ from src.aug.auger_conf import AugerConf, DEFAULT_CONF
 from src.aug.prompt import GptPromptSubCat
 from src.aug.text_sql_pair_example import TextSqlPairExample
 from src.cat.catter import Catter
-from src.cat.statement_category import StatementCategory
 from src.cat.sub_category import SubCategory
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.dataset_config import DatasetConfig
 from src.gpt.gpt_from_file_sender import GptFormattedSingleSender, GptFromFileSender
-from src.gpt.gpt_utils import process_formatted_responses
 from src.gpt.models import BatchInputRequest
-from src.util.logger import log, debug_log
+from src.gpt.utils import process_formatted_responses
+from src.util.logger import debug_log
 from src.util.schema_repo import DatabaseSchemaRepo
 
 

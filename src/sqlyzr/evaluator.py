@@ -4,20 +4,12 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
-from src.cat.catter import Catter
-from src.configs.eval import DIN_SPIDER_SMALL_EVAL
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.lib import confidence_level_interval
 from src.eval.metrics import *
 from src.parse.parser import SqlParser
-from src.sqlyzr.sqlyzr_processor import SqlyzrProcessor
 from src.util.logger import debug_log
 
-
-class ScoreCalculator(SqlyzrProcessor):
-    async def run(self):
-        # calc_scores(self.conf)
-        post_process_scores(self.conf)
 
 
 def get_pred_gold_db_id(pred_path, gold_path):
@@ -133,6 +125,3 @@ def post_process_scores(sqlyzr_conf: SQLyzrConfig):
     final.to_csv(config.get_scores_path())
 
 
-if __name__ == "__main__":
-    calc_scores(DIN_SPIDER_SMALL_EVAL)
-    # evaluate(DIN_SMALL_CONF)
