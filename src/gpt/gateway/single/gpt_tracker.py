@@ -3,8 +3,8 @@ import os
 from asyncio import Lock
 from typing import List
 
-from src.gpt.tracker.gpt_limits import GptRateLimits, LIMITS
-from src.gpt.tracker.gpt_usage import GptTokenUsage
+from src.gpt.gateway.single.gpt_limits import GptRateLimits, LIMITS
+from src.gpt.gateway.single.gpt_usage import GptTokenUsage
 from src.util.logger import debug_log, log
 
 

@@ -6,8 +6,8 @@ from openai import AsyncClient
 from openai.types.chat import ChatCompletion
 
 from src.gpt.gateway.gateway_exceptions import GptRateLimitException
+from src.gpt.gateway.single.gpt_tracker import GptUsageTracker
 from src.gpt.models import BatchInputRequest, SqlyzrChatCompletion
-from src.gpt.tracker.gpt_tracker import GptUsageTracker
 from src.util.logger import debug_log
 
 

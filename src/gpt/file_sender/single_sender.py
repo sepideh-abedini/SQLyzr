@@ -1,10 +1,9 @@
-import asyncio
 from typing import List
 
 from tqdm.asyncio import tqdm
 
 from src.gpt.file_sender.file_sender import GptFileSender
-from src.gpt.gateway.gpt_gateway import GptGateway
+from src.gpt.gateway.gateway import GptGateway
 from src.gpt.models import SqlyzrChatCompletion, BatchInputRequest
 from src.util.logger import debug_log
 from src.util.model_utils import read_jsonl

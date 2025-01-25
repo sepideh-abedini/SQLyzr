@@ -8,9 +8,9 @@ import backoff
 from natsort import natsorted
 from openai.types import Batch
 
-from src.gpt.batch.batch_client import GptBatchClient
-from src.gpt.batch.batch_info import BatchInfo
-from src.gpt.batch.batch_tracker import BatchTracker
+from src.gpt.gateway.batch.batch_client import GptBatchClient
+from src.gpt.gateway.batch.batch_info import BatchInfo
+from src.gpt.gateway.batch.batch_tracker import BatchTracker
 from src.gpt.gateway.gateway_exceptions import GptBatchNotCompletedException, GptBatchFailedException, \
     GptRateLimitException
 from src.gpt.models import BatchRequestOutput

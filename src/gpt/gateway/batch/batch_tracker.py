@@ -6,10 +6,10 @@ from typing import Dict, Literal
 
 from openai.types import Batch
 
-from src.gpt.batch.batch_client import GptBatchClient
+from src.gpt.gateway.batch.batch_client import GptBatchClient
 from src.gpt.gateway.gateway_exceptions import GptRateLimitException
+from src.gpt.gateway.single.gpt_limits import LIMITS, GptRateLimits
 from src.gpt.models import BatchInputRequest
-from src.gpt.tracker.gpt_limits import GptRateLimits, LIMITS
 from src.util.logger import debug_log, log
 from src.util.model_utils import read_jsonl
 

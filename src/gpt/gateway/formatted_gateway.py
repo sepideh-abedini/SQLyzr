@@ -2,7 +2,7 @@ from typing import Type, TypeVar
 
 from pydantic import BaseModel
 
-from src.gpt.gateway.gpt_gateway import GptGateway
+from src.gpt.gateway.gateway import GptGateway
 from src.gpt.models import BatchInputRequest
 from src.util.logger import debug_log
 

@@ -6,8 +6,8 @@ from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
 from src.eval.single_run_config import SingleRunConfig
-from src.gpt.file_sender.batch_file_sender import GptBatchFileSender
-from src.gpt.file_sender.single_file_sender import GptSingleSender
+from src.gpt.file_sender.batch_sender import GptBatchFileSender
+from src.gpt.file_sender.single_sender import GptSingleSender
 from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
 from src.util.model_utils import read_jsonl
