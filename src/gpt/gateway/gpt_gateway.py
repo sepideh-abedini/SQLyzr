@@ -1,13 +1,11 @@
 import os
 import time
-from typing import TypeVar, Type
 
 import backoff
 from openai import AsyncClient
 from openai.types.chat import ChatCompletion
-from pydantic import BaseModel
 
-from src.gpt.gateway_exceptions import GptRateLimitException
+from src.gpt.gateway.gateway_exceptions import GptRateLimitException
 from src.gpt.models import BatchInputRequest, SqlyzrChatCompletion
 from src.gpt.tracker.gpt_tracker import GptUsageTracker
 from src.util.logger import debug_log
@@ -48,21 +46,5 @@ class GptGateway:
             raise GptRateLimitException()
 
 
-T = TypeVar('T', bound=BaseModel)
 
 
-class FormattedGptGateway(GptGateway):
-    response_format: Type[T]
-
-    def __init__(self, response_format: Type[T]):
-        super().__init__()
-        self.response_format = response_format
-
-    async def send_without_tracking(self, request: BatchInputRequest) -> T:
-        debug_log("Sending formatted GPT Request")
-        result = await self.client.beta.chat.completions.parse(
-            response_format=self.response_format,
-            **request.body.dict()
-        )
-        debug_log("Received formatted GPT Response")
-        return result

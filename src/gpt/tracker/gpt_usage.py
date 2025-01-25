@@ -2,15 +2,19 @@ from datetime import datetime, timedelta
 
 
 class GptTokenUsage:
-    tokens: int
-    expires_at: datetime
+    __tokens: int
+    __expires_at: datetime
 
     def __init__(self, tokens: int):
-        self.tokens = tokens
-        self.expires_at = datetime.utcnow() + timedelta(seconds=60)
+        self.__tokens = tokens
+        self.__expires_at = datetime.utcnow() + timedelta(seconds=60)
+
+    @property
+    def tokens(self):
+        return self.__tokens
 
     def expired(self) -> bool:
-        return datetime.utcnow() > self.expires_at
+        return datetime.utcnow() > self.__expires_at
 
     def expire(self):
-        self.expires_at = datetime.utcnow()
+        self.__expires_at = datetime.utcnow()
