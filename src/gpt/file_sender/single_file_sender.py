@@ -1,6 +1,8 @@
 import asyncio
 from typing import List
 
+from tqdm.asyncio import tqdm
+
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.gateway.gpt_gateway import GptGateway
 from src.gpt.models import SqlyzrChatCompletion, BatchInputRequest
@@ -20,7 +22,7 @@ class GptSingleSender(GptFileSender):
             future = self.__send_single_req(req)
             futures.append(future)
             debug_log(f"Request {req.custom_id} initiated")
-        resps = list(await asyncio.gather(*futures))
+        resps = list(await tqdm.gather(desc="Waiting for responses", *futures))
         return resps
 
     async def __send_single_req(self, req: BatchInputRequest) -> SqlyzrChatCompletion:
