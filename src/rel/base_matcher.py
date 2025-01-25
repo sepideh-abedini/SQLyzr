@@ -33,8 +33,6 @@ class Matcher:
                 self.post_exec_transformers.append(processor)
             elif isinstance(processor, ResultMatcher):
                 self.result_matchers.append(processor)
-        if len(self.result_matchers) > 4:
-            print("salam")
 
     def parse(self, data: SqlInputData) -> SqlParsedData:
         try:

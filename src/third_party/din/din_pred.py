@@ -12,7 +12,6 @@ from src.third_party.din.prompt_maker import PromptMaker
 
 class DinPredictor(Predictor):
     __conf: DinConfig
-    _run_conf: SingleRunConfig
     __prompt_maker: PromptMaker
     __gpt_sender: GptFileSender
     __schema_links: List[str]

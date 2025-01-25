@@ -31,7 +31,8 @@ class GptGateway:
         if can_send:
             usage = await self.__tracker.add_usage(tokens)
             result = await self._send_without_tracking(request)
-            result_extended = SqlyzrChatCompletion(**result.dict(), completed_at=int(time.time()))
+            completion_seconds = int(time.time()) - int(result.created)
+            result_extended = SqlyzrChatCompletion(**result.dict(), completion_seconds=completion_seconds)
             usage.expire()
             return result_extended
         else:

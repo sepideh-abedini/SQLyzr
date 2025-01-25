@@ -1,4 +1,5 @@
-from src.eval.metrics import ExactMatch, ExecAcc, GoldNotEmpty, TotalExecTime, RelaxedExecAcc, SpiderExactMatch
+from src.eval.metrics import ExactMatch, ExecAcc, GoldNotEmpty, TotalExecTime, RelaxedExecAcc, SpiderExactMatch, \
+    ComplexityConsistency
 
 SPIDER_METRICS = {
     "em": ExactMatch,
@@ -6,7 +7,8 @@ SPIDER_METRICS = {
     "gne": GoldNotEmpty,
     "rea": RelaxedExecAcc,
     "et": TotalExecTime,
-    "sem": SpiderExactMatch
+    "sem": SpiderExactMatch,
+    "cc": ComplexityConsistency
     # "et": TotalExecTime
     # TotalExecTime("et", config.dataset_config),
     # SpiderExactMatch("sem", config.dataset_config),

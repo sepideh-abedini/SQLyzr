@@ -7,6 +7,10 @@ from src.util.model_utils import write_jsonl
 
 
 class GptFileSender(ABC):
+    @staticmethod
+    def __get_usage_path(out_path: str):
+        return f"{out_path}.usage"
+
     async def send_and_save(self, in_path: str, out_path: str):
         debug_log(f"Asking GPT {in_path} ==> {out_path}")
         if os.path.exists(out_path):

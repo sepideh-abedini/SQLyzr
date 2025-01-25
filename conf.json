@@ -12,9 +12,9 @@
   "force": false,
   "pipeline": {
     "verify": false,
-    "predict": true,
-    "eval": false,
-    "transformers": false,
+    "predict": false,
+    "eval": true,
+    "transformers": true,
     "augment": false
   }
 }

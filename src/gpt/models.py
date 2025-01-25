@@ -74,4 +74,4 @@ class BatchRequestOutput(BaseModel):
 
 
 class SqlyzrChatCompletion(ChatCompletion):
-    completed_at: int
+    completion_seconds: int

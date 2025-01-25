@@ -1,9 +1,10 @@
 from src.configs.config_loader import load_config
 from src.configs.sqlyzr import SQLyzrConfig
 from src.sqlyzr.augment_data import augment_data
-from src.sqlyzr.evaluator import post_process_scores, calc_scores
 from src.sqlyzr.model_runner import run_model
-from src.sqlyzr.transformer_eval import find_transformers, post_process_transformers
+from src.sqlyzr.score_calculator import ScoreCalculator
+from src.sqlyzr.scores_post_processor import ScoresPostProcessor
+from src.sqlyzr.transformer_eval import TransformerFinder
 from src.sqlyzr.validate import validate_dataset
 
 
@@ -21,12 +22,15 @@ class Sqlyzr:
             await run_model(self.conf)
 
         if self.conf.pipeline.eval:
-            await calc_scores(self.conf)
-            post_process_scores(self.conf)
+            calc = ScoreCalculator(self.conf)
+            await calc.calc_scores()
+            post_processor = ScoresPostProcessor(self.conf)
+            post_processor.run()
 
         if self.conf.pipeline.transformers:
-            await find_transformers(self.conf)
-            post_process_transformers(self.conf)
+            trs_finder = TransformerFinder(self.conf)
+            await trs_finder.run()
+            trs_finder.post_process()
 
         if self.conf.pipeline.augment:
             await augment_data(self.conf)

@@ -23,7 +23,6 @@ class StatementCategory:
             raise RuntimeError(f"Invalid operand: {type(other)}")
         return self.rank <= other.rank
 
-
     def matches(self, feature_set: SubCategory):
         matchs = []
         for fs in self.sub_cats:
