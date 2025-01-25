@@ -16,9 +16,9 @@ class FormattedGptGateway(GptGateway):
         super().__init__()
         self.response_format = response_format
 
-    async def _send_without_tracking(self, request: BatchInputRequest) -> T:
+    async def send_without_tracking(self, request: BatchInputRequest) -> T:
         debug_log("Sending formatted GPT Request")
-        result = await self.__client.beta.chat.completions.parse(
+        result = await self._client.beta.chat.completions.parse(
             response_format=self.response_format,
             **request.body.dict()
         )

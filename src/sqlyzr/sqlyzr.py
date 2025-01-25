@@ -1,6 +1,6 @@
 from src.configs.config_loader import load_config
 from src.configs.sqlyzr import SQLyzrConfig
-from src.sqlyzr.augment_data import augment_data
+from src.sqlyzr.augment_data import DatasetAugmentor
 from src.sqlyzr.model_runner import run_model
 from src.sqlyzr.score_calculator import ScoreCalculator
 from src.sqlyzr.scores_post_processor import ScoresPostProcessor
@@ -33,4 +33,5 @@ class Sqlyzr:
             trs_finder.post_process()
 
         if self.conf.pipeline.augment:
-            await augment_data(self.conf)
+            augmentor = DatasetAugmentor(self.conf)
+            await augmentor.augment_data()

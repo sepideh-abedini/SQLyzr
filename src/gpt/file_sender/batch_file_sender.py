@@ -30,4 +30,4 @@ class GptFormattedSingleSender(GptSingleSender):
     def __init__(self, response_format: Type[T]):
         super().__init__()
         self.response_format = response_format
-        self.gateway = FormattedGptGateway(response_format)
+        self._gateway = FormattedGptGateway(response_format)

@@ -11,10 +11,10 @@ from src.util.model_utils import read_jsonl
 
 
 class GptSingleSender(GptFileSender):
-    __gateway: GptGateway
+    _gateway: GptGateway
 
     def __init__(self):
-        self.__gateway = GptGateway()
+        self._gateway = GptGateway()
 
     async def __send_reqs(self, reqs: List[BatchInputRequest]) -> List[SqlyzrChatCompletion]:
         futures = []
@@ -26,7 +26,7 @@ class GptSingleSender(GptFileSender):
         return resps
 
     async def __send_single_req(self, req: BatchInputRequest) -> SqlyzrChatCompletion:
-        return await self.__gateway.track_and_send(req)
+        return await self._gateway.track_and_send(req)
 
     async def _send_file(self, in_path: str) -> list[SqlyzrChatCompletion]:
         reqs = read_jsonl(in_path, BatchInputRequest)

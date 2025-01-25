@@ -1,7 +1,7 @@
 import json
 import os
 import random
-from typing import List, Dict
+from typing import List, Dict, Set
 
 import tqdm
 
@@ -28,11 +28,11 @@ class Auger:
     __conf: AugerConf
     __dataset_conf: DatasetConfig
     __examples: Dict[SubCategory, List[TextSqlPairExample]]
-    __sub_cats: List[SubCategory]
+    __sub_cats: Set[SubCategory]
     __db_id: str
     __catter: Catter
 
-    def __init__(self, sqlyzr_config: SQLyzrConfig, sub_cats: List[SubCategory], conf=DEFAULT_CONF):
+    def __init__(self, sqlyzr_config: SQLyzrConfig, sub_cats: Set[SubCategory], conf=DEFAULT_CONF):
         self.sqlyzr_conf = sqlyzr_config
         self.__conf = AugerConf(sqlyzr_config.aug_dir)
         self.__sub_cats = sub_cats

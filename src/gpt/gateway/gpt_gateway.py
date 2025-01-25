@@ -12,11 +12,11 @@ from src.util.logger import debug_log
 
 
 class GptGateway:
-    __client: AsyncClient
+    _client: AsyncClient
     __tracker: GptUsageTracker
 
     def __init__(self):
-        self.__client = AsyncClient(
+        self._client = AsyncClient(
             organization=os.getenv("OPENAI_GROUP_ID"),
             project=os.getenv("OPENAI_PROJ_ID"),
             timeout=60
@@ -30,7 +30,7 @@ class GptGateway:
         can_send = await self.__tracker.check_limit(tokens)
         if can_send:
             usage = await self.__tracker.add_usage(tokens)
-            result = await self._send_without_tracking(request)
+            result = await self.send_without_tracking(request)
             completion_seconds = int(time.time()) - int(result.created)
             result_extended = SqlyzrChatCompletion(**result.dict(), completion_seconds=completion_seconds)
             usage.expire()
@@ -38,9 +38,9 @@ class GptGateway:
         else:
             raise GptRateLimitException()
 
-    async def _send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
+    async def send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
         debug_log("Sending GPT Request")
-        result = await self.__client.chat.completions.create(
+        result = await self._client.chat.completions.create(
             **request.body.dict()
         )
         debug_log("Received GPT Response")
