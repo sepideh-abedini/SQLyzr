@@ -12,7 +12,7 @@ from src.third_party.din.prompt_maker import PromptMaker
 
 class DinPredictor(Predictor):
     __conf: DinConfig
-    __run_conf: SingleRunConfig
+    _run_conf: SingleRunConfig
     __prompt_maker: PromptMaker
     __gpt_sender: GptFileSender
     __schema_links: List[str]
@@ -24,7 +24,7 @@ class DinPredictor(Predictor):
     def __init__(self, run_conf: SingleRunConfig):
         super().__init__(run_conf)
         self.__conf = DinConfig(run_conf.get_pred_path())
-        self.__prompt_maker = PromptMaker(self.__run_conf.dataset_config.get_tables_path())
+        self.__prompt_maker = PromptMaker(self._run_conf.dataset_config.get_tables_path())
 
     async def run(self):
         conf = self.__conf

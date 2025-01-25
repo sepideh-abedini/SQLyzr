@@ -13,9 +13,10 @@ from src.cat.catter import Catter
 from src.cat.sub_category import SubCategory
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.dataset_config import DatasetConfig
-from src.gpt.gpt_from_file_sender import GptFormattedSingleSender, GptFromFileSender
+from src.gpt.file_sender.batch_file_sender import GptFormattedSingleSender
+from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.models import BatchInputRequest
-from src.gpt.utils import process_formatted_responses
+from src.pred.predictor import process_formatted_responses
 from src.util.logger import debug_log
 from src.util.schema_repo import DatabaseSchemaRepo
 
@@ -26,7 +27,7 @@ class TextSqlPair(BaseModel):
 
 
 class Auger:
-    gpt_sender: GptFromFileSender
+    gpt_sender: GptFileSender
     conf: AugerConf
     dataset_conf: DatasetConfig
     force: bool = False

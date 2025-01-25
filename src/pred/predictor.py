@@ -22,12 +22,12 @@ def load_data(input_path: str):
 
 
 class Predictor(ABC):
-    __run_conf: SingleRunConfig
+    _run_conf: SingleRunConfig
 
     def __init__(self, run_conf: SingleRunConfig):
-        self.__run_conf = run_conf
+        self._run_conf = run_conf
         self.__parser = SqlParser()
-        if self.__run_conf.batch:
+        if self._run_conf.batch:
             self.__gpt_sender = GptBatchFileSender()
         else:
             self.__gpt_sender = GptSingleSender()
@@ -40,7 +40,7 @@ class Predictor(ABC):
         return await self.__gpt_sender.send_and_save(in_path, out_path)
 
     def _gen_batch_file(self, file_path: str, gen_req: BatchRequestGenerator):
-        examples = load_data(self.__run_conf.dataset_config.get_data_path()).to_dict("records")
+        examples = load_data(self._run_conf.dataset_config.get_data_path()).to_dict("records")
         file = open(file_path, "w")
         for i, example in enumerate(examples):
             db_id = example['db_id']
@@ -50,11 +50,11 @@ class Predictor(ABC):
         file.close()
 
     def _create_batch_req(self, idx: str, prompt: str, extra_params):
-        extra_params['temperature'] = self.__run_conf.temp
+        extra_params['temperature'] = self._run_conf.temp
         return BatchInputRequest.create_prompt_req(idx, prompt, extra_params)
 
     def _save_sqls(self, sqls: List[str]):
-        file = open(self.__run_conf.get_pred_path(), 'w')
+        file = open(self._run_conf.get_pred_path(), 'w')
         for sql in sqls:
             file.write(f"{sql}\n")
         file.close()

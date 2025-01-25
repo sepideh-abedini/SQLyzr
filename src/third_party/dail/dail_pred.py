@@ -24,12 +24,12 @@ class DailPredictor(Predictor):
         self.__conf = DailConfig(run_conf.get_pred_path())
 
     async def run(self):
-        if os.path.exists(self.__run_conf.get_pred_path()):
+        if os.path.exists(self._run_conf.get_pred_path()):
             return
 
-        schema_linking_producer(self.__conf, self.__run_conf)
+        schema_linking_producer(self.__conf, self._run_conf)
 
-        generate_questions(self.__conf, self.__run_conf)
+        generate_questions(self.__conf, self._run_conf)
 
         self.__load_questions()
 
@@ -63,7 +63,7 @@ class DailPredictor(Predictor):
         return content
 
     async def __process_responses(self, file_path) -> List[str]:
-        with open(self.__run_conf.dataset_config.get_data_path()) as data_file:
+        with open(self._run_conf.dataset_config.get_data_path()) as data_file:
             data = json.load(data_file)
             db_ids = [example['db_id'] for example in data]
         responses = read_jsonl(file_path, ChatCompletion)
@@ -100,6 +100,6 @@ class DailPredictor(Predictor):
                     'p_sqls': processed_sqls
                 }
                 final_sqls = await get_sqls([result], self.__conf.params['n'],
-                                            self.__run_conf.dataset_config.get_db_path())
+                                            self._run_conf.dataset_config.get_db_path())
                 results.extend(final_sqls)
         return results
