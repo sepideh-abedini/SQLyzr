@@ -7,8 +7,8 @@ from pydantic import BaseModel
 
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.file_sender.batch_sender import GptBatchFileSender
-from src.gpt.file_sender.file_sender_usage import FileSenderUsage
 from src.gpt.file_sender.single_sender import GptSingleSender
+from src.gpt.file_sender.usage_tracker import UsageTracker
 from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
 from src.util.model_utils import read_jsonl, write_model
@@ -24,7 +24,7 @@ def load_data(input_path: str):
 
 class Predictor(ABC):
     _run_conf: SingleRunConfig
-    _usage: FileSenderUsage
+    _tracker: UsageTracker
 
     def __init__(self, run_conf: SingleRunConfig):
         self._run_conf = run_conf
@@ -33,26 +33,19 @@ class Predictor(ABC):
             self.__gpt_sender = GptBatchFileSender()
         else:
             self.__gpt_sender = GptSingleSender()
-        self._usage = FileSenderUsage()
+        self._tracker = UsageTracker(run_conf.get_pred_path())
 
     async def run(self):
         await self._run_internal()
-        self._save_usage()
-
-    def _add_time_usage(self, amount: float):
-        usage = FileSenderUsage.model_validate({"total_time": amount})
-        self._usage += usage
+        self._tracker.save_usage()
 
     @abstractmethod
     async def _run_internal(self):
         pass
 
-    def _save_usage(self):
-        write_model(self._usage, self._run_conf.get_usage_path())
-
     async def _ask_file(self, in_path: str, out_path: str):
         usage = await self.__gpt_sender.send_and_save(in_path, out_path)
-        self._usage += usage
+        self._tracker.add_usage(usage)
 
     def _gen_batch_file(self, file_path: str, gen_req: BatchRequestGenerator):
         examples = load_data(self._run_conf.dataset_config.get_data_path()).to_dict("records")

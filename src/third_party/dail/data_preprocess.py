@@ -2,10 +2,8 @@ import json
 import os
 import sqlite3
 
-from src.eval.lib import Timer
 from src.eval.single_run_config import SingleRunConfig
-from src.gpt.file_sender.file_sender import GptFileSender
-from src.gpt.file_sender.file_sender_usage import FileSenderUsage
+from src.sqlyzr.file_gen import FileGenerator
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.datasets.spider import load_tables
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
@@ -14,56 +12,51 @@ from src.third_party.dail.utils.pretrained_embeddings import GloVe
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
-# from dataset.process.preprocess_kaggle import gather_questions
+class DailSchemaLinksGenerator(FileGenerator):
+    def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig):
+        super().__init__(dail_conf.schema_path())
+        self.dail_conf = dail_conf
+        self.run_conf = run_conf
 
+    def _run_internal(self):
+        dail_conf = self.dail_conf
+        run_conf = self.run_conf
 
-def schema_linking_producer(dail_conf: DailConfig, run_conf: SingleRunConfig):
-    usage_path = f"{dail_conf.schema_path()}.usage.json"
+        # load data
+        input_data = json.load(open(run_conf.dataset_config.get_data_path()))
+        # load schemas
+        schemas, _ = load_tables([run_conf.dataset_config.get_tables_path()])
 
-    if os.path.exists(dail_conf.schema_path()):
-        print(f"Schema file exists: {dail_conf.schema_path()}, skipping!")
-        return FileSenderUsage.read_file(GptFileSender.__get_usage_path(out_path))
+        # Backup in-memory copies of all the DBs and create the live connections
+        for db_id, schema in schemas.items():
+            sqlite_path = os.path.join(run_conf.dataset_config.get_db_file_path(db_id))
+            source: sqlite3.Connection
+            with sqlite3.connect(str(sqlite_path)) as source:
+                dest = sqlite3.connect(':memory:')
+                dest.row_factory = sqlite3.Row
+                source.backup(dest)
+            schema.connection = dest
 
-    timer = Timer.start()
-    # load data
-    input_data = json.load(open(run_conf.dataset_config.get_data_path()))
-    # load schemas
-    schemas, _ = load_tables([run_conf.dataset_config.get_tables_path()])
+        word_emb = GloVe(kind='42B', lemmatize=True)
+        linking_processor = SpiderEncoderV2Preproc(min_freq=4,
+                                                   max_count=5000,
+                                                   include_table_name_in_column=False,
+                                                   word_emb=word_emb,
+                                                   fix_issue_16_primary_keys=True,
+                                                   compute_sc_link=True,
+                                                   compute_cv_link=dail_conf.compute_cv_link)
 
-    # Backup in-memory copies of all the DBs and create the live connections
-    for db_id, schema in schemas.items():
-        sqlite_path = os.path.join(run_conf.dataset_config.get_db_file_path(db_id))
-        source: sqlite3.Connection
-        with sqlite3.connect(str(sqlite_path)) as source:
-            dest = sqlite3.connect(':memory:')
-            dest.row_factory = sqlite3.Row
-            source.backup(dest)
-        schema.connection = dest
+        # build schema-linking
+        section = "train"
+        for item in input_data:
+            db_id = item["db_id"]
+            schema = schemas[db_id]
+            to_add, validation_info = linking_processor.validate_item(item, schema, section)
+            if to_add:
+                linking_processor.add_item(item, schema, section, validation_info)
 
-    word_emb = GloVe(kind='42B', lemmatize=True)
-    linking_processor = SpiderEncoderV2Preproc(min_freq=4,
-                                               max_count=5000,
-                                               include_table_name_in_column=False,
-                                               word_emb=word_emb,
-                                               fix_issue_16_primary_keys=True,
-                                               compute_sc_link=True,
-                                               compute_cv_link=dail_conf.compute_cv_link)
-
-    # build schema-linking
-    section = "train"
-    for item in input_data:
-        db_id = item["db_id"]
-        schema = schemas[db_id]
-        to_add, validation_info = linking_processor.validate_item(item, schema, section)
-        if to_add:
-            linking_processor.add_item(item, schema, section, validation_info)
-
-    # save
-    linking_processor.save(dail_conf.schema_path(), section)
-
-    usage = FileSenderUsage.model_validate({'total_time': timer.lap()})
-    with open(usage_path, 'w') as file:
-        file.write(json.dumps(usage.dict(), indent=4))
+        # save
+        linking_processor.save(dail_conf.schema_path(), section)
 
 
 def bird_pre_process(bird_dir, with_evidence=False):

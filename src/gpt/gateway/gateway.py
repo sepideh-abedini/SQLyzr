@@ -1,5 +1,4 @@
 import os
-import time
 
 import backoff
 from openai import AsyncClient

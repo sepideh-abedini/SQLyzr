@@ -6,7 +6,11 @@ import os
 import sys
 import json
 
+from src.eval.lib import Timer
 from src.eval.single_run_config import SingleRunConfig
+from src.gpt.file_sender.usage_tracker import UsageTracker
+from src.sqlyzr.file_gen import FileGenerator
+from src.sqlyzr.file_sender_usage import FileGeneratorUsage
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.prompt.prompt_builder import prompt_factory
 from src.third_party.dail.utils.data_builder import load_data
@@ -27,73 +31,81 @@ SCOPE_FACTOR = 100
 SPLIT = "test"
 
 
-def generate_questions(dail_conf: DailConfig, run_conf: SingleRunConfig):
-    if os.path.exists(dail_conf.questions_path()):
-        print(f"Questions file exists: {dail_conf.questions_path()}, skipping!")
-        return
+class DailQuestionGenerator(FileGenerator):
+    __dail_conf: DailConfig
+    __run_conf: SingleRunConfig
 
-    # load test dataset here
-    data = load_data(DATASET_TYPE, tables_path=run_conf.dataset_config.get_tables_path(),
-                     input_path=run_conf.dataset_config.get_data_path(),
-                     db_dir=run_conf.dataset_config.get_db_path(),
-                     schema_links_path=dail_conf.schema_path())
+    def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig):
+        super().__init__(dail_conf.questions_path())
+        self.__dail_conf = dail_conf
+        self.__run_conf = run_conf
 
-    # Read all tables into a dict
-    databases = data.get_databases()
+    def _run_internal(self):
+        dail_conf = self.__dail_conf
+        run_conf = self.__run_conf
 
-    # select the prompt
-    prompt = prompt_factory(PROMPT_REPR, K_SHOT, EXAMPLE_TYPE, SELECTOR_TYPE)(data=data, tokenizer=TOKENIZER)
+        # load test dataset here
+        data = load_data(DATASET_TYPE, tables_path=run_conf.dataset_config.get_tables_path(),
+                         input_path=run_conf.dataset_config.get_data_path(),
+                         db_dir=run_conf.dataset_config.get_db_path(),
+                         schema_links_path=dail_conf.schema_path())
 
-    # format all questions
-    questions = list()
-    token_cnt = 0
+        # Read all tables into a dict
+        databases = data.get_databases()
 
-    # choose split
-    cross_domain = SPLIT == "train"
+        # select the prompt
+        prompt = prompt_factory(PROMPT_REPR, K_SHOT, EXAMPLE_TYPE, SELECTOR_TYPE)(data=data, tokenizer=TOKENIZER)
 
-    for question_json in data.get_train_json():
-        question_format = prompt.format(target=question_json,
-                                        max_seq_len=MAX_SEQ_LEN,
-                                        max_ans_len=MAX_SEQ_LEN,
-                                        scope_factor=SCOPE_FACTOR,
-                                        cross_domain=cross_domain)
+        # format all questions
+        questions = list()
+        token_cnt = 0
 
-        questions.append(question_format)
+        # choose split
+        cross_domain = SPLIT == "train"
 
-        token_cnt += question_format["prompt_tokens"]
+        for question_json in data.get_train_json():
+            question_format = prompt.format(target=question_json,
+                                            max_seq_len=MAX_SEQ_LEN,
+                                            max_ans_len=MAX_SEQ_LEN,
+                                            scope_factor=SCOPE_FACTOR,
+                                            cross_domain=cross_domain)
 
-    # cost estimated
-    token_cnt = float(token_cnt) / len(questions)
-    # print(f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
+            questions.append(question_format)
 
-    n_total_tokens = len(questions) * MAX_ANS_LEN + token_cnt
-    cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)
-    cost_text_davinci_003 = cost_estimate(n_total_tokens, LLM.TEXT_DAVINCI_003)
-    example_quality = prompt.get_example_quality()
-    # example_quality_each = prompt.get_example_quality_for_each()
-    pattern_similarity = prompt.get_pattern_similarity()
-    # print(f"Example quality: {example_quality}")
-    # print(f"Estimated cost for {LLM.GPT_4}: {cost_gpt_35_turbo * 20}")
-    # print(f"Estimated cost for {LLM.GPT_35_TURBO}: {cost_gpt_35_turbo}")
-    # print(f"Estimated cost for {LLM.TEXT_DAVINCI_003}: {cost_text_davinci_003}")
+            token_cnt += question_format["prompt_tokens"]
 
-    # save questions
-    task = {
-        "args": "",
-        "costs": {
-            "prompt_tokens_per_prompt": token_cnt,
-            "gpt-4": cost_gpt_35_turbo * 20,
-            "gpt-3.5-turbo": cost_gpt_35_turbo,
-            "text-davinci-003": cost_text_davinci_003,
-            "example_quality": example_quality,
-            "pattern_similarity": pattern_similarity,
-            # "example_quality_for_each": example_quality_each
-        },
-        "questions": questions
-    }
+        # cost estimated
+        token_cnt = float(token_cnt) / len(questions)
+        # print(f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
 
-    # path_generate = f"dataset/process/{args.data_type.upper()}-{args.split.upper()}_{prompt.name}_CTX-{args.max_ans_len}_ANS-{args.max_seq_len}"
-    json.dump(task, open(dail_conf.questions_path(), "w"), indent=4)
+        n_total_tokens = len(questions) * MAX_ANS_LEN + token_cnt
+        cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)
+        cost_text_davinci_003 = cost_estimate(n_total_tokens, LLM.TEXT_DAVINCI_003)
+        example_quality = prompt.get_example_quality()
+        # example_quality_each = prompt.get_example_quality_for_each()
+        pattern_similarity = prompt.get_pattern_similarity()
+        # print(f"Example quality: {example_quality}")
+        # print(f"Estimated cost for {LLM.GPT_4}: {cost_gpt_35_turbo * 20}")
+        # print(f"Estimated cost for {LLM.GPT_35_TURBO}: {cost_gpt_35_turbo}")
+        # print(f"Estimated cost for {LLM.TEXT_DAVINCI_003}: {cost_text_davinci_003}")
+
+        # save questions
+        task = {
+            "args": "",
+            "costs": {
+                "prompt_tokens_per_prompt": token_cnt,
+                "gpt-4": cost_gpt_35_turbo * 20,
+                "gpt-3.5-turbo": cost_gpt_35_turbo,
+                "text-davinci-003": cost_text_davinci_003,
+                "example_quality": example_quality,
+                "pattern_similarity": pattern_similarity,
+                # "example_quality_for_each": example_quality_each
+            },
+            "questions": questions
+        }
+
+        # path_generate = f"dataset/process/{args.data_type.upper()}-{args.split.upper()}_{prompt.name}_CTX-{args.max_ans_len}_ANS-{args.max_seq_len}"
+        json.dump(task, open(dail_conf.questions_path(), "w"), indent=4)
 
 
 if __name__ == '__main__':

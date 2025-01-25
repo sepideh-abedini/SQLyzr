@@ -11,6 +11,7 @@ class DailConfig:
     compute_cv_link: bool = True
     params = {
         'model': "gpt-4o-mini",
+        'max_tokens': 600,
         'n': 5
     }
 

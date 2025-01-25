@@ -9,8 +9,8 @@ from src.eval.single_run_config import SingleRunConfig
 from src.gpt.models import BatchInputRequest
 from src.pred.predictor import Predictor
 from src.third_party.dail.dail_conf import DailConfig
-from src.third_party.dail.data_preprocess import schema_linking_producer
-from src.third_party.dail.generate_question import generate_questions
+from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
+from src.third_party.dail.generate_question import DailQuestionGenerator
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
 from src.util.model_utils import read_jsonl
 
@@ -24,12 +24,13 @@ class DailPredictor(Predictor):
         self.__conf = DailConfig(run_conf.get_pred_path())
 
     async def _run_internal(self):
-        if os.path.exists(self._run_conf.get_pred_path()):
-            return
+        schema_links_gen = DailSchemaLinksGenerator(self.__conf, self._run_conf)
+        usage = schema_links_gen.run()
+        self._tracker.add_usage(usage)
 
-        self._usage += schema_linking_producer(self.__conf, self._run_conf)
-
-        self._usage += generate_questions(self.__conf, self._run_conf)
+        question_gen = DailQuestionGenerator(self.__conf, self._run_conf)
+        usage = question_gen.run()
+        self._tracker.add_usage(usage)
 
         self.__load_questions()
 
