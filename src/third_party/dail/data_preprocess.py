@@ -2,7 +2,10 @@ import json
 import os
 import sqlite3
 
+from src.eval.lib import Timer
 from src.eval.single_run_config import SingleRunConfig
+from src.gpt.file_sender.file_sender import GptFileSender
+from src.gpt.file_sender.file_sender_usage import FileSenderUsage
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.datasets.spider import load_tables
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
@@ -15,10 +18,13 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 def schema_linking_producer(dail_conf: DailConfig, run_conf: SingleRunConfig):
+    usage_path = f"{dail_conf.schema_path()}.usage.json"
+
     if os.path.exists(dail_conf.schema_path()):
         print(f"Schema file exists: {dail_conf.schema_path()}, skipping!")
-        return
+        return FileSenderUsage.read_file(GptFileSender.__get_usage_path(out_path))
 
+    timer = Timer.start()
     # load data
     input_data = json.load(open(run_conf.dataset_config.get_data_path()))
     # load schemas
@@ -54,6 +60,10 @@ def schema_linking_producer(dail_conf: DailConfig, run_conf: SingleRunConfig):
 
     # save
     linking_processor.save(dail_conf.schema_path(), section)
+
+    usage = FileSenderUsage.model_validate({'total_time': timer.lap()})
+    with open(usage_path, 'w') as file:
+        file.write(json.dumps(usage.dict(), indent=4))
 
 
 def bird_pre_process(bird_dir, with_evidence=False):

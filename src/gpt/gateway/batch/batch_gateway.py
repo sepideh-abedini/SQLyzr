@@ -8,6 +8,7 @@ import backoff
 from natsort import natsorted
 from openai.types import Batch
 
+from src.gpt.file_sender.file_sender_usage import FileSenderUsage
 from src.gpt.gateway.batch.batch_client import GptBatchClient
 from src.gpt.gateway.batch.batch_info import BatchInfo
 from src.gpt.gateway.batch.batch_tracker import BatchTracker
@@ -15,6 +16,7 @@ from src.gpt.gateway.gateway_exceptions import GptBatchNotCompletedException, Gp
     GptRateLimitException
 from src.gpt.models import BatchRequestOutput
 from src.util.logger import debug_log, log
+from src.util.model_utils import read_model
 
 
 def on_rate_limit(details):
@@ -46,7 +48,7 @@ class GptBatchGateway:
                           exception=GptBatchFailedException)
     @backoff.on_exception(backoff.constant, on_backoff=on_not_complete, interval=10, max_tries=None,
                           exception=GptBatchNotCompletedException)
-    async def send_batch(self, in_path: str) -> List[BatchRequestOutput]:
+    async def send_batch(self, in_path: str) -> (List[BatchRequestOutput], FileSenderUsage):
         info = BatchInfo(in_path)
 
         await self.__upload_file(info)
@@ -57,9 +59,19 @@ class GptBatchGateway:
 
         responses = await self.__download_batch_output(info)
 
-        await self.__save_batch_stats(info)
+        batch_stats = await self.__save_batch_stats(info)
 
-        return responses
+        usage = self.__extract_usage(batch_stats, responses)
+
+        return responses, usage
+
+    def __extract_usage(self, batch_stats: Batch, responses: List[BatchRequestOutput]):
+        total_time = batch_stats.completed_at - batch_stats.in_progress_at
+        total_tokens = sum(map(lambda res: res.response.body.usage.total_tokens or 0, responses))
+        return FileSenderUsage.model_validate({
+            "total_time": total_time,
+            "total_tokens": total_tokens
+        })
 
     async def __upload_file(self, info: BatchInfo):
         if info.get_value("fid"):
@@ -130,6 +142,6 @@ class GptBatchGateway:
 
     async def __save_batch_stats(self, info: BatchInfo):
         batch = await self.__retrieve_batch(info)
-        with open(f"{info.in_path}.batch.stats.json", "w") as file:
+        with open(f"info.get_stats_path()", "w") as file:
             file.write(json.dumps(batch.dict(), indent=4))
         return batch

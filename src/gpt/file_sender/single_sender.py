@@ -25,7 +25,6 @@ class GptSingleSender(GptFileSender):
             futures.append(future)
             debug_log(f"Request {req.custom_id} initiated")
         resps = list(await tqdm.gather(desc="Waiting for responses", *futures))
-        self._total_tokens = sum(map(lambda res: res.usage.total_tokens if res.usage else 0, resps))
         return resps
 
     async def __send_single_req(self, req: BatchInputRequest) -> ChatCompletion:
@@ -35,5 +34,7 @@ class GptSingleSender(GptFileSender):
         reqs = read_jsonl(in_path, BatchInputRequest)
         timer = Timer.start()
         responses = await self.__send_reqs(reqs)
-        self._total_time = timer.lap()
+        self._tracker.add_time(timer.lap())
+        tokens = sum(map(lambda res: res.usage.total_tokens if res.usage else 0, responses))
+        self._tracker.add_tokens(tokens)
         return responses

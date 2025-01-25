@@ -14,15 +14,15 @@ class BatchInfo:
     def __init__(self, in_path: str):
         self.__in_path = in_path
 
-    def __file_path(self, key: BatchInfoProps):
-        return f"{self.in_path}.{key}"
-
     def get_value(self, key: BatchInfoProps):
         if os.path.exists(self.__file_path(key)):
             with open(self.__file_path(key)) as file:
                 return file.read()
         else:
             return None
+
+    def get_stats_path(self):
+        return f"{self.in_path}.batch.stats.json"
 
     def set_value(self, key: BatchInfoProps, value: Optional[str]):
         if not value:
@@ -31,3 +31,6 @@ class BatchInfo:
         else:
             with open(self.__file_path(key), "w") as file:
                 file.write(value)
+
+    def __file_path(self, key: BatchInfoProps):
+        return f"{self.in_path}.{key}"

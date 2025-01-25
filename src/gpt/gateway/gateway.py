@@ -6,14 +6,14 @@ from openai import AsyncClient
 from openai.types.chat import ChatCompletion
 
 from src.gpt.gateway.gateway_exceptions import GptRateLimitException
-from src.gpt.gateway.single.gpt_tracker import GptUsageTracker
+from src.gpt.gateway.single.token_tracker import GptTokenTracker
 from src.gpt.models import BatchInputRequest
 from src.util.logger import debug_log
 
 
 class GptGateway:
     _client: AsyncClient
-    __tracker: GptUsageTracker
+    __tracker: GptTokenTracker
 
     def __init__(self):
         self._client = AsyncClient(
@@ -21,7 +21,7 @@ class GptGateway:
             project=os.getenv("OPENAI_PROJ_ID"),
             timeout=60
         )
-        self.__tracker = GptUsageTracker.get_instance()
+        self.__tracker = GptTokenTracker.get_instance()
 
     @backoff.on_exception(backoff.constant, interval=30, max_tries=100, exception=GptRateLimitException)
     async def track_and_send(self, request: BatchInputRequest) -> ChatCompletion:

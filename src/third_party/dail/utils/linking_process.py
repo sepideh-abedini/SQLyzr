@@ -161,7 +161,7 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
             cv_link = {"num_date_match": {}, "cell_match": {}}
         return {
             'raw_question': item['question'],
-            'db_id': schema.__db_id,
+            'db_id': schema.db_id,
             'question': question,
             'question_for_copying': question_for_copying,
             'sc_link': sc_link,
@@ -177,11 +177,11 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
         }
 
     def _preprocess_schema(self, schema):
-        if schema.__db_id in self.preprocessed_schemas:
-            return self.preprocessed_schemas[schema.__db_id]
+        if schema.db_id in self.preprocessed_schemas:
+            return self.preprocessed_schemas[schema.db_id]
         result = preprocess_schema_uncached(schema, self._tokenize,
                                             self.include_table_name_in_column, self.fix_issue_16_primary_keys)
-        self.preprocessed_schemas[schema.__db_id] = result
+        self.preprocessed_schemas[schema.db_id] = result
         return result
 
     def _tokenize(self, presplit, unsplit):

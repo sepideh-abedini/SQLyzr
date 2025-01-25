@@ -39,6 +39,10 @@ class Predictor(ABC):
         await self._run_internal()
         self._save_usage()
 
+    def _add_time_usage(self, amount: float):
+        usage = FileSenderUsage.model_validate({"total_time": amount})
+        self._usage += usage
+
     @abstractmethod
     async def _run_internal(self):
         pass

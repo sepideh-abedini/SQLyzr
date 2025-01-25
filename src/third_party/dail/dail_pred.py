@@ -23,13 +23,13 @@ class DailPredictor(Predictor):
         super().__init__(run_conf)
         self.__conf = DailConfig(run_conf.get_pred_path())
 
-    async def run(self):
+    async def _run_internal(self):
         if os.path.exists(self._run_conf.get_pred_path()):
             return
 
-        schema_linking_producer(self.__conf, self._run_conf)
+        self._usage += schema_linking_producer(self.__conf, self._run_conf)
 
-        generate_questions(self.__conf, self._run_conf)
+        self._usage += generate_questions(self.__conf, self._run_conf)
 
         self.__load_questions()
 

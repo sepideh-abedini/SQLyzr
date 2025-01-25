@@ -168,18 +168,21 @@ def get_sql_for_database(path_db=None, cur=None):
     return [_[0][0] for _ in sqls]
 
 
+# FIXME: Check if this is fine!
 def get_tokenizer(tokenizer_type: str):
+    return 0
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_type, use_fast=False)
     return tokenizer
 
 
+# FIXME: Check if this is fine!
 def count_tokens(string: str, tokenizer_type: str = None, tokenizer=None):
-    # return 0
-    if tokenizer is None:
-        tokenizer = get_tokenizer(tokenizer_type)
-
-    n_tokens = len(tokenizer.encode(string))
-    return n_tokens
+    return 0
+    # if tokenizer is None:
+    #     tokenizer = get_tokenizer(tokenizer_type)
+    #
+    # n_tokens = len(tokenizer.encode(string))
+    # return n_tokens
 
 
 def sql_normalization(sql):

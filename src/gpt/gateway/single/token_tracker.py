@@ -8,8 +8,8 @@ from src.gpt.gateway.single.gpt_usage import GptTokenUsage
 from src.util.logger import debug_log, log
 
 
-class GptUsageTracker:
-    __instance: 'GptUsageTracker' = None
+class GptTokenTracker:
+    __instance: 'GptTokenTracker' = None
     __limits: GptRateLimits
 
     __usage: List[GptTokenUsage]
@@ -74,6 +74,6 @@ class GptUsageTracker:
 
     @staticmethod
     def get_instance():
-        if not GptUsageTracker.__instance:
-            GptUsageTracker.__instance = GptUsageTracker()
-        return GptUsageTracker.__instance
+        if not GptTokenTracker.__instance:
+            GptTokenTracker.__instance = GptTokenTracker()
+        return GptTokenTracker.__instance
