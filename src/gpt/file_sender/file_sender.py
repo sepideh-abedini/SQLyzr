@@ -12,9 +12,9 @@ class GptFileSender(ABC):
         if os.path.exists(out_path):
             debug_log(f"Output path exists: {out_path}, skip asking gpt.")
             return
-        responses = await self.send_from_file(in_path)
+        responses = await self._send_file(in_path)
         write_jsonl(responses, out_path)
 
     @abstractmethod
-    async def send_from_file(self, in_path: str) -> list[SqlyzrChatCompletion]:
+    async def _send_file(self, in_path: str) -> list[SqlyzrChatCompletion]:
         pass

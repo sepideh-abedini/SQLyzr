@@ -1,4 +1,4 @@
-from typing import Literal, Optional, TypedDict
+from typing import Literal, Optional, TypedDict, List
 
 import tiktoken
 from openai import BaseModel
@@ -64,6 +64,13 @@ class BatchResponse(BaseModel):
 class BatchRequestOutput(BaseModel):
     custom_id: str
     response: BatchResponse
+
+    @staticmethod
+    def get_total_token_usage(responses: List['BatchRequestOutput']) -> int:
+        total_tokens = 0
+        for res in responses:
+            total_tokens += res.response.body.usage.total_tokens
+        return total_tokens
 
 
 class SqlyzrChatCompletion(ChatCompletion):

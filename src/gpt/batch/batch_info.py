@@ -5,10 +5,14 @@ BatchInfoProps = Literal["fid", "bid", "oid"]
 
 
 class BatchInfo:
-    in_path: str
+    __in_path: str
+
+    @property
+    def in_path(self):
+        return self.__in_path
 
     def __init__(self, in_path: str):
-        self.in_path = in_path
+        self.__in_path = in_path
 
     def __file_path(self, key: BatchInfoProps):
         return f"{self.in_path}.{key}"

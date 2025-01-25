@@ -12,39 +12,35 @@ from src.util.logger import debug_log
 
 
 class GptGateway:
-    client: AsyncClient
-    tracker: GptUsageTracker
+    __client: AsyncClient
+    __tracker: GptUsageTracker
 
     def __init__(self):
-        self.client = AsyncClient(
+        self.__client = AsyncClient(
             organization=os.getenv("OPENAI_GROUP_ID"),
             project=os.getenv("OPENAI_PROJ_ID"),
             timeout=20
         )
-        self.tracker = GptUsageTracker.get_instance()
-
-    async def send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
-        debug_log("Sending GPT Request")
-        result = await self.client.chat.completions.create(
-            **request.body.dict()
-        )
-        debug_log("Received GPT Response")
-        return result
+        self.__tracker = GptUsageTracker.get_instance()
 
     @backoff.on_exception(backoff.constant, interval=30, max_tries=100, exception=GptRateLimitException)
     async def track_and_send(self, request: BatchInputRequest) -> SqlyzrChatCompletion:
         debug_log(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()
-        can_send = await self.tracker.check_limit(tokens)
+        can_send = await self.__tracker.check_limit(tokens)
         if can_send:
-            usage = await self.tracker.add_usage(tokens)
-            result = await self.send_without_tracking(request)
+            usage = await self.__tracker.add_usage(tokens)
+            result = await self._send_without_tracking(request)
             result_extended = SqlyzrChatCompletion(**result.dict(), completed_at=int(time.time()))
             usage.expire()
             return result_extended
         else:
             raise GptRateLimitException()
 
-
-
-
+    async def _send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
+        debug_log("Sending GPT Request")
+        result = await self.__client.chat.completions.create(
+            **request.body.dict()
+        )
+        debug_log("Received GPT Response")
+        return result

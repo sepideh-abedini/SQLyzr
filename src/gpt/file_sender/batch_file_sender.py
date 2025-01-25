@@ -10,13 +10,13 @@ from src.gpt.models import SqlyzrChatCompletion
 
 
 class GptBatchFileSender(GptFileSender):
-    gateway: GptBatchGateway
+    __gateway: GptBatchGateway
 
     def __init__(self):
-        self.gateway = GptBatchGateway()
+        self.__gateway = GptBatchGateway()
 
-    async def send_from_file(self, in_path: str) -> list[SqlyzrChatCompletion]:
-        output = await self.gateway.send_batch(in_path)
+    async def _send_file(self, in_path: str) -> list[SqlyzrChatCompletion]:
+        output = await self.__gateway.send_batch(in_path)
         result = list(map(lambda o: o.response.body, output))
         return result
 
