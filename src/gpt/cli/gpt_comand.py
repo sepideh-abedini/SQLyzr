@@ -2,10 +2,10 @@ import os.path
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from openai import NotFoundError, APIError
+from openai import APIError
 from pydantic import ValidationError
 
-from src.gpt.gpt_client import GptBatchClient
+from src.gpt.batch.batch_client import GptBatchClient
 from src.gpt.models import BatchInputRequest
 
 

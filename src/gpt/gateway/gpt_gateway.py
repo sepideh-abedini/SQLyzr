@@ -8,8 +8,8 @@ from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
 from src.gpt.gateway_exceptions import GptRateLimitException
-from src.gpt.gpt_tracker import GptUsageTracker
 from src.gpt.models import BatchInputRequest, SqlyzrChatCompletion
+from src.gpt.tracker.gpt_tracker import GptUsageTracker
 from src.util.logger import debug_log
 
 

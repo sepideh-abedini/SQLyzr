@@ -1,6 +1,6 @@
-from typing import Literal, Optional, Dict, TypedDict
-import tiktoken
+from typing import Literal, Optional, TypedDict
 
+import tiktoken
 from openai import BaseModel
 from openai.types.chat import ChatCompletion
 

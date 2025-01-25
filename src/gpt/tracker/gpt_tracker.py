@@ -3,8 +3,8 @@ import os
 from asyncio import Lock
 from typing import List
 
-from src.gpt.gpt_limits import GptRateLimits, LIMITS
-from src.gpt.gpt_usage import GptUsage
+from src.gpt.tracker.gpt_limits import GptRateLimits, LIMITS
+from src.gpt.tracker.gpt_usage import GptTokenUsage
 from src.util.logger import debug_log, log
 
 
@@ -12,7 +12,7 @@ class GptUsageTracker:
     __instance: 'GptUsageTracker' = None
     limits: GptRateLimits
 
-    __usage: List[GptUsage]
+    __usage: List[GptTokenUsage]
     reqs: int
     total_tokens: int
     lock: Lock
@@ -43,7 +43,7 @@ class GptUsageTracker:
     async def add_usage(self, tokens: int):
         await self.lock.acquire()
         try:
-            usage = GptUsage(tokens)
+            usage = GptTokenUsage(tokens)
             old_total = self.total_tokens
             old_req = self.reqs
             self.__usage.append(usage)

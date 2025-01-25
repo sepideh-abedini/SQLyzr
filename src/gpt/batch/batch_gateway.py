@@ -28,7 +28,6 @@ def on_failed(details):
 
 def on_not_complete(details):
     debug_log(f"Batch not completed yet, retrying!")
-    # update(random.randint(0, 100) / 100)
 
 
 class GptBatchGateway:
@@ -51,7 +50,6 @@ class GptBatchGateway:
             info.set_value("fid", response.id)
             log(f"File created for {info.in_path}")
 
-    # FIXME: Print progress of bacth
     async def retrieve_batch(self, info: BatchInfo) -> Batch:
         bid = info.get_value("bid")
         response = self.client.retrieve_batch(bid)
@@ -118,10 +116,6 @@ class GptBatchGateway:
         batch = await self.retrieve_batch(info)
         with open(f"{info.in_path}.batch.stats.json", "w") as file:
             file.write(json.dumps(batch.dict(), indent=4))
-        with open(f"{info.in_path}.time", "w") as file:
-            completion_time = datetime.datetime.fromtimestamp(batch.completed_at) - datetime.datetime.fromtimestamp(
-                batch.created_at)
-            file.write(f"{completion_time.total_seconds()}\n")
         return batch
 
     def get_total_token_usage(self, responses: List[BatchRequestOutput]) -> int:
@@ -143,12 +137,10 @@ class GptBatchGateway:
 
         await self.create_batch_if_not_exist(info)
 
-        # await self.update_tokens_usage(info)
-
         await self.retrieve_out_file_id(info)
 
         responses = await self.download_batch_output(info)
 
-        batch = await self.save_batch_stats(info)
+        await self.save_batch_stats(info)
 
         return responses

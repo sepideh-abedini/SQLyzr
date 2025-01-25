@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 
-class GptUsage:
+class GptTokenUsage:
     tokens: int
     expires_at: datetime
 
