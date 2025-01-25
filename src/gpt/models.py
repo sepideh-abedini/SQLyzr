@@ -71,7 +71,3 @@ class BatchRequestOutput(BaseModel):
         for res in responses:
             total_tokens += res.response.body.usage.total_tokens
         return total_tokens
-
-
-class SqlyzrChatCompletion(ChatCompletion):
-    completion_seconds: int

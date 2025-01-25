@@ -60,7 +60,7 @@ def parse_db(path_db, cur=None):
     table_names = get_table_names(path_db, cur)
 
     for table_name in table_names:
-        pks = get_primary_key(table_name, path_db,cur)
+        pks = get_primary_key(table_name, path_db, cur)
         fks = get_foreign_key(table_name, path_db, cur)
 
         table_info[table_name] = {
@@ -97,6 +97,7 @@ def execute_query(queries, path_db=None, cur=None):
         con.close()
 
     return results
+
 
 def format_foreign_key(table_name: str, res: list):
     # FROM: self key | TO: target key
@@ -168,22 +169,22 @@ def get_sql_for_database(path_db=None, cur=None):
 
 
 def get_tokenizer(tokenizer_type: str):
-    return 0
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_type, use_fast=False)
     return tokenizer
 
 
-def count_tokens(string: str, tokenizer_type: str=None, tokenizer=None):
-    return 0
-    # if tokenizer is None:
-    #     tokenizer = get_tokenizer(tokenizer_type)
-    #
-    # n_tokens = len(tokenizer.encode(string))
-    # return n_tokens
+def count_tokens(string: str, tokenizer_type: str = None, tokenizer=None):
+    # return 0
+    if tokenizer is None:
+        tokenizer = get_tokenizer(tokenizer_type)
+
+    n_tokens = len(tokenizer.encode(string))
+    return n_tokens
 
 
 def sql_normalization(sql):
     sql = sql.strip()
+
     def white_space_fix(s):
         parsed_s = Parser(s)
         s = " ".join([token.value for token in parsed_s.tokens])
@@ -219,7 +220,8 @@ def sql_normalization(sql):
         return s.replace("\"", "'")
 
     def add_asc(s):
-        pattern = re.compile(r'order by (?:\w+ \( \S+ \)|\w+\.\w+|\w+)(?: (?:\+|\-|\<|\<\=|\>|\>\=) (?:\w+ \( \S+ \)|\w+\.\w+|\w+))*')
+        pattern = re.compile(
+            r'order by (?:\w+ \( \S+ \)|\w+\.\w+|\w+)(?: (?:\+|\-|\<|\<\=|\>|\>\=) (?:\w+ \( \S+ \)|\w+\.\w+|\w+))*')
         if "order by" in s and "asc" not in s and "desc" not in s:
             for p_str in pattern.findall(s):
                 s = s.replace(p_str, p_str + " asc")
@@ -294,7 +296,7 @@ def sql_normalization(sql):
         for i in range(len(s)):
             if s[i] == "as":
                 continue
-            if i > 0 and s[i-1] == "as":
+            if i > 0 and s[i - 1] == "as":
                 continue
             new_s.append(s[i])
         new_s = ' '.join(new_s)
@@ -380,7 +382,7 @@ def sql2skeleton(sql: str, db_schema):
     # double check for order by
     split_skeleton = sql_skeleton.split(" ")
     for i in range(2, len(split_skeleton)):
-        if split_skeleton[i-2] == "order" and split_skeleton[i-1] == "by" and split_skeleton[i] != "_":
+        if split_skeleton[i - 2] == "order" and split_skeleton[i - 1] == "by" and split_skeleton[i] != "_":
             split_skeleton[i] = "_"
     sql_skeleton = " ".join(split_skeleton)
 
@@ -418,6 +420,7 @@ def jaccard_similarity(skeleton1, skeleton2):
         for t in tokens:
             token_dict[t] += 1
         return token_dict
+
     token_dict1 = list_to_dict(tokens1)
     token_dict2 = list_to_dict(tokens2)
 

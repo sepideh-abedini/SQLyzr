@@ -7,7 +7,7 @@ from openai.types.chat import ChatCompletion
 
 from src.gpt.gateway.gateway_exceptions import GptRateLimitException
 from src.gpt.gateway.single.gpt_tracker import GptUsageTracker
-from src.gpt.models import BatchInputRequest, SqlyzrChatCompletion
+from src.gpt.models import BatchInputRequest
 from src.util.logger import debug_log
 
 
@@ -24,17 +24,15 @@ class GptGateway:
         self.__tracker = GptUsageTracker.get_instance()
 
     @backoff.on_exception(backoff.constant, interval=30, max_tries=100, exception=GptRateLimitException)
-    async def track_and_send(self, request: BatchInputRequest) -> SqlyzrChatCompletion:
+    async def track_and_send(self, request: BatchInputRequest) -> ChatCompletion:
         debug_log(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()
         can_send = await self.__tracker.check_limit(tokens)
         if can_send:
             usage = await self.__tracker.add_usage(tokens)
             result = await self.send_without_tracking(request)
-            completion_seconds = int(time.time()) - int(result.created)
-            result_extended = SqlyzrChatCompletion(**result.dict(), completion_seconds=completion_seconds)
             usage.expire()
-            return result_extended
+            return result
         else:
             raise GptRateLimitException()
 

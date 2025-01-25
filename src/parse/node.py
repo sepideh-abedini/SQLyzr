@@ -559,6 +559,9 @@ class WithClauseNode(SqlAstNode):
         else:
             raise RuntimeError("Invalid operand type: {}".format(type(other)))
 
+    def __hash__(self):
+        return 1
+
     def __eq__(self, other):
         if not isinstance(other, WithClauseNode):
             return False
@@ -567,9 +570,6 @@ class WithClauseNode(SqlAstNode):
         else:
             debug_log(self.__class__.__name__)
             return False
-
-        def __hash__(self):
-            return 1
 
 
 @dataclass

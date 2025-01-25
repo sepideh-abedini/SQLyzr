@@ -1,4 +1,6 @@
 import datetime
+from datetime import datetime, timedelta
+
 import math
 import sqlite3
 import subprocess
@@ -8,14 +10,17 @@ import pandas as pd
 
 
 class Timer:
+    start_time: datetime
+
     def __init__(self):
-        pass
+        self.start_time = datetime.now()
 
-    def start(self):
-        self.start_time = datetime.datetime.now()
+    @staticmethod
+    def start():
+        return Timer()
 
-    def stop(self) -> datetime.timedelta:
-        return datetime.datetime.now() - self.start_time
+    def lap(self) -> float:
+        return (datetime.now() - self.start_time).total_seconds()
 
 
 def confidence_level_interval(column: pd.Series) -> str:

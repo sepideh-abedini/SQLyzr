@@ -42,14 +42,14 @@ class SubCategory:
         else:
             return 'None'
 
-    def reduce(self):
-        """Remove any tag if some other tag harder or equal than it exists"""
-        to_remove = set()
-        for t in self.tags:
-            for ot in self.tags:
-                if t != ot and ot >= t:
-                    to_remove.add(t)
-        return SubCategory(frozenset(self.tags.difference(to_remove)))
-
+    # def reduce(self):
+    #     """Remove any tag if some other tag harder or equal than it exists"""
+    #     to_remove = set()
+    #     for t in self.tags:
+    #         for ot in self.tags:
+    #             if t != ot and ot >= t:
+    #                 to_remove.add(t)
+    #     return SubCategory(frozenset(self.tags.difference(to_remove)))
+    #
     def __repr__(self):
         return str(self)

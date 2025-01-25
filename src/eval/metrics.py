@@ -132,8 +132,7 @@ class Count(Metric):
 class TotalExecTime(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
         db_file_path = self.conf.get_db_file_path(db_id)
-        timer = lib.Timer()
-        timer.start()
+        timer = lib.Timer.start()
         exec_sql(db_file_path, pred)
-        pred_sql_exec_time = timer.stop()
+        pred_sql_exec_time = timer.lap()
         return pred_sql_exec_time.total_seconds() * 1_000_000
