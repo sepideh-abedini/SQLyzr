@@ -25,7 +25,7 @@ class DinPredictor(Predictor):
         self.__conf = DinConfig(run_conf.get_pred_path())
         self.__prompt_maker = PromptMaker(self._run_conf.dataset_config.get_tables_path())
 
-    async def run(self):
+    async def _run_internal(self):
         conf = self.__conf
 
         self._gen_batch_file(conf.get_path("schema", "in"), self.__generate_schema_req)

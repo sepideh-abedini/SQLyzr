@@ -13,19 +13,15 @@ class SingleRunConfig:
     temp: float
     itr: int
     pred_file_name: str = "pred"
-    stats_file_name: str = "stats"
-    util_file_name: str = "util"
+    usage_file_name: str = "usage"
     trs_file_name: str = "trs"
     batch: bool = False
 
     def get_pred_path(self):
         return os.path.join(self.pred_dir, f"{self.pred_file_name}_{self.temp}_{self.itr}.txt")
 
-    def get_stats_path(self):
-        return os.path.join(self.pred_dir, f"{self.stats_file_name}_{self.temp}_{self.itr}.json")
-
-    def get_util_path(self):
-        return os.path.join(self.pred_dir, f"{self.util_file_name}_{self.temp}_{self.itr}.json")
+    def get_usage_path(self):
+        return os.path.join(self.pred_dir, f"{self.usage_file_name}_{self.temp}_{self.itr}.json")
 
     def get_trs_path(self):
         return os.path.join(self.trs_dir, f"{self.trs_file_name}_{self.temp}_{self.itr}.csv")

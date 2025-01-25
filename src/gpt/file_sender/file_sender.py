@@ -24,12 +24,14 @@ class GptFileSender(ABC):
             return self.__load_usage(out_path)
         responses = await self._send_file(in_path)
         write_jsonl(responses, out_path)
-        self.__save_usage(out_path)
+        usage = self.__save_usage(out_path)
+        return usage
 
     def __save_usage(self, out_path: str):
-        data = FileSenderUsage.model_validate({'total_tokens': self._total_tokens, 'total_time': self._total_time})
+        usage = FileSenderUsage.model_validate({'total_tokens': self._total_tokens, 'total_time': self._total_time})
         with open(self.__get_usage_path(out_path), 'w') as file:
-            file.write(json.dumps(data.dict(), indent=4))
+            file.write(json.dumps(usage.dict(), indent=4))
+        return usage
 
     @staticmethod
     def __get_usage_path(out_path: str):
@@ -37,7 +39,7 @@ class GptFileSender(ABC):
 
     @staticmethod
     def __load_usage(out_path: str):
-        return FileSenderUsage.read_file(out_path)
+        return FileSenderUsage.read_file(GptFileSender.__get_usage_path(out_path))
 
     @abstractmethod
     async def _send_file(self, in_path: str) -> list[ChatCompletion]:

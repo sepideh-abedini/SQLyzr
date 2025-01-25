@@ -30,7 +30,7 @@ class ModelRunner(ABC):
 
     async def run_single(self, run_conf: SingleRunConfig):
         result = await self.run_single_internal(run_conf)
-        ProcessUsage.dump_proc_usage(run_conf.get_util_path())
+        # ProcessUsage.dump_proc_usage(run_conf.get_util_path())
         return result
 
     @abstractmethod

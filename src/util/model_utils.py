@@ -1,6 +1,12 @@
+import json
 from typing import List, TypeVar, Type
 
 from pydantic import BaseModel
+
+
+def write_model(data: BaseModel, out_path: str):
+    with open(out_path, 'w') as out_file:
+        out_file.write(json.dumps(data.dict(), indent=4))
 
 
 def write_jsonl(data: list[BaseModel], out_path: str):
