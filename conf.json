@@ -11,10 +11,10 @@
   "batch": false,
   "force": false,
   "pipeline": {
-    "verify": false,
-    "predict": false,
-    "eval": false,
-    "transformers": false,
+    "verify": true,
+    "predict": true,
+    "eval": true,
+    "transformers": true,
     "augment": true
   }
 }
