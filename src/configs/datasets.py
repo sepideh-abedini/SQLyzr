@@ -1,7 +1,9 @@
+from typing import Literal
+
 from src.eval.dataset_config import DatasetConfig
 
 BIRD_SMALL = DatasetConfig(
-    dataset_dir="data/bird",
+    dataset_dir="data/bird/dev",
     data_file="dev.conv.small.json",
     gold_file="dev.conv.small.gold.txt",
     tables_file="dev_tables.json",
@@ -47,3 +49,17 @@ BEAVER_DEV = DatasetConfig(
     tables_file="tables.json",
     db_dir="database"
 )
+
+DATASETS = {
+    "bird": {
+        "small": BIRD_SMALL,
+        "dev": BIRD_DEV,
+        "train": BIRD_TRAIN
+    },
+    "spider": {
+        "small": SPIDER_SMALL,
+        "dev": SPIDER_DEV
+    }
+}
+DatasetName = Literal["spider", "bird"]
+DatasetSize = Literal["small", "dev", "train", "all"]

@@ -1,11 +1,14 @@
 import os.path
-from typing import Literal, List
+from typing import Literal, List, Tuple
 
 from pydantic import BaseModel
 
 from src.configs.dataset import BIRD_SMALL, BIRD_DEV, BIRD_TRAIN, SPIDER_SMALL, SPIDER_DEV
+
+from src.configs.datasets import DatasetName, DatasetSize
 from src.configs.metrics import SPIDER_METRICS, BIRD_METRICS
 from src.configs.sqlyzr import SQLyzrConfig
+from src.eval.dataset_config import DatasetConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pipeline_config import PipelineConfig
 
@@ -16,8 +19,8 @@ class ConfigData(BaseModel):
     data_dir: str = "data"
     aug_per_sub_cat: int = 2
     error_threshold: float = 101
-    dataset: Literal["spider", "bird"] = "spider"
-    dataset_size: Literal["small", "dev", "train"] = "small"
+    dataset: DatasetName = "spider"
+    dataset_size: DatasetSize = "small"
     temps: List[float] = [0.0]
     itrs: int = 2
     model: Literal["din", "dail"]
@@ -47,17 +50,6 @@ class ConfigData(BaseModel):
             return data
 
 
-DATASETS = {
-    "bird": {
-        "small": BIRD_SMALL,
-        "dev": BIRD_DEV,
-        "train": BIRD_TRAIN
-    },
-    "spider": {
-        "small": SPIDER_SMALL,
-        "dev": SPIDER_DEV
-    }
-}
 
 METRICS = {
     "spider": SPIDER_METRICS,
