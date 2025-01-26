@@ -3,12 +3,10 @@ from typing import Literal, List, Tuple
 
 from pydantic import BaseModel
 
-from src.configs.dataset import BIRD_SMALL, BIRD_DEV, BIRD_TRAIN, SPIDER_SMALL, SPIDER_DEV
 
-from src.configs.datasets import DatasetName, DatasetSize
+from src.configs.datasets import DatasetName, DatasetSize, DATASETS
 from src.configs.metrics import SPIDER_METRICS, BIRD_METRICS
 from src.configs.sqlyzr import SQLyzrConfig
-from src.eval.dataset_config import DatasetConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pipeline_config import PipelineConfig
 

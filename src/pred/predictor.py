@@ -11,7 +11,7 @@ from src.gpt.file_sender.single_sender import GptSingleSender
 from src.gpt.file_sender.usage_tracker import UsageTracker
 from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
-from src.util.model_utils import read_jsonl, write_model
+from src.util.model_utils import read_jsonl
 
 ResponseProcessor = Callable[[int, str], str]
 

@@ -13,7 +13,7 @@
   "pipeline": {
     "verify": false,
     "predict": true,
-    "eval": false,
+    "eval": true,
     "transformers": false,
     "augment": false
   }

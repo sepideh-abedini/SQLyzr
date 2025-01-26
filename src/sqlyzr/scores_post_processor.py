@@ -2,6 +2,8 @@ import pandas as pd
 
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.lib import confidence_level_interval
+from src.sqlyzr.file_sender_usage import FileGeneratorUsage
+from src.util.model_utils import read_model
 
 
 class ScoresPostProcessor:
@@ -23,6 +25,15 @@ class ScoresPostProcessor:
         all_cats['cat'] = 'all'
         all_cats['sub_cat'] = 'all'
         all_cats.to_csv(config.get_scores_path("_all_cats"))
+
+        for run_conf in self.__config.eval_conf.get_run_confs():
+            usage = read_model(run_conf.get_usage_path(), FileGeneratorUsage)
+            row_match = (all_cats['tmp'] == run_conf.temp) & (all_cats['itr'] == run_conf.itr)
+            all_cats.loc[row_match, 'total_time'] = usage.total_time
+            all_cats.loc[row_match, 'total_tokens'] = usage.total_tokens
+            all_cats = all_cats.round(2)
+            all_cats.to_csv(config.get_scores_path("_usage"))
+
 
         combined = pd.concat([all_cats, all_sub_cats, df], join='inner', ignore_index=True)
         combined.to_csv(config.get_scores_path("_combined"))

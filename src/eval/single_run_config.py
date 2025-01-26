@@ -21,7 +21,7 @@ class SingleRunConfig:
         return os.path.join(self.pred_dir, f"{self.pred_file_name}_{self.temp}_{self.itr}.txt")
 
     def get_usage_path(self):
-        return os.path.join(self.pred_dir, f"{self.usage_file_name}_{self.temp}_{self.itr}.json")
+        return f"{self.get_pred_path()}.usage.json"
 
     def get_trs_path(self):
         return os.path.join(self.trs_dir, f"{self.trs_file_name}_{self.temp}_{self.itr}.csv")
