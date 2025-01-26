@@ -1,3 +1,4 @@
+import argparse
 import os
 import shutil
 from typing import List, Tuple
@@ -28,12 +29,18 @@ def merge_datasets(datasets: List[Tuple[DatasetName, DatasetSize]], out_dir: str
     concat_files(map(lambda c: c.get_gold_path(), confs), new_conf.get_gold_path())
 
 
-def main():
-    merge_datasets([
-        ('spider', 'small'),
-        ('bird', 'small'),
-    ], 'data/spider_bird_small')
+def main(datasets: List[str], out_dir: str):
+    pairs = []
+    if len(datasets) % 2 != 0:
+        raise RuntimeError(f"Invalid number of dataset args: {len(datasets)}")
+    for i in range(0, len(datasets), 2):
+        pairs.append((datasets[i], datasets[i + 1]))
+    merge_datasets(pairs, out_dir)
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--datasets", nargs="+", required=True)
+    parser.add_argument("-o", "--out_dir", required=True, type=str)
+    args = parser.parse_args()
+    main(args.datasets, args.out_dir)
