@@ -24,3 +24,8 @@ BIRD_METRICS = {
     # SpiderExactMatch("sem", config.dataset_config),
     # RelaxedExecAcc("rea", config.dataset_config),
 }
+METRICS = {
+    "spider": SPIDER_METRICS,
+    "bird": BIRD_METRICS,
+    "beaver": BIRD_METRICS
+}

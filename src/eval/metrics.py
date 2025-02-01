@@ -6,7 +6,7 @@ from src.cat.catter import Catter
 from src.eval import lib
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
-from src.eval.lib import exec_sql
+from src.eval.lib import DatabaseClient
 from src.eval.single_run_config import SingleRunConfig
 from src.rel.base_matcher import ExtraColumnRemoverMatcher
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
@@ -21,6 +21,12 @@ from src.util.logger import log
 class Metric(ABC):
     name: str
     conf: DatasetConfig
+    dbc: DatabaseClient
+
+    def __init__(self, name: str, conf: DatasetConfig):
+        self.name = name
+        self.conf = conf
+        self.dbc = DatabaseClient(conf)
 
     @abstractmethod
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
@@ -67,8 +73,8 @@ class SpiderExactMatch(Metric):
 class ExecAcc(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
         db_file_path = self.conf.get_db_file_path(db_id)
-        gold_sql_exec_res = exec_sql(db_file_path, gold)
-        pred_sql_exec_res = exec_sql(db_file_path, pred)
+        gold_sql_exec_res = self.dbc.exec_sql(db_id, gold)
+        pred_sql_exec_res = self.dbc.exec_sql(db_id, pred)
         if gold_sql_exec_res is None:
             raise RuntimeError("Gold result is None!")
         if pred_sql_exec_res is None:
@@ -94,8 +100,7 @@ class ComplexityConsistency(Metric):
 
 class GoldNotEmpty(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
-        db_file_path = self.conf.get_db_file_path(db_id)
-        gold_sql_exec_res = exec_sql(db_file_path, gold)
+        gold_sql_exec_res = self.dbc.exec_sql(db_id, gold)
         if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
             return 1
         else:
@@ -131,8 +136,7 @@ class Count(Metric):
 
 class TotalExecTime(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
-        db_file_path = self.conf.get_db_file_path(db_id)
         timer = lib.Timer.start()
-        exec_sql(db_file_path, pred)
+        self.dbc.exec_sql(db_id, pred)
         pred_sql_exec_time = timer.lap()
         return pred_sql_exec_time.total_seconds() * 1_000_000

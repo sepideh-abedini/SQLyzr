@@ -1,12 +1,17 @@
 import datetime
+import os
 from datetime import datetime, timedelta
 
 import math
 import sqlite3
 import subprocess
+import mysql.connector
+
 from loguru import logger
 
 import pandas as pd
+
+from src.eval.dataset_config import DatasetConfig
 
 
 class Timer:
@@ -35,20 +40,48 @@ def confidence_level_interval(column: pd.Series) -> str:
     # return f"({interval_start}, {interval_end})"
 
 
-def exec_sql(db_path, sql):
-    """
-    return 1 if the values between prediction and gold are matching
-    in the corresponding index. Currently, not support multiple col_unit(pairs).
-    """
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    try:
-        cursor.execute(sql)
-        res = cursor.fetchall()
-        return res
-    except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
-        logger.error(e)
-        return None
+class DatabaseClient:
+    config: DatasetConfig
+
+    def __init__(self, config: DatasetConfig):
+        self.config = config
+
+    def exec_mysql(self, db_id, sql):
+        connection = mysql.connector.connect(
+            host="localhost",
+            user=os.getenv("MYSQL_USERNAME"),
+            password=os.getenv("MYSQL_PASSWORD"),
+            db=db_id
+        )
+
+        cursor = connection.cursor()
+        try:
+            # Execute the SQL query
+            cursor.execute(sql)
+            res = cursor.fetchall()
+            return res
+        except Exception as err:
+            print(sql)
+            print(f"Error: {err}")
+            return None
+        finally:
+            cursor.close()
+            connection.close()
+
+    def exec_sql(self, db_id, sql):
+        if self.config.mysql:
+            return self.exec_mysql(db_id, sql)
+
+        db_path = self.config.get_db_file_path(db_id)
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        try:
+            cursor.execute(sql)
+            res = cursor.fetchall()
+            return res
+        except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
+            logger.error(e)
+            return None
 
 
 def execute_command(command: str):

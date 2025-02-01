@@ -2,6 +2,11 @@ import json
 from typing import Iterable
 
 
+def read_json(path: str):
+    with open(path) as f:
+        return json.load(f)
+
+
 def get_num_lines(file_path: str):
     with open(file_path) as f:
         return len(f.readlines())

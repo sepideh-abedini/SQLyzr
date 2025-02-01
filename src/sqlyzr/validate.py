@@ -7,7 +7,7 @@ from src.cat.catter import Catter
 from src.configs.sqlyzr import SQLyzrConfig
 from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
-from src.eval.lib import exec_sql
+from src.eval.lib import DatabaseClient
 from src.eval.model_eval_config import ModelEvalConfig
 from src.util.logger import log
 
@@ -24,7 +24,8 @@ def validate_dataset(conf: SQLyzrConfig):
                              desc=f"Validating dataset: {conf.eval_conf.dataset_config.dataset_dir}"):
             example = SpiderExample.model_validate(entry)
             cat = catter.get_category(example.query)
-            exec_res = exec_sql(conf.eval_conf.dataset_config.get_db_file_path(example.db_id), example.query)
+            dbc = DatabaseClient(conf.eval_conf.dataset_config)
+            exec_res = dbc.exec_sql(example.db_id, example.query)
             if exec_res is None or cat is None:
                 errors.append((i, example.query))
             else:

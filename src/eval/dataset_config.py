@@ -10,6 +10,7 @@ class DatasetConfig:
     gold_file: str
     tables_file: str
     db_dir: str
+    mysql: bool = False
 
     def get_rel_path(self, sub_path: str):
         return path.join(self.dataset_dir, sub_path)
