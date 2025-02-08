@@ -1,6 +1,6 @@
 import asyncio
 
-from assets.print_logo import print_logo
+from src.assets.print_logo import print_logo
 from src.sqlyzr.sqlyzr import Sqlyzr
 
 

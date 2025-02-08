@@ -131,7 +131,6 @@ def t_ARITH_OP(t):
     return t
 
 
-# FIXME: handle != op
 def t_COMP_OP(t):
     r'!=|<>|>=|<=|=|>|<'
     return t

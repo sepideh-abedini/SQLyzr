@@ -1,18 +1,18 @@
 {
   "aug_per_sub_cat": 5,
   "error_threshold": 90,
-  "dataset": "beaver",
+  "dataset": "spider",
   "dataset_size": "small",
   "temps": [
     0.2
   ],
   "itrs": 2,
-  "model": "din",
-  "batch": false,
+  "model": "dail",
+  "batch": true,
   "force": false,
   "pipeline": {
     "verify": true,
-    "predict": false,
+    "predict": true,
     "eval": false,
     "transformers": false,
     "augment": false

@@ -87,7 +87,7 @@ class DatabaseClient:
             res = cursor.fetchall()
             return res
         except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
-            logger.error(e)
+            logger.debug(e)
             return None
 
 

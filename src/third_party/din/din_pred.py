@@ -121,7 +121,8 @@ class DinPredictor(Predictor):
 
     def __process_gpt_4o_mini_debug(self, i: int, content: str) -> str:
         content = content.replace("\n", " ")
-        if "SELECT" not in content:
+        content = content.strip()
+        if not content.startswith("SELECT"):
             return self.__sqls[i]
         pattern = r'.*```sql\s*([^`]*).*'
         sql = re.sub(pattern, r'\1', content)

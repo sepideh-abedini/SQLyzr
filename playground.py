@@ -4,20 +4,26 @@ import os
 import psutil
 from loguru import logger
 
-import bar
-from src.configs.dataset import SPIDER_DEV
-from src.configs.eval import DIN_SPIDER_DEV_EVAL
 from src.eval.metrics import ExecAcc, GoldNotEmpty
+from src.parse.parser import SqlParser
 from src.rel.base_matcher import SubsetMatcher
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_transformer import AddLimitTransformer, LiteralCorrectorTransformer, \
     ColCorrectorTransformer
 from src.rel.transformer_detector import TransformerDetector
-from src.sqlyzr.transformer_eval import calc_rea_score
 
-logger.error("Failed to connect to the database.")
-bar.baz()
+parser = SqlParser()
+db_id = "csail_stata_nova"
+sql = """
+SELECT s
+FROM (SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned
+FROM instances
+WHERE instances.deleted = 0 AND (instances.vm_state != 'soft-delete' OR instances.vm_state IS NULL) AND instances.project_id = 'bfd50153a2e9476f93e33e30e922cd06' AND (instances.display_name REGEXP 'void') ORDER BY instances.created_at DESC, instances.id DESC
+LIMIT 3000) AS anon_1 LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = anon_1.instances_uuid AND anon_1.instances_deleted = 0 LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = anon_1.instances_uuid ORDER BY anon_1.instances_created_at DESC, anon_1.instances_id DESC
+"""
+
+parser.parse(sql)
 
 exit(0)
 

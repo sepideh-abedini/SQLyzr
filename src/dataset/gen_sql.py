@@ -121,7 +121,7 @@ async def optimize(tables_path, table_name):
 async def main():
     # tables = gen_tables_sql("data/beaver/dw/dw.tables.json")
     # fks = gen_keys("data/beaver/dw/dw_join_keys.json")
-    await optimize("data/beaver/dw/dw.tables.json", "SUBJECT_SUMMARY")
+    await optimize("data/beaver/dw/dw.tables.json", "SUBJECT_OFFERED")
 
 
 # exec_queries("data/beaver/dw.dev.json")

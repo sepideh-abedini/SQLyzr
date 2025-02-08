@@ -1,0 +1,8 @@
+services:
+  sqlyzr:
+    build: .
+    restart: no
+    env_file: ".env"
+    volumes:
+      - "./data:/app/data"
+      - "./conf.json:/app/conf.json"

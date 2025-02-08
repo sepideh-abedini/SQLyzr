@@ -12,6 +12,7 @@ from src.eval.model_eval_config import ModelEvalConfig
 from src.util.logger import log
 
 
+# FIXME
 def validate_dataset(conf: SQLyzrConfig):
     catter = Catter()
     errors = []
@@ -40,9 +41,9 @@ def validate_dataset(conf: SQLyzrConfig):
         log("Invalid SQLs found!")
         log(f"Num dataset errors: {len(errors)}/{total}")
         log(f"Removing invalid entries, backup is saved in f{data_file_path}.bak")
-        shutil.copyfile(data_file_path, f"{data_file_path}.bak")
-        with open(data_file_path, "w") as out_file:
+        with open(f"data_file_path.clean", "w") as out_file:
             out_file.write(json.dumps(valid_examples, indent=True))
+        raise RuntimeError("Invalid dataset")
     else:
         log("Dataset is valid!")
 
