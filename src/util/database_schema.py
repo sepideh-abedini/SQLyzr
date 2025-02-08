@@ -1,7 +1,6 @@
 from difflib import SequenceMatcher
 from typing import Dict, List, Set, Tuple, FrozenSet
-
-from src.util.logger import log, debug_log
+from loguru import logger
 
 
 def str_similarity(s1, s2):
@@ -18,7 +17,7 @@ class DatabaseSchema:
 
     def find_most_similar_column(self, table_name, col_name, cand_cols: Set[str]):
         if table_name not in self.tables:
-            debug_log(f"Table not found: {table_name}")
+            logger.debug(f"Table not found: {table_name}")
             return None
         table = self.tables[table_name]
         max_sim = 0
@@ -41,13 +40,13 @@ class DatabaseSchema:
 
     def get_col_type(self, table_name, col_name) -> str:
         if table_name not in self.tables:
-            debug_log(f"Table not found: {table_name}")
+            logger.debug(f"Table not found: {table_name}")
             return 'NA'
         table = self.tables[table_name]
         if col_name in table:
             return table[col_name]
         else:
-            debug_log(f"Column not found: {col_name}")
+            logger.debug(f"Column not found: {col_name}")
             return 'NA'
 
     def get_table_name(self, col_name: str, candidate_tables: List[str]) -> str:
@@ -56,24 +55,24 @@ class DatabaseSchema:
         matched_tables = []
         for table in candidate_tables:
             if table not in self.tables:
-                debug_log(f"Candidate table not found: {table}, Available tables: {self.tables.keys()}")
+                logger.debug(f"Candidate table not found: {table}, Available tables: {self.tables.keys()}")
                 return "NA"
             if col_name in self.tables[table]:
                 matched_tables.append(table)
         if len(matched_tables) == 1:
             return matched_tables[0]
         if len(matched_tables) == 0:
-            debug_log(f"Column not found in candidate tables: {col_name}, {candidate_tables}")
+            logger.debug(f"Column not found in candidate tables: {col_name}, {candidate_tables}")
         for table in self.tables:
             if col_name in self.tables[table]:
                 matched_tables.append(table)
         if len(matched_tables) == 1:
             return matched_tables[0]
         if len(matched_tables) == 0:
-            debug_log(f"Column not found in candidate tables: {col_name}, {candidate_tables}")
+            logger.debug(f"Column not found in candidate tables: {col_name}, {candidate_tables}")
             return "NA"
         if len(matched_tables) > 1:
-            debug_log(f"Ambiguous column name: {col_name}, matched tables: {matched_tables}")
+            logger.debug(f"Ambiguous column name: {col_name}, matched tables: {matched_tables}")
             return matched_tables[0]
 
     def __str__(self):

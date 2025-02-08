@@ -3,6 +3,8 @@ from src.cat.tag_extractor import TagExtractor
 from src.parse.parser import SqlParser
 from src.util.logger import log
 
+from loguru import logger
+
 
 class Catter:
     parser = SqlParser()
@@ -15,7 +17,7 @@ class Catter:
             tags = self.tag_extractor.extract_tags(ast)
             return self.categorizer.get_category(tags.tag_set)
         except Exception as e:
-            log(e)
+            logger.debug(e)
             return None
 
     def get_sub_category(self, sql: str):

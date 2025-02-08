@@ -7,7 +7,7 @@ from openai.types.chat import ChatCompletion
 from src.gpt.gateway.gateway_exceptions import GptRateLimitException
 from src.gpt.gateway.single.token_tracker import GptTokenTracker
 from src.gpt.models import BatchInputRequest
-from src.util.logger import debug_log
+from loguru import logger
 
 
 class GptGateway:
@@ -24,7 +24,7 @@ class GptGateway:
 
     @backoff.on_exception(backoff.constant, interval=30, max_tries=100, exception=GptRateLimitException)
     async def track_and_send(self, request: BatchInputRequest) -> ChatCompletion:
-        debug_log(f"Sending [{request.custom_id}]")
+        logger.debug(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()
         can_send = await self.__tracker.check_limit(tokens)
         if can_send:
@@ -36,9 +36,9 @@ class GptGateway:
             raise GptRateLimitException()
 
     async def send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
-        debug_log("Sending GPT Request")
+        logger.debug("Sending GPT Request")
         result = await self._client.chat.completions.create(
             **request.body.dict()
         )
-        debug_log("Received GPT Response")
+        logger.debug("Received GPT Response")
         return result

@@ -12,7 +12,7 @@
   "force": false,
   "pipeline": {
     "verify": true,
-    "predict": true,
+    "predict": false,
     "eval": false,
     "transformers": false,
     "augment": false

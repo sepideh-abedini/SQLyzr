@@ -10,6 +10,7 @@ from src.eval.exact_match import ExactMatchParser
 from src.eval.lib import DatabaseClient
 from src.eval.model_eval_config import ModelEvalConfig
 from src.util.logger import log
+from loguru import logger
 
 
 # FIXME
@@ -38,14 +39,14 @@ def validate_dataset(conf: SQLyzrConfig):
             errors_file.write(f"{error}\n")
 
     if len(errors) > 0:
-        log("Invalid SQLs found!")
-        log(f"Num dataset errors: {len(errors)}/{total}")
-        log(f"Removing invalid entries, backup is saved in f{data_file_path}.bak")
+        logger.debug("Invalid SQLs found!")
+        logger.debug(f"Num dataset errors: {len(errors)}/{total}")
+        logger.debug(f"Removing invalid entries, backup is saved in f{data_file_path}.bak")
         with open(f"data_file_path.clean", "w") as out_file:
             out_file.write(json.dumps(valid_examples, indent=True))
         raise RuntimeError("Invalid dataset")
     else:
-        log("Dataset is valid!")
+        logger.info("Dataset is valid!")
 
 
 def validate_preds(conf: ModelEvalConfig):

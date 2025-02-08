@@ -3,7 +3,7 @@ from dataclasses import dataclass, replace
 from typing import Optional, Union, Tuple, List, Set, Dict
 
 from src.util.database_schema import DatabaseSchema
-from src.util.logger import log, debug_log
+from loguru import logger
 
 
 class SqlAstNode(ABC):
@@ -37,7 +37,7 @@ class TerminalNode(SqlAstNode):
         if self.name == other.name and self.value == other.value:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -84,7 +84,7 @@ class BinOpExpressionNode(ExpressionNode):
         elif self.op.value == other.op.value:
             return (self.left == other.left) and (self.right == other.right)
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -110,7 +110,7 @@ class BetweenExpressionNode(ExpressionNode):
         if self.expr == other.expr:
             return self.lower == other.lower and self.upper == other.upper
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -137,7 +137,7 @@ class FunctionExpressionNode(ExpressionNode):
                 self.negation == other.negation:  # and self.distinct == other.distinct:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -166,7 +166,7 @@ class ColumnNode(ExpressionNode):
         ):
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -233,7 +233,7 @@ class ResultColumnNode(SqlAstNode):
         if self.expr == other.expr:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -261,7 +261,7 @@ class SelectClauseNode(SqlAstNode):
         if set(self.result_columns) == set(other.result_columns):  # and self.distinct == other.distinct:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -284,7 +284,7 @@ class TableOrSubqueryNode(SqlAstNode):
         if self.table_name == other.table_name and self.select_statement == other.select_statement and self.join_clause == other.join_clause:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -304,7 +304,7 @@ class JoinConstraintNode(SqlAstNode):
         if self.expr == other.expr:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -332,7 +332,7 @@ class JoinClauseNode(SqlAstNode):
         if set(self.tables) == set(other.tables) and self.ops == other.ops and self.constraints == other.constraints:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -362,7 +362,7 @@ class OrderingTerm(SqlAstNode):
             else:
                 return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -388,7 +388,7 @@ class OrderByNode(SqlAstNode):
         if self.ordering_terms == other.ordering_terms:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -408,7 +408,7 @@ class LimitNode(SqlAstNode):
         if self.expr == other.expr:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -435,7 +435,7 @@ class FromClauseNode(SqlAstNode):
         if set(self.tables) == set(other.tables) and self.join_clause == other.join_clause:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -457,7 +457,7 @@ class WhereClauseNode(SqlAstNode):
         if ve == vo:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -484,7 +484,7 @@ class GroupClauseNode(SqlAstNode):
         if set(self.exprs) == set(other.exprs) and self.having == other.having:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -511,7 +511,7 @@ class SelectCoreNode(SqlAstNode):
                 self.group_clause == other.group_clause:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -569,7 +569,7 @@ class WithClauseNode(SqlAstNode):
         if self.common_table_expr == other.common_table_expr:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
 
@@ -602,7 +602,7 @@ class SelectStatementNode(ExpressionNode):
                 self.limit == other.limit:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -623,7 +623,7 @@ class CastExpressionNode(ExpressionNode):
         if self.expr == other.expr and self.type_name == other.type_name:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -650,7 +650,7 @@ class WindowDefinitionNode(SqlAstNode):
         if self.orderby == other.orderby and self.col == other.col:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):
@@ -673,7 +673,7 @@ class WindowExpressionNode(ExpressionNode):
         if self.win_fun == other.win_fun and self.win_def == other.win_fun:
             return True
         else:
-            debug_log(self.__class__.__name__)
+            logger.debug(self.__class__.__name__)
             return False
 
     def __hash__(self):

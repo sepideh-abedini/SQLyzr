@@ -4,13 +4,13 @@ import os.path
 from asyncio import Lock
 from typing import Dict, Literal
 
+from loguru import logger
 from openai.types import Batch
 
 from src.gpt.gateway.batch.batch_client import GptBatchClient
 from src.gpt.gateway.gateway_exceptions import GptRateLimitException
 from src.gpt.gateway.single.gpt_limits import LIMITS, GptRateLimits
 from src.gpt.models import BatchInputRequest
-from src.util.logger import debug_log, log
 from src.util.model_utils import read_jsonl
 
 
@@ -39,7 +39,7 @@ class BatchTracker:
         self.__load()
         self.__lock = asyncio.Lock()
         self.__limits = LIMITS[os.environ.get("OPENAI_USAGE_TIER", "tier1")]
-        log(f"Current token usage: {self.__total_tokens()}/{self.__limits.batch_tokens_per_day}")
+        logger.debug(f"Current token usage: {self.__total_tokens()}/{self.__limits.batch_tokens_per_day}")
 
     async def init_batch(self, in_path):
         await self.__lock.acquire()
@@ -52,8 +52,8 @@ class BatchTracker:
         try:
             tokens = get_req_file_token_usage(in_path)
             if bid in self.__batch_tokens:
-                debug_log(f"Updating tokens usage: {self.__batch_tokens[bid]} => {tokens}")
-            self.__batch_tokens[bid] = tokens
+                logger.debug(f"Updating tokens usage: {self.__batch_tokens[bid]} => {tokens}")
+                self.__batch_tokens[bid] = tokens
         finally:
             self.__lock.release()
             self.__save()
@@ -94,16 +94,18 @@ class BatchTracker:
             if batch.id in self.__batch_tokens:
                 tokens += self.__batch_tokens[batch.id]
             else:
-                log(f"Warning! Batch not exists in stored state: {batch.id}")
+                logger.debug(f"Warning! Batch not exists in stored state: {batch.id}")
                 tokens += max_tokens
         return tokens
 
     def __tokens_exceed_limit(self, tokens: int):
         total_tokens = self.__total_tokens()
         new_total = tokens + total_tokens
-        debug_log(f"Checking Token Limit: {tokens}+{total_tokens} = {new_total} /{self.__limits.batch_tokens_per_day}")
+        logger.debug(
+            f"Checking Token Limit: {tokens}+{total_tokens} = {new_total} /{self.__limits.batch_tokens_per_day}")
         if new_total > self.__limits.batch_tokens_per_day:
-            log(f"Exceeding token limit: {tokens}+{total_tokens} = {new_total} /{self.__limits.batch_tokens_per_day}")
+            logger.debug(
+                f"Exceeding token limit: {tokens}+{total_tokens} = {new_total} /{self.__limits.batch_tokens_per_day}")
         return new_total > self.__limits.batch_tokens_per_day
 
     @staticmethod

@@ -18,9 +18,10 @@ from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.file_sender.formatted_sender import GptFormattedSingleSender
 from src.gpt.models import BatchInputRequest
 from src.pred.predictor import process_formatted_responses
-from src.util.logger import debug_log
 from src.util.model_utils import write_jsonl
 from src.util.schema_repo import DatabaseSchemaRepo
+
+from loguru import logger
 
 
 class Auger:
@@ -85,9 +86,9 @@ class Auger:
         file.close()
 
     async def __ask_file(self, in_path: str, out_path: str):
-        debug_log(f"Asking GPT {in_path} ==> {out_path}")
+        logger.debug(f"Asking GPT {in_path} ==> {out_path}")
         if os.path.exists(out_path):
-            debug_log(f"Output path exists: {out_path}, skip asking gpt.")
+            logger.debug(f"Output path exists: {out_path}, skip asking gpt.")
             return
         await self.__gpt_sender.send_and_save(in_path, out_path)
 

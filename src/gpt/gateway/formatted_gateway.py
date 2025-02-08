@@ -4,7 +4,8 @@ from pydantic import BaseModel
 
 from src.gpt.gateway.gateway import GptGateway
 from src.gpt.models import BatchInputRequest
-from src.util.logger import debug_log
+
+from loguru import logger
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -17,10 +18,10 @@ class FormattedGptGateway(GptGateway):
         self.response_format = response_format
 
     async def send_without_tracking(self, request: BatchInputRequest) -> T:
-        debug_log("Sending formatted GPT Request")
+        logger.debug("Sending formatted GPT Request")
         result = await self._client.beta.chat.completions.parse(
             response_format=self.response_format,
             **request.body.dict()
         )
-        debug_log("Received formatted GPT Response")
+        logger.debug("Received formatted GPT Response")
         return result

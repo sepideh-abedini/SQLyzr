@@ -16,6 +16,7 @@ from src.rel.transformer_detector import TransformerDetector
 from src.third_party.spider.evaluation import get_spider_exact_match
 from src.util.logger import log
 
+from loguru import logger
 
 @dataclass
 class Metric(ABC):
@@ -51,7 +52,7 @@ class ExactMatch(Metric):
             if (gold_parser == pred_parser) or (pred_parser == gold_parser):
                 return 1
         except Exception as e:
-            log(e)
+            logger.debug(e)
         return 0
 
 

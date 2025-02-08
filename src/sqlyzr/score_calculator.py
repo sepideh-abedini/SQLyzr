@@ -7,7 +7,8 @@ from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.metrics import *
 from src.parse.parser import SqlParser
 from src.sqlyzr.pred_gold_reader import PredGoldReader
-from src.util.logger import debug_log
+
+from loguru import logger
 
 
 class ScoreCalculator:
@@ -19,7 +20,7 @@ class ScoreCalculator:
     async def calc_scores(self):
         config = self.__config.eval_conf
         if os.path.exists(config.get_raw_scores_path()):
-            debug_log(f"Raw scores exists: {config.get_raw_scores_path()}, skipping calculation.")
+            logger.debug(f"Raw scores exists: {config.get_raw_scores_path()}, skipping calculation.")
             return
 
         catter = Catter()
@@ -43,7 +44,7 @@ class ScoreCalculator:
                     try:
                         score = await metric.calc(gold, pred, db_id)
                     except Exception as e:
-                        log(e)
+                        logger.debug(e)
                         score = 0
                     example_scores[metric.name] = score
                 scores.append(example_scores)
@@ -51,4 +52,4 @@ class ScoreCalculator:
             df = pd.concat([df, ti_df])
         df.to_csv(config.get_raw_scores_path())
 
-        log("Score calculation finished!")
+        logger.debug("Score calculation finished!")

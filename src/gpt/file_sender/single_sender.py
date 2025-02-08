@@ -7,8 +7,8 @@ from src.eval.lib import Timer
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.gateway.gateway import GptGateway
 from src.gpt.models import BatchInputRequest
-from src.util.logger import debug_log
 from src.util.model_utils import read_jsonl
+from loguru import logger
 
 
 class GptSingleSender(GptFileSender):
@@ -23,7 +23,7 @@ class GptSingleSender(GptFileSender):
         for req in reqs:
             future = self.__send_single_req(req)
             futures.append(future)
-            debug_log(f"Request {req.custom_id} initiated")
+            logger.debug(f"Request {req.custom_id} initiated")
         resps = list(await tqdm.gather(desc="Waiting for responses", *futures))
         return resps
 

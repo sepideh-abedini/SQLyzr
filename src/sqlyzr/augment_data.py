@@ -19,9 +19,9 @@ class DatasetAugmentor:
     async def augment_data(self):
         sub_cats = self.__find_cats_with_low_scores()
         if len(sub_cats) < 1:
-            log(f"No category found with score below: {self.__config.error_threshold}, skipping augmentation")
+            logger.debug(f"No category found with score below: {self.__config.error_threshold}, skipping augmentation")
             return
-        log(f"Generating data for sub_categories: {sub_cats}")
+        logger.debug(f"Generating data for sub_categories: {sub_cats}")
         auger = Auger(self.__config, sub_cats)
         await auger.run()
 

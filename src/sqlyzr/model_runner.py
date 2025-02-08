@@ -24,9 +24,9 @@ class ModelRunner(ABC):
         for run_conf in self.config.get_run_confs():
             future = self.run_single(run_conf)
             futures.append(future)
-            log(f"Running model for conf = {run_conf}")
+            logger.debug(f"Running model for conf = {run_conf}")
         await asyncio.gather(*futures)
-        log(f"Running model finished!")
+        logger.debug(f"Running model finished!")
 
     async def run_single(self, run_conf: SingleRunConfig):
         result = await self.run_single_internal(run_conf)
