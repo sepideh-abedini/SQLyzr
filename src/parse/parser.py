@@ -156,6 +156,7 @@ def p_table_or_subquery(p):
                          | table_name AS table_alias
                          | table_name table_alias
                          | LPAREN select_statement RPAREN
+                         | LPAREN join_clause RPAREN
                          | LPAREN select_statement RPAREN table_alias
                          | LPAREN select_statement RPAREN AS table_alias'''
     if len(p) == 2:
@@ -165,6 +166,8 @@ def p_table_or_subquery(p):
     elif len(p) == 4:
         if isinstance(p[2], SelectStatementNode):
             p[0] = TableOrSubqueryNode(select_statement=p[2])
+        elif isinstance(p[2], JoinClauseNode):
+            p[0] = TableOrSubqueryNode(join_clause=p[2])
         else:
             p[0] = TableOrSubqueryNode(table_name=p[1], table_alias=p[3])
     elif len(p) == 5:
@@ -270,6 +273,7 @@ def p_bin_op_expr(p):
                    | expr OR expr
                    | expr ARITH_OP expr
                    | expr LIKE expr
+                   | expr REGEXP expr
                    | expr COMP_OP expr
                    | expr IS expr
                    | expr ORR expr
@@ -503,8 +507,15 @@ class SqlParser:
         self.lexer = get_lexer()
         self.parser = get_parser()
 
+    # FIXME:
+    def clean(self, sql: str) -> str:
+        sql = sql.replace("\n", "")
+        sql = sql.replace("\\n", "")
+        return sql
+
     def parse(self, sql: str) -> SelectStatementNode:
         try:
+            sql = self.clean(sql)
             ast = self.parser.parse(sql)
             return ast
         except Exception as e:

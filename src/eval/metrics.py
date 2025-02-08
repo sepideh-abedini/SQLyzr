@@ -139,4 +139,4 @@ class TotalExecTime(Metric):
         timer = lib.Timer.start()
         self.dbc.exec_sql(db_id, pred)
         pred_sql_exec_time = timer.lap()
-        return pred_sql_exec_time.total_seconds() * 1_000_000
+        return pred_sql_exec_time * 1_000_000

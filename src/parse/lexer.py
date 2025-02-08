@@ -36,6 +36,7 @@ keywords = {
     'order': 'ORDER',
     'limit': 'LIMIT',
     'like': 'LIKE',
+    'regexp': 'REGEXP',
     'having': 'HAVING',
     'on': 'ON',
     'by': 'BY',

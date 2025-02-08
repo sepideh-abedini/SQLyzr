@@ -273,6 +273,7 @@ class TableOrSubqueryNode(SqlAstNode):
     table_name: Optional[TerminalNode] = None  # none or one object
     select_statement: Optional['SelectStatementNode'] = None
     table_alias: Optional[TerminalNode] = None
+    join_clause: Optional['JoinClauseNode'] = None
 
     def accept(self, visitor):
         return visitor.visit_table_or_subquery(self)
@@ -280,7 +281,7 @@ class TableOrSubqueryNode(SqlAstNode):
     def __eq__(self, other):
         if not isinstance(other, TableOrSubqueryNode):
             return False
-        if self.table_name == other.table_name and self.select_statement == other.select_statement:
+        if self.table_name == other.table_name and self.select_statement == other.select_statement and self.join_clause == other.join_clause:
             return True
         else:
             debug_log(self.__class__.__name__)

@@ -68,7 +68,14 @@ class DatabaseClient:
             cursor.close()
             connection.close()
 
+    # FIXME:
+    def clean(self, sql: str) -> str:
+        sql = sql.replace("\n", "")
+        sql = sql.replace("\\n", "")
+        return sql
+
     def exec_sql(self, db_id, sql):
+        sql = self.clean(sql)
         if self.config.mysql:
             return self.exec_mysql(db_id, sql)
 

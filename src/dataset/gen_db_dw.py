@@ -45,7 +45,6 @@ class BeaverTableSpec(BaseModel):
     table_name_original: str
     column_names_original: List[str]
     column_types: List[str]
-    primary_key: List[str]
 
     @property
     def create_db_stmt(self):
@@ -53,16 +52,10 @@ class BeaverTableSpec(BaseModel):
 
     @property
     def cols_spec(self):
-        for n, t in zip(self.column_names_original, self.column_types):
-            if "AUTO_INCREMENT" in t:
-                self.primary_key.remove(n)
-                self.primary_key.insert(0, n)
         result = (",".join(
-            f"`{n}` {t.upper()}" for n, t in
+            f"`{n}` {ORACLE_TO_MYSQL.get(t.upper(), t.upper())}" for n, t in
             zip(self.column_names_original, self.column_types)
         ))
-        if len(self.primary_key) > 0:
-            result += f", PRIMARY KEY ({','.join([f'`{k}`' for k in self.primary_key])})"
         return result
 
     @property
@@ -96,6 +89,7 @@ async def exec_stmt(stmt: str, db=None):
     except Exception as err:
         print(f"USE {db};")
         print(f"Error: {err}")
+        print(stmt)
         raise err
     finally:
         await cursor.close()
@@ -181,10 +175,12 @@ async def add_data(db_name, schema: BeaverSchema):
             # await tqdm.gather(*tasks, total=len(tasks))
         print(f"Completed {f.stem}")
 
+
 async def setup_db():
     schema = await create_tables("data/beaver/dw.tables.json")
     # for db in dbs:
     #     await add_data(db, schema)
+
 
 async def main():
     await setup_db()
