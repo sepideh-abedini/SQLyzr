@@ -1,4 +1,4 @@
-set -euo pipefail
+set -eo pipefail
 
 usage() {
   echo "Usage $0 [-i input_file] [-n num_samples]"

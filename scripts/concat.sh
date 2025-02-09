@@ -1,3 +1,4 @@
+set -eo pipefail
 
 usage() {
   echo "Usage $0 [-o out_file] json_1 json_2 ..."
