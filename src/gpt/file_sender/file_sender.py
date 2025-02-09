@@ -5,7 +5,7 @@ from typing import Optional
 
 from openai.types.chat import ChatCompletion
 
-from src.gpt.file_sender.usage_tracker import UsageTracker
+from src.gpt.file_sender.usage_tracker import ResourceUsage, ResourceUsageTracker
 from src.sqlyzr.file_sender_usage import FileGeneratorUsage
 from src.util.model_utils import write_jsonl
 
@@ -13,11 +13,11 @@ from loguru import logger
 
 
 class GptFileSender(ABC):
-    _tracker: Optional[UsageTracker] = None
+    _tracker: Optional[ResourceUsageTracker] = None
 
-    async def send_and_save(self, in_path: str, out_path: str) -> FileGeneratorUsage:
+    async def send_and_save(self, in_path: str, out_path: str) -> ResourceUsage:
         logger.debug(f"Asking GPT {in_path} ==> {out_path}")
-        self._tracker = UsageTracker(out_path)
+        self._tracker = ResourceUsageTracker(out_path)
         if os.path.exists(out_path):
             logger.debug(f"Output path exists: {out_path}, skip asking gpt.")
             return self._tracker.load_usage()

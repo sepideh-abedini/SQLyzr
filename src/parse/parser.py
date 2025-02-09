@@ -493,7 +493,7 @@ def p_literal_list(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    logger.debug((f"Syntax error in input, Invalid token:{p}")
+    logger.debug(f"Syntax error in input, Invalid token:{p}")
     raise SyntaxError(f"{p}")
 
 
@@ -519,6 +519,6 @@ class SqlParser:
             ast = self.parser.parse(sql)
             return ast
         except Exception as e:
-            logger.debug((e)
-            logger.debug(("Syntax error!")
+            logger.debug(e)
+            logger.debug("Syntax error!")
         return None

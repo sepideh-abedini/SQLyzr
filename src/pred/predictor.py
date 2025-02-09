@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.file_sender.batch_sender import GptBatchFileSender
 from src.gpt.file_sender.single_sender import GptSingleSender
-from src.gpt.file_sender.usage_tracker import UsageTracker
+from src.gpt.file_sender.usage_tracker import ResourceUsageTracker
 from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
 from src.util.model_utils import read_jsonl
@@ -24,7 +24,7 @@ def load_data(input_path: str):
 
 class Predictor(ABC):
     _run_conf: SingleRunConfig
-    _tracker: UsageTracker
+    _tracker: ResourceUsageTracker
 
     def __init__(self, run_conf: SingleRunConfig):
         self._run_conf = run_conf
@@ -33,10 +33,12 @@ class Predictor(ABC):
             self.__gpt_sender = GptBatchFileSender()
         else:
             self.__gpt_sender = GptSingleSender()
-        self._tracker = UsageTracker(run_conf.get_pred_path())
+        self._tracker = ResourceUsageTracker(run_conf.get_pred_path())
 
     async def run(self):
+        self._tracker.start_mem()
         await self._run_internal()
+        self._tracker.lap_mem()
         self._tracker.save_usage()
 
     @abstractmethod

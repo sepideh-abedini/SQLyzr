@@ -4,14 +4,11 @@ import sys
 
 from src.assets.print_logo import print_logo
 from src.sqlyzr.sqlyzr import Sqlyzr
-from loguru import logger
-
-logger.remove(0)
-logger.add(sys.stderr, level=os.environ.get("LOG_LEVEL", "INFO").upper(), colorize=True,
-           format="<green>{time:HH:mm:ss} | </green><cyan>[{module}:{function}:{line}]</cyan><level> {level}: {message}</level>")
+from src.util.log_util import configure_logging
 
 
 async def main():
+    configure_logging()
     sqlyzr = Sqlyzr()
     await sqlyzr.run()
 

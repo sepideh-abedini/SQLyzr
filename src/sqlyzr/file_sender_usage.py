@@ -10,12 +10,12 @@ class FileGeneratorUsage(BaseModel):
 
     @computed_field
     @property
-    def mem_mb(self) -> float:
+    def cur_mem_mb(self) -> float:
         return self.__process.memory_info()[0] / float(2 ** 20)
 
     @computed_field
     @property
-    def cpu_time(self) -> float:
+    def cur_cpu_time(self) -> float:
         return sum(self.__process.cpu_times())
 
     @property

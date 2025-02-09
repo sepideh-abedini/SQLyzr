@@ -13,7 +13,6 @@ class GptBatchFileSender(GptFileSender):
 
     async def _send_file(self, in_path: str) -> list[ChatCompletion]:
         output, usage = await self.__gateway.send_batch(in_path)
-        self._tracker.add_time(usage.total_time)
-        self._tracker.add_tokens(usage.total_tokens)
+        self._tracker.add_usage(usage)
         result = list(map(lambda o: o.response.body, output))
         return result

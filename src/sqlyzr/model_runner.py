@@ -4,13 +4,9 @@ from abc import ABC, abstractmethod
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import SingleRunConfig
-from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.dail_pred import DailPredictor
-from src.third_party.din.config import DinConfig
 from src.third_party.din.din_pred import DinPredictor
-from src.util.logger import log
-from src.util.system_utils import ProcessUsage
-
+from loguru import logger
 
 
 class ModelRunner(ABC):
@@ -24,13 +20,11 @@ class ModelRunner(ABC):
         for run_conf in self.config.get_run_confs():
             future = self.run_single(run_conf)
             futures.append(future)
-            logger.debug(f"Running model for conf = {run_conf}")
         await asyncio.gather(*futures)
-        logger.debug(f"Running model finished!")
 
     async def run_single(self, run_conf: SingleRunConfig):
+        logger.info(f"Running for conf={run_conf}")
         result = await self.run_single_internal(run_conf)
-        # ProcessUsage.dump_proc_usage(run_conf.get_util_path())
         return result
 
     @abstractmethod
@@ -61,5 +55,6 @@ MODELS = {
 
 async def run_model(config: SQLyzrConfig):
     model_type = MODELS[config.model]
+    logger.info(f"Running model: {model_type}")
     runner = model_type(config.eval_conf)
     await runner.run()

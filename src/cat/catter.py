@@ -1,7 +1,6 @@
 from src.cat.categorizer import Categorizer
 from src.cat.tag_extractor import TagExtractor
 from src.parse.parser import SqlParser
-from src.util.logger import log
 
 from loguru import logger
 

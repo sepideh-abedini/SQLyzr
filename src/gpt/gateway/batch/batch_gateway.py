@@ -9,6 +9,7 @@ import backoff
 from natsort import natsorted
 from openai.types import Batch
 
+from src.gpt.file_sender.usage_tracker import ResourceUsage
 from src.gpt.gateway.batch.batch_client import GptBatchClient
 from src.gpt.gateway.batch.batch_info import BatchInfo
 from src.gpt.gateway.batch.batch_tracker import BatchTracker
@@ -47,7 +48,7 @@ class GptBatchGateway:
                           exception=GptBatchFailedException)
     @backoff.on_exception(backoff.constant, on_backoff=on_not_complete, interval=10, max_tries=None,
                           exception=GptBatchNotCompletedException)
-    async def send_batch(self, in_path: str) -> (List[BatchRequestOutput], FileGeneratorUsage):
+    async def send_batch(self, in_path: str) -> (List[BatchRequestOutput], ResourceUsage):
         info = BatchInfo(in_path)
 
         await self.__upload_file(info)
@@ -64,12 +65,12 @@ class GptBatchGateway:
 
         return responses, usage
 
-    def __extract_usage(self, batch_stats: Batch, responses: List[BatchRequestOutput]):
+    def __extract_usage(self, batch_stats: Batch, responses: List[BatchRequestOutput]) -> ResourceUsage:
         total_time = batch_stats.completed_at - batch_stats.in_progress_at
         total_tokens = sum(map(lambda res: res.response.body.usage.total_tokens or 0, responses))
-        return FileGeneratorUsage.model_validate({
-            "total_time": total_time,
-            "total_tokens": total_tokens
+        return ResourceUsage.model_validate({
+            "time": total_time,
+            "tokens": total_tokens
         })
 
     async def __upload_file(self, info: BatchInfo):

@@ -6,11 +6,8 @@ import os
 import sys
 import json
 
-from src.eval.lib import Timer
 from src.eval.single_run_config import SingleRunConfig
-from src.gpt.file_sender.usage_tracker import UsageTracker
 from src.sqlyzr.file_gen import FileGenerator
-from src.sqlyzr.file_sender_usage import FileGeneratorUsage
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.prompt.prompt_builder import prompt_factory
 from src.third_party.dail.utils.data_builder import load_data

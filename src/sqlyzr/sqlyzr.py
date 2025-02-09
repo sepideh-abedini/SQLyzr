@@ -7,6 +7,8 @@ from src.sqlyzr.scores_post_processor import ScoresPostProcessor
 from src.sqlyzr.transformer_eval import TransformerFinder
 from src.sqlyzr.validate import validate_dataset
 
+from loguru import logger
+
 
 class Sqlyzr:
     conf: SQLyzrConfig
@@ -15,6 +17,7 @@ class Sqlyzr:
         self.conf = load_config()
 
     async def run(self):
+        logger.info(f"Running config: {self.conf}")
         if self.conf.pipeline.verify:
             validate_dataset(self.conf)
 

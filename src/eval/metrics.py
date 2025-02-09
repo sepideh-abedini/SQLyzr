@@ -14,7 +14,6 @@ from src.rel.sql_data import SqlInputData
 from src.rel.sql_transformer import LiteralCorrectorTransformer
 from src.rel.transformer_detector import TransformerDetector
 from src.third_party.spider.evaluation import get_spider_exact_match
-from src.util.logger import log
 
 from loguru import logger
 

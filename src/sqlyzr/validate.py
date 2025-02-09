@@ -9,11 +9,12 @@ from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
 from src.eval.lib import DatabaseClient
 from src.eval.model_eval_config import ModelEvalConfig
-from src.util.logger import log
 from loguru import logger
 
+from src.util.log_util import trace
 
-# FIXME
+
+@trace
 def validate_dataset(conf: SQLyzrConfig):
     catter = Catter()
     errors = []
