@@ -12,6 +12,8 @@ ENV PYTHONPATH=.
 COPY ./src src
 COPY ./main.py .
 
+RUN echo 'alias sqlyzr="python3 /app/main.py"' >> ~/.bashrc
+
 ENTRYPOINT ["bash"]
 
 

@@ -40,10 +40,9 @@ def validate_dataset(conf: SQLyzrConfig):
             errors_file.write(f"{error}\n")
 
     if len(errors) > 0:
-        logger.debug("Invalid SQLs found!")
-        logger.debug(f"Num dataset errors: {len(errors)}/{total}")
-        logger.debug(f"Removing invalid entries, backup is saved in f{data_file_path}.bak")
-        with open(f"data_file_path.clean", "w") as out_file:
+        logger.error("Invalid SQLs found!")
+        logger.error(f"Num dataset errors: {len(errors)}/{total}")
+        with open(f"{data_file_path}.clean", "w") as out_file:
             out_file.write(json.dumps(valid_examples, indent=True))
         raise RuntimeError("Invalid dataset")
     else:

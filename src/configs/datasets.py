@@ -37,7 +37,31 @@ SPIDER_SMALL = DatasetConfig(
 SPIDER_DEV = DatasetConfig(
     dataset_dir="data/spider",
     data_file="dev.json",
-    gold_file="dev.gold.txt",
+    gold_file="dev_gold.sql",
+    tables_file="tables.json",
+    db_dir="database"
+)
+
+SPIDER_TEST = DatasetConfig(
+    dataset_dir="data/spider",
+    data_file="test.json",
+    gold_file="test_gold.sql",
+    tables_file="test_tables.json",
+    db_dir="test_database"
+)
+
+SPIDER_TRAIN = DatasetConfig(
+    dataset_dir="data/spider",
+    data_file="train_spider.json",
+    gold_file="train_gold.sql",
+    tables_file="tables.json",
+    db_dir="database"
+)
+
+SPIDER_ALL = DatasetConfig(
+    dataset_dir="data/spider",
+    data_file="all.json",
+    gold_file="all.json.gold.txt",
     tables_file="tables.json",
     db_dir="database"
 )
@@ -68,13 +92,15 @@ DATASETS = {
     },
     "spider": {
         "small": SPIDER_SMALL,
-        "dev": SPIDER_DEV
+        "dev": SPIDER_DEV,
+        "test": SPIDER_TEST,
+        "train": SPIDER_TRAIN,
+        "all": SPIDER_ALL
     },
     "beaver": {
         "small": BEAVER_SMALL
     }
 }
 
-
 DatasetName = Literal["spider", "bird", "beaver"]
-DatasetSize = Literal["small", "dev", "train", "all"]
+DatasetSize = Literal["small", "dev", "train", "test", "all"]

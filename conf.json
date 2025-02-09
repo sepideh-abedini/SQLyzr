@@ -2,7 +2,7 @@
   "aug_per_sub_cat": 5,
   "error_threshold": 90,
   "dataset": "spider",
-  "dataset_size": "small",
+  "dataset_size": "all",
   "temps": [
     0.2
   ],
@@ -11,8 +11,8 @@
   "batch": false,
   "force": false,
   "pipeline": {
-    "verify": false,
-    "predict": true,
+    "verify": true,
+    "predict": false,
     "eval": false,
     "transformers": false,
     "augment": false

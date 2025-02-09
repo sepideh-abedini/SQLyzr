@@ -17,7 +17,6 @@ class Sqlyzr:
         self.conf = load_config()
 
     async def run(self):
-        logger.info(f"Running config: {self.conf}")
         if self.conf.pipeline.verify:
             validate_dataset(self.conf)
 
