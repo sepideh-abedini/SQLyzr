@@ -37,7 +37,6 @@ class ScoreCalculator:
             print(f"Calculating scores for {conf}")
             for i, (pred, gold, db_id) in tqdm(enumerate(data), total=len(data)):
                 cat, sub_cat = catter.categorize(gold)
-                past = parser.parse(pred)
                 example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": str(cat), "sub_cat": sub_cat}
                 for metric in metrics:
                     # if past:

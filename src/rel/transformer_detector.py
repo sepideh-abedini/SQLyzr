@@ -2,8 +2,6 @@ import asyncio
 from asyncio import FIRST_COMPLETED
 from typing import List
 
-from tqdm.auto import tqdm
-
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.rel.base_matcher import Matcher
@@ -33,7 +31,7 @@ class TransformerDetector:
         tasks = []
         for sub in pows:
             tasks.append(self.run_with(pred, gold, list(sub)))
-        results = await tqdm.gather(*tasks)
+        results = await asyncio.gather(*tasks)
         for res in results:
             if res is not None:
                 return res

@@ -67,45 +67,61 @@ class TokenUsage(StatMetric):
 
 class SpiderExactMatch(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
-        score = get_spider_exact_match(pred, f"{gold}\t{db_id}", self.conf.get_db_path(),
-                                       self.conf.get_tables_path())
-        return score
+        try:
+            score = get_spider_exact_match(pred, f"{gold}\t{db_id}", self.conf.get_db_path(),
+                                           self.conf.get_tables_path())
+            return score
+        except Exception as e:
+            logger.debug(e)
+            return 0
 
 
 class ExecAcc(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
-        db_file_path = self.conf.get_db_file_path(db_id)
-        gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
-        pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred)
-        if gold_sql_exec_res is None:
-            raise RuntimeError("Gold result is None!")
-        if pred_sql_exec_res is None:
-            return 0
-        if pred_sql_exec_res == gold_sql_exec_res:
-            return 1
-        else:
+        try:
+            db_file_path = self.conf.get_db_file_path(db_id)
+            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
+            pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred)
+            if gold_sql_exec_res is None:
+                raise RuntimeError("Gold result is None!")
+            if pred_sql_exec_res is None:
+                return 0
+            if pred_sql_exec_res == gold_sql_exec_res:
+                return 1
+            else:
+                return 0
+        except Exception as e:
+            logger.debug(e)
             return 0
 
 
 class ComplexityConsistency(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
-        catter = Catter()
-        c_gold = catter.get_category(gold)
-        c_pred = catter.get_category(pred)
-        if c_pred is None:
-            return 0
-        if c_pred <= c_gold:
-            return 1
-        else:
+        try:
+            catter = Catter()
+            c_gold = catter.get_category(gold)
+            c_pred = catter.get_category(pred)
+            if c_pred is None:
+                return 0
+            if c_pred <= c_gold:
+                return 1
+            else:
+                return 0
+        except Exception as e:
+            logger.debug(e)
             return 0
 
 
 class GoldNotEmpty(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
-        gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
-        if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
-            return 1
-        else:
+        try:
+            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
+            if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
+                return 1
+            else:
+                return 0
+        except Exception as e:
+            logger.debug(e)
             return 0
 
 
@@ -121,13 +137,17 @@ class RelaxedExecAcc(Metric):
         ])
 
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
-        pd = SqlInputData(db_id, pred)
-        gd = SqlInputData(db_id, gold)
-        working_sub = await self.detector.find_working_sub_sync(pd, gd)
-        if working_sub is not None:
-            return 1
-        else:
-            return 0
+        try:
+            pd = SqlInputData(db_id, pred)
+            gd = SqlInputData(db_id, gold)
+            working_sub = await self.detector.find_working_sub_sync(pd, gd)
+            if working_sub is not None:
+                return 1
+            else:
+                return 0
+        except Exception as e:
+            logger.debug(e)
+        return 0
 
 
 class Count(Metric):
@@ -138,7 +158,11 @@ class Count(Metric):
 
 class TotalExecTime(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
-        timer = lib.Timer.start()
-        await self.dbc.exec_query_async(db_id, pred)
-        pred_sql_exec_time = timer.lap()
-        return pred_sql_exec_time * 1_000_000
+        try:
+            timer = lib.Timer.start()
+            await self.dbc.exec_query_async(db_id, pred)
+            pred_sql_exec_time = timer.lap()
+            return pred_sql_exec_time * 1_000_000
+        except Exception as e:
+            logger.debug(e)
+            return 0

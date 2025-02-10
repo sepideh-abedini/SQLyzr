@@ -30,7 +30,7 @@ async def validate_dataset(conf: SQLyzrConfig):
         for i, entry in enumerate(data):
             example = SpiderExample.model_validate(entry)
             tasks.append(db_facade.exec_query_async(example.db_id, example.query))
-        results = await tqdm.gather(*tasks)
+        results = await tqdm.gather(*tasks, desc=f"Executing gold queries")
 
         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
                              desc=f"Validating dataset: {conf.eval_conf.dataset_config.dataset_dir}"):
