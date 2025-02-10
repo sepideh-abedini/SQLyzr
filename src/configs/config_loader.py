@@ -21,7 +21,7 @@ class ConfigData(BaseModel):
     dataset_size: DatasetSize = "small"
     temps: List[float] = [0.0]
     itrs: int = 2
-    model: Literal["din", "dail"]
+    model: Literal["din", "dail", "dum"]
     batch: bool = False
     force: bool = False
     pipeline: PipelineConfig = PipelineConfig()

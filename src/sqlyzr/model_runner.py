@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import SingleRunConfig
+from src.sqlyzr.dummy_predictor import DummyPredictor
 from src.third_party.dail.dail_pred import DailPredictor
 from src.third_party.din.din_pred import DinPredictor
 from loguru import logger
@@ -47,9 +48,17 @@ class DinRunner(ModelRunner):
         return result
 
 
+class DummyRunner(ModelRunner):
+    async def run_single_internal(self, run_conf: SingleRunConfig):
+        predictor = DummyPredictor(run_conf)
+        result = await predictor.run()
+        return result
+
+
 MODELS = {
     "din": DinRunner,
-    "dail": DailRunner
+    "dail": DailRunner,
+    "dum": DummyRunner
 }
 
 
