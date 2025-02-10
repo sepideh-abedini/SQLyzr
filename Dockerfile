@@ -11,6 +11,7 @@ ENV PYTHONPATH=/app
 
 COPY ./src src
 COPY ./main.py .
+COPY ./conf.json .
 COPY ./scripts/ /usr/local/bin
 RUN chmod +x /usr/local/bin/*.sh
 RUN echo 'alias sqlyzr="python3 /app/main.py"' >> ~/.bashrc
