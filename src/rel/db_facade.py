@@ -2,7 +2,7 @@ import os
 import sqlite3
 from functools import lru_cache, cache
 from os import path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import aiosqlite
 from loguru import logger
@@ -31,7 +31,7 @@ class DatabaseFacade:
         return rows
 
     # FIXME: Use cache
-    async def exec_query_async(self, db_id: str, sql: str) -> List[Tuple]:
+    async def exec_query_async(self, db_id: str, sql: str) -> Optional[List[Tuple]]:
         db = None
         cursor = None
 

@@ -18,7 +18,7 @@ class Sqlyzr:
 
     async def run(self):
         if self.conf.pipeline.verify:
-            validate_dataset(self.conf)
+            await validate_dataset(self.conf)
 
         if self.conf.pipeline.predict:
             await run_model(self.conf)

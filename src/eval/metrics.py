@@ -9,6 +9,7 @@ from src.eval.exact_match import ExactMatchParser
 from src.eval.lib import DatabaseClient
 from src.eval.single_run_config import SingleRunConfig
 from src.rel.base_matcher import ExtraColumnRemoverMatcher
+from src.rel.db_facade import DatabaseFacade
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_transformer import LiteralCorrectorTransformer
@@ -17,16 +18,17 @@ from src.third_party.spider.evaluation import get_spider_exact_match
 
 from loguru import logger
 
+
 @dataclass
 class Metric(ABC):
     name: str
     conf: DatasetConfig
-    dbc: DatabaseClient
+    dbc: DatabaseFacade
 
     def __init__(self, name: str, conf: DatasetConfig):
         self.name = name
         self.conf = conf
-        self.dbc = DatabaseClient(conf)
+        self.dbc = DatabaseFacade(conf.get_db_path())
 
     @abstractmethod
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
@@ -73,8 +75,8 @@ class SpiderExactMatch(Metric):
 class ExecAcc(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
         db_file_path = self.conf.get_db_file_path(db_id)
-        gold_sql_exec_res = self.dbc.exec_sql(db_id, gold)
-        pred_sql_exec_res = self.dbc.exec_sql(db_id, pred)
+        gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
+        pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred)
         if gold_sql_exec_res is None:
             raise RuntimeError("Gold result is None!")
         if pred_sql_exec_res is None:
@@ -100,7 +102,7 @@ class ComplexityConsistency(Metric):
 
 class GoldNotEmpty(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
-        gold_sql_exec_res = self.dbc.exec_sql(db_id, gold)
+        gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
         if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
             return 1
         else:
@@ -137,6 +139,6 @@ class Count(Metric):
 class TotalExecTime(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
         timer = lib.Timer.start()
-        self.dbc.exec_sql(db_id, pred)
+        await self.dbc.exec_query_async(db_id, pred)
         pred_sql_exec_time = timer.lap()
         return pred_sql_exec_time * 1_000_000

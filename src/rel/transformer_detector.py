@@ -31,8 +31,10 @@ class TransformerDetector:
     async def find_sub(self, pred: SqlInputData, gold: SqlInputData):
         pows = powerset(self.processors)
         tasks = []
-        for sub in tqdm(pows,desc=f"Finding transformers for SQL", position=2, leave=False, total=len(pows)):
-            res = await self.run_with(pred, gold, list(sub))
+        for sub in pows:
+            tasks.append(self.run_with(pred, gold, list(sub)))
+        results = await tqdm.gather(*tasks)
+        for res in results:
             if res is not None:
                 return res
         return None

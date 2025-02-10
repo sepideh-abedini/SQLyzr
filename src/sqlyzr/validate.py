@@ -1,3 +1,4 @@
+import asyncio
 import json
 import shutil
 
@@ -10,12 +11,14 @@ from src.eval.exact_match import ExactMatchParser
 from src.eval.lib import DatabaseClient
 from src.eval.model_eval_config import ModelEvalConfig
 from loguru import logger
+from tqdm.asyncio import tqdm
 
+from src.rel.db_facade import DatabaseFacade
 from src.util.log_util import trace
 
 
-@trace
-def validate_dataset(conf: SQLyzrConfig):
+async def validate_dataset(conf: SQLyzrConfig):
+    db_facade = DatabaseFacade(conf.eval_conf.dataset_config.get_db_path())
     catter = Catter()
     errors = []
     total = 0
@@ -23,12 +26,17 @@ def validate_dataset(conf: SQLyzrConfig):
     data_file_path = conf.eval_conf.dataset_config.get_data_path()
     with open(data_file_path) as file:
         data = json.load(file)
+        tasks = []
+        for i, entry in enumerate(data):
+            example = SpiderExample.model_validate(entry)
+            tasks.append(db_facade.exec_query_async(example.db_id, example.query))
+        results = await tqdm.gather(*tasks)
+
         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
                              desc=f"Validating dataset: {conf.eval_conf.dataset_config.dataset_dir}"):
             example = SpiderExample.model_validate(entry)
             cat = catter.get_category(example.query)
-            dbc = DatabaseClient(conf.eval_conf.dataset_config)
-            exec_res = dbc.exec_sql(example.db_id, example.query)
+            exec_res = results[i]
             if exec_res is None or cat is None:
                 errors.append((i, example.query))
             else:

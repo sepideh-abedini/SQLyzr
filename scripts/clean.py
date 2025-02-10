@@ -14,7 +14,7 @@ from src.rel.db_facade import DatabaseFacade
 from loguru import logger
 
 
-async def validate_dataset(file_path: str, db_path: str):
+async def clean_dataset(file_path: str, db_path: str):
     catter = Catter()
     errors = []
     total = 0
@@ -52,7 +52,7 @@ async def validate_dataset(file_path: str, db_path: str):
 
 
 async def main(data_file, db_dir):
-    await validate_dataset(data_file, db_dir)
+    await clean_dataset(data_file, db_dir)
 
 
 if __name__ == '__main__':

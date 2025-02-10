@@ -14,7 +14,7 @@
     "verify": true,
     "predict": true,
     "eval": true,
-    "transformers": true,
-    "augment": true
+    "transformers": false,
+    "augment": false
   }
 }
