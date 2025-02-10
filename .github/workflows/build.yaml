@@ -17,16 +17,16 @@ jobs:
       attestations: write
       id-token: write
     steps:
-      - name: Set up Docker
-        uses: docker/setup-docker-action@v4
-        with:
-          daemon-config: |
-            {
-              "debug": true,
-              "features": {
-                "containerd-snapshotter": true
-              }
-            }
+#      - name: Set up Docker
+#        uses: docker/setup-docker-action@v4
+#        with:
+#          daemon-config: |
+#            {
+#              "debug": true,
+#              "features": {
+#                "containerd-snapshotter": true
+#              }
+#            }
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -42,8 +42,8 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+#      - name: Set up QEMU
+#        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push Docker image
@@ -51,9 +51,10 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: .
-             - cache-from: type=gha
-             - cache-to: type=gha,mode=max`
-          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max`
+#          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

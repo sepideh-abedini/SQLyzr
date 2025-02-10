@@ -12,6 +12,7 @@ async def main():
     sqlyzr = Sqlyzr()
     await sqlyzr.run()
 
+
 if __name__ == '__main__':
     print_logo()
     asyncio.run(main())
