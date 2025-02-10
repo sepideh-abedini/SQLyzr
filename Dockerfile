@@ -1,5 +1,5 @@
 FROM python:3.11
-RUN apt update && apt install -y --no-install-recommends vim
+RUN apt update && apt install -y --no-install-recommends vim jq
 
 WORKDIR /app
 
