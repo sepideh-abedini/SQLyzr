@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN python -c "import nltk; nltk.download('stopwords')"
 
-ENV PYTHONPATH=.
+ENV PYTHONPATH=/app
 
 COPY ./src src
 COPY ./main.py .

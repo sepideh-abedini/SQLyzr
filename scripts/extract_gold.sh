@@ -20,4 +20,4 @@ fi
 
 FILE_NAME=$(basename -- "$FILE_PATH" .json)
 DIR_NAME=$(dirname -- "$FILE_PATH")
-jq -r '.[] | [.query, .db_id] | @tsv' $FILE_PATH > "$FILE_PATH".gold.txt
+jq -r '.[] | [.query, .db_id] | @tsv' $FILE_PATH > "$DIR_NAME/$FILE_NAME.gold.txt"

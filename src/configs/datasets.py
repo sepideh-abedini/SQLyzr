@@ -27,43 +27,43 @@ BIRD_TRAIN = DatasetConfig(
 )
 
 SPIDER_SMALL = DatasetConfig(
-    dataset_dir="data/spider",
-    data_file="dev.small.json",
-    gold_file="dev.small.gold.txt",
+    dataset_dir="data/spider/small",
+    data_file="data.json",
+    gold_file="data.gold.txt",
     tables_file="tables.json",
-    db_dir="database"
+    db_dir="../database"
 )
 
 SPIDER_DEV = DatasetConfig(
-    dataset_dir="data/spider",
-    data_file="dev.json",
-    gold_file="dev_gold.sql",
+    dataset_dir="data/spider/dev",
+    data_file="data.json",
+    gold_file="data.gold.txt",
     tables_file="tables.json",
-    db_dir="database"
+    db_dir="../database"
 )
 
 SPIDER_TEST = DatasetConfig(
-    dataset_dir="data/spider",
-    data_file="test.json",
-    gold_file="test_gold.sql",
-    tables_file="test_tables.json",
-    db_dir="test_database"
+    dataset_dir="data/spider/test",
+    data_file="data.json",
+    gold_file="data.gold.txt",
+    tables_file="tables.json",
+    db_dir="../database"
 )
 
 SPIDER_TRAIN = DatasetConfig(
-    dataset_dir="data/spider",
-    data_file="train_spider.json",
-    gold_file="train_gold.sql",
+    dataset_dir="data/spider/train",
+    data_file="data.json",
+    gold_file="data.gold.txt",
     tables_file="tables.json",
-    db_dir="database"
+    db_dir="../database"
 )
 
 SPIDER_ALL = DatasetConfig(
-    dataset_dir="data/spider",
-    data_file="all.json",
-    gold_file="all.json.gold.txt",
+    dataset_dir="data/spider/all",
+    data_file="data.json",
+    gold_file="data.gold.txt",
     tables_file="tables.json",
-    db_dir="database"
+    db_dir="../database"
 )
 
 BEAVER_DEV = DatasetConfig(
