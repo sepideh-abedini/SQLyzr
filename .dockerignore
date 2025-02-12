@@ -1,6 +1,6 @@
 data
 vector_cache
 .venv
-src/third_party/dail/third_party
+#src/third_party/dail/third_party
 .git
 __pycache__

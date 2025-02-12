@@ -19,5 +19,6 @@ if [ -z "$INPUT_FILE" ] || [ -z "$FIELD" ] || [ -z "$NEW_FIELD" ]; then
     usage
 fi
 
-jq -r "map (.$NEW_FIELD = .$FIELD | del(.$FIELD))" $INPUT_FILE > $INPUT_FILE.tmp
+#jq -r "map (.$NEW_FIELD = .$FIELD | del(.$FIELD))" $INPUT_FILE > $INPUT_FILE.tmp
+jq -r "map (.$NEW_FIELD = .$FIELD)" $INPUT_FILE > $INPUT_FILE.tmp
 mv $INPUT_FILE.tmp $INPUT_FILE

@@ -39,7 +39,7 @@ class Embedder(metaclass=abc.ABCMeta):
 class GloVe(Embedder):
 
     def __init__(self, kind, lemmatize=False):
-        cache = os.path.join(os.environ.get('CACHE_DIR', os.getcwd()), 'vector_cache')
+        cache = os.path.join(os.environ.get('DAIL_CACHE_DIR', os.getcwd()), 'vector_cache')
         self.glove = torchtext.vocab.GloVe(name=kind, cache=cache)
         self.dim = self.glove.dim
         self.vectors = self.glove.vectors

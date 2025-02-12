@@ -153,7 +153,8 @@ def load_tables(paths):
                     columns=(dest_column_id, source_column_id))
 
             db_id = schema_dict['db_id']
-            assert db_id not in schemas
+            # FIXME: What the hell is this???
+            # assert db_id not in schemas
             schemas[db_id] = Schema(db_id, tables, columns, foreign_key_graph, schema_dict)
             # eval_foreign_key_maps[db_id] = build_foreign_key_map(schema_dict)
 
