@@ -1,20 +1,18 @@
 import asyncio
+import concurrent
 import json
-import shutil
 
+from loguru import logger
 from tqdm import tqdm
+from tqdm.asyncio import tqdm
 
 from src.cat.catter import Catter
 from src.configs.sqlyzr import SQLyzrConfig
 from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
-from src.eval.lib import DatabaseClient
 from src.eval.model_eval_config import ModelEvalConfig
-from loguru import logger
-from tqdm.asyncio import tqdm
-
 from src.rel.db_facade import DatabaseFacade
-from src.util.log_util import trace
+from src.util.async_utils import apply_async
 
 
 async def validate_dataset(conf: SQLyzrConfig):
@@ -26,11 +24,11 @@ async def validate_dataset(conf: SQLyzrConfig):
     data_file_path = conf.eval_conf.dataset_config.get_data_path()
     with open(data_file_path) as file:
         data = json.load(file)
-        tasks = []
+        examples = []
         for i, entry in enumerate(data):
             example = SpiderExample.model_validate(entry)
-            tasks.append(db_facade.exec_query_async(example.db_id, example.query))
-        results = await tqdm.gather(*tasks, desc=f"Executing gold queries")
+            examples.append(example)
+        results = await apply_async(lambda example: db_facade.exec_query_async(example.db_id, example.query), examples)
 
         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
                              desc=f"Validating dataset: {conf.eval_conf.dataset_config.dataset_dir}"):

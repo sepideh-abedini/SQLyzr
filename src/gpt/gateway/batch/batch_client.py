@@ -14,7 +14,7 @@ class GptBatchClient:
         self.__client = Client(
             organization=os.getenv("OPENAI_GROUP_ID"),
             project=os.getenv("OPENAI_PROJ_ID"),
-            timeout=5
+            timeout=os.getenv("OPENAI_TIMEOUT", 60)
         )
 
     def create_file(self, name: str, file: IO[bytes], purpose: FilePurpose) -> FileObject:

@@ -3,27 +3,34 @@ from typing import Literal
 from src.eval.dataset_config import DatasetConfig
 
 BIRD_SMALL = DatasetConfig(
-    dataset_dir="data/bird/dev",
-    data_file="dev.conv.small.json",
-    gold_file="dev.conv.small.gold.txt",
-    tables_file="dev_tables.json",
-    db_dir="dev_databases"
+    dataset_dir="data/bird/small",
+    data_file="data.json",
+    gold_file="data.gold.txt",
+    tables_file="tables.json",
+    db_dir="../database"
 )
-
 BIRD_DEV = DatasetConfig(
     dataset_dir="data/bird/dev",
-    data_file="dev.conv.json",
-    gold_file="dev.gold.txt",
-    tables_file="dev_tables.json",
-    db_dir="dev_databases"
+    data_file="data.json",
+    gold_file="data.gold.txt",
+    tables_file="tables.json",
+    db_dir="../database"
 )
 
 BIRD_TRAIN = DatasetConfig(
     dataset_dir="data/bird/train",
-    data_file="train.conv.json",
-    gold_file="train.conv.gold.txt",
-    tables_file="train_tables.json",
-    db_dir="train_databases"
+    data_file="data.json",
+    gold_file="data.gold.txt",
+    tables_file="tables.json",
+    db_dir="../database"
+)
+
+BIRD_ALL = DatasetConfig(
+    dataset_dir="data/bird/all",
+    data_file="data.json",
+    gold_file="data.gold.txt",
+    tables_file="tables.json",
+    db_dir="../database"
 )
 
 SPIDER_SMALL = DatasetConfig(

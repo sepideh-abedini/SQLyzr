@@ -13,8 +13,11 @@ from src.rel.db_facade import DatabaseFacade
 
 from loguru import logger
 
+from src.util.async_utils import apply_async
+
 
 async def clean_dataset(file_path: str, db_path: str):
+    db_facade = DatabaseFacade(db_path)
     catter = Catter()
     errors = []
     total = 0
@@ -22,12 +25,18 @@ async def clean_dataset(file_path: str, db_path: str):
     data_file_path = file_path
     with open(data_file_path) as file:
         data = json.load(file)
+        examples = []
+        for i, entry in enumerate(data):
+            example = SpiderExample.model_validate(entry)
+            examples.append(example)
+        results = await apply_async(lambda example: db_facade.exec_query_async(example.db_id, example.query),
+                                    examples)
+
         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
-                             desc=f"Validating dataset: {data_file_path}"):
+                             desc=f"Validating dataset: {db_path}"):
             example = SpiderExample.model_validate(entry)
             cat = catter.get_category(example.query)
-            db_facade = DatabaseFacade(db_path)
-            exec_res = await db_facade.exec_query_async(example.db_id, example.query)
+            exec_res = results[i]
             if exec_res is None or cat is None:
                 errors.append((i, example.query))
             else:
