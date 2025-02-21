@@ -64,7 +64,7 @@ class DailPredictor(Predictor):
         return content
 
     async def __process_responses(self, file_path) -> List[str]:
-        with open(self._run_conf.dataset_config.get_data_path()) as data_file:
+        with open(self._run_conf.dataset_config.get_test_path()) as data_file:
             data = json.load(data_file)
             db_ids = [example['db_id'] for example in data]
         responses = read_jsonl(file_path, ChatCompletion)

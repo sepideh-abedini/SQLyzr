@@ -50,7 +50,7 @@ class Predictor(ABC):
         self._tracker.add_usage(usage)
 
     def _gen_batch_file(self, file_path: str, gen_req: BatchRequestGenerator):
-        examples = load_data(self._run_conf.dataset_config.get_data_path()).to_dict("records")
+        examples = load_data(self._run_conf.dataset_config.get_test_path()).to_dict("records")
         with open(file_path, "w") as file:
             for i, example in enumerate(examples):
                 db_id = example['db_id']

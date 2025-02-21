@@ -2,19 +2,19 @@
   "aug_per_sub_cat": 5,
   "error_threshold": 90,
   "dataset": "spider",
-  "dataset_size": "dev",
+  "dataset_size": "small",
   "temps": [
     0.2
   ],
   "itrs": 2,
-  "model": "dum",
+  "model": "din",
   "batch": false,
   "force": false,
   "pipeline": {
-    "verify": true,
+    "verify": false,
     "predict": true,
     "eval": true,
-    "transformers": true,
-    "augment": true
+    "transformers": false,
+    "augment": false
   }
 }

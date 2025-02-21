@@ -12,9 +12,9 @@ if [ ! -d "dev/dev_databases" ]; then
   mv "dev/dev_databases/"*/ "database/"
 fi
 
-if [ ! -d "train/train_databases" ]; then
-  mv "train/train_databases/"*/ "database/"
-fi
+#if [ ! -d "train/train_databases" ]; then
+#  mv "train/train_databases/"*/ "database/"
+#fi
 
 
 concat.sh -o "tables.json" "dev/dev_tables.json" "train/train_tables.json"
@@ -30,7 +30,7 @@ cp "train/train.json" train.json
 
 concat.sh -o all.json dev.json train.json
 
-for size in "small" "dev" "all"; do
+for size in "small"; do
     mkdir -p "$size"
     cp "$size.json" $size/data.json
     cp tables.json "$size/tables.json"

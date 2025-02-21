@@ -21,7 +21,7 @@ async def validate_dataset(conf: SQLyzrConfig):
     errors = []
     total = 0
     valid_examples = []
-    data_file_path = conf.eval_conf.dataset_config.get_data_path()
+    data_file_path = conf.eval_conf.dataset_config.get_test_path()
     with open(data_file_path) as file:
         data = json.load(file)
         examples = []
@@ -59,7 +59,7 @@ def validate_preds(conf: ModelEvalConfig):
     parser = ExactMatchParser(conf.dataset_config.get_tables_path())
     for run_conf in conf.get_run_confs():
         errors = []
-        with (open(run_conf.dataset_config.get_data_path()) as data_file,
+        with (open(run_conf.dataset_config.get_test_path()) as data_file,
               open(run_conf.get_pred_path()) as pred_file):
             data = json.load(data_file)
             pred_lines = pred_file.readlines()

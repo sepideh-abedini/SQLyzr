@@ -1,8 +1,9 @@
-import numpy as np
 import random
 
-from src.third_party.dail.utils.utils import sql2skeleton, jaccard_similarity
+import numpy as np
+
 from src.third_party.dail.utils.linking_utils.application import mask_question_with_schema_linking
+from src.third_party.dail.utils.utils import jaccard_similarity
 
 
 class BasicExampleSelector(object):

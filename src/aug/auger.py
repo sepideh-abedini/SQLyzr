@@ -53,7 +53,7 @@ class Auger:
 
     def __extract_examples(self):
         examples = {}
-        with open(self.__sqlyzr_conf.eval_conf.dataset_config.get_data_path()) as dataset_file:
+        with open(self.__sqlyzr_conf.eval_conf.dataset_config.get_test_path()) as dataset_file:
             dataset_data = json.load(dataset_file)
             for entry in tqdm.tqdm(dataset_data, desc="Extracting examples", total=len(dataset_data)):
                 db_id = entry["db_id"]

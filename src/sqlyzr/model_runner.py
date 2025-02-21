@@ -6,8 +6,9 @@ from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import SingleRunConfig
 from src.sqlyzr.dummy_predictor import DummyPredictor
 from src.third_party.dail.dail_pred import DailPredictor
-from src.third_party.din.din_pred import DinPredictor
 from loguru import logger
+
+from src.third_party.din.din_spider_pred import DinPredictor
 
 
 class ModelRunner(ABC):

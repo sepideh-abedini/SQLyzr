@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 import pandas as pd
 
-from src.third_party.din.prompts.classification_prompt import CLASSIFICATION_PROMPT
-from src.third_party.din.prompts.easy_prompt import EASY_PROMPT
-from src.third_party.din.prompts.hard_prompt import HARD_PROMPT
-from src.third_party.din.prompts.medium_prompt import MEDIUM_PROMPT
-from src.third_party.din.prompts.schema_linking_prompt import SCHEMA_LINKING_PROMPT
+from src.third_party.din.prompts.spider.classification_prompt import CLASSIFICATION_PROMPT
+from src.third_party.din.prompts.spider.easy_prompt import EASY_PROMPT
+from src.third_party.din.prompts.spider.hard_prompt import *
+from src.third_party.din.prompts.spider.medium_prompt import MEDIUM_PROMPT
+from src.third_party.din.prompts.spider.schema_linking_prompt import SCHEMA_LINKING_PROMPT
 
 
 @dataclass

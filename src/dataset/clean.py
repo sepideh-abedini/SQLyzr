@@ -3,7 +3,7 @@ from src.sqlyzr.validate import validate_dataset
 
 
 def main():
-    validate_dataset(config, f"{SPIDER_DEV.get_data_path()}.clean.json")
+    validate_dataset(config, f"{SPIDER_DEV.get_test_path()}.clean.json")
 
 
 if __name__ == '__main__':

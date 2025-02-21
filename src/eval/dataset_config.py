@@ -1,22 +1,28 @@
 import os
 from dataclasses import dataclass, replace
 from os import path
+from typing import Literal
 
 
 @dataclass
 class DatasetConfig:
     dataset_dir: str
-    data_file: str
+    test_file: str
+    train_file: str
     gold_file: str
     tables_file: str
     db_dir: str
     mysql: bool = False
+    dataset_type: str = Literal['spider', 'bird']
 
     def get_rel_path(self, sub_path: str):
         return path.join(self.dataset_dir, sub_path)
 
-    def get_data_path(self):
-        return self.get_rel_path(self.data_file)
+    def get_test_path(self):
+        return self.get_rel_path(self.test_file)
+
+    def get_train_path(self):
+        return self.get_rel_path(self.train_file)
 
     def get_gold_path(self):
         return self.get_rel_path(self.gold_file)

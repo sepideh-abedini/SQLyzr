@@ -22,8 +22,11 @@ class DailSchemaLinksGenerator(FileGenerator):
         dail_conf = self.dail_conf
         run_conf = self.run_conf
 
+        if run_conf.dataset_config.dataset_type == 'bird':
+            bird_pre_process(run_conf)
+
         # load data
-        input_data = json.load(open(run_conf.dataset_config.get_data_path()))
+        input_data = json.load(open(run_conf.dataset_config.get_test_path()))
         # load schemas
         schemas, _ = load_tables([run_conf.dataset_config.get_tables_path()])
 
@@ -59,12 +62,7 @@ class DailSchemaLinksGenerator(FileGenerator):
         linking_processor.save(dail_conf.schema_path(), section)
 
 
-def bird_pre_process(bird_dir, with_evidence=False):
-    new_db_path = os.path.join(bird_dir, "database")
-    if not os.path.exists(new_db_path):
-        os.system(f"cp -r {os.path.join(bird_dir, 'train/train_databases/*')} {new_db_path}")
-        os.system(f"cp -r {os.path.join(bird_dir, 'dev/databases/*')} {new_db_path}")
-
+def bird_pre_process(run_conf: SingleRunConfig, with_evidence=True):
     def json_preprocess(data_jsons):
         new_datas = []
         for data_json in data_jsons:
@@ -85,22 +83,7 @@ def bird_pre_process(bird_dir, with_evidence=False):
             new_datas.append(data_json)
         return new_datas
 
-    output_dev = 'dev.json'
-    output_train = 'train.json'
-    with open(os.path.join(bird_dir, 'dev/dev.json')) as f:
+    with open(run_conf.dataset_config.get_test_path()) as f:
         data_jsons = json.load(f)
-        wf = open(os.path.join(bird_dir, output_dev), 'w')
+    with open(run_conf.dataset_config.get_test_path(), 'w') as wf:
         json.dump(json_preprocess(data_jsons), wf, indent=4)
-    with open(os.path.join(bird_dir, 'train/train.json')) as f:
-        data_jsons = json.load(f)
-        wf = open(os.path.join(bird_dir, output_train), 'w')
-        json.dump(json_preprocess(data_jsons), wf, indent=4)
-    os.system(f"cp {os.path.join(bird_dir, 'dev/dev.sql')} {bird_dir}")
-    os.system(f"cp {os.path.join(bird_dir, 'train/train_gold.sql')} {bird_dir}")
-    tables = []
-    with open(os.path.join(bird_dir, 'dev/dev_tables.json')) as f:
-        tables.extend(json.load(f))
-    with open(os.path.join(bird_dir, 'train/train_tables.json')) as f:
-        tables.extend(json.load(f))
-    with open(os.path.join(bird_dir, 'tables.json'), 'w') as f:
-        json.dump(tables, f, indent=4)
