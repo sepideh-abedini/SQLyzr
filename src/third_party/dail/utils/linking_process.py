@@ -194,11 +194,15 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
             return self.word_emb.tokenize_for_copying(unsplit)
         return presplit, presplit
 
-    def save(self, output_path, section):
-        texts = self.texts[section]
-        with open(output_path, 'w') as f:
-            for text in texts:
-                f.write(json.dumps(text) + '\n')
+    def save(self, paths):
+        # self.vocab = self.vocab_builder.finish()
+        # print(f"{len(self.vocab)} words in vocab")
+        # self.vocab.save(self.vocab_path)
+        # self.vocab_builder.save(self.vocab_word_freq_path)
+        for section, texts in self.texts.items():
+            with open(paths[section], 'w') as f:
+                for text in texts:
+                    f.write(json.dumps(text) + '\n')
 
     def load(self, input_path, section):
         self.texts[section] = []

@@ -7,13 +7,13 @@
     0.2
   ],
   "itrs": 2,
-  "model": "din",
+  "model": "dail",
   "batch": false,
   "force": false,
   "pipeline": {
     "verify": false,
     "predict": true,
-    "eval": true,
+    "eval": false,
     "transformers": false,
     "augment": false
   }

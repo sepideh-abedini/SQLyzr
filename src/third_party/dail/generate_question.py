@@ -45,7 +45,7 @@ class DailQuestionGenerator(FileGenerator):
         data = load_data(DATASET_TYPE, tables_path=run_conf.dataset_config.get_tables_path(),
                          input_path=run_conf.dataset_config.get_test_path(),
                          db_dir=run_conf.dataset_config.get_db_path(),
-                         schema_links_path=dail_conf.schema_path())
+                         schema_links_path=dail_conf.test_schema_path())
 
         # Read all tables into a dict
         databases = data.get_databases()

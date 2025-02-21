@@ -15,8 +15,11 @@ class DailConfig:
         'n': 5
     }
 
-    def schema_path(self):
-        return f"{self.pred_path}.schema.jsonl"
+    def test_schema_path(self):
+        return f"{self.pred_path}.test.schema.jsonl"
+
+    def train_schema_path(self):
+        return f"{self.pred_path}.train.schema.jsonl"
 
     def questions_path(self):
         return f"{self.pred_path}.questions.json"

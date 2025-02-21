@@ -31,7 +31,7 @@ class AbstractPreproc(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def save(self):
+    def save(self, paths):
         '''Marks that all of the items have been preprocessed. Save state to disk.
         Used in preprocess.py, after reading all of the data.'''
         pass

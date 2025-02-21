@@ -1,6 +1,9 @@
 import json
 import os
 import sqlite3
+from pathlib import Path
+
+from tqdm import tqdm
 
 from src.eval.single_run_config import SingleRunConfig
 from src.sqlyzr.file_gen import FileGenerator
@@ -8,31 +11,31 @@ from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.datasets.spider import load_tables
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
 from src.third_party.dail.utils.pretrained_embeddings import GloVe
+from src.util.file_utils import read_json
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 class DailSchemaLinksGenerator(FileGenerator):
     def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig):
-        super().__init__(dail_conf.schema_path())
+        super().__init__(dail_conf.test_schema_path())
         self.dail_conf = dail_conf
         self.run_conf = run_conf
 
     def _run_internal(self):
-        dail_conf = self.dail_conf
-        run_conf = self.run_conf
-
-        if run_conf.dataset_config.dataset_type == 'bird':
-            bird_pre_process(run_conf)
+        if self.run_conf.dataset_config.dataset_type == "bird":
+            bird_pre_process(self.run_conf)
 
         # load data
-        input_data = json.load(open(run_conf.dataset_config.get_test_path()))
+        test_data = read_json(self.run_conf.dataset_config.get_test_path())
+        train_data = read_json(self.run_conf.dataset_config.get_train_path())
+
         # load schemas
-        schemas, _ = load_tables([run_conf.dataset_config.get_tables_path()])
+        schemas, _ = load_tables([self.run_conf.dataset_config.get_tables_path()])
 
         # Backup in-memory copies of all the DBs and create the live connections
-        for db_id, schema in schemas.items():
-            sqlite_path = os.path.join(run_conf.dataset_config.get_db_file_path(db_id))
+        for db_id, schema in tqdm(schemas.items(), desc="DB connections"):
+            sqlite_path = self.run_conf.dataset_config.get_db_file_path(db_id)
             source: sqlite3.Connection
             with sqlite3.connect(str(sqlite_path)) as source:
                 dest = sqlite3.connect(':memory:')
@@ -47,19 +50,19 @@ class DailSchemaLinksGenerator(FileGenerator):
                                                    word_emb=word_emb,
                                                    fix_issue_16_primary_keys=True,
                                                    compute_sc_link=True,
-                                                   compute_cv_link=dail_conf.compute_cv_link)
+                                                   compute_cv_link=True)
 
         # build schema-linking
-        section = "train"
-        for item in input_data:
-            db_id = item["db_id"]
-            schema = schemas[db_id]
-            to_add, validation_info = linking_processor.validate_item(item, schema, section)
-            if to_add:
-                linking_processor.add_item(item, schema, section, validation_info)
+        for data, section in zip([test_data, train_data], ['test', 'train']):
+            for item in tqdm(data, desc=f"{section} section linking"):
+                db_id = item["db_id"]
+                schema = schemas[db_id]
+                to_add, validation_info = linking_processor.validate_item(item, schema, section)
+                if to_add:
+                    linking_processor.add_item(item, schema, section, validation_info)
 
         # save
-        linking_processor.save(dail_conf.schema_path(), section)
+        linking_processor.save({"train": self.dail_conf.train_schema_path(), "test": self.dail_conf.test_schema_path()})
 
 
 def bird_pre_process(run_conf: SingleRunConfig, with_evidence=True):

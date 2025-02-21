@@ -28,19 +28,19 @@ class DailPredictor(Predictor):
         usage = schema_links_gen.run()
         self._tracker.add_usage(usage)
 
-        question_gen = DailQuestionGenerator(self.__conf, self._run_conf)
-        usage = question_gen.run()
-        self._tracker.add_usage(usage)
-
-        self.__load_questions()
-
-        self._gen_batch_file(self.__conf.get_path("in"), self.__gen_sql_req)
-
-        await self._ask_file(self.__conf.get_path("in"), self.__conf.get_path("out"))
-
-        sqls = await self.__process_responses(self.__conf.get_path("out"))
-
-        self._save_sqls(sqls)
+        # question_gen = DailQuestionGenerator(self.__conf, self._run_conf)
+        # usage = question_gen.run()
+        # self._tracker.add_usage(usage)
+        #
+        # self.__load_questions()
+        #
+        # self._gen_batch_file(self.__conf.get_path("in"), self.__gen_sql_req)
+        #
+        # await self._ask_file(self.__conf.get_path("in"), self.__conf.get_path("out"))
+        #
+        # sqls = await self.__process_responses(self.__conf.get_path("out"))
+        #
+        # self._save_sqls(sqls)
 
     def __gen_sql_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         dail_question = self.__questions[i]
