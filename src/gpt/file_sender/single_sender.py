@@ -1,15 +1,14 @@
 from typing import List
 
+from loguru import logger
 from openai.types.chat import ChatCompletion
 from tqdm.asyncio import tqdm
 
-from src.eval.lib import Timer
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.file_sender.usage_tracker import ResourceUsage
 from src.gpt.gateway.gateway import GptGateway
 from src.gpt.models import BatchInputRequest
 from src.util.model_utils import read_jsonl
-from loguru import logger
 
 
 class GptSingleSender(GptFileSender):

@@ -5,7 +5,7 @@ import re
 from typing import List, Tuple
 
 import pandas as pd
-from langchain.sql_database import SQLDatabase
+from langchain_community.utilities import SQLDatabase
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import (

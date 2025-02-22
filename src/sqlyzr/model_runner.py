@@ -8,6 +8,7 @@ from src.sqlyzr.dummy_predictor import DummyPredictor
 from src.third_party.dail.dail_pred import DailPredictor
 from loguru import logger
 
+from src.third_party.din.din_bird_pred import DinBirdPredictor
 from src.third_party.din.din_spider_pred import DinPredictor
 
 
@@ -44,7 +45,10 @@ class DailRunner(ModelRunner):
 
 class DinRunner(ModelRunner):
     async def run_single_internal(self, run_conf: SingleRunConfig):
-        predictor = DinPredictor(run_conf)
+        if run_conf.dataset_config.dataset_type == "bird":
+            predictor = DinBirdPredictor(run_conf)
+        else:
+            predictor = DinPredictor(run_conf)
         result = await predictor.run()
         return result
 

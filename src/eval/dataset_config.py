@@ -33,6 +33,10 @@ class DatasetConfig:
     def get_db_path(self):
         return self.get_rel_path(self.db_dir)
 
+    def get_db_description_path(self, db_id: str):
+        desc_dir = os.path.join(self.db_dir, db_id, "database_description")
+        return self.get_rel_path(desc_dir)
+
     def get_db_file_path(self, db_id: str):
         db_file = os.path.join(self.db_dir, db_id, f"{db_id}.sqlite")
         return self.get_rel_path(db_file)
