@@ -6,13 +6,7 @@ from typing import List, Tuple
 
 import pandas as pd
 from langchain_community.utilities import SQLDatabase
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import LLMChain
-from langchain.prompts import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
+
 
 def get_database_schema(DB_URI: str) -> str:
     """Get the database schema from the database URI
@@ -56,13 +50,24 @@ def extract_label_and_sub_questions(input_text: str) -> Tuple[str, List[str]]:
     return label, sub_questions
 
 
-def extract_sql_query(input_text):
+def extract_sql_query(input_text: str):
+    if "```sql" in input_text.lower():
+        pattern = r'.*```sql.*(SELECT.*)```.*'
+        content = re.sub(pattern, r'\1', input_text, flags=re.DOTALL)
+        return content
     sql_pattern = r'SQL:\s*(.*?)$'
     match = re.search(sql_pattern, input_text, re.DOTALL)
-    return match.group(1).strip() if match else None
+    if match:
+        return match.group(1).strip()
+    else:
+        return None
 
 
 def extract_revised_sql_query(input_text):
+    if "```sql" in input_text.lower():
+        pattern = r'.*```sql.*(SELECT.*)```.*'
+        content = re.sub(pattern, r'\1', input_text, flags=re.DOTALL)
+        return content
     sql_pattern = r'Revised_SQL:\s*(.*?)$'
     match = re.search(sql_pattern, input_text, re.DOTALL)
     return match.group(1).strip() if match else None
@@ -91,13 +96,13 @@ def table_descriptions_parser(database_dir):
         table_df = pd.read_csv(file_path, encoding='latin-1')
         for _, row in table_df.iterrows():
             try:
-                if pd.notna(row[2]):
-                    col_description = re.sub(r'\s+', ' ', str(row[2]))  # noqa: E501
-                    val_description = re.sub(r'\s+', ' ', str(row[4]))
-                    if pd.notna(row[4]):
-                        db_descriptions += f"Column {row[0]}: column description -> {col_description}, value description -> {val_description}\n"  # noqa: E501
+                if pd.notna(row.iloc[2]):
+                    col_description = re.sub(r'\s+', ' ', str(row.iloc[2]))  # noqa: E501
+                    val_description = re.sub(r'\s+', ' ', str(row.iloc[4]))
+                    if pd.notna(row.iloc[4]):
+                        db_descriptions += f"Column {row.iloc[0]}: column description -> {col_description}, value description -> {val_description}\n"  # noqa: E501
                     else:
-                        db_descriptions += f"Column {row[0]}: column description -> {col_description}\n"  # noqa: E501
+                        db_descriptions += f"Column {row.iloc[0]}: column description -> {col_description}\n"  # noqa: E501
             except Exception as e:
                 print(e)
                 db_descriptions += "No column description"

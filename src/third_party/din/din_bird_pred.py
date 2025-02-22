@@ -76,9 +76,9 @@ class DinBirdPredictor(Predictor):
 
         self.__sqls = process_responses(conf.get_path("sql_debug", "out"), self.__process_sql_debug_response)
 
-        sqls = self.__post_process(self.__sqls)
+        # sqls = self.__post_process(self.__sqls)
 
-        self._save_sqls(sqls)
+        self._save_sqls(self.__sqls)
 
     def __generate_schema_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         columns_descriptions = self.__column_descriptions[i]
@@ -108,7 +108,7 @@ class DinBirdPredictor(Predictor):
         hint = self.__hints[i]
         label, sub_questions = extract_label_and_sub_questions(classification)
         if "EASY" in label:
-            prompt = easy_prompt.run(
+            prompt = easy_prompt.format(
                 question=question,
                 schema=schema,
                 hint=hint,
@@ -197,10 +197,16 @@ class DinBirdPredictor(Predictor):
         return sql
 
     def __process_sql_responses(self, i: int, content: str) -> str:
-        return extract_sql_query(content)
+        sql = extract_sql_query(content)
+        sql = sql.replace('\n', '').replace('\r', '')
+        return sql
 
     def __process_sql_debug_response(self, i: int, content: str) -> str:
-        return extract_revised_sql_query(content)
+        sql = extract_revised_sql_query(content)
+        if sql is None:
+            return self.__sqls[i]
+        sql = sql.replace('\n', '').replace('\r', '')
+        return sql
 
     @staticmethod
     def __post_process(sqls: List[str]) -> List[str]:
