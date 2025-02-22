@@ -1,0 +1,3179 @@
+diff --git a/.dockerignore b/.dockerignore
+index f1fc8f6..c8886b6 100644
+--- a/.dockerignore
++++ b/.dockerignore
+@@ -1,6 +1,6 @@
+ data
+ vector_cache
+ .venv
+-src/third_party/dail/third_party
++#src/third_party/dail/third_party
+ .git
+ __pycache__
+\ No newline at end of file
+diff --git a/Dockerfile b/Dockerfile
+index b234875..c90e091 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -1,11 +1,12 @@
+ FROM python:3.11-slim
+-RUN apt update && apt install -y --no-install-recommends vim jq
++RUN apt update && apt install -y --no-install-recommends vim jq default-jre
+ 
+ WORKDIR /app
+ 
+ COPY requirements.txt .
+ RUN pip install --no-cache-dir -r requirements.txt
+-RUN python -c "import nltk; nltk.download('stopwords')"
++
++RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt_tab')"
+ 
+ ENV PYTHONPATH=/app
+ 
+diff --git a/conf.json b/conf.json
+index 1c9b6c6..f0327fb 100644
+--- a/conf.json
++++ b/conf.json
+@@ -1,20 +1,20 @@
+ {
+   "aug_per_sub_cat": 5,
+   "error_threshold": 90,
+-  "dataset": "spider",
+-  "dataset_size": "dev",
++  "dataset": "bird",
++  "dataset_size": "small",
+   "temps": [
+     0.2
+   ],
+-  "itrs": 2,
+-  "model": "dum",
++  "itrs": 1,
++  "model": "dail",
+   "batch": false,
+   "force": false,
+   "pipeline": {
+-    "verify": true,
++    "verify": false,
+     "predict": true,
+     "eval": true,
+-    "transformers": true,
+-    "augment": true
++    "transformers": false,
++    "augment": false
+   }
+ }
+\ No newline at end of file
+diff --git a/main.py b/main.py
+index eb855a2..7cc7780 100644
+--- a/main.py
++++ b/main.py
+@@ -1,11 +1,10 @@
+-import asyncio
+-import os
+-import sys
+-
+ from src.assets.print_logo import print_logo
+ from src.sqlyzr.sqlyzr import Sqlyzr
+ from src.util.log_util import configure_logging
++import asyncio
++
+ 
++# FIXME: No error on connection error
+ 
+ async def main():
+     configure_logging()
+diff --git a/scripts/clean.py b/scripts/clean.py
+index abfca78..ae61693 100755
+--- a/scripts/clean.py
++++ b/scripts/clean.py
+@@ -13,8 +13,11 @@ from src.rel.db_facade import DatabaseFacade
+ 
+ from loguru import logger
+ 
++from src.util.async_utils import apply_async
++
+ 
+ async def clean_dataset(file_path: str, db_path: str):
++    db_facade = DatabaseFacade(db_path)
+     catter = Catter()
+     errors = []
+     total = 0
+@@ -22,13 +25,19 @@ async def clean_dataset(file_path: str, db_path: str):
+     data_file_path = file_path
+     with open(data_file_path) as file:
+         data = json.load(file)
++        examples = []
++        for i, entry in enumerate(data):
++            example = SpiderExample.model_validate(entry)
++            examples.append(example)
++        results = await apply_async(lambda example: db_facade.exec_query_async(example.db_id, example.query),
++                                    examples)
++
+         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
+-                             desc=f"Validating dataset: {data_file_path}"):
++                             desc=f"Validating dataset: {db_path}"):
+             example = SpiderExample.model_validate(entry)
+             cat = catter.get_category(example.query)
+-            db_facade = DatabaseFacade(db_path)
+-            exec_res = await db_facade.exec_query_async(example.db_id, example.query)
+-            if exec_res is None or cat is None:
++            exec_res = results[i]
++            if isinstance(exec_res, Exception) or exec_res is None or cat is None:
+                 errors.append((i, example.query))
+             else:
+                 valid_examples.append(entry)
+diff --git a/scripts/rename_field.sh b/scripts/rename_field.sh
+index 651117d..a48530b 100755
+--- a/scripts/rename_field.sh
++++ b/scripts/rename_field.sh
+@@ -19,5 +19,6 @@ if [ -z "$INPUT_FILE" ] || [ -z "$FIELD" ] || [ -z "$NEW_FIELD" ]; then
+     usage
+ fi
+ 
+-jq -r "map (.$NEW_FIELD = .$FIELD | del(.$FIELD))" $INPUT_FILE > $INPUT_FILE.tmp
++#jq -r "map (.$NEW_FIELD = .$FIELD | del(.$FIELD))" $INPUT_FILE > $INPUT_FILE.tmp
++jq -r "map (.$NEW_FIELD = .$FIELD)" $INPUT_FILE > $INPUT_FILE.tmp
+ mv $INPUT_FILE.tmp $INPUT_FILE
+diff --git a/scripts/sample.sh b/scripts/sample.sh
+index 07feeab..197268d 100755
+--- a/scripts/sample.sh
++++ b/scripts/sample.sh
+@@ -21,4 +21,4 @@ fi
+ FILE_NAME=$(basename -- "$FILE_PATH" .json)
+ DIR_NAME=$(dirname -- "$FILE_PATH")
+ SMALL_FILE="$DIR_NAME/$FILE_NAME.small.json"
+-jq ".[:$NUM_SAMPLES]" $FILE_PATH > $SMALL_FILE
++jq ".[380:$((380+NUM_SAMPLES))]" $FILE_PATH > $SMALL_FILE
+diff --git a/scripts/unify_bird.sh b/scripts/unify_bird.sh
+new file mode 100755
+index 0000000..a67b909
+--- /dev/null
++++ b/scripts/unify_bird.sh
+@@ -0,0 +1,39 @@
++set -eo pipefail
++
++BIRD_DIR=$1
++
++SCRIPT_DIR=$(dirname "$(realpath "$0")")
++
++cd $BIRD_DIR
++
++mkdir -p database
++
++if [ ! -d "dev/dev_databases" ]; then
++  mv "dev/dev_databases/"*/ "database/"
++fi
++
++#if [ ! -d "train/train_databases" ]; then
++#  mv "train/train_databases/"*/ "database/"
++#fi
++
++
++concat.sh -o "tables.json" "dev/dev_tables.json" "train/train_tables.json"
++
++rename_field.sh -i "dev/dev.json" -f "SQL" -n "query"
++rename_field.sh -i "train/train.json" -f "SQL" -n "query"
++#
++sample.sh -i "dev/dev.json" -n 10
++mv "dev/dev.small.json" small.json
++
++cp "dev/dev.json" dev.json
++cp "train/train.json" train.json
++
++concat.sh -o all.json dev.json train.json
++
++for size in "small"; do
++    mkdir -p "$size"
++    cp "$size.json" $size/data.json
++    cp tables.json "$size/tables.json"
++    python3 "$SCRIPT_DIR/clean.py" -f "$(realpath $size/data.json)" -d "$(realpath database)"
++    extract_gold.sh -i "$size/data.json"
++done
+diff --git a/src/aug/auger.py b/src/aug/auger.py
+index 31e64ef..b0a30f9 100644
+--- a/src/aug/auger.py
++++ b/src/aug/auger.py
+@@ -53,7 +53,7 @@ class Auger:
+ 
+     def __extract_examples(self):
+         examples = {}
+-        with open(self.__sqlyzr_conf.eval_conf.dataset_config.get_data_path()) as dataset_file:
++        with open(self.__sqlyzr_conf.eval_conf.dataset_config.get_test_path()) as dataset_file:
+             dataset_data = json.load(dataset_file)
+             for entry in tqdm.tqdm(dataset_data, desc="Extracting examples", total=len(dataset_data)):
+                 db_id = entry["db_id"]
+diff --git a/src/configs/datasets.py b/src/configs/datasets.py
+index f7b2016..8146173 100644
+--- a/src/configs/datasets.py
++++ b/src/configs/datasets.py
+@@ -2,104 +2,77 @@ from typing import Literal
+ 
+ from src.eval.dataset_config import DatasetConfig
+ 
+-BIRD_SMALL = DatasetConfig(
+-    dataset_dir="data/bird/dev",
+-    data_file="dev.conv.small.json",
+-    gold_file="dev.conv.small.gold.txt",
+-    tables_file="dev_tables.json",
+-    db_dir="dev_databases"
+-)
+-
+-BIRD_DEV = DatasetConfig(
+-    dataset_dir="data/bird/dev",
+-    data_file="dev.conv.json",
+-    gold_file="dev.gold.txt",
+-    tables_file="dev_tables.json",
+-    db_dir="dev_databases"
+-)
+-
+-BIRD_TRAIN = DatasetConfig(
+-    dataset_dir="data/bird/train",
+-    data_file="train.conv.json",
+-    gold_file="train.conv.gold.txt",
+-    tables_file="train_tables.json",
+-    db_dir="train_databases"
+-)
+-
+ SPIDER_SMALL = DatasetConfig(
+-    dataset_dir="data/spider/small",
+-    data_file="data.json",
+-    gold_file="data.gold.txt",
+-    tables_file="tables.json",
+-    db_dir="../database"
+-)
+-
+-SPIDER_DEV = DatasetConfig(
+-    dataset_dir="data/spider/dev",
+-    data_file="data.json",
+-    gold_file="data.gold.txt",
+-    tables_file="tables.json",
+-    db_dir="../database"
+-)
+-
+-SPIDER_TEST = DatasetConfig(
+-    dataset_dir="data/spider/test",
+-    data_file="data.json",
+-    gold_file="data.gold.txt",
+-    tables_file="tables.json",
+-    db_dir="../database"
+-)
+-
+-SPIDER_TRAIN = DatasetConfig(
+-    dataset_dir="data/spider/train",
+-    data_file="data.json",
+-    gold_file="data.gold.txt",
+-    tables_file="tables.json",
+-    db_dir="../database"
++    dataset_dir="data/spider_data",
++    test_file="data.test.small.json",
++    gold_file="data.test.small.gold.txt",
++    train_file="data.train.small.json",
++    tables_file="tables.all.json",
++    db_dir="database"
+ )
+ 
+ SPIDER_ALL = DatasetConfig(
+-    dataset_dir="data/spider/all",
+-    data_file="data.json",
+-    gold_file="data.gold.txt",
+-    tables_file="tables.json",
+-    db_dir="../database"
++    dataset_dir="data/spider_data",
++    test_file="data.test.json",
++    gold_file="data.test.gold.txt",
++    train_file="data.train.json",
++    tables_file="tables.all.json",
++    db_dir="database"
+ )
+ 
+-BEAVER_DEV = DatasetConfig(
+-    dataset_dir="data/beaver",
+-    data_file="non_dw.dev.conv.json",
+-    gold_file="non_dw.dev.conv.gold.txt",
+-    tables_file="non_dw.tables.json",
++BIRD_SMALL = DatasetConfig(
++    dataset_dir="data/bird",
++    test_file="data.test.small.json",
++    gold_file="data.test.small.gold.txt",
++    train_file="data.train.small.json",
++    tables_file="tables.small.json",
+     db_dir="database",
+-    mysql=True
++    dataset_type="bird"
+ )
++#
++# BIRD_ALL = DatasetConfig(
++#     dataset_dir="data/bird/all",
++#     test_file="data.json",
++#     gold_file="data.gold.txt",
++#     tables_file="tables.json",
++#     db_dir="../database",
++#     dataset_type="bird"
++# )
+ 
+-BEAVER_SMALL = DatasetConfig(
+-    dataset_dir="data/beaver",
+-    data_file="non_dw.dev.conv.small.json",
+-    gold_file="non_dw.dev.conv.small.gold.txt",
+-    tables_file="tables.conv.json",
+-    db_dir="database",
+-    mysql=True
+-)
++# BEAVER_DEV = DatasetConfig(
++#     dataset_dir="data/beaver",
++#     test_file="non_dw.dev.conv.json",
++#     gold_file="non_dw.dev.conv.gold.txt",
++#     tables_file="non_dw.tables.json",
++#     db_dir="database",
++#     mysql=True
++# )
++#
++# BEAVER_SMALL = DatasetConfig(
++#     dataset_dir="data/beaver",
++#     test_file="non_dw.dev.conv.small.json",
++#     gold_file="non_dw.dev.conv.small.gold.txt",
++#     tables_file="tables.conv.json",
++#     db_dir="database",
++#     mysql=True
++# )
+ 
+ DATASETS = {
+     "bird": {
+         "small": BIRD_SMALL,
+-        "dev": BIRD_DEV,
+-        "train": BIRD_TRAIN
++    #     "dev": BIRD_DEV,
++    #     "train": BIRD_TRAIN
+     },
+     "spider": {
+         "small": SPIDER_SMALL,
+-        "dev": SPIDER_DEV,
+-        "test": SPIDER_TEST,
+-        "train": SPIDER_TRAIN,
++        # "dev": SPIDER_DEV,
++        # "test": SPIDER_TEST,
++        # "train": SPIDER_TRAIN,
+         "all": SPIDER_ALL
+     },
+-    "beaver": {
+-        "small": BEAVER_SMALL
+-    }
++    # "beaver": {
++    #     "small": BEAVER_SMALL
++    # }
+ }
+ 
+ DatasetName = Literal["spider", "bird", "beaver"]
+diff --git a/src/dataset/clean.py b/src/dataset/clean.py
+index fb8c605..83b9b85 100644
+--- a/src/dataset/clean.py
++++ b/src/dataset/clean.py
+@@ -3,7 +3,7 @@ from src.sqlyzr.validate import validate_dataset
+ 
+ 
+ def main():
+-    validate_dataset(config, f"{SPIDER_DEV.get_data_path()}.clean.json")
++    validate_dataset(config, f"{SPIDER_DEV.get_test_path()}.clean.json")
+ 
+ 
+ if __name__ == '__main__':
+diff --git a/src/dataset/merge.py b/src/dataset/merge.py
+index 7024f85..6a45185 100644
+--- a/src/dataset/merge.py
++++ b/src/dataset/merge.py
+@@ -15,16 +15,16 @@ def merge_datasets(datasets: List[Tuple[DatasetName, DatasetSize]], out_dir: str
+ 
+     new_conf = DatasetConfig(
+         dataset_dir=out_dir,
+-        data_file="all.json",
++        test_file="all.json",
+         gold_file="all.gold.txt",
+         tables_file="tables.json",
+         db_dir="database"
+     )
+     os.makedirs(new_conf.dataset_dir, exist_ok=True)
+     for conf in confs:
+-        conf.get_data_path()
++        conf.get_test_path()
+         shutil.copytree(conf.get_db_path(), new_conf.get_db_path(), dirs_exist_ok=True)
+-    concat_jsons(map(lambda c: c.get_data_path(), confs), new_conf.get_data_path())
++    concat_jsons(map(lambda c: c.get_test_path(), confs), new_conf.get_test_path())
+     concat_jsons(map(lambda c: c.get_tables_path(), confs), new_conf.get_tables_path())
+     concat_files(map(lambda c: c.get_gold_path(), confs), new_conf.get_gold_path())
+ 
+diff --git a/src/eval/dataset_config.py b/src/eval/dataset_config.py
+index 9589387..c44e2a3 100644
+--- a/src/eval/dataset_config.py
++++ b/src/eval/dataset_config.py
+@@ -1,22 +1,28 @@
+ import os
+ from dataclasses import dataclass, replace
+ from os import path
++from typing import Literal
+ 
+ 
+ @dataclass
+ class DatasetConfig:
+     dataset_dir: str
+-    data_file: str
++    test_file: str
++    train_file: str
+     gold_file: str
+     tables_file: str
+     db_dir: str
+     mysql: bool = False
++    dataset_type: Literal['spider', 'bird'] = 'spider'
+ 
+     def get_rel_path(self, sub_path: str):
+         return path.join(self.dataset_dir, sub_path)
+ 
+-    def get_data_path(self):
+-        return self.get_rel_path(self.data_file)
++    def get_test_path(self):
++        return self.get_rel_path(self.test_file)
++
++    def get_train_path(self):
++        return self.get_rel_path(self.train_file)
+ 
+     def get_gold_path(self):
+         return self.get_rel_path(self.gold_file)
+@@ -27,6 +33,10 @@ class DatasetConfig:
+     def get_db_path(self):
+         return self.get_rel_path(self.db_dir)
+ 
++    def get_db_description_path(self, db_id: str):
++        desc_dir = os.path.join(self.db_dir, db_id, "database_description")
++        return self.get_rel_path(desc_dir)
++
+     def get_db_file_path(self, db_id: str):
+         db_file = os.path.join(self.db_dir, db_id, f"{db_id}.sqlite")
+         return self.get_rel_path(db_file)
+diff --git a/src/gpt/file_sender/single_sender.py b/src/gpt/file_sender/single_sender.py
+index a557999..13f45c2 100644
+--- a/src/gpt/file_sender/single_sender.py
++++ b/src/gpt/file_sender/single_sender.py
+@@ -1,15 +1,14 @@
+ from typing import List
+ 
++from loguru import logger
+ from openai.types.chat import ChatCompletion
+ from tqdm.asyncio import tqdm
+ 
+-from src.eval.lib import Timer
+ from src.gpt.file_sender.file_sender import GptFileSender
+ from src.gpt.file_sender.usage_tracker import ResourceUsage
+ from src.gpt.gateway.gateway import GptGateway
+ from src.gpt.models import BatchInputRequest
+ from src.util.model_utils import read_jsonl
+-from loguru import logger
+ 
+ 
+ class GptSingleSender(GptFileSender):
+diff --git a/src/gpt/gateway/batch/batch_client.py b/src/gpt/gateway/batch/batch_client.py
+index 01a17ca..b323662 100644
+--- a/src/gpt/gateway/batch/batch_client.py
++++ b/src/gpt/gateway/batch/batch_client.py
+@@ -14,7 +14,7 @@ class GptBatchClient:
+         self.__client = Client(
+             organization=os.getenv("OPENAI_GROUP_ID"),
+             project=os.getenv("OPENAI_PROJ_ID"),
+-            timeout=5
++            timeout=os.getenv("OPENAI_TIMEOUT", 60)
+         )
+ 
+     def create_file(self, name: str, file: IO[bytes], purpose: FilePurpose) -> FileObject:
+diff --git a/src/gpt/gateway/gateway.py b/src/gpt/gateway/gateway.py
+index ed02a25..1dc50d1 100644
+--- a/src/gpt/gateway/gateway.py
++++ b/src/gpt/gateway/gateway.py
+@@ -1,7 +1,7 @@
+ import os
+ 
+ import backoff
+-from openai import AsyncClient
++from openai import AsyncClient, RateLimitError
+ from openai.types.chat import ChatCompletion
+ 
+ from src.gpt.gateway.gateway_exceptions import GptRateLimitException
+@@ -30,6 +30,7 @@ class GptGateway:
+         if can_send:
+             usage = await self.__tracker.add_usage(tokens)
+             result = await self.send_without_tracking(request)
++            logger.debug(f"TOKENS DIFF: {tokens}@{result.usage.total_tokens}")
+             usage.expire()
+             return result
+         else:
+@@ -37,8 +38,12 @@ class GptGateway:
+ 
+     async def send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
+         logger.debug("Sending GPT Request")
+-        result = await self._client.chat.completions.create(
+-            **request.body.dict()
+-        )
+-        logger.debug("Received GPT Response")
++        try:
++            result = await self._client.chat.completions.create(
++                **request.body.dict()
++            )
++            logger.debug("Received GPT Response")
++        except RateLimitError as e:
++            logger.warning(f"Rate Limit error: {e}")
++            raise GptRateLimitException()
+         return result
+diff --git a/src/gpt/gateway/single/gpt_limits.py b/src/gpt/gateway/single/gpt_limits.py
+index 7087f65..70bc204 100644
+--- a/src/gpt/gateway/single/gpt_limits.py
++++ b/src/gpt/gateway/single/gpt_limits.py
+@@ -9,7 +9,7 @@ class GptRateLimits:
+ 
+ 
+ TIER1_LIMITS = GptRateLimits(
+-    tokens_per_min=200_000,
++    tokens_per_min=140_000,
+     batch_tokens_per_day=2_000_000,
+     req_per_min=500
+ )
+diff --git a/src/pred/predictor.py b/src/pred/predictor.py
+index 819542b..e327c9d 100644
+--- a/src/pred/predictor.py
++++ b/src/pred/predictor.py
+@@ -50,7 +50,7 @@ class Predictor(ABC):
+         self._tracker.add_usage(usage)
+ 
+     def _gen_batch_file(self, file_path: str, gen_req: BatchRequestGenerator):
+-        examples = load_data(self._run_conf.dataset_config.get_data_path()).to_dict("records")
++        examples = load_data(self._run_conf.dataset_config.get_test_path()).to_dict("records")
+         with open(file_path, "w") as file:
+             for i, example in enumerate(examples):
+                 db_id = example['db_id']
+diff --git a/src/sqlyzr/dummy_predictor.py b/src/sqlyzr/dummy_predictor.py
+index 909dbe5..68db792 100644
+--- a/src/sqlyzr/dummy_predictor.py
++++ b/src/sqlyzr/dummy_predictor.py
+@@ -4,7 +4,7 @@ from src.pred.predictor import Predictor, load_data
+ class DummyPredictor(Predictor):
+     async def _run_internal(self):
+         self._tracker.start()
+-        examples = load_data(self._run_conf.dataset_config.get_data_path()).to_dict("records")
++        examples = load_data(self._run_conf.dataset_config.get_test_path()).to_dict("records")
+         with open(self._run_conf.get_pred_path(), "w") as file:
+             for i, example in enumerate(examples):
+                 sql = example['query']
+diff --git a/src/sqlyzr/model_runner.py b/src/sqlyzr/model_runner.py
+index 94c67b5..86be4c7 100644
+--- a/src/sqlyzr/model_runner.py
++++ b/src/sqlyzr/model_runner.py
+@@ -6,9 +6,11 @@ from src.eval.model_eval_config import ModelEvalConfig
+ from src.eval.single_run_config import SingleRunConfig
+ from src.sqlyzr.dummy_predictor import DummyPredictor
+ from src.third_party.dail.dail_pred import DailPredictor
+-from src.third_party.din.din_pred import DinPredictor
+ from loguru import logger
+ 
++from src.third_party.din.din_bird_pred import DinBirdPredictor
++from src.third_party.din.din_spider_pred import DinPredictor
++
+ 
+ class ModelRunner(ABC):
+     config: ModelEvalConfig
+@@ -43,7 +45,10 @@ class DailRunner(ModelRunner):
+ 
+ class DinRunner(ModelRunner):
+     async def run_single_internal(self, run_conf: SingleRunConfig):
+-        predictor = DinPredictor(run_conf)
++        if run_conf.dataset_config.dataset_type == "bird":
++            predictor = DinBirdPredictor(run_conf)
++        else:
++            predictor = DinPredictor(run_conf)
+         result = await predictor.run()
+         return result
+ 
+diff --git a/src/sqlyzr/validate.py b/src/sqlyzr/validate.py
+index 24daa4d..f5da55d 100644
+--- a/src/sqlyzr/validate.py
++++ b/src/sqlyzr/validate.py
+@@ -1,20 +1,18 @@
+ import asyncio
++import concurrent
+ import json
+-import shutil
+ 
++from loguru import logger
+ from tqdm import tqdm
++from tqdm.asyncio import tqdm
+ 
+ from src.cat.catter import Catter
+ from src.configs.sqlyzr import SQLyzrConfig
+ from src.dataset.models import SpiderExample
+ from src.eval.exact_match import ExactMatchParser
+-from src.eval.lib import DatabaseClient
+ from src.eval.model_eval_config import ModelEvalConfig
+-from loguru import logger
+-from tqdm.asyncio import tqdm
+-
+ from src.rel.db_facade import DatabaseFacade
+-from src.util.log_util import trace
++from src.util.async_utils import apply_async
+ 
+ 
+ async def validate_dataset(conf: SQLyzrConfig):
+@@ -23,14 +21,14 @@ async def validate_dataset(conf: SQLyzrConfig):
+     errors = []
+     total = 0
+     valid_examples = []
+-    data_file_path = conf.eval_conf.dataset_config.get_data_path()
++    data_file_path = conf.eval_conf.dataset_config.get_test_path()
+     with open(data_file_path) as file:
+         data = json.load(file)
+-        tasks = []
++        examples = []
+         for i, entry in enumerate(data):
+             example = SpiderExample.model_validate(entry)
+-            tasks.append(db_facade.exec_query_async(example.db_id, example.query))
+-        results = await tqdm.gather(*tasks, desc=f"Executing gold queries")
++            examples.append(example)
++        results = await apply_async(lambda example: db_facade.exec_query_async(example.db_id, example.query), examples)
+ 
+         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
+                              desc=f"Validating dataset: {conf.eval_conf.dataset_config.dataset_dir}"):
+@@ -61,7 +59,7 @@ def validate_preds(conf: ModelEvalConfig):
+     parser = ExactMatchParser(conf.dataset_config.get_tables_path())
+     for run_conf in conf.get_run_confs():
+         errors = []
+-        with (open(run_conf.dataset_config.get_data_path()) as data_file,
++        with (open(run_conf.dataset_config.get_test_path()) as data_file,
+               open(run_conf.get_pred_path()) as pred_file):
+             data = json.load(data_file)
+             pred_lines = pred_file.readlines()
+diff --git a/src/third_party/dail/dail_conf.py b/src/third_party/dail/dail_conf.py
+index cbc4cc5..ab7264c 100644
+--- a/src/third_party/dail/dail_conf.py
++++ b/src/third_party/dail/dail_conf.py
+@@ -1,25 +1,49 @@
+-from dataclasses import dataclass
++from dataclasses import dataclass, field
+ from typing import Literal
+ 
+ from src.eval.single_run_config import SingleRunConfig
+ 
+ 
++@dataclass
++class DailParams:
++    max_seq_len: int = 4096
++    max_ans_len: int = 200
++    tokenizer: str = 'gpt-3.5-turbo'
++    prompt_repr: str = 'SQL'
++    k_shot: int = 9
++    example_type: str = 'QA'
++    selector_type: str = 'EUCDISQUESTIONMASK'
++    second_selector_type: str = 'EUCDISMASKPRESKLSIMTHR'
++    scope_factor: int = 100
++    split: str = "test"
++
++
+ @dataclass
+ class DailConfig:
+     pred_path: str
+     force: bool = False
+     compute_cv_link: bool = True
+-    params = {
++    params: DailParams = field(default_factory=DailParams)
++    gpt_params = {
+         'model': "gpt-4o-mini",
+         'max_tokens': 600,
+         'n': 5
+     }
+ 
+-    def schema_path(self):
+-        return f"{self.pred_path}.schema.jsonl"
++    def test_schema_path(self):
++        return f"{self.pred_path}.test.schema.jsonl"
++
++    def train_schema_path(self):
++        return f"{self.pred_path}.train.schema.jsonl"
++
++    def pre_test_result_path(self):
++        return f"{self.pred_path}.pre_test_result.txt"
+ 
+     def questions_path(self):
+         return f"{self.pred_path}.questions.json"
+ 
+-    def get_path(self, file_type: Literal["in", "out"]):
++    def second_questions_path(self):
++        return f"{self.pred_path}.second.questions.json"
++
++    def get_path(self, file_type: Literal["in", "out", "in.second", "out.second"]):
+         return f"{self.pred_path}.sql.{file_type}.jsonl"
+diff --git a/src/third_party/dail/dail_pred.py b/src/third_party/dail/dail_pred.py
+index 0261e14..fd335aa 100644
+--- a/src/third_party/dail/dail_pred.py
++++ b/src/third_party/dail/dail_pred.py
+@@ -1,5 +1,4 @@
+ import json
+-import os
+ import re
+ from typing import List
+ 
+@@ -11,6 +10,7 @@ from src.pred.predictor import Predictor
+ from src.third_party.dail.dail_conf import DailConfig
+ from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
+ from src.third_party.dail.generate_question import DailQuestionGenerator
++from src.third_party.dail.generate_second_question import DailSecondQuestionGenerator
+ from src.third_party.dail.utils.post_process import process_duplication, get_sqls
+ from src.util.model_utils import read_jsonl
+ 
+@@ -28,27 +28,37 @@ class DailPredictor(Predictor):
+         usage = schema_links_gen.run()
+         self._tracker.add_usage(usage)
+ 
+-        question_gen = DailQuestionGenerator(self.__conf, self._run_conf)
++        question_gen = DailQuestionGenerator(self.__conf, self._run_conf, self.__conf.questions_path())
+         usage = question_gen.run()
+         self._tracker.add_usage(usage)
+ 
+-        self.__load_questions()
+-
++        self.__load_questions(self.__conf.questions_path())
+         self._gen_batch_file(self.__conf.get_path("in"), self.__gen_sql_req)
+-
+         await self._ask_file(self.__conf.get_path("in"), self.__conf.get_path("out"))
+ 
+         sqls = await self.__process_responses(self.__conf.get_path("out"))
++        with open(self.__conf.pre_test_result_path(), "w") as file:
++            for sql in sqls:
++                file.write(f"{sql}\n")
++
++        second_question_gen = DailSecondQuestionGenerator(self.__conf, self._run_conf,self.__conf.second_questions_path())
++        usage = second_question_gen.run()
++        self._tracker.add_usage(usage)
++
++        self.__load_questions(self.__conf.second_questions_path())
++        self._gen_batch_file(self.__conf.get_path("in.second"), self.__gen_sql_req)
++        await self._ask_file(self.__conf.get_path("in.second"), self.__conf.get_path("out.second"))
++        sqls = await self.__process_responses(self.__conf.get_path("out.second"))
+ 
+         self._save_sqls(sqls)
+ 
+     def __gen_sql_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
+         dail_question = self.__questions[i]
+-        request = self._create_batch_req(f"i{i}", dail_question, self.__conf.params)
++        request = self._create_batch_req(f"i{i}", dail_question, self.__conf.gpt_params)
+         return request
+ 
+-    def __load_questions(self):
+-        questions_json = json.load(open(self.__conf.questions_path(), "r"))
++    def __load_questions(self, path: str):
++        questions_json = json.load(open(path, "r"))
+         self.__questions = [_["prompt"] for _ in questions_json["questions"]]
+ 
+     @staticmethod
+@@ -64,14 +74,14 @@ class DailPredictor(Predictor):
+         return content
+ 
+     async def __process_responses(self, file_path) -> List[str]:
+-        with open(self._run_conf.dataset_config.get_data_path()) as data_file:
++        with open(self._run_conf.dataset_config.get_test_path()) as data_file:
+             data = json.load(data_file)
+             db_ids = [example['db_id'] for example in data]
+         responses = read_jsonl(file_path, ChatCompletion)
+         results = []
+         for i, response in enumerate(responses):
+             contents = [choice.message.content for choice in response.choices]
+-            if self.__conf.params['n'] == 1:
++            if self.__conf.gpt_params['n'] == 1:
+                 for sql in contents:
+                     sql = " ".join(sql.replace("\n", " ").split())
+                     sql = process_duplication(sql)
+@@ -100,7 +110,7 @@ class DailPredictor(Predictor):
+                     'db_id': db_id,
+                     'p_sqls': processed_sqls
+                 }
+-                final_sqls = await get_sqls([result], self.__conf.params['n'],
++                final_sqls = await get_sqls([result], self.__conf.gpt_params['n'],
+                                             self._run_conf.dataset_config.get_db_path())
+                 results.extend(final_sqls)
+         return results
+diff --git a/src/third_party/dail/data_preprocess.py b/src/third_party/dail/data_preprocess.py
+index 955123b..4a68b00 100644
+--- a/src/third_party/dail/data_preprocess.py
++++ b/src/third_party/dail/data_preprocess.py
+@@ -1,6 +1,9 @@
+ import json
+ import os
+ import sqlite3
++from pathlib import Path
++
++from tqdm import tqdm
+ 
+ from src.eval.single_run_config import SingleRunConfig
+ from src.sqlyzr.file_gen import FileGenerator
+@@ -8,28 +11,31 @@ from src.third_party.dail.dail_conf import DailConfig
+ from src.third_party.dail.utils.datasets.spider import load_tables
+ from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
+ from src.third_party.dail.utils.pretrained_embeddings import GloVe
++from src.util.file_utils import read_json
+ 
+ os.environ["TOKENIZERS_PARALLELISM"] = "false"
+ 
+ 
+ class DailSchemaLinksGenerator(FileGenerator):
+     def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig):
+-        super().__init__(dail_conf.schema_path())
++        super().__init__(dail_conf.test_schema_path())
+         self.dail_conf = dail_conf
+         self.run_conf = run_conf
+ 
+     def _run_internal(self):
+-        dail_conf = self.dail_conf
+-        run_conf = self.run_conf
++        if self.run_conf.dataset_config.dataset_type == "bird":
++            bird_pre_process(self.run_conf)
+ 
+         # load data
+-        input_data = json.load(open(run_conf.dataset_config.get_data_path()))
++        test_data = read_json(self.run_conf.dataset_config.get_test_path())
++        train_data = read_json(self.run_conf.dataset_config.get_train_path())
++
+         # load schemas
+-        schemas, _ = load_tables([run_conf.dataset_config.get_tables_path()])
++        schemas, _ = load_tables([self.run_conf.dataset_config.get_tables_path()])
+ 
+         # Backup in-memory copies of all the DBs and create the live connections
+-        for db_id, schema in schemas.items():
+-            sqlite_path = os.path.join(run_conf.dataset_config.get_db_file_path(db_id))
++        for db_id, schema in tqdm(schemas.items(), desc="DB connections"):
++            sqlite_path = self.run_conf.dataset_config.get_db_file_path(db_id)
+             source: sqlite3.Connection
+             with sqlite3.connect(str(sqlite_path)) as source:
+                 dest = sqlite3.connect(':memory:')
+@@ -44,27 +50,22 @@ class DailSchemaLinksGenerator(FileGenerator):
+                                                    word_emb=word_emb,
+                                                    fix_issue_16_primary_keys=True,
+                                                    compute_sc_link=True,
+-                                                   compute_cv_link=dail_conf.compute_cv_link)
++                                                   compute_cv_link=True)
+ 
+         # build schema-linking
+-        section = "train"
+-        for item in input_data:
+-            db_id = item["db_id"]
+-            schema = schemas[db_id]
+-            to_add, validation_info = linking_processor.validate_item(item, schema, section)
+-            if to_add:
+-                linking_processor.add_item(item, schema, section, validation_info)
++        for data, section in zip([test_data, train_data], ['test', 'train']):
++            for item in tqdm(data, desc=f"{section} section linking"):
++                db_id = item["db_id"]
++                schema = schemas[db_id]
++                to_add, validation_info = linking_processor.validate_item(item, schema, section)
++                if to_add:
++                    linking_processor.add_item(item, schema, section, validation_info)
+ 
+         # save
+-        linking_processor.save(dail_conf.schema_path(), section)
++        linking_processor.save({"train": self.dail_conf.train_schema_path(), "test": self.dail_conf.test_schema_path()})
+ 
+ 
+-def bird_pre_process(bird_dir, with_evidence=False):
+-    new_db_path = os.path.join(bird_dir, "database")
+-    if not os.path.exists(new_db_path):
+-        os.system(f"cp -r {os.path.join(bird_dir, 'train/train_databases/*')} {new_db_path}")
+-        os.system(f"cp -r {os.path.join(bird_dir, 'dev/databases/*')} {new_db_path}")
+-
++def bird_pre_process(run_conf: SingleRunConfig, with_evidence=True):
+     def json_preprocess(data_jsons):
+         new_datas = []
+         for data_json in data_jsons:
+@@ -85,22 +86,12 @@ def bird_pre_process(bird_dir, with_evidence=False):
+             new_datas.append(data_json)
+         return new_datas
+ 
+-    output_dev = 'dev.json'
+-    output_train = 'train.json'
+-    with open(os.path.join(bird_dir, 'dev/dev.json')) as f:
++    with open(run_conf.dataset_config.get_test_path()) as f:
+         data_jsons = json.load(f)
+-        wf = open(os.path.join(bird_dir, output_dev), 'w')
++    with open(run_conf.dataset_config.get_test_path(), 'w') as wf:
+         json.dump(json_preprocess(data_jsons), wf, indent=4)
+-    with open(os.path.join(bird_dir, 'train/train.json')) as f:
++
++    with open(run_conf.dataset_config.get_train_path()) as f:
+         data_jsons = json.load(f)
+-        wf = open(os.path.join(bird_dir, output_train), 'w')
++    with open(run_conf.dataset_config.get_train_path(), 'w') as wf:
+         json.dump(json_preprocess(data_jsons), wf, indent=4)
+-    os.system(f"cp {os.path.join(bird_dir, 'dev/dev.sql')} {bird_dir}")
+-    os.system(f"cp {os.path.join(bird_dir, 'train/train_gold.sql')} {bird_dir}")
+-    tables = []
+-    with open(os.path.join(bird_dir, 'dev/dev_tables.json')) as f:
+-        tables.extend(json.load(f))
+-    with open(os.path.join(bird_dir, 'train/train_tables.json')) as f:
+-        tables.extend(json.load(f))
+-    with open(os.path.join(bird_dir, 'tables.json'), 'w') as f:
+-        json.dump(tables, f, indent=4)
+diff --git a/src/third_party/dail/generate_question.py b/src/third_party/dail/generate_question.py
+index b1dd28b..d0e4c3e 100644
+--- a/src/third_party/dail/generate_question.py
++++ b/src/third_party/dail/generate_question.py
+@@ -1,10 +1,10 @@
+ """
+ Generate questions for LLMs and save it as a task
+ """
+-import argparse
+-import os
+-import sys
+ import json
++from dataclasses import dataclass
++
++import tqdm
+ 
+ from src.eval.single_run_config import SingleRunConfig
+ from src.sqlyzr.file_gen import FileGenerator
+@@ -14,26 +14,13 @@ from src.third_party.dail.utils.data_builder import load_data
+ from src.third_party.dail.utils.enums import LLM
+ from src.third_party.dail.utils.utils import cost_estimate
+ 
+-from tqdm import tqdm
+-
+-DATASET_TYPE = "spider"
+-TOKENIZER = 'gpt-3.5-turbo'
+-MAX_SEQ_LEN = 4096
+-MAX_ANS_LEN = 200
+-PROMPT_REPR = "SQL"
+-K_SHOT = 9
+-EXAMPLE_TYPE = "QA"
+-SELECTOR_TYPE = "EUCDISQUESTIONMASK"
+-SCOPE_FACTOR = 100
+-SPLIT = "test"
+-
+ 
+ class DailQuestionGenerator(FileGenerator):
+     __dail_conf: DailConfig
+     __run_conf: SingleRunConfig
+ 
+-    def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig):
+-        super().__init__(dail_conf.questions_path())
++    def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig, out_path: str):
++        super().__init__(out_path)
+         self.__dail_conf = dail_conf
+         self.__run_conf = run_conf
+ 
+@@ -42,77 +29,66 @@ class DailQuestionGenerator(FileGenerator):
+         run_conf = self.__run_conf
+ 
+         # load test dataset here
+-        data = load_data(DATASET_TYPE, tables_path=run_conf.dataset_config.get_tables_path(),
+-                         input_path=run_conf.dataset_config.get_data_path(),
+-                         db_dir=run_conf.dataset_config.get_db_path(),
+-                         schema_links_path=dail_conf.schema_path())
++        data = load_data(run_conf.dataset_config, dail_conf)
+ 
+-        # Read all tables into a dict
+         databases = data.get_databases()
+ 
++        params = self.__dail_conf.params
+         # select the prompt
+-        prompt = prompt_factory(PROMPT_REPR, K_SHOT, EXAMPLE_TYPE, SELECTOR_TYPE)(data=data, tokenizer=TOKENIZER)
++        prompt = prompt_factory(params.prompt_repr, params.k_shot, params.example_type, params.selector_type)(data=data,
++                                                                                                              tokenizer=params.tokenizer)
+ 
+         # format all questions
+         questions = list()
+         token_cnt = 0
+ 
+         # choose split
+-        cross_domain = SPLIT == "train"
++        cross_domain = params.split == "train"
+ 
+-        for question_json in data.get_train_json():
++        for question_json in tqdm.tqdm(data.get_test_json()):
+             question_format = prompt.format(target=question_json,
+-                                            max_seq_len=MAX_SEQ_LEN,
+-                                            max_ans_len=MAX_SEQ_LEN,
+-                                            scope_factor=SCOPE_FACTOR,
++                                            max_seq_len=params.max_seq_len,
++                                            max_ans_len=params.max_ans_len,
++                                            scope_factor=params.scope_factor,
+                                             cross_domain=cross_domain)
+ 
+             questions.append(question_format)
+ 
+             token_cnt += question_format["prompt_tokens"]
+ 
+-        # cost estimated
+-        token_cnt = float(token_cnt) / len(questions)
+-        # print(f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
+-
+-        n_total_tokens = len(questions) * MAX_ANS_LEN + token_cnt
+-        cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)
+-        cost_text_davinci_003 = cost_estimate(n_total_tokens, LLM.TEXT_DAVINCI_003)
+-        example_quality = prompt.get_example_quality()
+-        # example_quality_each = prompt.get_example_quality_for_each()
+-        pattern_similarity = prompt.get_pattern_similarity()
+-        # print(f"Example quality: {example_quality}")
+-        # print(f"Estimated cost for {LLM.GPT_4}: {cost_gpt_35_turbo * 20}")
+-        # print(f"Estimated cost for {LLM.GPT_35_TURBO}: {cost_gpt_35_turbo}")
+-        # print(f"Estimated cost for {LLM.TEXT_DAVINCI_003}: {cost_text_davinci_003}")
+-
+-        # save questions
+-        task = {
+-            "args": "",
+-            "costs": {
+-                "prompt_tokens_per_prompt": token_cnt,
+-                "gpt-4": cost_gpt_35_turbo * 20,
+-                "gpt-3.5-turbo": cost_gpt_35_turbo,
+-                "text-davinci-003": cost_text_davinci_003,
+-                "example_quality": example_quality,
+-                "pattern_similarity": pattern_similarity,
+-                # "example_quality_for_each": example_quality_each
+-            },
+-            "questions": questions
+-        }
+-
+-        # path_generate = f"dataset/process/{args.data_type.upper()}-{args.split.upper()}_{prompt.name}_CTX-{args.max_ans_len}_ANS-{args.max_seq_len}"
+-        json.dump(task, open(dail_conf.questions_path(), "w"), indent=4)
+-
+-
+-if __name__ == '__main__':
+-    parser = argparse.ArgumentParser()
+-    parser.add_argument("--tables", type=str)
+-    parser.add_argument("--db_dir", type=str)
+-    parser.add_argument("--schema_links", type=str)
+-    parser.add_argument("--output", type=str)
+-    parser.add_argument("--input", type=str)
+-    args = parser.parse_args()
+-
+-    generate_questions(tables_path=args.tables, db_dir=args.db_dir, schema_links_path=args.schema_links,
+-                       output_path=args.output, input_path=args.input)
++            # cost estimated
++            token_cnt = float(token_cnt) / len(questions)
++            print(
++                f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
++
++            n_total_tokens = int(len(questions) * params.max_ans_len + token_cnt)
++            cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)
++            cost_text_davinci_003 = cost_estimate(n_total_tokens, LLM.TEXT_DAVINCI_003)
++            example_quality = prompt.get_example_quality()
++            # example_quality_each = prompt.get_example_quality_for_each()
++            pattern_similarity = prompt.get_pattern_similarity()
++            # print(f"Example quality: {example_quality}")
++            # print(f"Estimated cost for {LLM.GPT_4}: {cost_gpt_35_turbo * 20}")
++            # print(f"Estimated cost for {LLM.GPT_35_TURBO}: {cost_gpt_35_turbo}")
++            # print(f"Estimated cost for {LLM.TEXT_DAVINCI_003}: {cost_text_davinci_003}")
++
++            # save questions
++            task = {
++                "args": "",
++                "costs": {
++                    "prompt_tokens_per_prompt": token_cnt,
++                    "gpt-4": cost_gpt_35_turbo * 20,
++                    "gpt-3.5-turbo": cost_gpt_35_turbo,
++                    "text-davinci-003": cost_text_davinci_003,
++                    "example_quality": example_quality,
++                    "pattern_similarity": pattern_similarity,
++                    # "example_quality_for_each": example_quality_each
++                },
++                "questions": questions
++            }
++
++            # path_generate = f"dataset/process/{args.data_type.upper()}-{args.split.upper()}_{prompt.name}_CTX-{args.max_ans_len}_ANS-{args.max_seq_len}"
++            json.dump(task, open(dail_conf.questions_path(), "w"), indent=4)
++
++            # os.makedirs(path_generate, exist_ok=True)
++            # json.dump(task, open(os.path.join(path_generate, "questions.json"), "w"), indent=4)
+diff --git a/src/third_party/dail/generate_second_question.py b/src/third_party/dail/generate_second_question.py
+new file mode 100644
+index 0000000..a3ec7a8
+--- /dev/null
++++ b/src/third_party/dail/generate_second_question.py
+@@ -0,0 +1,94 @@
++"""
++Generate questions for LLMs and save it as a task
++"""
++import json
++from dataclasses import dataclass
++
++import tqdm
++
++from src.eval.single_run_config import SingleRunConfig
++from src.sqlyzr.file_gen import FileGenerator
++from src.third_party.dail.dail_conf import DailConfig
++from src.third_party.dail.prompt.prompt_builder import prompt_factory
++from src.third_party.dail.utils.data_builder import load_data
++from src.third_party.dail.utils.enums import LLM
++from src.third_party.dail.utils.utils import cost_estimate
++
++
++class DailSecondQuestionGenerator(FileGenerator):
++    __dail_conf: DailConfig
++    __run_conf: SingleRunConfig
++
++    def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig, out_path: str):
++        super().__init__(out_path)
++        self.__dail_conf = dail_conf
++        self.__run_conf = run_conf
++
++    def _run_internal(self):
++        dail_conf = self.__dail_conf
++        run_conf = self.__run_conf
++
++        # load test dataset here
++        data = load_data(run_conf.dataset_config, dail_conf)
++
++        databases = data.get_databases()
++
++        # select the prompt
++        params = self.__dail_conf.params
++        prompt = prompt_factory(params.prompt_repr, params.k_shot, params.example_type, params.selector_type)(data=data,
++                                                                                                              tokenizer=params.tokenizer)
++
++        # format all questions
++        questions = list()
++        token_cnt = 0
++
++        # choose split
++        cross_domain = params.split == "train"
++
++        for question_json in tqdm.tqdm(data.get_test_json()):
++            question_format = prompt.format(target=question_json,
++                                            max_seq_len=params.max_seq_len,
++                                            max_ans_len=params.max_ans_len,
++                                            scope_factor=params.scope_factor,
++                                            cross_domain=cross_domain)
++
++            questions.append(question_format)
++
++            token_cnt += question_format["prompt_tokens"]
++
++            # cost estimated
++            token_cnt = float(token_cnt) / len(questions)
++            print(
++                f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
++
++            n_total_tokens = int(len(questions) * params.max_ans_len + token_cnt)
++            cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)
++            cost_text_davinci_003 = cost_estimate(n_total_tokens, LLM.TEXT_DAVINCI_003)
++            example_quality = prompt.get_example_quality()
++            # example_quality_each = prompt.get_example_quality_for_each()
++            pattern_similarity = prompt.get_pattern_similarity()
++            # print(f"Example quality: {example_quality}")
++            # print(f"Estimated cost for {LLM.GPT_4}: {cost_gpt_35_turbo * 20}")
++            # print(f"Estimated cost for {LLM.GPT_35_TURBO}: {cost_gpt_35_turbo}")
++            # print(f"Estimated cost for {LLM.TEXT_DAVINCI_003}: {cost_text_davinci_003}")
++
++            # save questions
++            task = {
++                "args": "",
++                "costs": {
++                    "prompt_tokens_per_prompt": token_cnt,
++                    "gpt-4": cost_gpt_35_turbo * 20,
++                    "gpt-3.5-turbo": cost_gpt_35_turbo,
++                    "text-davinci-003": cost_text_davinci_003,
++                    "example_quality": example_quality,
++                    "pattern_similarity": pattern_similarity,
++                    # "example_quality_for_each": example_quality_each
++                },
++                "questions": questions
++            }
++
++            # path_generate = f"dataset/process/{args.data_type.upper()}-{args.split.upper()}_{prompt.name}_CTX-{args.max_ans_len}_ANS-{args.max_seq_len}"
++            json.dump(task, open(dail_conf.second_questions_path(), "w"), indent=4)
++
++            # os.makedirs(path_generate, exist_ok=True)
++            # json.dump(task, open(os.path.join(path_generate, "questions.json"), "w"), indent=4)
+diff --git a/src/third_party/dail/prompt/ExampleSelectorTemplate.py b/src/third_party/dail/prompt/ExampleSelectorTemplate.py
+index bb34050..37161bd 100644
+--- a/src/third_party/dail/prompt/ExampleSelectorTemplate.py
++++ b/src/third_party/dail/prompt/ExampleSelectorTemplate.py
+@@ -1,8 +1,9 @@
+-import numpy as np
+ import random
+ 
+-from src.third_party.dail.utils.utils import sql2skeleton, jaccard_similarity
++import numpy as np
++
+ from src.third_party.dail.utils.linking_utils.application import mask_question_with_schema_linking
++from src.third_party.dail.utils.utils import jaccard_similarity
+ 
+ 
+ class BasicExampleSelector(object):
+diff --git a/src/third_party/dail/prompt/PromptICLTemplate.py b/src/third_party/dail/prompt/PromptICLTemplate.py
+index ae01229..e5fd2d9 100644
+--- a/src/third_party/dail/prompt/PromptICLTemplate.py
++++ b/src/third_party/dail/prompt/PromptICLTemplate.py
+@@ -1,4 +1,5 @@
+ import numpy as np
++import tqdm
+ 
+ from src.third_party.dail.utils.utils import get_tokenizer, count_tokens, jaccard_similarity
+ 
+@@ -55,7 +56,7 @@ class BasicICLPrompt(object):
+             question = target["question"]
+             example_prefix = self.get_example_prefix()
+             selected_examples = []
+-            for example in examples:
++            for example in tqdm.tqdm(examples):
+                 example_question = example["question"]
+                 # assert example_question != question, f"Example is the same with target question: {question}!, \n{target}\n{example}"
+                 if cross_domain:
+diff --git a/src/third_party/dail/utils/data_builder.py b/src/third_party/dail/utils/data_builder.py
+index 5b960db..c3b849c 100644
+--- a/src/third_party/dail/utils/data_builder.py
++++ b/src/third_party/dail/utils/data_builder.py
+@@ -1,25 +1,28 @@
+ import json
+ import os
+-from dataclasses import dataclass
+ 
++from src.eval.dataset_config import DatasetConfig
++from src.third_party.dail.dail_conf import DailConfig
+ from src.third_party.dail.utils.utils import get_tables, sql2skeleton
+ from src.third_party.dail.utils.linking_utils.application import get_question_pattern_with_schema_linking
++from src.util.file_utils import read_json
+ 
+ 
+-@dataclass
+ class BasicDataset:
+-    tables_path: str
+-    db_path: str
+-    train_json: str
+-    path_train_schema_linking: str
++    config: DatasetConfig
++    dail_conf: DailConfig
+     databases = None
+ 
++    def __init__(self, config: DatasetConfig, dail_conf: DailConfig):
++        self.config = config
++        self.dail_conf = dail_conf
++
+     def get_databases(self):
+         if self.databases is None:
+             self.databases = dict()
+             # for db_id in os.listdir(self.path_db):
+             #     self.databases[db_id] = self.get_tables(db_id)
+-            with open(self.tables_path) as f:
++            with open(self.config.get_tables_path()) as f:
+                 tables = json.load(f)
+                 for tj in tables:
+                     db_id = tj["db_id"]
+@@ -30,13 +33,13 @@ class BasicDataset:
+         if db_id in self.databases:
+             return self.databases[db_id]
+         else:
+-            path_db = os.path.join(self.db_path, db_id, db_id + ".sqlite")
++            path_db = self.config.get_db_file_path(db_id)
+             tables = get_tables(path_db)
+             self.databases[db_id] = tables
+             return tables
+ 
+     def get_train_json(self):
+-        datas = json.load(open(self.train_json, "r"))
++        datas = read_json(self.config.get_train_path())
+         linking_infos = self.get_train_schema_linking()
+         db_id_to_table_json = dict()
+         for table_json in self.get_table_json():
+@@ -46,18 +49,45 @@ class BasicDataset:
+         pre_queries = self.get_pre_skeleton(queries, schemas)
+         return self.data_pre_process(datas, linking_infos, pre_queries)
+ 
++    def get_test_schema_linking(self):
++        if not os.path.exists(self.dail_conf.test_schema_path()):
++            return None
++        linking_infos = []
++        with open(self.dail_conf.test_schema_path(), 'r') as f:
++            for line in f.readlines():
++                if line.strip():
++                    linking_infos.append(json.loads(line))
++        return linking_infos
++
++    def get_test_json(self, mini_set=False):
++        tests = read_json(self.config.get_test_path())
++        linking_infos = self.get_test_schema_linking()
++        db_id_to_table_json = dict()
++        for table_json in self.get_table_json():
++            db_id_to_table_json[table_json["db_id"]] = table_json
++        schemas = [db_id_to_table_json[d["db_id"]] for d in tests]
++
++        if os.path.exists(self.dail_conf.pre_test_result_path()):
++            with open(self.dail_conf.pre_test_result_path(), 'r') as f:
++                lines = f.readlines()
++                queries = [line.strip() for line in lines]
++                pre_queries = self.get_pre_skeleton(queries, schemas)
++        else:
++            pre_queries = None
++        return self.data_pre_process(tests, linking_infos, pre_queries)
++
+     def get_train_schema_linking(self):
+-        if not os.path.exists(self.path_train_schema_linking):
++        if not os.path.exists(self.dail_conf.train_schema_path()):
+             return None
+         linking_infos = []
+-        with open(self.path_train_schema_linking, 'r') as f:
++        with open(self.dail_conf.train_schema_path(), 'r') as f:
+             for line in f.readlines():
+                 if line.strip():
+                     linking_infos.append(json.loads(line))
+         return linking_infos
+ 
+     def get_table_json(self):
+-        return json.load(open(self.tables_path, "r"))
++        return read_json(self.config.get_tables_path())
+ 
+     def get_pre_skeleton(self, queries=None, schemas=None):
+         if queries:
+@@ -100,168 +130,15 @@ class BasicDataset:
+         return datas
+ 
+     def get_path_db(self, db_id):
+-        return os.path.join(self.db_path, db_id, f"{db_id}.sqlite")
++        return self.config.get_db_file_path(db_id)
+ 
+     def get_train_questions(self):
+-        questions = json.load(open(self.train_json, "r"))
+-        return [_["question"] for _ in questions]
+-
+-
+-class BasicDatasetOld(object):
+-    def __init__(self, path_data, pre_test_result=None):
+-        # self.path_data = os.path.join(path_data, self.name)
+-        self.path_data = path_data
+-        self.path_db = os.path.join(self.path_data, "database")
+-        self.test_json = os.path.join(self.path_data, self.test_json)
+-        self.test_gold = os.path.join(self.path_data, self.test_gold)
+-        self.train_json = os.path.join(self.path_data, self.train_json)
+-        self.train_gold = os.path.join(self.path_data, self.train_gold)
+-        self.table_json = os.path.join(self.path_data, self.table_json)
+-        self.path_test_schema_linking = os.path.join(self.path_data, "enc/test_schema-linking.jsonl")
+-        self.path_train_schema_linking = os.path.join(self.path_data, "enc/train_schema-linking.jsonl")
+-        if self.mini_test_index_json:
+-            self.mini_test_index_json = os.path.join(self.path_data, self.mini_test_index_json)
+-        else:
+-            self.mini_test_index_json = None
+-
+-        self.pre_test_result = pre_test_result
+-
+-        # lazy load for tables
+-        self.databases = None
+-
+-    # test a mini set
+-    def set_mini_test(self, mini_file):
+-        self.mini_test_index_json = os.path.join(self.path_data, mini_file)
+-
+-    def get_path_sql(self, db_id):
+-        path_sql = os.path.join(self.path_db, db_id, "schema.sql")
+-        return path_sql
+-
+-    def get_mini_index(self):
+-        if self.mini_test_index_json:
+-            return json.load(open(self.mini_test_index_json, "r"))
+-        else:
+-            return None
+-
+-    def get_test_questions(self, mini_set=False):
+-        questions = json.load(open(self.test_json, "r"))
+-        if mini_set and self.mini_test_index_json:
+-            mini_test_index = self.get_mini_index()
+-            questions = [questions[i] for i in mini_test_index]
++        questions = read_json(self.config.get_train_path())
+         return [_["question"] for _ in questions]
+ 
+-    # get query skeletons
+-    # get all train information
+-
+-    # get all test information
+-    def get_test_json(self, mini_set=False):
+-        tests = json.load(open(self.test_json, "r"))
+-        if mini_set and self.mini_test_index_json:
+-            mini_test_index = self.get_mini_index()
+-            tests = [tests[i] for i in mini_test_index]
+-        linking_infos = self.get_test_schema_linking(mini_set)
+-        db_id_to_table_json = dict()
+-        for table_json in self.get_table_json():
+-            db_id_to_table_json[table_json["db_id"]] = table_json
+-        schemas = [db_id_to_table_json[d["db_id"]] for d in tests]
+-        if self.pre_test_result:
+-            with open(self.pre_test_result, 'r') as f:
+-                lines = f.readlines()
+-                queries = [line.strip() for line in lines]
+-                pre_queries = self.get_pre_skeleton(queries, schemas, mini_set)
+-        else:
+-            pre_queries = None
+-        return self.data_pre_process(tests, linking_infos, pre_queries)
+-
+-    def get_test_schema_linking(self, mini_set=False):
+-        if not os.path.exists(self.path_test_schema_linking):
+-            return None
+-        linking_infos = []
+-        with open(self.path_test_schema_linking, 'r') as f:
+-            for line in f.readlines():
+-                if line.strip():
+-                    linking_infos.append(json.loads(line))
+-        if mini_set and self.mini_test_index_json:
+-            mini_test_index = self.get_mini_index()
+-            linking_infos = [linking_infos[i] for i in mini_test_index]
+-        return linking_infos
+-
+-    def get_train_schema_linking(self):
+-        if not os.path.exists(self.path_train_schema_linking):
+-            return None
+-        linking_infos = []
+-        with open(self.path_train_schema_linking, 'r') as f:
+-            for line in f.readlines():
+-                if line.strip():
+-                    linking_infos.append(json.loads(line))
+-        return linking_infos
+-
+-    def get_all_json(self):
+-        return self.get_train_json() + self.get_test_json()
+-
+-    def get_train_answers(self):
+-        with open(self.train_gold, "r") as file:
+-            answers = file.readlines()
+-            return answers
+-
+-    def get_test_answers(self, mini_set=False):
+-        with open(self.test_gold, "r") as file:
+-            answers = file.readlines()
+-            if mini_set and self.mini_test_index_json:
+-                mini_test_index = self.get_mini_index()
+-                answers = [answers[i] for i in mini_test_index]
+-            return answers
+-
+-    def get_train_duplicated_index(self):
+-        train_data = self.get_train_json()
+-        example_dict = {}
+-        duplicated_index = []
+-        for i in range(len(train_data)):
+-            db_id = train_data[i]["db_id"]
+-            question = train_data[i]["question"]
+-            if (db_id, question) in example_dict.keys():
+-                duplicated_index.append(i)
+-            else:
+-                example_dict[(db_id, question)] = True
+-        return duplicated_index
+-
+-    # get skeletons and schema_linking info
+-
+-
+-class RealisticDataset(BasicDataset):
+-    # only used for data path, shared with spider
+-    name = "spider_realistic"
+-    test_json = "spider-realistic.json"
+-    test_gold = "spider-realistic_gold.sql"
+-    train_json = "train_spider_and_others.json"
+-    train_gold = "train_gold.sql"
+-    table_json = "tables.json"
+-    mini_test_index_json = None
+-
+-
+-class BirdDataset(BasicDataset):
+-    name = "bird"
+-    test_json = "dev.json"
+-    test_gold = "dev.sql"
+-    train_json = "train.json"
+-    train_gold = "train_gold.sql"
+-    table_json = "tables.json"
+-    mini_test_index_json = None
+-
+-
+-class SQLyzr(BasicDataset):
+-    name = "SQLyzr"
+-    test_json = "dev.json"
+-    test_gold = "gold.txt"
+-    train_json = "dev.json"
+-    train_gold = "gold.txt"
+-    table_json = "tables.json"
+-    mini_test_index_json = None
+-
+ 
+-def load_data(data_type, tables_path, db_dir, input_path, schema_links_path):
+-    if data_type.lower() == "spider":
+-        return BasicDataset(tables_path=tables_path, db_path=db_dir, train_json=input_path,
+-                            path_train_schema_linking=schema_links_path)
++def load_data(config: DatasetConfig, dail_conf: DailConfig):
++    if config.dataset_type.lower() == "spider" or config.dataset_type.lower() == 'bird':
++        return BasicDataset(config, dail_conf)
+     else:
+         raise RuntimeError()
+diff --git a/src/third_party/dail/utils/datasets/spider.py b/src/third_party/dail/utils/datasets/spider.py
+index e9df9cd..4b7e45d 100644
+--- a/src/third_party/dail/utils/datasets/spider.py
++++ b/src/third_party/dail/utils/datasets/spider.py
+@@ -153,7 +153,8 @@ def load_tables(paths):
+                     columns=(dest_column_id, source_column_id))
+ 
+             db_id = schema_dict['db_id']
+-            assert db_id not in schemas
++            # FIXME: What the hell is this???
++            # assert db_id not in schemas
+             schemas[db_id] = Schema(db_id, tables, columns, foreign_key_graph, schema_dict)
+             # eval_foreign_key_maps[db_id] = build_foreign_key_map(schema_dict)
+ 
+diff --git a/src/third_party/dail/utils/linking_process.py b/src/third_party/dail/utils/linking_process.py
+index ce9a16b..04d2242 100644
+--- a/src/third_party/dail/utils/linking_process.py
++++ b/src/third_party/dail/utils/linking_process.py
+@@ -194,11 +194,15 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
+             return self.word_emb.tokenize_for_copying(unsplit)
+         return presplit, presplit
+ 
+-    def save(self, output_path, section):
+-        texts = self.texts[section]
+-        with open(output_path, 'w') as f:
+-            for text in texts:
+-                f.write(json.dumps(text) + '\n')
++    def save(self, paths):
++        # self.vocab = self.vocab_builder.finish()
++        # print(f"{len(self.vocab)} words in vocab")
++        # self.vocab.save(self.vocab_path)
++        # self.vocab_builder.save(self.vocab_word_freq_path)
++        for section, texts in self.texts.items():
++            with open(paths[section], 'w') as f:
++                for text in texts:
++                    f.write(json.dumps(text) + '\n')
+ 
+     def load(self, input_path, section):
+         self.texts[section] = []
+diff --git a/src/third_party/dail/utils/linking_utils/abstract_preproc.py b/src/third_party/dail/utils/linking_utils/abstract_preproc.py
+index d06f59f..c351eb2 100644
+--- a/src/third_party/dail/utils/linking_utils/abstract_preproc.py
++++ b/src/third_party/dail/utils/linking_utils/abstract_preproc.py
+@@ -31,7 +31,7 @@ class AbstractPreproc(metaclass=abc.ABCMeta):
+         pass
+ 
+     @abc.abstractmethod
+-    def save(self):
++    def save(self, paths):
+         '''Marks that all of the items have been preprocessed. Save state to disk.
+         Used in preprocess.py, after reading all of the data.'''
+         pass
+diff --git a/src/third_party/dail/utils/pretrained_embeddings.py b/src/third_party/dail/utils/pretrained_embeddings.py
+index 5f10a20..5c0b497 100644
+--- a/src/third_party/dail/utils/pretrained_embeddings.py
++++ b/src/third_party/dail/utils/pretrained_embeddings.py
+@@ -39,7 +39,7 @@ class Embedder(metaclass=abc.ABCMeta):
+ class GloVe(Embedder):
+ 
+     def __init__(self, kind, lemmatize=False):
+-        cache = os.path.join(os.environ.get('CACHE_DIR', os.getcwd()), 'vector_cache')
++        cache = os.path.join(os.environ.get('DAIL_CACHE_DIR', os.getcwd()), 'vector_cache')
+         self.glove = torchtext.vocab.GloVe(name=kind, cache=cache)
+         self.dim = self.glove.dim
+         self.vectors = self.glove.vectors
+diff --git a/src/third_party/din/prompts/__init__.py b/src/third_party/din/bird/__init__.py
+similarity index 100%
+rename from src/third_party/din/prompts/__init__.py
+rename to src/third_party/din/bird/__init__.py
+diff --git a/src/third_party/din/bird/bird_prompt_maker.py b/src/third_party/din/bird/bird_prompt_maker.py
+new file mode 100644
+index 0000000..4369700
+--- /dev/null
++++ b/src/third_party/din/bird/bird_prompt_maker.py
+@@ -0,0 +1,115 @@
++import os
++import re
++import pandas as pd
++import json
++import glob
++
++from typing import List, Tuple
++from langchain.prompts import (
++    ChatPromptTemplate,
++    SystemMessagePromptTemplate,
++    HumanMessagePromptTemplate,
++)
++
++from src.third_party.din.bird.prompts import *
++from src.third_party.din.bird.utils import extract_schema_links, extract_label_and_sub_questions, extract_sql_query, \
++    extract_revised_sql_query, table_descriptions_parser, get_database_schema
++
++system_schema_linking_prompt = SystemMessagePromptTemplate.from_template(
++    SYSTEM_SCHEMA_LINKING_TEMPLATE)  # noqa: E501
++human_schema_linking_prompt = HumanMessagePromptTemplate.from_template(HUMAN_SCHEMA_LINKING_TEMPLATE)  # noqa: E501
++schema_linking_prompt = ChatPromptTemplate.from_messages(
++    [system_schema_linking_prompt, human_schema_linking_prompt])  # noqa: E501
++system_classification_prompt = SystemMessagePromptTemplate.from_template(
++    SYSTEM_CLASSIFICATION_TEMPLATE)  # noqa: E501
++human_classification_prompt = HumanMessagePromptTemplate.from_template(HUMAN_CLASSIFICATION_TEMPLATE)  # noqa: E501
++classification_prompt = ChatPromptTemplate.from_messages(
++    [system_classification_prompt, human_classification_prompt])  # noqa: E501
++system_easy_prompt = SystemMessagePromptTemplate.from_template(SYSTEM_EASY_CLASS_TEMPLATE)  # noqa: E501
++human_easy_prompt = HumanMessagePromptTemplate.from_template(HUMAN_EASY_CLASS_TEMPLATE)  # noqa: E501
++easy_prompt = ChatPromptTemplate.from_messages([system_easy_prompt, human_easy_prompt])  # noqa: E501
++system_easy_prompt = SystemMessagePromptTemplate.from_template(SYSTEM_EASY_CLASS_TEMPLATE)  # noqa: E501
++human_easy_prompt = HumanMessagePromptTemplate.from_template(HUMAN_EASY_CLASS_TEMPLATE)  # noqa: E501
++easy_prompt = ChatPromptTemplate.from_messages([system_easy_prompt, human_easy_prompt])  # noqa: E501
++system_medium_prompt = SystemMessagePromptTemplate.from_template(SYSTEM_NON_NESTED_CLASS_TEMPLATE)  # noqa: E501
++human_medium_prompt = HumanMessagePromptTemplate.from_template(HUMAN_NON_NESTED_CLASS_TEMPLATE)  # noqa: E501
++medium_prompt = ChatPromptTemplate.from_messages([system_medium_prompt, human_medium_prompt])  # noqa: E501
++system_hard_prompt = SystemMessagePromptTemplate.from_template(SYSTEM_NESTED_CLASS_TEMPLATE)  # noqa: E501
++human_hard_prompt = HumanMessagePromptTemplate.from_template(HUMAN_NESTED_CLASS_TEMPLATE)  # noqa: E501
++hard_prompt = ChatPromptTemplate.from_messages([system_hard_prompt, human_hard_prompt])  # noqa: E501
++system_correction_prompt = SystemMessagePromptTemplate.from_template(SYSTEM_SELF_CORRECTION_PROMPT)  # noqa: E501
++human_correction_prompt = HumanMessagePromptTemplate.from_template(HUMAN_SELF_CORRECTION_PROMPT)  # noqa: E501
++correction_prompt = ChatPromptTemplate.from_messages(
++    [system_correction_prompt, human_correction_prompt])  # noqa: E501
++
++
++def get_db_info(db_uri, db_description_dir):
++    # db_uri = dev_db_path + "/" + row["db_id"] + "/" + row["db_id"] + ".sqlite"
++    # db_descriptions = dev_db_path + "/" + row["db_id"] + "/" + "database_description"  # noqa: E501
++    columns_descriptions = table_descriptions_parser(db_description_dir)
++    schema = get_database_schema(db_uri)
++    return schema, columns_descriptions
++
++
++def send_prompt(msg):
++    return ""
++
++
++def run(schema, columns_descriptions, question, hint):
++    msg = schema_linking_prompt.format(question=question, schema=schema, hint=hint,
++                                       columns_descriptions=columns_descriptions)
++    schema_linking = send_prompt(msg)
++    schema_links = extract_schema_links(schema_linking)
++
++    msg = classification_prompt.format(question=question,
++                                       schema=schema,
++                                       hint=hint,
++                                       columns_descriptions=columns_descriptions,
++                                       schema_links=schema_links)
++    classification = send_prompt(msg)
++    label, sub_questions = extract_label_and_sub_questions(classification)
++
++    if "EASY" in label:
++        msg = easy_prompt.run(
++            question=question,
++            schema=schema,
++            hint=hint,
++            columns_descriptions=columns_descriptions,
++            schema_links=schema_links)
++        easy = send_prompt(msg)
++        sql_query = extract_sql_query(easy)
++    elif "NON-NESTED" in label:
++        msg = medium_prompt.format(question=question,
++                                   schema=schema,
++                                   hint=hint,
++                                   columns_descriptions=columns_descriptions,
++                                   schema_links=schema_links)
++        medium = send_prompt(msg)
++        sql_query = extract_sql_query(medium)
++    else:
++        msg = hard_prompt.format(
++            question=question,
++            schema=schema,
++            hint=hint,
++            columns_descriptions=columns_descriptions,
++            schema_links=schema_links,
++            sub_questions=sub_questions)
++        hard = send_prompt(msg)
++        sql_query = extract_sql_query(hard)
++
++    msg = correction_prompt.format(question=question,
++                                   schema=schema,
++                                   columns_descriptions=columns_descriptions,
++                                   hint=hint,
++                                   sql_query=sql_query)
++    correction = send_prompt(msg)
++    finall_sql = extract_revised_sql_query(correction)
++
++    if finall_sql is not None:
++        one_liner_sql_query = finall_sql.replace('\n', '').replace('\r', '')
++    else:
++        if sql_query is not None:
++            one_liner_sql_query = sql_query.replace('\n', '').replace('\r', '')
++        else:
++            one_liner_sql_query = "SELECT * FROM table"  # no query generated, placeholder to avoid errors # noqa: E501
++    return one_liner_sql_query
+diff --git a/src/third_party/din/bird/prompts.py b/src/third_party/din/bird/prompts.py
+new file mode 100644
+index 0000000..c254368
+--- /dev/null
++++ b/src/third_party/din/bird/prompts.py
+@@ -0,0 +1,1076 @@
++SYSTEM_SCHEMA_LINKING_TEMPLATE = """
++You are an agent designed to find the schema_links for generating SQL queries for each question based on the database schema and Foreign keys.
++Hint helps you to fine the correct schema_links.
++###
++Few examples of this task are:
++###
++Schema of the database with sample rows and column descriptions:
++#
++CREATE TABLE movies (
++        movie_id INTEGER NOT NULL, 
++        movie_title TEXT, 
++        movie_release_year INTEGER, 
++        movie_url TEXT, 
++        movie_title_language TEXT, 
++        movie_popularity INTEGER, 
++        movie_image_url TEXT, 
++        director_id TEXT, 
++        director_name TEXT, 
++        director_url TEXT, 
++        PRIMARY KEY (movie_id)
++)
++
++/*
++3 rows from movies table:
++movie_id        movie_title     movie_release_year      movie_url       movie_title_language    movie_popularity        movie_image_url director_id     director_namedirector_url
++1       La Antena       2007    http://mubi.com/films/la-antena en      105     https://images.mubicdn.net/images/film/1/cache-7927-1581389497/image-w1280.jpg  131  Esteban Sapir    http://mubi.com/cast/esteban-sapir
++2       Elementary Particles    2006    http://mubi.com/films/elementary-particles      en      23      https://images.mubicdn.net/images/film/2/cache-512179-1581389841/image-w1280.jpg      73      Oskar Roehler   http://mubi.com/cast/oskar-roehler
++3       It's Winter     2006    http://mubi.com/films/its-winter        en      21      https://images.mubicdn.net/images/film/3/cache-7929-1481539519/image-w1280.jpg82      Rafi Pitts      http://mubi.com/cast/rafi-pitts
++*/
++
++CREATE TABLE ratings (
++        movie_id INTEGER, 
++        rating_id INTEGER, 
++        rating_url TEXT, 
++        rating_score INTEGER, 
++        rating_timestamp_utc TEXT, 
++        critic TEXT, 
++        critic_likes INTEGER, 
++        critic_comments INTEGER, 
++        user_id INTEGER, 
++        user_trialist INTEGER, 
++        user_subscriber INTEGER, 
++        user_eligible_for_trial INTEGER, 
++        user_has_payment_method INTEGER, 
++        FOREIGN KEY(movie_id) REFERENCES movies (movie_id), 
++        FOREIGN KEY(user_id) REFERENCES lists_users (user_id), 
++        FOREIGN KEY(rating_id) REFERENCES ratings (rating_id), 
++        FOREIGN KEY(user_id) REFERENCES ratings_users (user_id)
++)
++
++/*
++3 rows from ratings table:
++movie_id        rating_id       rating_url      rating_score    rating_timestamp_utc    critic  critic_likes    critic_comments user_id user_trialist   user_subscriber       user_eligible_for_trial user_has_payment_method
++1066    15610495        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/15610495 3       2017-06-10 12:38:33     None    0       0       41579158     00       1       0
++1066    10704606        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10704606 2       2014-08-15 23:42:31     None    0       0       85981819     11       0       1
++1066    10177114        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10177114 2       2014-01-30 13:21:57     None    0       0       4208563 0    01       1
++*/
++
++Table: movies
++Column movie_id: column description -> ID related to the movie on Mubi
++Column movie_title: column description -> Name of the movie
++Column movie_release_year: column description -> Release year of the movie
++Column movie_url: column description -> URL to the movie page on Mubi
++Column movie_title_language: column description -> By default, the title is in English., value description -> Only contains one value which is 'en'
++Column movie_popularity: column description -> Number of Mubi users who love this movie
++Column movie_image_url: column description -> Image URL to the movie on Mubi
++Column director_id: column description -> ID related to the movie director on Mubi
++Column director_name: column description -> Full Name of the movie director
++Column director_url : column description -> URL to the movie director page on Mubi
++
++Table: ratings
++Column movie_id: column description -> Movie ID related to the rating
++Column rating_id: column description -> Rating ID on Mubi
++Column rating_url: column description -> URL to the rating on Mubi
++Column rating_score: column description -> Rating score ranging from 1 (lowest) to 5 (highest), value description -> commonsense evidence: The score is proportional to the user's liking. The higher the score is, the more the user likes the movie
++Column rating_timestamp_utc : column description -> Timestamp for the movie rating made by the user on Mubi
++Column critic: column description -> Critic made by the user rating the movie. , value description -> If value = "None", the user did not write a critic when rating the movie.
++Column critic_likes: column description -> Number of likes related to the critic made by the user rating the movie
++Column critic_comments: column description -> Number of comments related to the critic made by the user rating the movie
++Column user_id: column description -> ID related to the user rating the movie
++Column user_trialist : column description -> whether user was a tralist when he rated the movie, value description -> 1 = the user was a trialist when he rated the movie 0 = the user was not a trialist when he rated the movie
++#
++Q: Which year has the least number of movies that was released and what is the title of the movie in that year that has the highest number of rating score of 1?
++Hint: least number of movies refers to MIN(movie_release_year); highest rating score refers to MAX(SUM(movie_id) where rating_score = '1')
++A: Let’s think step by step. In the question , we are asked:
++"Which year" so we need column = [movies.movie_release_year]
++"number of movies" so we need column = [movies.movie_id]
++"title of the movie" so we need column = [movies.movie_title]
++"rating score" so we need column = [ratings.rating_score]
++Hint also refers to the columns = [movies.movie_release_year, movies.movie_id, ratings.rating_score]
++Based on the columns and tables, we need these Foreign_keys = [movies.movie_id = ratings.movie_id].
++Based on the tables, columns, and Foreign_keys, The set of possible cell values are = [1]. So the Schema_links are:
++Schema_links: [movies.movie_release_year, movies.movie_title, ratings.rating_score, movies.movie_id=ratings.movie_id, 1]
++
++Schema of the database with sample rows:
++#
++CREATE TABLE lists (
++        user_id INTEGER, 
++        list_id INTEGER NOT NULL, 
++        list_title TEXT, 
++        list_movie_number INTEGER, 
++        list_update_timestamp_utc TEXT, 
++        list_creation_timestamp_utc TEXT, 
++        list_followers INTEGER, 
++        list_url TEXT, 
++        list_comments INTEGER, 
++        list_description TEXT, 
++        list_cover_image_url TEXT, 
++        list_first_image_url TEXT, 
++        list_second_image_url TEXT, 
++        list_third_image_url TEXT, 
++        PRIMARY KEY (list_id), 
++        FOREIGN KEY(user_id) REFERENCES lists_users (user_id)
++)
++
++/*
++3 rows from lists table:
++user_id list_id list_title      list_movie_number       list_update_timestamp_utc       list_creation_timestamp_utc     list_followers  list_url        list_commentslist_description list_cover_image_url    list_first_image_url    list_second_image_url   list_third_image_url
++88260493        1       Films that made your kid sister cry     5       2019-01-24 19:16:18     2009-11-11 00:02:21     5       http://mubi.com/lists/films-that-made-your-kid-sister-cry     3       <p>Don’t be such a baby!!</p>
++<p><strong>bold</strong></p>    https://assets.mubicdn.net/images/film/3822/image-w1280.jpg?1445914994  https://assets.mubicdn.net/images/film/3822/image-w320.jpg?1445914994 https://assets.mubicdn.net/images/film/506/image-w320.jpg?1543838422    https://assets.mubicdn.net/images/film/485/image-w320.jpg?1575331204
++45204418        2       Headscratchers  3       2018-12-03 15:12:20     2009-11-11 00:05:11     1       http://mubi.com/lists/headscratchers    2       <p>Films that need at least two viewings to really make sense.</p>
++<p>Or at least… they did for <em>       https://assets.mubicdn.net/images/film/4343/image-w1280.jpg?1583331932  https://assets.mubicdn.net/images/film/4343/image-w320.jpg?1583331932 https://assets.mubicdn.net/images/film/159/image-w320.jpg?1548864573    https://assets.mubicdn.net/images/film/142/image-w320.jpg?1544094102
++48905025        3       Sexy Time Movies        7       2019-05-30 03:00:07     2009-11-11 00:20:00     6       http://mubi.com/lists/sexy-time-movies  5       <p>Films that get you in the mood…for love. In development.</p>
++<p>Remarks</p>
++<p><strong>Enter the    https://assets.mubicdn.net/images/film/3491/image-w1280.jpg?1564112978  https://assets.mubicdn.net/images/film/3491/image-w320.jpg?1564112978https://assets.mubicdn.net/images/film/2377/image-w320.jpg?1564675204    https://assets.mubicdn.net/images/film/2874/image-w320.jpg?1546574412
++*/
++
++CREATE TABLE lists_users (
++        user_id INTEGER NOT NULL, 
++        list_id INTEGER NOT NULL, 
++        list_update_date_utc TEXT, 
++        list_creation_date_utc TEXT, 
++        user_trialist INTEGER, 
++        user_subscriber INTEGER, 
++        user_avatar_image_url TEXT, 
++        user_cover_image_url TEXT, 
++        user_eligible_for_trial TEXT, 
++        user_has_payment_method TEXT, 
++        PRIMARY KEY (user_id, list_id), 
++        FOREIGN KEY(list_id) REFERENCES lists (list_id), 
++        FOREIGN KEY(user_id) REFERENCES lists (user_id)
++)
++
++/*
++3 rows from lists_users table:
++user_id list_id list_update_date_utc    list_creation_date_utc  user_trialist   user_subscriber user_avatar_image_url   user_cover_image_url    user_eligible_for_trial       user_has_payment_method
++85981819        1969    2019-11-26      2009-12-18      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++85981819        3946    2020-05-01      2010-01-30      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++85981819        6683    2020-04-12      2010-03-31      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++*/
++
++Table: lists
++Column user_id: column description -> ID related to the user who created the list.
++Column list_id: column description -> ID of the list on Mubi
++Column list_title: column description -> Name of the list
++Column list_movie_number: column description -> Number of movies added to the list
++Column list_update_timestamp_utc: column description -> Last update timestamp for the list
++Column list_creation_timestamp_utc: column description -> Creation timestamp for the list
++Column list_followers: column description -> Number of followers on the list
++Column list_url: column description -> URL to the list page on Mubi
++Column list_comments: column description -> Number of comments on the list
++Column list_description: column description -> List description made by the user
++
++Table: lists_users
++Column user_id: column description -> ID related to the user who created the list.
++Column list_id: column description -> ID of the list on Mubi
++Column list_update_date_utc: column description -> Last update date for the list, value description -> YYYY-MM-DD
++Column list_creation_date_utc: column description -> Creation date for the list, value description -> YYYY-MM-DD
++Column user_trialist: column description -> whether the user was a tralist when he created the list , value description -> 1 = the user was a trialist when he created the list 0 = the user was not a trialist when he created the list
++Column user_subscriber: column description -> whether the user was a subscriber when he created the list , value description -> 1 = the user was a subscriber when he created the list 0 = the user was not a subscriber when he created the list
++Column user_avatar_image_url: column description -> User profile image URL on Mubi
++Column user_cover_image_url: column description -> User profile cover image URL on Mubi
++Column user_eligible_for_trial: column description -> whether the user was eligible for trial when he created the list , value description -> 1 = the user was eligible for trial when he created the list 0 = the user was not eligible for trial when he created the list
++Column user_has_payment_method : column description -> whether the user was a paying subscriber when he created the list , value description -> 1 = the user was a paying subscriber when he created the list 0 = the user was not a paying subscriber when he created the list
++#
++Q: Among the lists created by user 4208563, which one has the highest number of followers? Indicate how many followers it has and whether the user was a subscriber or not when he created the list.
++Hint: User 4208563 refers to user_id;highest number of followers refers to MAX(list_followers); user_subscriber = 1 means that the user was a subscriber when he created the list; user_subscriber = 0 means the user was not a subscriber when he created the list (to replace)
++A: Let’s think step by step. In the question , we are asked:
++"user" so we need column = [lists_users.user_id]
++"number of followers" so we need column = [lists.list_followers]
++"user was a subscriber or not" so we need column = [lists_users.user_subscriber]
++Hint also refers to the columns = [lists_users.user_id,lists.list_followers,lists_users.user_subscriber]
++Based on the columns and tables, we need these Foreign_keys = [lists.user_id = lists_user.user_id,lists.list_id = lists_user.list_id].
++Based on the tables, columns, and Foreign_keys, The set of possible cell values are = [1, 4208563]. So the Schema_links are:
++Schema_links: [lists.list_followers,lists_users.user_subscriber,lists.user_id = lists_user.user_id,lists.list_id = lists_user.list_id, lists_users.user_id, 4208563, 1]
++
++"""  # noqa: E501
++
++HUMAN_SCHEMA_LINKING_TEMPLATE = """
++For the given question, find the schema links between the question and the table.
++Hint helps you to fine the correct schema_links.
++###
++Schema of the database with sample rows and column descriptions:
++#
++{schema}
++
++{columns_descriptions}
++#
++Q: {question}
++Hint: {hint}
++A: Let's think step by step. In the question , we are asked:
++"""
++
++SYSTEM_CLASSIFICATION_TEMPLATE = """
++For the given question, classify it as EASY, NON-NESTED, or NESTED based on nested queries and JOIN.
++if need nested queries: predict NESTED
++elif need JOIN and don't need nested queries: predict NON-NESTED
++elif don't need JOIN and don't need nested queries: predict EASY
++Note: Don't mistake the WHERE conditions with nested queries.
++Note: Only predict NESTED if the question needs nested queries, if it can be solved with JOIN, predict NON-NESTED.
++###
++Few examples of this task are:
++###
++Schema of the database with sample rows and column descriptions:
++#
++CREATE TABLE lists (
++        user_id INTEGER, 
++        list_id INTEGER NOT NULL, 
++        list_title TEXT, 
++        list_movie_number INTEGER, 
++        list_update_timestamp_utc TEXT, 
++        list_creation_timestamp_utc TEXT, 
++        list_followers INTEGER, 
++        list_url TEXT, 
++        list_comments INTEGER, 
++        list_description TEXT, 
++        list_cover_image_url TEXT, 
++        list_first_image_url TEXT, 
++        list_second_image_url TEXT, 
++        list_third_image_url TEXT, 
++        PRIMARY KEY (list_id), 
++        FOREIGN KEY(user_id) REFERENCES lists_users (user_id)
++)
++
++/*
++3 rows from lists table:
++user_id list_id list_title      list_movie_number       list_update_timestamp_utc       list_creation_timestamp_utc     list_followers  list_url        list_commentslist_description list_cover_image_url    list_first_image_url    list_second_image_url   list_third_image_url
++88260493        1       Films that made your kid sister cry     5       2019-01-24 19:16:18     2009-11-11 00:02:21     5       http://mubi.com/lists/films-that-made-your-kid-sister-cry     3       <p>Don’t be such a baby!!</p>
++<p><strong>bold</strong></p>    https://assets.mubicdn.net/images/film/3822/image-w1280.jpg?1445914994  https://assets.mubicdn.net/images/film/3822/image-w320.jpg?1445914994 https://assets.mubicdn.net/images/film/506/image-w320.jpg?1543838422    https://assets.mubicdn.net/images/film/485/image-w320.jpg?1575331204
++45204418        2       Headscratchers  3       2018-12-03 15:12:20     2009-11-11 00:05:11     1       http://mubi.com/lists/headscratchers    2       <p>Films that need at least two viewings to really make sense.</p>
++<p>Or at least… they did for <em>       https://assets.mubicdn.net/images/film/4343/image-w1280.jpg?1583331932  https://assets.mubicdn.net/images/film/4343/image-w320.jpg?1583331932 https://assets.mubicdn.net/images/film/159/image-w320.jpg?1548864573    https://assets.mubicdn.net/images/film/142/image-w320.jpg?1544094102
++48905025        3       Sexy Time Movies        7       2019-05-30 03:00:07     2009-11-11 00:20:00     6       http://mubi.com/lists/sexy-time-movies  5       <p>Films that get you in the mood…for love. In development.</p>
++<p>Remarks</p>
++<p><strong>Enter the    https://assets.mubicdn.net/images/film/3491/image-w1280.jpg?1564112978  https://assets.mubicdn.net/images/film/3491/image-w320.jpg?1564112978https://assets.mubicdn.net/images/film/2377/image-w320.jpg?1564675204    https://assets.mubicdn.net/images/film/2874/image-w320.jpg?1546574412
++*/
++
++
++CREATE TABLE lists_users (
++        user_id INTEGER NOT NULL, 
++        list_id INTEGER NOT NULL, 
++        list_update_date_utc TEXT, 
++        list_creation_date_utc TEXT, 
++        user_trialist INTEGER, 
++        user_subscriber INTEGER, 
++        user_avatar_image_url TEXT, 
++        user_cover_image_url TEXT, 
++        user_eligible_for_trial TEXT, 
++        user_has_payment_method TEXT, 
++        PRIMARY KEY (user_id, list_id), 
++        FOREIGN KEY(list_id) REFERENCES lists (list_id), 
++        FOREIGN KEY(user_id) REFERENCES lists (user_id)
++)
++
++/*
++3 rows from lists_users table:
++user_id list_id list_update_date_utc    list_creation_date_utc  user_trialist   user_subscriber user_avatar_image_url   user_cover_image_url    user_eligible_for_trial       user_has_payment_method
++85981819        1969    2019-11-26      2009-12-18      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++85981819        3946    2020-05-01      2010-01-30      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++85981819        6683    2020-04-12      2010-03-31      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++*/
++
++CREATE TABLE movies (
++        movie_id INTEGER NOT NULL, 
++        movie_title TEXT, 
++        movie_release_year INTEGER, 
++        movie_url TEXT, 
++        movie_title_language TEXT, 
++        movie_popularity INTEGER, 
++        movie_image_url TEXT, 
++        director_id TEXT, 
++        director_name TEXT, 
++        director_url TEXT, 
++        PRIMARY KEY (movie_id)
++)
++
++/*
++3 rows from movies table:
++movie_id        movie_title     movie_release_year      movie_url       movie_title_language    movie_popularity        movie_image_url director_id     director_namedirector_url
++1       La Antena       2007    http://mubi.com/films/la-antena en      105     https://images.mubicdn.net/images/film/1/cache-7927-1581389497/image-w1280.jpg  131  Esteban Sapir    http://mubi.com/cast/esteban-sapir
++2       Elementary Particles    2006    http://mubi.com/films/elementary-particles      en      23      https://images.mubicdn.net/images/film/2/cache-512179-1581389841/image-w1280.jpg      73      Oskar Roehler   http://mubi.com/cast/oskar-roehler
++3       It's Winter     2006    http://mubi.com/films/its-winter        en      21      https://images.mubicdn.net/images/film/3/cache-7929-1481539519/image-w1280.jpg82      Rafi Pitts      http://mubi.com/cast/rafi-pitts
++*/
++
++CREATE TABLE ratings (
++        movie_id INTEGER, 
++        rating_id INTEGER, 
++        rating_url TEXT, 
++        rating_score INTEGER, 
++        rating_timestamp_utc TEXT, 
++        critic TEXT, 
++        critic_likes INTEGER, 
++        critic_comments INTEGER, 
++        user_id INTEGER, 
++        user_trialist INTEGER, 
++        user_subscriber INTEGER, 
++        user_eligible_for_trial INTEGER, 
++        user_has_payment_method INTEGER, 
++        FOREIGN KEY(movie_id) REFERENCES movies (movie_id), 
++        FOREIGN KEY(user_id) REFERENCES lists_users (user_id), 
++        FOREIGN KEY(rating_id) REFERENCES ratings (rating_id), 
++        FOREIGN KEY(user_id) REFERENCES ratings_users (user_id)
++)
++
++/*
++3 rows from ratings table:
++movie_id        rating_id       rating_url      rating_score    rating_timestamp_utc    critic  critic_likes    critic_comments user_id user_trialist   user_subscriber       user_eligible_for_trial user_has_payment_method
++1066    15610495        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/15610495 3       2017-06-10 12:38:33     None    0       0       41579158     00       1       0
++1066    10704606        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10704606 2       2014-08-15 23:42:31     None    0       0       85981819     11       0       1
++1066    10177114        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10177114 2       2014-01-30 13:21:57     None    0       0       4208563 0    01       1
++*/
++
++Table: lists_users
++Column user_id: column description -> ID related to the user who created the list.
++Column list_id: column description -> ID of the list on Mubi
++Column list_update_date_utc: column description -> Last update date for the list, value description -> YYYY-MM-DD
++Column list_creation_date_utc: column description -> Creation date for the list, value description -> YYYY-MM-DD
++Column user_trialist: column description -> whether the user was a tralist when he created the list , value description -> 1 = the user was a trialist when he created the list 0 = the user was not a trialist when he created the list
++Column user_subscriber: column description -> whether the user was a subscriber when he created the list , value description -> 1 = the user was a subscriber when he created the list 0 = the user was not a subscriber when he created the list
++Column user_avatar_image_url: column description -> User profile image URL on Mubi
++Column user_cover_image_url: column description -> User profile cover image URL on Mubi
++Column user_eligible_for_trial: column description -> whether the user was eligible for trial when he created the list , value description -> 1 = the user was eligible for trial when he created the list 0 = the user was not eligible for trial when he created the list
++Column user_has_payment_method : column description -> whether the user was a paying subscriber when he created the list , value description -> 1 = the user was a paying subscriber when he created the list 0 = the user was not a paying subscriber when he created the list 
++
++Table: lists
++Column user_id: column description -> ID related to the user who created the list.
++Column list_id: column description -> ID of the list on Mubi
++Column list_title: column description -> Name of the list
++Column list_movie_number: column description -> Number of movies added to the list
++Column list_update_timestamp_utc: column description -> Last update timestamp for the list
++Column list_creation_timestamp_utc: column description -> Creation timestamp for the list
++Column list_followers: column description -> Number of followers on the list
++Column list_url: column description -> URL to the list page on Mubi
++Column list_comments: column description -> Number of comments on the list
++Column list_description: column description -> List description made by the user
++
++Table: ratings
++Column movie_id: column description -> Movie ID related to the rating
++Column rating_id: column description -> Rating ID on Mubi
++Column rating_url: column description -> URL to the rating on Mubi
++Column rating_score: column description -> Rating score ranging from 1 (lowest) to 5 (highest), value description -> commonsense evidence: The score is proportional to the user's liking. The higher the score is, the more the user likes the movie
++Column rating_timestamp_utc : column description -> Timestamp for the movie rating made by the user on Mubi
++Column critic: column description -> Critic made by the user rating the movie. , value description -> If value = "None", the user did not write a critic when rating the movie.
++Column critic_likes: column description -> Number of likes related to the critic made by the user rating the movie
++Column critic_comments: column description -> Number of comments related to the critic made by the user rating the movie
++Column user_id: column description -> ID related to the user rating the movie
++Column user_trialist : column description -> whether user was a tralist when he rated the movie, value description -> 1 = the user was a trialist when he rated the movie 0 = the user was not a trialist when he rated the movie
++
++Table: movies
++Column movie_id: column description -> ID related to the movie on Mubi
++Column movie_title: column description -> Name of the movie
++Column movie_release_year: column description -> Release year of the movie
++Column movie_url: column description -> URL to the movie page on Mubi
++Column movie_title_language: column description -> By default, the title is in English., value description -> Only contains one value which is 'en'
++Column movie_popularity: column description -> Number of Mubi users who love this movie
++Column movie_image_url: column description -> Image URL to the movie on Mubi
++Column director_id: column description -> ID related to the movie director on Mubi
++Column director_name: column description -> Full Name of the movie director
++Column director_url : column description -> URL to the movie director page on Mubi
++#
++
++Q: What is the list ID that was first created by user 85981819?
++Hint: first created list refers to oldest list_creation_date_utc;
++schema_links: [lists_users.list_id, lists_users.user_id, lists_user.list_creation_date_utc, 85981819]
++A: Let’s think step by step. The SQL query for the given question needs these tables = [lists_users], so we don't need JOIN.
++Plus, it doesn't require nested queries, and we need the answer to the sub-questions = [""].
++So, we don't need JOIN and don't need nested queries, then the SQL query can be classified as "EASY".
++Label: "EASY"
++
++Q: How many more movie lists were created by the user who created the movie list \"250 Favourite Films\"?
++Hint: 250 Favourite Films refers to list_title;
++schema_links: [lists_users.list_id,lists_users.user_id,lists.user_id,lists.list_title,250 Favourite Films]
++A: Let’s think step by step. The SQL query for the given question needs these tables = [lists,lists_users], so we need JOIN.
++Plus, it requires nested queries, and we need the answer to the sub-questions = [who created the movie list \"250 Favourite Films\"?].
++So, we need JOIN and need nested queries, then the SQL query can be classified as "NESTED".
++Label: "NESTED"
++
++Q: What is the percentage of the ratings were rated by user who was a subcriber?
++Hint: user is a subscriber refers to user_subscriber = 1; percentage of ratings = DIVIDE(SUM(user_subscriber = 1), SUM(rating_score)) as percent;
++schema_links: [ratings.user_subscriber,1]
++A: Let’s think step by step. The SQL query for the given question needs these tables = [ratings], so we don't need JOIN.
++Plus, it doesn't require nested queries, and we need the answer to the sub-questions = [""].
++So, we don't need JOIN and don't need nested queries, then the SQL query can be classified as "EASY".
++Label: "EASY"
++
++Q: Was the user who created the \"World War 2 and Kids\" list eligible for trial when he created the list? Indicate how many followers does the said list has.
++Hint: user was eligible for trial when he created the list refers to user_eligible_for_trial = 1; number of followers a list have refers to list_followers;
++schema_links: [lists_users.user_eligible_for_trial, lists.list_followers, lists.list_title, lists.user_id = lists_user.user_id,lists.list_id = lists_user.list_id, World War 2 and Kids]
++A: Let’s think step by step. The SQL query for the given question needs these tables = [lists, lists_users], so we need JOIN.
++Plus, it doesn't need nested queries, and we need the answer to the sub-questions = [""].
++So, we need JOIN and don't need nested queries, then the SQL query can be classified as "NON-NESTED".
++Label: "NON-NESTED"
++
++Q: Which year was the third movie directed by Quentin Tarantino released? Indicate the user ids of the user who gave it a rating score of 4.
++Hint: third movie refers to third movie that has oldest movie_release_year;
++schema_links: [movies.movie_release_year,ratings.user_id,ratings.rating_score,movies.movie_id = ratings.movie_id, movies.director_name, Quentin Tarantino, 4]
++A: Let’s think step by step. The SQL query for the given question needs these tables = [ratings,movies], so we need JOIN.
++Plus, it requires nested queries, and we need the answer to the sub-questions = [Which movie is the third movie directed by Quentin Tarantino?].
++So, we need JOIN and need nested queries, then the SQL query can be classified as "NESTED".
++Label: "NESTED"
++
++Q: What is the average number of followers of the lists created by the user who rated the movie \"Pavee Lackeen: The Traveller Girl\" on 3/27/2011 at 2:06:34 AM?
++Hint: average number of followers refers to AVG(list_followers); movie \"Pavee Lackeen: The Traveller Girl\" refers to movie_title = 'Pavee Lackeen: The Traveller Girl'; on 3/27/2011 at 2:06:34 AM refers to rating_timestamp_utc = '2011-03-27 02:06:34'
++schema_links: [ratings.rating_timestamp_utc,lists_users.list_id,movies.movie_title,lists.list_followers,ratings.user_id = list_user.user_id,ratings.movie_id = movies.movie_id,lists_users.list_id = lists.list_id,Pavee Lackeen: The Traveller Girl,2011-03-27 02:06:34]
++A: Let’s think step by step. The SQL query for the given question needs these tables = [lists, lists_users,ratings,movies], so we need JOIN.
++Plus, it doesn't need nested queries, and we need the answer to the sub-questions = [""].
++So, we need JOIN and don't need nested queries, then the SQL query can be classified as "NON-NESTED".
++Label: "NON-NESTED"
++
++"""  # noqa: E501
++HUMAN_CLASSIFICATION_TEMPLATE = """
++For the given question, classify it as EASY, NON-NESTED, or NESTED based on nested queries and JOIN.
++if need nested queries: predict NESTED
++elif need JOIN and don't need nested queries: predict NON-NESTED
++elif don't need JOIN and don't need nested queries: predict EASY
++###
++Schema of the database with sample rows and column descriptions:
++#
++{schema}
++
++{columns_descriptions}
++#
++Q: {question}
++Hint: {hint}
++Schema links: {schema_links}
++A: Let’s think step by step."""  # noqa: E501
++
++SYSTEM_EASY_CLASS_TEMPLATE = """
++Use the schema links to generate the correct sqlite SQL query for the given question.
++Hint helps you to write the correct sqlite SQL query.
++###
++Few examples of this task are:
++###
++Schema of the database with sample rows and column descriptions:
++#
++CREATE TABLE lists (
++        user_id INTEGER, 
++        list_id INTEGER NOT NULL, 
++        list_title TEXT, 
++        list_movie_number INTEGER, 
++        list_update_timestamp_utc TEXT, 
++        list_creation_timestamp_utc TEXT, 
++        list_followers INTEGER, 
++        list_url TEXT, 
++        list_comments INTEGER, 
++        list_description TEXT, 
++        list_cover_image_url TEXT, 
++        list_first_image_url TEXT, 
++        list_second_image_url TEXT, 
++        list_third_image_url TEXT, 
++        PRIMARY KEY (list_id), 
++        FOREIGN KEY(user_id) REFERENCES lists_users (user_id)
++)
++
++/*
++3 rows from lists table:
++user_id list_id list_title      list_movie_number       list_update_timestamp_utc       list_creation_timestamp_utc     list_followers  list_url        list_commentslist_description list_cover_image_url    list_first_image_url    list_second_image_url   list_third_image_url
++88260493        1       Films that made your kid sister cry     5       2019-01-24 19:16:18     2009-11-11 00:02:21     5       http://mubi.com/lists/films-that-made-your-kid-sister-cry     3       <p>Don’t be such a baby!!</p>
++<p><strong>bold</strong></p>    https://assets.mubicdn.net/images/film/3822/image-w1280.jpg?1445914994  https://assets.mubicdn.net/images/film/3822/image-w320.jpg?1445914994 https://assets.mubicdn.net/images/film/506/image-w320.jpg?1543838422    https://assets.mubicdn.net/images/film/485/image-w320.jpg?1575331204
++45204418        2       Headscratchers  3       2018-12-03 15:12:20     2009-11-11 00:05:11     1       http://mubi.com/lists/headscratchers    2       <p>Films that need at least two viewings to really make sense.</p>
++<p>Or at least… they did for <em>       https://assets.mubicdn.net/images/film/4343/image-w1280.jpg?1583331932  https://assets.mubicdn.net/images/film/4343/image-w320.jpg?1583331932 https://assets.mubicdn.net/images/film/159/image-w320.jpg?1548864573    https://assets.mubicdn.net/images/film/142/image-w320.jpg?1544094102
++48905025        3       Sexy Time Movies        7       2019-05-30 03:00:07     2009-11-11 00:20:00     6       http://mubi.com/lists/sexy-time-movies  5       <p>Films that get you in the mood…for love. In development.</p>
++<p>Remarks</p>
++<p><strong>Enter the    https://assets.mubicdn.net/images/film/3491/image-w1280.jpg?1564112978  https://assets.mubicdn.net/images/film/3491/image-w320.jpg?1564112978https://assets.mubicdn.net/images/film/2377/image-w320.jpg?1564675204    https://assets.mubicdn.net/images/film/2874/image-w320.jpg?1546574412
++*/
++
++CREATE TABLE lists_users (
++        user_id INTEGER NOT NULL, 
++        list_id INTEGER NOT NULL, 
++        list_update_date_utc TEXT, 
++        list_creation_date_utc TEXT, 
++        user_trialist INTEGER, 
++        user_subscriber INTEGER, 
++        user_avatar_image_url TEXT, 
++        user_cover_image_url TEXT, 
++        user_eligible_for_trial TEXT, 
++        user_has_payment_method TEXT, 
++        PRIMARY KEY (user_id, list_id), 
++        FOREIGN KEY(list_id) REFERENCES lists (list_id), 
++        FOREIGN KEY(user_id) REFERENCES lists (user_id)
++)
++
++/*
++3 rows from lists_users table:
++user_id list_id list_update_date_utc    list_creation_date_utc  user_trialist   user_subscriber user_avatar_image_url   user_cover_image_url    user_eligible_for_trial       user_has_payment_method
++85981819        1969    2019-11-26      2009-12-18      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++85981819        3946    2020-05-01      2010-01-30      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++85981819        6683    2020-04-12      2010-03-31      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++*/
++
++CREATE TABLE movies (
++        movie_id INTEGER NOT NULL, 
++        movie_title TEXT, 
++        movie_release_year INTEGER, 
++        movie_url TEXT, 
++        movie_title_language TEXT, 
++        movie_popularity INTEGER, 
++        movie_image_url TEXT, 
++        director_id TEXT, 
++        director_name TEXT, 
++        director_url TEXT, 
++        PRIMARY KEY (movie_id)
++)
++
++/*
++3 rows from movies table:
++movie_id        movie_title     movie_release_year      movie_url       movie_title_language    movie_popularity        movie_image_url director_id     director_namedirector_url
++1       La Antena       2007    http://mubi.com/films/la-antena en      105     https://images.mubicdn.net/images/film/1/cache-7927-1581389497/image-w1280.jpg  131  Esteban Sapir    http://mubi.com/cast/esteban-sapir
++2       Elementary Particles    2006    http://mubi.com/films/elementary-particles      en      23      https://images.mubicdn.net/images/film/2/cache-512179-1581389841/image-w1280.jpg      73      Oskar Roehler   http://mubi.com/cast/oskar-roehler
++3       It's Winter     2006    http://mubi.com/films/its-winter        en      21      https://images.mubicdn.net/images/film/3/cache-7929-1481539519/image-w1280.jpg82      Rafi Pitts      http://mubi.com/cast/rafi-pitts
++*/
++
++CREATE TABLE ratings (
++        movie_id INTEGER, 
++        rating_id INTEGER, 
++        rating_url TEXT, 
++        rating_score INTEGER, 
++        rating_timestamp_utc TEXT, 
++        critic TEXT, 
++        critic_likes INTEGER, 
++        critic_comments INTEGER, 
++        user_id INTEGER, 
++        user_trialist INTEGER, 
++        user_subscriber INTEGER, 
++        user_eligible_for_trial INTEGER, 
++        user_has_payment_method INTEGER, 
++        FOREIGN KEY(movie_id) REFERENCES movies (movie_id), 
++        FOREIGN KEY(user_id) REFERENCES lists_users (user_id), 
++        FOREIGN KEY(rating_id) REFERENCES ratings (rating_id), 
++        FOREIGN KEY(user_id) REFERENCES ratings_users (user_id)
++)
++
++/*
++3 rows from ratings table:
++movie_id        rating_id       rating_url      rating_score    rating_timestamp_utc    critic  critic_likes    critic_comments user_id user_trialist   user_subscriber       user_eligible_for_trial user_has_payment_method
++1066    15610495        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/15610495 3       2017-06-10 12:38:33     None    0       0       41579158     00       1       0
++1066    10704606        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10704606 2       2014-08-15 23:42:31     None    0       0       85981819     11       0       1
++1066    10177114        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10177114 2       2014-01-30 13:21:57     None    0       0       4208563 0    01       1
++*/
++
++Table: lists_users
++Column user_id: column description -> ID related to the user who created the list.
++Column list_id: column description -> ID of the list on Mubi
++Column list_update_date_utc: column description -> Last update date for the list, value description -> YYYY-MM-DD
++Column list_creation_date_utc: column description -> Creation date for the list, value description -> YYYY-MM-DD
++Column user_trialist: column description -> whether the user was a tralist when he created the list , value description -> 1 = the user was a trialist when he created the list 0 = the user was not a trialist when he created the list
++Column user_subscriber: column description -> whether the user was a subscriber when he created the list , value description -> 1 = the user was a subscriber when he created the list 0 = the user was not a subscriber when he created the list
++Column user_avatar_image_url: column description -> User profile image URL on Mubi
++Column user_cover_image_url: column description -> User profile cover image URL on Mubi
++Column user_eligible_for_trial: column description -> whether the user was eligible for trial when he created the list , value description -> 1 = the user was eligible for trial when he created the list 0 = the user was not eligible for trial when he created the list
++Column user_has_payment_method : column description -> whether the user was a paying subscriber when he created the list , value description -> 1 = the user was a paying subscriber when he created the list 0 = the user was not a paying subscriber when he created the list 
++
++Table: lists
++Column user_id: column description -> ID related to the user who created the list.
++Column list_id: column description -> ID of the list on Mubi
++Column list_title: column description -> Name of the list
++Column list_movie_number: column description -> Number of movies added to the list
++Column list_update_timestamp_utc: column description -> Last update timestamp for the list
++Column list_creation_timestamp_utc: column description -> Creation timestamp for the list
++Column list_followers: column description -> Number of followers on the list
++Column list_url: column description -> URL to the list page on Mubi
++Column list_comments: column description -> Number of comments on the list
++Column list_description: column description -> List description made by the user
++
++Table: ratings
++Column movie_id: column description -> Movie ID related to the rating
++Column rating_id: column description -> Rating ID on Mubi
++Column rating_url: column description -> URL to the rating on Mubi
++Column rating_score: column description -> Rating score ranging from 1 (lowest) to 5 (highest), value description -> commonsense evidence: The score is proportional to the user's liking. The higher the score is, the more the user likes the movie
++Column rating_timestamp_utc : column description -> Timestamp for the movie rating made by the user on Mubi
++Column critic: column description -> Critic made by the user rating the movie. , value description -> If value = "None", the user did not write a critic when rating the movie.
++Column critic_likes: column description -> Number of likes related to the critic made by the user rating the movie
++Column critic_comments: column description -> Number of comments related to the critic made by the user rating the movie
++Column user_id: column description -> ID related to the user rating the movie
++Column user_trialist : column description -> whether user was a tralist when he rated the movie, value description -> 1 = the user was a trialist when he rated the movie 0 = the user was not a trialist when he rated the movie
++
++Table: movies
++Column movie_id: column description -> ID related to the movie on Mubi
++Column movie_title: column description -> Name of the movie
++Column movie_release_year: column description -> Release year of the movie
++Column movie_url: column description -> URL to the movie page on Mubi
++Column movie_title_language: column description -> By default, the title is in English., value description -> Only contains one value which is 'en'
++Column movie_popularity: column description -> Number of Mubi users who love this movie
++Column movie_image_url: column description -> Image URL to the movie on Mubi
++Column director_id: column description -> ID related to the movie director on Mubi
++Column director_name: column description -> Full Name of the movie director
++Column director_url : column description -> URL to the movie director page on Mubi
++#
++Q: What is the name of the longest movie title? When was it released?
++Hint: longest movie title refers to MAX(LENGTH(movie_title)); when it was released refers to movie_release_year;
++Schema_links: [movies.movie_title,movies.movie_release_year, movies.movie_popularity]
++SQL: SELECT movie_title, movie_release_year FROM movies ORDER BY LENGTH(movie_popularity) DESC LIMIT 1
++
++Q: What is the percentage of the ratings were rated by user who was a subcriber?
++Hint: user is a subscriber refers to user_subscriber = 1; percentage of ratings = DIVIDE(SUM(user_subscriber = 1), SUM(rating_score)) as percent;
++Schema_links: [ratings.user_subscriber,1]
++SQL: SELECT CAST(SUM(CASE WHEN user_subscriber = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM ratings
++
++Q: When was the first movie released and who directed it?
++Hint: first movie refers to oldest movie_release_year;
++Schema_links: [movies.movie_release_year, movies.director_name]
++SQL: SELECT movie_release_year, director_name FROM movies WHERE movie_release_year IS NOT NULL ORDER BY movie_release_year ASC LIMIT 1
++
++Q: How many movie lists were still updated 10 years after it was created?
++Hint: updated 10 years after it was created refers to list_update_timestamp_utc > (list_creation_timestamp_utc+10);
++Schema_links: [lists.list_update_timestamp_utc, lists.list_creation_timestamp_utc, 10]
++SQL: SELECT COUNT(*) FROM lists WHERE SUBSTR(list_update_timestamp_utc, 1, 4) - SUBSTR(list_creation_timestamp_utc, 1, 4) > 10
++
++Q: For the list with more than 200 followers, state the title and how long the list has been created?
++Hint: more than 200 followers refers to list_followers >200; how long the list has been created refers to SUBTRACT(CURRENT_TIMESTAMP,list_creation_timestamp_utc)
++Schema_links: [lists.list_title, lists.list_update_timestamp_utc,lists.list_followers, 200]
++SQL: SELECT list_title , 365 * (strftime('%Y', 'now') - strftime('%Y', list_creation_timestamp_utc)) + 30 * (strftime('%m', 'now') - strftime('%m', list_creation_timestamp_utc)) + strftime('%d', 'now') - strftime('%d', list_creation_timestamp_utc) FROM lists WHERE list_followers > 200
++
++Q: What is the percentage of list created by user who was a subscriber when he created the list?
++Hint: was a subscriber refers to user_subscriber = 1; percentage refers to DIVIDE(COUNT(user_subscriber = 1),COUNT(list_id))
++Schema_links: [lists_users.user_subscriber,1]
++SQL: SELECT CAST(SUM(CASE WHEN user_subscriber = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(list_id) FROM lists_users
++
++"""  # noqa: E501
++HUMAN_EASY_CLASS_TEMPLATE = """
++Use the schema links to generate the correct sqlite SQL query for the given question.
++Hint helps you to write the correct sqlite SQL query.
++###
++Schema of the database with sample rows and column descriptions:
++#
++{schema}
++
++{columns_descriptions}
++#
++Q: {question}
++Hint: {hint}
++Schema_links: {schema_links}
++SQL: """
++
++SYSTEM_NON_NESTED_CLASS_TEMPLATE = """
++Use the the schema links and intermediate reasoning steps to generate the correct sqlite SQL query for the given question.
++Hint helps you to write the correct sqlite SQL query.
++###
++Few examples of this task are:
++###
++Schema of the database with sample rows and column descriptions:
++#
++CREATE TABLE ratings (
++        movie_id INTEGER, 
++        rating_id INTEGER, 
++        rating_url TEXT, 
++        rating_score INTEGER, 
++        rating_timestamp_utc TEXT, 
++        critic TEXT, 
++        critic_likes INTEGER, 
++        critic_comments INTEGER, 
++        user_id INTEGER, 
++        user_trialist INTEGER, 
++        user_subscriber INTEGER, 
++        user_eligible_for_trial INTEGER, 
++        user_has_payment_method INTEGER, 
++        FOREIGN KEY(movie_id) REFERENCES movies (movie_id), 
++        FOREIGN KEY(user_id) REFERENCES lists_users (user_id), 
++        FOREIGN KEY(rating_id) REFERENCES ratings (rating_id), 
++        FOREIGN KEY(user_id) REFERENCES ratings_users (user_id)
++)
++
++/*
++3 rows from ratings table:
++movie_id        rating_id       rating_url      rating_score    rating_timestamp_utc    critic  critic_likes    critic_comments user_id user_trialist   user_subscriber       user_eligible_for_trial user_has_payment_method
++1066    15610495        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/15610495 3       2017-06-10 12:38:33     None    0       0       41579158     00       1       0
++1066    10704606        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10704606 2       2014-08-15 23:42:31     None    0       0       85981819     11       0       1
++1066    10177114        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10177114 2       2014-01-30 13:21:57     None    0       0       4208563 0    01       1
++*/
++
++CREATE TABLE movies (
++        movie_id INTEGER NOT NULL, 
++        movie_title TEXT, 
++        movie_release_year INTEGER, 
++        movie_url TEXT, 
++        movie_title_language TEXT, 
++        movie_popularity INTEGER, 
++        movie_image_url TEXT, 
++        director_id TEXT, 
++        director_name TEXT, 
++        director_url TEXT, 
++        PRIMARY KEY (movie_id)
++)
++
++/*
++3 rows from movies table:
++movie_id        movie_title     movie_release_year      movie_url       movie_title_language    movie_popularity        movie_image_url director_id     director_namedirector_url
++1       La Antena       2007    http://mubi.com/films/la-antena en      105     https://images.mubicdn.net/images/film/1/cache-7927-1581389497/image-w1280.jpg  131  Esteban Sapir    http://mubi.com/cast/esteban-sapir
++2       Elementary Particles    2006    http://mubi.com/films/elementary-particles      en      23      https://images.mubicdn.net/images/film/2/cache-512179-1581389841/image-w1280.jpg      73      Oskar Roehler   http://mubi.com/cast/oskar-roehler
++3       It's Winter     2006    http://mubi.com/films/its-winter        en      21      https://images.mubicdn.net/images/film/3/cache-7929-1481539519/image-w1280.jpg82      Rafi Pitts      http://mubi.com/cast/rafi-pitts
++*/
++
++Table: ratings
++Column movie_id: column description -> Movie ID related to the rating
++Column rating_id: column description -> Rating ID on Mubi
++Column rating_url: column description -> URL to the rating on Mubi
++Column rating_score: column description -> Rating score ranging from 1 (lowest) to 5 (highest), value description -> commonsense evidence: The score is proportional to the user's liking. The higher the score is, the more the user likes the movie
++Column rating_timestamp_utc : column description -> Timestamp for the movie rating made by the user on Mubi
++Column critic: column description -> Critic made by the user rating the movie. , value description -> If value = "None", the user did not write a critic when rating the movie.
++Column critic_likes: column description -> Number of likes related to the critic made by the user rating the movie
++Column critic_comments: column description -> Number of comments related to the critic made by the user rating the movie
++Column user_id: column description -> ID related to the user rating the movie
++Column user_trialist : column description -> whether user was a tralist when he rated the movie, value description -> 1 = the user was a trialist when he rated the movie 0 = the user was not a trialist when he rated the movie
++
++Table: movies
++Column movie_id: column description -> ID related to the movie on Mubi
++Column movie_title: column description -> Name of the movie
++Column movie_release_year: column description -> Release year of the movie
++Column movie_url: column description -> URL to the movie page on Mubi
++Column movie_title_language: column description -> By default, the title is in English., value description -> Only contains one value which is 'en'
++Column movie_popularity: column description -> Number of Mubi users who love this movie
++Column movie_image_url: column description -> Image URL to the movie on Mubi
++Column director_id: column description -> ID related to the movie director on Mubi
++Column director_name: column description -> Full Name of the movie director
++Column director_url : column description -> URL to the movie director page on Mubi
++#
++Q: What is the average rating for movie titled 'When Will I Be Loved'?
++Hint: average rating = DIVIDE((SUM(rating_score where movie_title = 'When Will I Be Loved')), COUNT(rating_score));
++Schema_links: [ratings.rating_score, movies.movie_title, movies.movie_id = ratings.movie_id, When Will I Be Loved]
++A: Let’s think step by step. For creating the SQL for the given question, we need to join these tables = [ratings,movies].
++First of all, for joining these tables we have to use the common column = [ratings.movie_id = movies.movie_id].
++Now, we have to filter the rows where movie_title = 'When Will I Be Loved'.
++Then, we have to find the average of the rating_score.
++So the sqlite SQL query will be:
++SQL: SELECT AVG(T2.rating_score) FROM movies AS T1 INNER JOIN ratings AS T2 ON T1.movie_id = T2.movie_id WHERE T1.movie_title = 'When Will I Be Loved'
++
++Q: For movie titled 'Welcome to the Dollhouse', how many percentage of the ratings were rated with highest score.
++Hint: rated with highest score refers to rating_score = 5; percentage = MULTIPLY(DIVIDE(SUM(rating_score = 5), COUNT(rating_score)), 100)
++Schema_links: [ratings.rating_score, movies.movie_title, movies.movie_id = ratings.movie_id, Welcome to the Dollhouse]
++A: Let’s think step by step. For creating the SQL for the given question, we need to join these tables = [ratings,movies].
++First of all, for joining these tables we have to use the common column = [ratings.movie_id = movies.movie_id].
++Now, we have to filter the rows where movie_title = 'Welcome to the Dollhouse'.
++Then, we have to find the percentage of the ratings were rated with highest score which is 5.
++So the sqlite SQL query will be:
++SQL: SELECT CAST(SUM(CASE WHEN T2.rating_score = 5 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM movies AS T1 INNER JOIN ratings AS T2 ON T1.movie_id = T2.movie_id WHERE T1.movie_title = 'Welcome to the Dollhouse'
++
++Q: For all ratings which are rated in year 2020, name the movies which has the rating scored 4 and above.
++Hint: ratings in year 2020 refers to rating_timestamp_utc like '%2020%'; rating_score > = 4;
++Schema_links: [ratings.rating_timestamp_utc, movies.movie_title, movies.movie_id = ratings.movie_id, 2020, 4]
++A: Let’s think step by step. For creating the SQL for the given question, we need to join these tables = [ratings,movies].
++First of all, for joining these tables we have to use the common column = [ratings.movie_id = movies.movie_id].
++Now, we have to filter the rows where rating_timestamp_utc like '%2020%' and rating_score > = 4.
++Then, we have to find the movie_title.
++So the sqlite SQL query will be:
++SQL: SELECT T2.movie_title FROM ratings AS T1 INNER JOIN movies AS T2 ON T1.movie_id = T2.movie_id WHERE CAST(SUBSTR(T1.rating_timestamp_utc, 1, 4) AS INTEGER) = 2020 AND CAST(SUBSTR(T1.rating_timestamp_utc, 6, 2) AS INTEGER) > 4
++
++Q: What is the average score of the movie \"The Fall of Berlin\" in 2019?
++Hint: The Fall of Berlin' is movie_title; in 2019 refers to rating_timestamp_utc = 2019; Average score refers to Avg(rating_score);
++Schema_links: [ratings.rating_score, ratings.rating_id, movies.movie_title, T1.rating_timestamp_utc, movies.movie_id = ratings.movie_id, The Fall of Berlin, 2019]
++A: Let’s think step by step. For creating the SQL for the given question, we need to join these tables = [ratings,movies].
++First of all, for joining these tables we have to use the common column = [ratings.movie_id = movies.movie_id].
++Now, we have to filter the rows where movie_title = 'The Fall of Berlin' and rating_timestamp_utc = 2019.
++Then, we have to find the average of the rating_score which can be computed by dividing the sum of rating_score by the count of rating_id.
++So the sqlite SQL query will be:
++SQL: SELECT SUM(T1.rating_score) / COUNT(T1.rating_id) FROM ratings AS T1 INNER JOIN movies AS T2 ON T1.movie_id = T2.movie_id WHERE T1.rating_timestamp_utc LIKE '2019%' AND T2.movie_title LIKE 'The Fall of Berlin'
++
++"""  # noqa: E501
++HUMAN_NON_NESTED_CLASS_TEMPLATE = """
++Use the the schema links and intermediate reasoning steps to generate the correct sqlite SQL query for the given question.
++Hint helps you to write the correct sqlite SQL query.
++###
++Schema of the database with sample rows and column descriptions:
++#
++{schema}
++
++{columns_descriptions}
++#
++Q: {question}
++Hint: {hint}
++Schema_links: {schema_links}
++A: Let’s think step by step. """  # noqa: E501
++
++SYSTEM_NESTED_CLASS_TEMPLATE = """
++Use the the schema links and intermediate reasoning steps to generate the correct sqlite SQL query for the given question.
++Hint helps you to write the correct sqlite SQL query.
++###
++Few examples of this task are:
++###
++Schema of the database with sample rows and column descriptions:
++#
++CREATE TABLE lists (
++        user_id INTEGER, 
++        list_id INTEGER NOT NULL, 
++        list_title TEXT, 
++        list_movie_number INTEGER, 
++        list_update_timestamp_utc TEXT, 
++        list_creation_timestamp_utc TEXT, 
++        list_followers INTEGER, 
++        list_url TEXT, 
++        list_comments INTEGER, 
++        list_description TEXT, 
++        list_cover_image_url TEXT, 
++        list_first_image_url TEXT, 
++        list_second_image_url TEXT, 
++        list_third_image_url TEXT, 
++        PRIMARY KEY (list_id), 
++        FOREIGN KEY(user_id) REFERENCES lists_users (user_id)
++)
++
++/*
++3 rows from lists table:
++user_id list_id list_title      list_movie_number       list_update_timestamp_utc       list_creation_timestamp_utc     list_followers  list_url        list_commentslist_description list_cover_image_url    list_first_image_url    list_second_image_url   list_third_image_url
++88260493        1       Films that made your kid sister cry     5       2019-01-24 19:16:18     2009-11-11 00:02:21     5       http://mubi.com/lists/films-that-made-your-kid-sister-cry     3       <p>Don’t be such a baby!!</p>
++<p><strong>bold</strong></p>    https://assets.mubicdn.net/images/film/3822/image-w1280.jpg?1445914994  https://assets.mubicdn.net/images/film/3822/image-w320.jpg?1445914994 https://assets.mubicdn.net/images/film/506/image-w320.jpg?1543838422    https://assets.mubicdn.net/images/film/485/image-w320.jpg?1575331204
++45204418        2       Headscratchers  3       2018-12-03 15:12:20     2009-11-11 00:05:11     1       http://mubi.com/lists/headscratchers    2       <p>Films that need at least two viewings to really make sense.</p>
++<p>Or at least… they did for <em>       https://assets.mubicdn.net/images/film/4343/image-w1280.jpg?1583331932  https://assets.mubicdn.net/images/film/4343/image-w320.jpg?1583331932 https://assets.mubicdn.net/images/film/159/image-w320.jpg?1548864573    https://assets.mubicdn.net/images/film/142/image-w320.jpg?1544094102
++48905025        3       Sexy Time Movies        7       2019-05-30 03:00:07     2009-11-11 00:20:00     6       http://mubi.com/lists/sexy-time-movies  5       <p>Films that get you in the mood…for love. In development.</p>
++<p>Remarks</p>
++<p><strong>Enter the    https://assets.mubicdn.net/images/film/3491/image-w1280.jpg?1564112978  https://assets.mubicdn.net/images/film/3491/image-w320.jpg?1564112978https://assets.mubicdn.net/images/film/2377/image-w320.jpg?1564675204    https://assets.mubicdn.net/images/film/2874/image-w320.jpg?1546574412
++*/
++
++
++CREATE TABLE lists_users (
++        user_id INTEGER NOT NULL, 
++        list_id INTEGER NOT NULL, 
++        list_update_date_utc TEXT, 
++        list_creation_date_utc TEXT, 
++        user_trialist INTEGER, 
++        user_subscriber INTEGER, 
++        user_avatar_image_url TEXT, 
++        user_cover_image_url TEXT, 
++        user_eligible_for_trial TEXT, 
++        user_has_payment_method TEXT, 
++        PRIMARY KEY (user_id, list_id), 
++        FOREIGN KEY(list_id) REFERENCES lists (list_id), 
++        FOREIGN KEY(user_id) REFERENCES lists (user_id)
++)
++
++/*
++3 rows from lists_users table:
++user_id list_id list_update_date_utc    list_creation_date_utc  user_trialist   user_subscriber user_avatar_image_url   user_cover_image_url    user_eligible_for_trial       user_has_payment_method
++85981819        1969    2019-11-26      2009-12-18      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++85981819        3946    2020-05-01      2010-01-30      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++85981819        6683    2020-04-12      2010-03-31      1       1       https://assets.mubicdn.net/images/avatars/74983/images-w150.jpg?1523895214      None    0    1
++*/
++
++CREATE TABLE ratings (
++        movie_id INTEGER, 
++        rating_id INTEGER, 
++        rating_url TEXT, 
++        rating_score INTEGER, 
++        rating_timestamp_utc TEXT, 
++        critic TEXT, 
++        critic_likes INTEGER, 
++        critic_comments INTEGER, 
++        user_id INTEGER, 
++        user_trialist INTEGER, 
++        user_subscriber INTEGER, 
++        user_eligible_for_trial INTEGER, 
++        user_has_payment_method INTEGER, 
++        FOREIGN KEY(movie_id) REFERENCES movies (movie_id), 
++        FOREIGN KEY(user_id) REFERENCES lists_users (user_id), 
++        FOREIGN KEY(rating_id) REFERENCES ratings (rating_id), 
++        FOREIGN KEY(user_id) REFERENCES ratings_users (user_id)
++)
++
++/*
++3 rows from ratings table:
++movie_id        rating_id       rating_url      rating_score    rating_timestamp_utc    critic  critic_likes    critic_comments user_id user_trialist   user_subscriber       user_eligible_for_trial user_has_payment_method
++1066    15610495        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/15610495 3       2017-06-10 12:38:33     None    0       0       41579158     00       1       0
++1066    10704606        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10704606 2       2014-08-15 23:42:31     None    0       0       85981819     11       0       1
++1066    10177114        http://mubi.com/films/pavee-lackeen-the-traveller-girl/ratings/10177114 2       2014-01-30 13:21:57     None    0       0       4208563 0    01       1
++*/
++
++CREATE TABLE movies (
++        movie_id INTEGER NOT NULL, 
++        movie_title TEXT, 
++        movie_release_year INTEGER, 
++        movie_url TEXT, 
++        movie_title_language TEXT, 
++        movie_popularity INTEGER, 
++        movie_image_url TEXT, 
++        director_id TEXT, 
++        director_name TEXT, 
++        director_url TEXT, 
++        PRIMARY KEY (movie_id)
++)
++
++/*
++3 rows from movies table:
++movie_id        movie_title     movie_release_year      movie_url       movie_title_language    movie_popularity        movie_image_url director_id     director_namedirector_url
++1       La Antena       2007    http://mubi.com/films/la-antena en      105     https://images.mubicdn.net/images/film/1/cache-7927-1581389497/image-w1280.jpg  131  Esteban Sapir    http://mubi.com/cast/esteban-sapir
++2       Elementary Particles    2006    http://mubi.com/films/elementary-particles      en      23      https://images.mubicdn.net/images/film/2/cache-512179-1581389841/image-w1280.jpg      73      Oskar Roehler   http://mubi.com/cast/oskar-roehler
++3       It's Winter     2006    http://mubi.com/films/its-winter        en      21      https://images.mubicdn.net/images/film/3/cache-7929-1481539519/image-w1280.jpg82      Rafi Pitts      http://mubi.com/cast/rafi-pitts
++*/
++
++Table: lists_users
++Column user_id: column description -> ID related to the user who created the list.
++Column list_id: column description -> ID of the list on Mubi
++Column list_update_date_utc: column description -> Last update date for the list, value description -> YYYY-MM-DD
++Column list_creation_date_utc: column description -> Creation date for the list, value description -> YYYY-MM-DD
++Column user_trialist: column description -> whether the user was a tralist when he created the list , value description -> 1 = the user was a trialist when he created the list 0 = the user was not a trialist when he created the list
++Column user_subscriber: column description -> whether the user was a subscriber when he created the list , value description -> 1 = the user was a subscriber when he created the list 0 = the user was not a subscriber when he created the list
++Column user_avatar_image_url: column description -> User profile image URL on Mubi
++Column user_cover_image_url: column description -> User profile cover image URL on Mubi
++Column user_eligible_for_trial: column description -> whether the user was eligible for trial when he created the list , value description -> 1 = the user was eligible for trial when he created the list 0 = the user was not eligible for trial when he created the list
++Column user_has_payment_method : column description -> whether the user was a paying subscriber when he created the list , value description -> 1 = the user was a paying subscriber when he created the list 0 = the user was not a paying subscriber when he created the list 
++
++Table: lists
++Column user_id: column description -> ID related to the user who created the list.
++Column list_id: column description -> ID of the list on Mubi
++Column list_title: column description -> Name of the list
++Column list_movie_number: column description -> Number of movies added to the list
++Column list_update_timestamp_utc: column description -> Last update timestamp for the list
++Column list_creation_timestamp_utc: column description -> Creation timestamp for the list
++Column list_followers: column description -> Number of followers on the list
++Column list_url: column description -> URL to the list page on Mubi
++Column list_comments: column description -> Number of comments on the list
++Column list_description: column description -> List description made by the user
++
++Table: ratings
++Column movie_id: column description -> Movie ID related to the rating
++Column rating_id: column description -> Rating ID on Mubi
++Column rating_url: column description -> URL to the rating on Mubi
++Column rating_score: column description -> Rating score ranging from 1 (lowest) to 5 (highest), value description -> commonsense evidence: The score is proportional to the user's liking. The higher the score is, the more the user likes the movie
++Column rating_timestamp_utc : column description -> Timestamp for the movie rating made by the user on Mubi
++Column critic: column description -> Critic made by the user rating the movie. , value description -> If value = "None", the user did not write a critic when rating the movie.
++Column critic_likes: column description -> Number of likes related to the critic made by the user rating the movie
++Column critic_comments: column description -> Number of comments related to the critic made by the user rating the movie
++Column user_id: column description -> ID related to the user rating the movie
++Column user_trialist : column description -> whether user was a tralist when he rated the movie, value description -> 1 = the user was a trialist when he rated the movie 0 = the user was not a trialist when he rated the movie
++
++Table: movies
++Column movie_id: column description -> ID related to the movie on Mubi
++Column movie_title: column description -> Name of the movie
++Column movie_release_year: column description -> Release year of the movie
++Column movie_url: column description -> URL to the movie page on Mubi
++Column movie_title_language: column description -> By default, the title is in English., value description -> Only contains one value which is 'en'
++Column movie_popularity: column description -> Number of Mubi users who love this movie
++Column movie_image_url: column description -> Image URL to the movie on Mubi
++Column director_id: column description -> ID related to the movie director on Mubi
++Column director_name: column description -> Full Name of the movie director
++Column director_url : column description -> URL to the movie director page on Mubi
++#
++Q: How many more movie lists were created by the user who created the movie list \"250 Favourite Films\"?
++Hint: 250 Favourite Films refers to list_title;
++Schema_links: [lists_users.list_id, lists_users.user_id = lists.user_id, lists.list_title, 250 Favourite Films]
++A: Let's think step by step. the given question can be solved by knowing the answer to the following sub-questions = [which user has created the movie list \"250 Favourite Films\".]
++The sqlite SQL query for the sub-question "which user has created the movie list \"250 Favourite Films\"" is SELECT user_id FROM lists WHERE list_title = '250 Favourite Films'
++The above query will return the user_id of the user who has created the movie list \"250 Favourite Films\".
++Now, we have to find the number of movie lists created by the user who has created the movie list \"250 Favourite Films\".
++So, the final sqlite SQL query answer to the question the given question is =
++SQL: SELECT COUNT(list_id) FROM lists_users WHERE user_id = ( SELECT user_id FROM lists WHERE list_title = '250 Favourite Films' )
++
++Q: For the user who post the list that contained the most number of the movies, is he/she a paying subscriber when creating that list?
++Hint: the list that contained the most number of the movies refers to MAX(list_movie_number); user_has_payment_method = 1 means the user was a paying subscriber when he created the list ; \nuser_has_payment_method = 0 means the user was not a paying subscriber when he created the list
++Schema_links: [lists_users.user_has_payment_method, lists_users.list_id = lists.list_id, lists.list_movie_number, lists.list_movie_number]
++A: Let's think step by step. the given question can be solved by knowing the answer to the following sub-questions = [which list has the most number of movies.]
++The sqlite SQL query for the sub-question "which list has the most number of movies" is SELECT MAX(list_movie_number) FROM lists
++The above query will return the list_movie_number of the list which has the most number of movies.
++Now, we have to find the user_has_payment_method of the user who has created the list which has the most number of movies.
++To do so, we have to JOIN lists_users and lists table on list_id.
++So, the final sqlite SQL query answer to the question the given question is =
++SQL: SELECT T1.user_has_payment_method FROM lists_users AS T1 INNER JOIN lists AS T2 ON T1.list_id = T2.list_id WHERE T2.list_movie_number = ( SELECT MAX(list_movie_number) FROM lists )
++
++Q: Which year was the third movie directed by Quentin Tarantino released? Indicate the user ids of the user who gave it a rating score of 4.
++Hint: third movie refers to third movie that has oldest movie_release_year;
++Schema_links: [movies.movie_release_year,ratings.user_id,ratings.rating_score,movies.movie_id = ratings.movie_id, movies.director_name, Quentin Tarantino, 4]
++A: Let's think step by step. the given question can be solved by knowing the answer to the following sub-questions = [What is the third movie directed by Quentin Tarantino.]
++The sqlite SQL query for the sub-question "what is third movie directed by Quentin Tarantino" is SELECT movie_id FROM movies WHERE director_name = 'Quentin Tarantino' ORDER BY movie_release_year ASC LIMIT 2, 1 
++The above query will return the movie_id of the third movie directed by Quentin Tarantino.
++Now, we have to find the year in which the third movie directed by Quentin Tarantino was released.
++For that, we have to join the tables = [movies,ratings].
++First of all, for joining these tables we have to use the common column = [movies.movie_id = ratings.movie_id].
++Then, we have to filter the rows where movie_id = ( SELECT movie_id FROM movies WHERE director_name = 'Quentin Tarantino' ORDER BY movie_release_year ASC LIMIT 2, 1 ).
++Then, we have to find the movie_release_year.
++So, the final sqlite SQL query answer to the question the given question is =
++SQL: SELECT T2.movie_release_year, T1.user_id FROM ratings AS T1 INNER JOIN movies AS T2 ON T1.movie_id = T2.movie_id WHERE T1.movie_id = ( SELECT movie_id FROM movies WHERE director_name = 'Quentin Tarantino' ORDER BY movie_release_year ASC LIMIT 2, 1 ) AND T1.rating_score = 4
++
++"""  # noqa: E501
++HUMAN_NESTED_CLASS_TEMPLATE = """
++Use the the schema links and intermediate reasoning steps to generate the correct sqlite SQL query for the given question.
++Hint helps you to write the correct sqlite SQL query.
++###
++Schema of the database with sample rows and column descriptions:
++#
++{schema}
++
++{columns_descriptions}
++#
++Q: {question}
++Hint: {hint}
++Schema_links: {schema_links}
++A: Let's think step by step. the given question can be solved by knowing the answer to the following sub-questions = {sub_questions}
++"""  # noqa: E501
++
++SYSTEM_SELF_CORRECTION_PROMPT = """
++For the given question, use the provided tables, columns, foreign keys, and primary keys to fix the given SQLite SQL QUERY for any issues. If there are any problems, fix them. If there are no issues, return the SQLite SQL QUERY as is.
++Hint helps you to write the correct sqlite SQL query.
++Use the following instructions for fixing the sqlite SQL query:
++1) Avoid redundant columns in SELECT clause, all of the columns should be mentioned in the question.
++2) Pay attention to the columns that are used for the JOIN by checking the Foreign keys.
++3) Pay attention to the columns that are used for the WHERE statement.
++4) Pay attention to the columns that are used for the GROUP BY statement.
++5) Pay attention to the columns that are used for the ORDER BY statement.
++6) check that all of the columns exist in the table and there are no typos.
++7) Use CAST when is needed.
++8) USE CASE WHEN is needed.
++###
++Few examples of this task are:
++###
++Schema of the database with sample rows and column descriptions:
++#
++CREATE TABLE movies (
++        movie_id INTEGER NOT NULL, 
++        movie_title TEXT, 
++        movie_release_year INTEGER, 
++        movie_url TEXT, 
++        movie_title_language TEXT, 
++        movie_popularity INTEGER, 
++        movie_image_url TEXT, 
++        director_id TEXT, 
++        director_name TEXT, 
++        director_url TEXT, 
++        PRIMARY KEY (movie_id)
++)
++
++/*
++3 rows from movies table:
++movie_id        movie_title     movie_release_year      movie_url       movie_title_language    movie_popularity        movie_image_url director_id     director_namedirector_url
++1       La Antena       2007    http://mubi.com/films/la-antena en      105     https://images.mubicdn.net/images/film/1/cache-7927-1581389497/image-w1280.jpg  131  Esteban Sapir    http://mubi.com/cast/esteban-sapir
++2       Elementary Particles    2006    http://mubi.com/films/elementary-particles      en      23      https://images.mubicdn.net/images/film/2/cache-512179-1581389841/image-w1280.jpg      73      Oskar Roehler   http://mubi.com/cast/oskar-roehler
++3       It's Winter     2006    http://mubi.com/films/its-winter        en      21      https://images.mubicdn.net/images/film/3/cache-7929-1481539519/image-w1280.jpg82      Rafi Pitts      http://mubi.com/cast/rafi-pitts
++*/
++
++Table: movies
++Column movie_id: column description -> ID related to the movie on Mubi
++Column movie_title: column description -> Name of the movie
++Column movie_release_year: column description -> Release year of the movie
++Column movie_url: column description -> URL to the movie page on Mubi
++Column movie_title_language: column description -> By default, the title is in English., value description -> Only contains one value which is 'en'
++Column movie_popularity: column description -> Number of Mubi users who love this movie
++Column movie_image_url: column description -> Image URL to the movie on Mubi
++Column director_id: column description -> ID related to the movie director on Mubi
++Column director_name: column description -> Full Name of the movie director
++Column director_url : column description -> URL to the movie director page on Mubi
++#
++Q: Name movie titles released in year 1945. Sort the listing by the descending order of movie popularity.
++Hint: released in the year 1945 refers to movie_release_year = 1945;
++SQL: SELECT movie_title, movie_popularity FROM movies WHERE movie_release_year = 1945/01/01 ORDER BY movie_popularity DESC LIMIT 1
++A: Let's think step by step to find the correct answer.
++1) The column movie_popularity is not mentioned in the question so it's redundant.
++2) JOIN is not required as there is no need to join any tables.
++3) The condition movie_release_year = 1945/01/01 is not correct. The correct condition is movie_release_year = 1945.
++4) GROUP BY is not required as there is no need to group any columns.
++5) The ORDER BY clause is correct.
++6) all columns are correct and there are no typo errors.
++7) CAST is not required as there is no need to cast any columns.
++8) CASE is not required as there is no need to use CASE.
++So, the final sqlite SQL query answer to the question the given question is =
++Revised_SQL: SELECT movie_title FROM movies WHERE movie_release_year = 1945 ORDER BY movie_popularity DESC LIMIT 1
++"""  # noqa: E501
++HUMAN_SELF_CORRECTION_PROMPT = """
++Evaluate the correctness of this query for the given question.
++Hint helps you to write the correct SQL query.
++Correct it if there are any issues. If there are no issues, return the SQLite SQL QUERY as is.
++Schema of the database with sample rows and column descriptions:
++#
++{schema}
++
++{columns_descriptions}
++#
++Q: {question}
++Hint: {hint}
++SQL: {sql_query}
++A: Let's think step by step to find the correct answer."""  # noqa: E501
++
+diff --git a/src/third_party/din/bird/utils.py b/src/third_party/din/bird/utils.py
+new file mode 100644
+index 0000000..6578d8d
+--- /dev/null
++++ b/src/third_party/din/bird/utils.py
+@@ -0,0 +1,110 @@
++import glob
++import json
++import os
++import re
++from typing import List, Tuple
++
++import pandas as pd
++from langchain_community.utilities import SQLDatabase
++
++
++def get_database_schema(DB_URI: str) -> str:
++    """Get the database schema from the database URI
++
++    Args:
++        DB_URI (str): Database URI
++
++    Returns:
++        str: Database schema
++    """
++    db = SQLDatabase.from_uri("sqlite:///" + DB_URI)
++    db._sample_rows_in_table_info = 3
++    return db.get_table_info_no_throw()
++
++
++def extract_schema_links(input_text: str) -> List[str]:
++    pattern = r'Schema_links:\s*\[(.*?)\]'
++    match = re.search(pattern, input_text)
++    if match:
++        schema_links_str = match.group(1)
++        schema_links = [link.strip() for link in schema_links_str.split(',')]
++        return schema_links
++    else:
++        return []
++
++
++def extract_label_and_sub_questions(input_text: str) -> Tuple[str, List[str]]:
++    label_pattern = r'Label:\s*"(.*?)"'
++    sub_questions_pattern = r'sub_questions:\s*\[(.*?)\]'
++
++    label_match = re.search(label_pattern, input_text)
++    sub_questions_match = re.search(sub_questions_pattern, input_text)
++
++    label = label_match.group(1) if label_match else None
++
++    sub_questions = []
++    if sub_questions_match:
++        sub_questions_str = sub_questions_match.group(1)
++        sub_questions = [question.strip() for question in sub_questions_str.split(',')]
++
++    return label, sub_questions
++
++
++def extract_sql_query(input_text: str):
++    if "```sql" in input_text.lower():
++        pattern = r'.*```sql.*(SELECT.*)```.*'
++        content = re.sub(pattern, r'\1', input_text, flags=re.DOTALL)
++        return content
++    sql_pattern = r'SQL:\s*(.*?)$'
++    match = re.search(sql_pattern, input_text, re.DOTALL)
++    if match:
++        return match.group(1).strip()
++    else:
++        return None
++
++
++def extract_revised_sql_query(input_text):
++    if "```sql" in input_text.lower():
++        pattern = r'.*```sql.*(SELECT.*)```.*'
++        content = re.sub(pattern, r'\1', input_text, flags=re.DOTALL)
++        return content
++    sql_pattern = r'Revised_SQL:\s*(.*?)$'
++    match = re.search(sql_pattern, input_text, re.DOTALL)
++    return match.group(1).strip() if match else None
++
++
++def update_json_file(json_filename, index, sql_query, db_id):
++    try:
++        with open(json_filename, 'r') as json_file:
++            data = json.load(json_file)
++    except FileNotFoundError:
++        data = {}
++
++    data[str(index)] = f"{sql_query}\t----- bird -----\t{db_id}"
++
++    with open(json_filename, 'w') as json_file:
++        json.dump(data, json_file, indent=4)
++
++
++def table_descriptions_parser(database_dir):
++    csv_files = glob.glob(f"{database_dir}/*.csv")
++    # Iterate over the CSV files
++    db_descriptions = ""
++    for file_path in csv_files:
++        table_name: str = os.path.basename(file_path).replace(".csv", "")
++        db_descriptions += f"Table: {table_name}\n"
++        table_df = pd.read_csv(file_path, encoding='latin-1')
++        for _, row in table_df.iterrows():
++            try:
++                if pd.notna(row.iloc[2]):
++                    col_description = re.sub(r'\s+', ' ', str(row.iloc[2]))  # noqa: E501
++                    val_description = re.sub(r'\s+', ' ', str(row.iloc[4]))
++                    if pd.notna(row.iloc[4]):
++                        db_descriptions += f"Column {row.iloc[0]}: column description -> {col_description}, value description -> {val_description}\n"  # noqa: E501
++                    else:
++                        db_descriptions += f"Column {row.iloc[0]}: column description -> {col_description}\n"  # noqa: E501
++            except Exception as e:
++                print(e)
++                db_descriptions += "No column description"
++        db_descriptions += "\n"
++    return db_descriptions
+diff --git a/src/third_party/din/din_bird_pred.py b/src/third_party/din/din_bird_pred.py
+new file mode 100644
+index 0000000..1101f92
+--- /dev/null
++++ b/src/third_party/din/din_bird_pred.py
+@@ -0,0 +1,177 @@
++import re
++from typing import List
++
++from src.eval.single_run_config import SingleRunConfig
++from src.gpt.file_sender.file_sender import GptFileSender
++from src.gpt.models import BatchInputRequest
++from src.parse.parser import SqlParser
++from src.pred.predictor import Predictor, process_responses, load_data
++from src.third_party.din.bird.bird_prompt_maker import schema_linking_prompt, classification_prompt, easy_prompt, \
++    medium_prompt, hard_prompt, correction_prompt
++from src.third_party.din.bird.utils import table_descriptions_parser, get_database_schema, extract_schema_links, \
++    extract_label_and_sub_questions, extract_sql_query, extract_revised_sql_query
++from src.third_party.din.config import DinConfig
++from src.third_party.din.spider.prompt_maker import PromptMaker
++
++
++class DinBirdPredictor(Predictor):
++    __conf: DinConfig
++    __prompt_maker: PromptMaker
++    __gpt_sender: GptFileSender
++    __schema_links: List[str]
++    __classifs: List[str]
++    __pred_classes: List[str]
++    __sqls: List[str]
++    __parser: SqlParser
++    __schemas: List[str]
++    __column_descriptions: List[str]
++    __hints: List[str]
++
++    def __init__(self, run_conf: SingleRunConfig):
++        super().__init__(run_conf)
++        self.__conf = DinConfig(run_conf.get_pred_path())
++        self.__prompt_maker = PromptMaker(self._run_conf.dataset_config.get_tables_path())
++
++    def __preprocess(self):
++        examples = load_data(self._run_conf.dataset_config.get_test_path()).to_dict("records")
++        self.__hints = []
++        self.__schemas = []
++        self.__column_descriptions = []
++        for i, example in enumerate(examples):
++            db_id = example['db_id']
++            question = example['question']
++            columns_descriptions = table_descriptions_parser(
++                self._run_conf.dataset_config.get_db_description_path(db_id))
++            schema = get_database_schema(self._run_conf.dataset_config.get_db_file_path(db_id))
++            self.__hints.append(example['evidence'])
++            self.__column_descriptions.append(columns_descriptions)
++            self.__schemas.append(schema)
++
++    async def _run_internal(self):
++        conf = self.__conf
++
++        self.__preprocess()
++
++        self._gen_batch_file(conf.get_path("schema", "in"), self.__generate_schema_req)
++
++        await self._ask_file(conf.get_path("schema", "in"), conf.get_path("schema", "out"))
++
++        self.__schema_links = process_responses(conf.get_path("schema", "out"), self.__process_schema_response)
++
++        self._gen_batch_file(conf.get_path("classif", "in"), self.__generate_classif_req)
++
++        await self._ask_file(conf.get_path("classif", "in"), conf.get_path("classif", "out"))
++
++        self.__classifs = process_responses(conf.get_path("classif", "out"), lambda i, s: s)
++
++        self._gen_batch_file(conf.get_path("sql", "in"), self.__create_sql_prompt)
++
++        await self._ask_file(conf.get_path("sql", "in"), conf.get_path("sql", "out"))
++
++        self.__sqls = process_responses(conf.get_path("sql", "out"), self.__process_sql_responses)
++
++        self._gen_batch_file(conf.get_path("sql_debug", "in"), self.__create_debug_sql_prompt)
++
++        await self._ask_file(conf.get_path("sql_debug", "in"), conf.get_path("sql_debug", "out"))
++
++        self.__sqls = process_responses(conf.get_path("sql_debug", "out"), self.__process_sql_debug_response)
++
++        sqls = self.__post_process(self.__sqls)
++
++        self._save_sqls(sqls)
++
++    def __generate_schema_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
++        columns_descriptions = self.__column_descriptions[i]
++        schema = self.__schemas[i]
++        hint = self.__hints[i]
++        prompt = schema_linking_prompt.format(question=question, schema=schema, hint=hint,
++                                              columns_descriptions=columns_descriptions)
++        return self._create_batch_req(f"s{i}", prompt, self.__conf.default_params)
++
++    def __generate_classif_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
++        schema_links = self.__schema_links[i]
++        columns_descriptions = self.__column_descriptions[i]
++        schema = self.__schemas[i]
++        hint = self.__hints[i]
++        prompt = classification_prompt.format(question=question,
++                                              schema=schema,
++                                              hint=hint,
++                                              columns_descriptions=columns_descriptions,
++                                              schema_links=schema_links)
++        return self._create_batch_req(f"c{i}", prompt, self.__conf.default_params)
++
++    def __create_sql_prompt(self, i: int, db_id: str, question: str) -> BatchInputRequest:
++        schema_links = self.__schema_links[i]
++        classification = self.__classifs[i]
++        columns_descriptions = self.__column_descriptions[i]
++        schema = self.__schemas[i]
++        hint = self.__hints[i]
++        label, sub_questions = extract_label_and_sub_questions(classification)
++        if "EASY" in label:
++            prompt = easy_prompt.format(
++                question=question,
++                schema=schema,
++                hint=hint,
++                columns_descriptions=columns_descriptions,
++                schema_links=schema_links)
++        elif "NON-NESTED" in label:
++            prompt = medium_prompt.format(question=question,
++                                          schema=schema,
++                                          hint=hint,
++                                          columns_descriptions=columns_descriptions,
++                                          schema_links=schema_links)
++        else:
++            prompt = hard_prompt.format(
++                question=question,
++                schema=schema,
++                hint=hint,
++                columns_descriptions=columns_descriptions,
++                schema_links=schema_links,
++                sub_questions=sub_questions)
++        return self._create_batch_req(f"s{i}", prompt, self.__conf.default_params)
++
++    def __create_debug_sql_prompt(self, i: int, db_id: str, question: str) -> BatchInputRequest:
++        sql_query = self.__sqls[i]
++        columns_descriptions = self.__column_descriptions[i]
++        schema = self.__schemas[i]
++        hint = self.__hints[i]
++        prompt = correction_prompt.format(question=question,
++                                          schema=schema,
++                                          columns_descriptions=columns_descriptions,
++                                          hint=hint,
++                                          sql_query=sql_query)
++        return self._create_batch_req(f"sd{i}", prompt, self.__conf.debug_params)
++
++    @staticmethod
++    def __process_schema_response(i: int, content: str) -> str:
++        schema_links = extract_schema_links(content)
++        return schema_links
++
++    @staticmethod
++    def __process_classif_response(i: int, content: str) -> str:
++        try:
++            predicted_class = content.split("Label: ")[1]
++        except:
++            print("Slicing error for the classification module")
++            predicted_class = '"NESTED"'
++        return predicted_class
++
++    def __process_sql_responses(self, i: int, content: str) -> str:
++        sql = extract_sql_query(content)
++        sql = sql.replace('\n', '').replace('\r', '')
++        return sql
++
++    def __process_sql_debug_response(self, i: int, content: str) -> str:
++        sql = extract_revised_sql_query(content)
++        if sql is None:
++            return self.__sqls[i]
++        sql = sql.replace('\n', '').replace('\r', '')
++        return sql
++
++    @staticmethod
++    def __post_process(sqls: List[str]) -> List[str]:
++        result = []
++        for sql in sqls:
++            sql = sql.replace("\n", " ")
++            result.append(sql)
++        return result
+diff --git a/src/third_party/din/din_pred.py b/src/third_party/din/din_spider_pred.py
+similarity index 99%
+rename from src/third_party/din/din_pred.py
+rename to src/third_party/din/din_spider_pred.py
+index 51b61af..d905ac1 100644
+--- a/src/third_party/din/din_pred.py
++++ b/src/third_party/din/din_spider_pred.py
+@@ -7,7 +7,7 @@ from src.gpt.models import BatchInputRequest
+ from src.parse.parser import SqlParser
+ from src.pred.predictor import Predictor, process_responses
+ from src.third_party.din.config import DinConfig
+-from src.third_party.din.prompt_maker import PromptMaker
++from src.third_party.din.spider.prompt_maker import PromptMaker
+ 
+ 
+ class DinPredictor(Predictor):
+diff --git a/src/third_party/din/spider/__init__.py b/src/third_party/din/spider/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/src/third_party/din/prompts/classification_prompt.py b/src/third_party/din/spider/classification_prompt.py
+similarity index 100%
+rename from src/third_party/din/prompts/classification_prompt.py
+rename to src/third_party/din/spider/classification_prompt.py
+diff --git a/src/third_party/din/prompts/easy_prompt.py b/src/third_party/din/spider/easy_prompt.py
+similarity index 100%
+rename from src/third_party/din/prompts/easy_prompt.py
+rename to src/third_party/din/spider/easy_prompt.py
+diff --git a/src/third_party/din/prompts/hard_prompt.py b/src/third_party/din/spider/hard_prompt.py
+similarity index 100%
+rename from src/third_party/din/prompts/hard_prompt.py
+rename to src/third_party/din/spider/hard_prompt.py
+diff --git a/src/third_party/din/prompts/medium_prompt.py b/src/third_party/din/spider/medium_prompt.py
+similarity index 100%
+rename from src/third_party/din/prompts/medium_prompt.py
+rename to src/third_party/din/spider/medium_prompt.py
+diff --git a/src/third_party/din/prompt_maker.py b/src/third_party/din/spider/prompt_maker.py
+similarity index 95%
+rename from src/third_party/din/prompt_maker.py
+rename to src/third_party/din/spider/prompt_maker.py
+index 1f34f5f..7a51c06 100644
+--- a/src/third_party/din/prompt_maker.py
++++ b/src/third_party/din/spider/prompt_maker.py
+@@ -1,11 +1,11 @@
+ from dataclasses import dataclass
+ import pandas as pd
+ 
+-from src.third_party.din.prompts.classification_prompt import CLASSIFICATION_PROMPT
+-from src.third_party.din.prompts.easy_prompt import EASY_PROMPT
+-from src.third_party.din.prompts.hard_prompt import HARD_PROMPT
+-from src.third_party.din.prompts.medium_prompt import MEDIUM_PROMPT
+-from src.third_party.din.prompts.schema_linking_prompt import SCHEMA_LINKING_PROMPT
++from src.third_party.din.spider.classification_prompt import CLASSIFICATION_PROMPT
++from src.third_party.din.spider.easy_prompt import EASY_PROMPT
++from src.third_party.din.spider.hard_prompt import HARD_PROMPT
++from src.third_party.din.spider.medium_prompt import MEDIUM_PROMPT
++from src.third_party.din.spider.schema_linking_prompt import SCHEMA_LINKING_PROMPT
+ 
+ 
+ @dataclass
+diff --git a/src/third_party/din/prompts/schema_linking_prompt.py b/src/third_party/din/spider/schema_linking_prompt.py
+similarity index 100%
+rename from src/third_party/din/prompts/schema_linking_prompt.py
+rename to src/third_party/din/spider/schema_linking_prompt.py
+diff --git a/src/util/async_utils.py b/src/util/async_utils.py
+new file mode 100644
+index 0000000..4955387
+--- /dev/null
++++ b/src/util/async_utils.py
+@@ -0,0 +1,41 @@
++import asyncio
++import os
++from asyncio import Semaphore, get_running_loop
++
++from tqdm.asyncio import tqdm
++
++MAX_THREADS = os.getenv("MAX_THREADS", 8)
++
++
++def partition_list(lst, size=MAX_THREADS):
++    return [lst[i:i + size] for i in range(0, len(lst), size)]
++
++
++async def apply_async(fun, l):
++    semaphore = Semaphore(MAX_THREADS)
++
++    async def worker(item):
++        async with semaphore:
++            task = asyncio.create_task(fun(item))
++            return await asyncio.wait_for(task, timeout=1)
++
++    tasks = [worker(item) for item in l]
++    return await asyncio.gather(*tasks, return_exceptions=True)
++
++# async def apply_async(fun, l):
++#     parts = partition_list(l)
++#     results = []
++#     for part in parts:
++#         res = await apply_async_chunk(fun, part)
++#         results.extend(res)
++#     return results
++#
++#
++# async def apply_async_chunk(fun, l):
++#     tasks = []
++#     for e in l:
++#         tasks.append(fun(e))
++#
++#     results = await tqdm.gather(*tasks)
++
++# return results
