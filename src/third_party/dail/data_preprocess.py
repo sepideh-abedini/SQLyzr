@@ -90,3 +90,8 @@ def bird_pre_process(run_conf: SingleRunConfig, with_evidence=True):
         data_jsons = json.load(f)
     with open(run_conf.dataset_config.get_test_path(), 'w') as wf:
         json.dump(json_preprocess(data_jsons), wf, indent=4)
+
+    with open(run_conf.dataset_config.get_train_path()) as f:
+        data_jsons = json.load(f)
+    with open(run_conf.dataset_config.get_train_path(), 'w') as wf:
+        json.dump(json_preprocess(data_jsons), wf, indent=4)

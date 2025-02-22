@@ -29,11 +29,11 @@ class DailParams:
     k_shot: int
 
 
-class DailQuestionGenerator(FileGenerator):
+class DailSecondQuestionGenerator(FileGenerator):
     __dail_conf: DailConfig
     __run_conf: SingleRunConfig
 
-    def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig,out_path: str):
+    def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig, out_path: str):
         super().__init__(out_path)
         self.__dail_conf = dail_conf
         self.__run_conf = run_conf
@@ -48,7 +48,7 @@ class DailQuestionGenerator(FileGenerator):
         databases = data.get_databases()
 
         # select the prompt
-        prompt = prompt_factory(PROMPT_REPR, K_SHOT, EXAMPLE_TYPE, "EUCDISQUESTIONMASK")(data=data,
+        prompt = prompt_factory(PROMPT_REPR, K_SHOT, EXAMPLE_TYPE, "EUCDISMASKPRESKLSIMTHR")(data=data,
                                                                                               tokenizer=TOKENIZER)
 
         # format all questions
@@ -101,7 +101,7 @@ class DailQuestionGenerator(FileGenerator):
             }
 
             # path_generate = f"dataset/process/{args.data_type.upper()}-{args.split.upper()}_{prompt.name}_CTX-{args.max_ans_len}_ANS-{args.max_seq_len}"
-            json.dump(task, open(dail_conf.questions_path(), "w"), indent=4)
+            json.dump(task, open(dail_conf.second_questions_path(), "w"), indent=4)
 
             # os.makedirs(path_generate, exist_ok=True)
             # json.dump(task, open(os.path.join(path_generate, "questions.json"), "w"), indent=4)

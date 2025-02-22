@@ -1,25 +1,28 @@
 import json
 import os
-from dataclasses import dataclass
 
+from src.eval.dataset_config import DatasetConfig
+from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.utils import get_tables, sql2skeleton
 from src.third_party.dail.utils.linking_utils.application import get_question_pattern_with_schema_linking
+from src.util.file_utils import read_json
 
 
-@dataclass
 class BasicDataset:
-    tables_path: str
-    db_path: str
-    train_json: str
-    path_train_schema_linking: str
+    config: DatasetConfig
+    dail_conf: DailConfig
     databases = None
+
+    def __init__(self, config: DatasetConfig, dail_conf: DailConfig):
+        self.config = config
+        self.dail_conf = dail_conf
 
     def get_databases(self):
         if self.databases is None:
             self.databases = dict()
             # for db_id in os.listdir(self.path_db):
             #     self.databases[db_id] = self.get_tables(db_id)
-            with open(self.tables_path) as f:
+            with open(self.config.get_tables_path()) as f:
                 tables = json.load(f)
                 for tj in tables:
                     db_id = tj["db_id"]
@@ -30,13 +33,13 @@ class BasicDataset:
         if db_id in self.databases:
             return self.databases[db_id]
         else:
-            path_db = os.path.join(self.db_path, db_id, db_id + ".sqlite")
+            path_db = self.config.get_db_file_path(db_id)
             tables = get_tables(path_db)
             self.databases[db_id] = tables
             return tables
 
     def get_train_json(self):
-        datas = json.load(open(self.train_json, "r"))
+        datas = read_json(self.config.get_train_path())
         linking_infos = self.get_train_schema_linking()
         db_id_to_table_json = dict()
         for table_json in self.get_table_json():
@@ -46,18 +49,45 @@ class BasicDataset:
         pre_queries = self.get_pre_skeleton(queries, schemas)
         return self.data_pre_process(datas, linking_infos, pre_queries)
 
-    def get_train_schema_linking(self):
-        if not os.path.exists(self.path_train_schema_linking):
+    def get_test_schema_linking(self):
+        if not os.path.exists(self.dail_conf.test_schema_path()):
             return None
         linking_infos = []
-        with open(self.path_train_schema_linking, 'r') as f:
+        with open(self.dail_conf.test_schema_path(), 'r') as f:
+            for line in f.readlines():
+                if line.strip():
+                    linking_infos.append(json.loads(line))
+        return linking_infos
+
+    def get_test_json(self, mini_set=False):
+        tests = read_json(self.config.get_test_path())
+        linking_infos = self.get_test_schema_linking()
+        db_id_to_table_json = dict()
+        for table_json in self.get_table_json():
+            db_id_to_table_json[table_json["db_id"]] = table_json
+        schemas = [db_id_to_table_json[d["db_id"]] for d in tests]
+
+        if os.path.exists(self.dail_conf.pre_test_result_path()):
+            with open(self.dail_conf.pre_test_result_path(), 'r') as f:
+                lines = f.readlines()
+                queries = [line.strip() for line in lines]
+                pre_queries = self.get_pre_skeleton(queries, schemas)
+        else:
+            pre_queries = None
+        return self.data_pre_process(tests, linking_infos, pre_queries)
+
+    def get_train_schema_linking(self):
+        if not os.path.exists(self.dail_conf.train_schema_path()):
+            return None
+        linking_infos = []
+        with open(self.dail_conf.train_schema_path(), 'r') as f:
             for line in f.readlines():
                 if line.strip():
                     linking_infos.append(json.loads(line))
         return linking_infos
 
     def get_table_json(self):
-        return json.load(open(self.tables_path, "r"))
+        return read_json(self.config.get_tables_path())
 
     def get_pre_skeleton(self, queries=None, schemas=None):
         if queries:
@@ -100,168 +130,15 @@ class BasicDataset:
         return datas
 
     def get_path_db(self, db_id):
-        return os.path.join(self.db_path, db_id, f"{db_id}.sqlite")
+        return self.config.get_db_file_path(db_id)
 
     def get_train_questions(self):
-        questions = json.load(open(self.train_json, "r"))
+        questions = read_json(self.config.get_train_path())
         return [_["question"] for _ in questions]
 
 
-class BasicDatasetOld(object):
-    def __init__(self, path_data, pre_test_result=None):
-        # self.path_data = os.path.join(path_data, self.name)
-        self.path_data = path_data
-        self.path_db = os.path.join(self.path_data, "database")
-        self.test_json = os.path.join(self.path_data, self.test_json)
-        self.test_gold = os.path.join(self.path_data, self.test_gold)
-        self.train_json = os.path.join(self.path_data, self.train_json)
-        self.train_gold = os.path.join(self.path_data, self.train_gold)
-        self.table_json = os.path.join(self.path_data, self.table_json)
-        self.path_test_schema_linking = os.path.join(self.path_data, "enc/test_schema-linking.jsonl")
-        self.path_train_schema_linking = os.path.join(self.path_data, "enc/train_schema-linking.jsonl")
-        if self.mini_test_index_json:
-            self.mini_test_index_json = os.path.join(self.path_data, self.mini_test_index_json)
-        else:
-            self.mini_test_index_json = None
-
-        self.pre_test_result = pre_test_result
-
-        # lazy load for tables
-        self.databases = None
-
-    # test a mini set
-    def set_mini_test(self, mini_file):
-        self.mini_test_index_json = os.path.join(self.path_data, mini_file)
-
-    def get_path_sql(self, db_id):
-        path_sql = os.path.join(self.path_db, db_id, "schema.sql")
-        return path_sql
-
-    def get_mini_index(self):
-        if self.mini_test_index_json:
-            return json.load(open(self.mini_test_index_json, "r"))
-        else:
-            return None
-
-    def get_test_questions(self, mini_set=False):
-        questions = json.load(open(self.test_json, "r"))
-        if mini_set and self.mini_test_index_json:
-            mini_test_index = self.get_mini_index()
-            questions = [questions[i] for i in mini_test_index]
-        return [_["question"] for _ in questions]
-
-    # get query skeletons
-    # get all train information
-
-    # get all test information
-    def get_test_json(self, mini_set=False):
-        tests = json.load(open(self.test_json, "r"))
-        if mini_set and self.mini_test_index_json:
-            mini_test_index = self.get_mini_index()
-            tests = [tests[i] for i in mini_test_index]
-        linking_infos = self.get_test_schema_linking(mini_set)
-        db_id_to_table_json = dict()
-        for table_json in self.get_table_json():
-            db_id_to_table_json[table_json["db_id"]] = table_json
-        schemas = [db_id_to_table_json[d["db_id"]] for d in tests]
-        if self.pre_test_result:
-            with open(self.pre_test_result, 'r') as f:
-                lines = f.readlines()
-                queries = [line.strip() for line in lines]
-                pre_queries = self.get_pre_skeleton(queries, schemas, mini_set)
-        else:
-            pre_queries = None
-        return self.data_pre_process(tests, linking_infos, pre_queries)
-
-    def get_test_schema_linking(self, mini_set=False):
-        if not os.path.exists(self.path_test_schema_linking):
-            return None
-        linking_infos = []
-        with open(self.path_test_schema_linking, 'r') as f:
-            for line in f.readlines():
-                if line.strip():
-                    linking_infos.append(json.loads(line))
-        if mini_set and self.mini_test_index_json:
-            mini_test_index = self.get_mini_index()
-            linking_infos = [linking_infos[i] for i in mini_test_index]
-        return linking_infos
-
-    def get_train_schema_linking(self):
-        if not os.path.exists(self.path_train_schema_linking):
-            return None
-        linking_infos = []
-        with open(self.path_train_schema_linking, 'r') as f:
-            for line in f.readlines():
-                if line.strip():
-                    linking_infos.append(json.loads(line))
-        return linking_infos
-
-    def get_all_json(self):
-        return self.get_train_json() + self.get_test_json()
-
-    def get_train_answers(self):
-        with open(self.train_gold, "r") as file:
-            answers = file.readlines()
-            return answers
-
-    def get_test_answers(self, mini_set=False):
-        with open(self.test_gold, "r") as file:
-            answers = file.readlines()
-            if mini_set and self.mini_test_index_json:
-                mini_test_index = self.get_mini_index()
-                answers = [answers[i] for i in mini_test_index]
-            return answers
-
-    def get_train_duplicated_index(self):
-        train_data = self.get_train_json()
-        example_dict = {}
-        duplicated_index = []
-        for i in range(len(train_data)):
-            db_id = train_data[i]["db_id"]
-            question = train_data[i]["question"]
-            if (db_id, question) in example_dict.keys():
-                duplicated_index.append(i)
-            else:
-                example_dict[(db_id, question)] = True
-        return duplicated_index
-
-    # get skeletons and schema_linking info
-
-
-class RealisticDataset(BasicDataset):
-    # only used for data path, shared with spider
-    name = "spider_realistic"
-    test_json = "spider-realistic.json"
-    test_gold = "spider-realistic_gold.sql"
-    train_json = "train_spider_and_others.json"
-    train_gold = "train_gold.sql"
-    table_json = "tables.json"
-    mini_test_index_json = None
-
-
-class BirdDataset(BasicDataset):
-    name = "bird"
-    test_json = "dev.json"
-    test_gold = "dev.sql"
-    train_json = "train.json"
-    train_gold = "train_gold.sql"
-    table_json = "tables.json"
-    mini_test_index_json = None
-
-
-class SQLyzr(BasicDataset):
-    name = "SQLyzr"
-    test_json = "dev.json"
-    test_gold = "gold.txt"
-    train_json = "dev.json"
-    train_gold = "gold.txt"
-    table_json = "tables.json"
-    mini_test_index_json = None
-
-
-def load_data(data_type, tables_path, db_dir, input_path, schema_links_path):
-    if data_type.lower() == "spider":
-        return BasicDataset(tables_path=tables_path, db_path=db_dir, train_json=input_path,
-                            path_train_schema_linking=schema_links_path)
+def load_data(config: DatasetConfig, dail_conf: DailConfig):
+    if config.dataset_type.lower() == "spider" or config.dataset_type.lower() == 'bird':
+        return BasicDataset(config, dail_conf)
     else:
         raise RuntimeError()

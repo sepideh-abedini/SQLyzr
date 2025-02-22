@@ -1,7 +1,7 @@
 import os
 
 import backoff
-from openai import AsyncClient
+from openai import AsyncClient, RateLimitError
 from openai.types.chat import ChatCompletion
 
 from src.gpt.gateway.gateway_exceptions import GptRateLimitException
@@ -30,6 +30,7 @@ class GptGateway:
         if can_send:
             usage = await self.__tracker.add_usage(tokens)
             result = await self.send_without_tracking(request)
+            logger.debug(f"TOKENS DIFF: {tokens}@{result.usage.total_tokens}")
             usage.expire()
             return result
         else:
@@ -37,8 +38,12 @@ class GptGateway:
 
     async def send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
         logger.debug("Sending GPT Request")
-        result = await self._client.chat.completions.create(
-            **request.body.dict()
-        )
-        logger.debug("Received GPT Response")
+        try:
+            result = await self._client.chat.completions.create(
+                **request.body.dict()
+            )
+            logger.debug("Received GPT Response")
+        except RateLimitError as e:
+            logger.warning(f"Rate Limit error: {e}")
+            raise GptRateLimitException()
         return result

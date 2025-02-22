@@ -1,19 +1,19 @@
 {
   "aug_per_sub_cat": 5,
   "error_threshold": 90,
-  "dataset": "spider",
+  "dataset": "bird",
   "dataset_size": "small",
   "temps": [
     0.2
   ],
-  "itrs": 2,
+  "itrs": 1,
   "model": "dail",
   "batch": false,
   "force": false,
   "pipeline": {
     "verify": false,
     "predict": true,
-    "eval": false,
+    "eval": true,
     "transformers": false,
     "augment": false
   }

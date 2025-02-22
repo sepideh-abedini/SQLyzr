@@ -37,7 +37,7 @@ async def clean_dataset(file_path: str, db_path: str):
             example = SpiderExample.model_validate(entry)
             cat = catter.get_category(example.query)
             exec_res = results[i]
-            if exec_res is None or cat is None:
+            if isinstance(exec_res, Exception) or exec_res is None or cat is None:
                 errors.append((i, example.query))
             else:
                 valid_examples.append(entry)

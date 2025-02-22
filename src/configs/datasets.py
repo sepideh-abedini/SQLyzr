@@ -20,14 +20,15 @@ SPIDER_ALL = DatasetConfig(
     db_dir="database"
 )
 
-# BIRD_SMALL = DatasetConfig(
-#     dataset_dir="data/bird/small",
-#     test_file="data.json",
-#     gold_file="data.gold.txt",
-#     tables_file="tables.json",
-#     db_dir="../database",
-#     dataset_type="bird"
-# )
+BIRD_SMALL = DatasetConfig(
+    dataset_dir="data/bird",
+    test_file="data.test.small.json",
+    gold_file="data.test.small.gold.txt",
+    train_file="data.train.small.json",
+    tables_file="tables.small.json",
+    db_dir="database",
+    dataset_type="bird"
+)
 #
 # BIRD_ALL = DatasetConfig(
 #     dataset_dir="data/bird/all",
@@ -57,11 +58,11 @@ SPIDER_ALL = DatasetConfig(
 # )
 
 DATASETS = {
-    # "bird": {
-    #     "small": BIRD_SMALL,
+    "bird": {
+        "small": BIRD_SMALL,
     #     "dev": BIRD_DEV,
     #     "train": BIRD_TRAIN
-    # },
+    },
     "spider": {
         "small": SPIDER_SMALL,
         # "dev": SPIDER_DEV,

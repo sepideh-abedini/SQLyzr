@@ -1,4 +1,5 @@
 import numpy as np
+import tqdm
 
 from src.third_party.dail.utils.utils import get_tokenizer, count_tokens, jaccard_similarity
 
@@ -55,7 +56,7 @@ class BasicICLPrompt(object):
             question = target["question"]
             example_prefix = self.get_example_prefix()
             selected_examples = []
-            for example in examples:
+            for example in tqdm.tqdm(examples):
                 example_question = example["question"]
                 # assert example_question != question, f"Example is the same with target question: {question}!, \n{target}\n{example}"
                 if cross_domain:

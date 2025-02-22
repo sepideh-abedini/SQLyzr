@@ -10,7 +10,8 @@ from src.gpt.models import BatchInputRequest
 from src.pred.predictor import Predictor
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
-from src.third_party.dail.generate_question import DailQuestionGenerator
+from src.third_party.dail.generate_question import DailQuestionGenerator, DailParams
+from src.third_party.dail.generate_second_question import DailSecondQuestionGenerator
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
 from src.util.model_utils import read_jsonl
 
@@ -28,27 +29,37 @@ class DailPredictor(Predictor):
         usage = schema_links_gen.run()
         self._tracker.add_usage(usage)
 
-        # question_gen = DailQuestionGenerator(self.__conf, self._run_conf)
-        # usage = question_gen.run()
-        # self._tracker.add_usage(usage)
-        #
-        # self.__load_questions()
-        #
-        # self._gen_batch_file(self.__conf.get_path("in"), self.__gen_sql_req)
-        #
-        # await self._ask_file(self.__conf.get_path("in"), self.__conf.get_path("out"))
-        #
-        # sqls = await self.__process_responses(self.__conf.get_path("out"))
-        #
-        # self._save_sqls(sqls)
+        question_gen = DailQuestionGenerator(self.__conf, self._run_conf, self.__conf.questions_path())
+        usage = question_gen.run()
+        self._tracker.add_usage(usage)
+
+        self.__load_questions(self.__conf.questions_path())
+        self._gen_batch_file(self.__conf.get_path("in"), self.__gen_sql_req)
+        await self._ask_file(self.__conf.get_path("in"), self.__conf.get_path("out"))
+
+        sqls = await self.__process_responses(self.__conf.get_path("out"))
+        with open(self.__conf.pre_test_result_path(), "w") as file:
+            for sql in sqls:
+                file.write(f"{sql}\n")
+
+        second_question_gen = DailSecondQuestionGenerator(self.__conf, self._run_conf,self.__conf.second_questions_path())
+        usage = second_question_gen.run()
+        self._tracker.add_usage(usage)
+
+        self.__load_questions(self.__conf.second_questions_path())
+        self._gen_batch_file(self.__conf.get_path("in.second"), self.__gen_sql_req)
+        await self._ask_file(self.__conf.get_path("in.second"), self.__conf.get_path("out.second"))
+        sqls = await self.__process_responses(self.__conf.get_path("out.second"))
+
+        self._save_sqls(sqls)
 
     def __gen_sql_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         dail_question = self.__questions[i]
         request = self._create_batch_req(f"i{i}", dail_question, self.__conf.params)
         return request
 
-    def __load_questions(self):
-        questions_json = json.load(open(self.__conf.questions_path(), "r"))
+    def __load_questions(self, path: str):
+        questions_json = json.load(open(path, "r"))
         self.__questions = [_["prompt"] for _ in questions_json["questions"]]
 
     @staticmethod
