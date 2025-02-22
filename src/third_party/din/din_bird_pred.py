@@ -76,9 +76,9 @@ class DinBirdPredictor(Predictor):
 
         self.__sqls = process_responses(conf.get_path("sql_debug", "out"), self.__process_sql_debug_response)
 
-        # sqls = self.__post_process(self.__sqls)
+        sqls = self.__post_process(self.__sqls)
 
-        self._save_sqls(self.__sqls)
+        self._save_sqls(sqls)
 
     def __generate_schema_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         columns_descriptions = self.__column_descriptions[i]
@@ -155,46 +155,6 @@ class DinBirdPredictor(Predictor):
             print("Slicing error for the classification module")
             predicted_class = '"NESTED"'
         return predicted_class
-
-    @staticmethod
-    def __process_gpt_4o_mini_sql(i: int, content: str) -> str:
-        content = content.strip()
-        content = content.replace("\n", " ")
-        if "SQL:" in content:
-            pattern = r'.*SQL:[\s`]*(SELECT.*)[\s`]*'
-            content = re.sub(pattern, r'\1', content)
-        if "```sql" in content:
-            pattern = r'.*```sql\s*(SELECT.*)\s*```'
-            content = re.sub(pattern, r'\1', content)
-        return content
-
-    def __process_gpt_4o_mini_debug(self, i: int, content: str) -> str:
-        content = content.replace("\n", " ")
-        content = content.strip()
-        if not content.startswith("SELECT"):
-            return self.__sqls[i]
-        pattern = r'.*```sql\s*([^`]*).*'
-        sql = re.sub(pattern, r'\1', content)
-        sql = sql.strip()
-        return sql
-
-    def __process_gpt_35_sql(self, i: int, content: str) -> str:
-        pred_class = self.__pred_classes[i]
-        if '"EASY"' in pred_class:
-            sql = content
-        elif '"NON-NESTED"' in pred_class:
-            try:
-                sql = content.split("SQL: ")[1]
-            except:
-                print("SQL slicing error")
-                sql = "SELECT"
-        else:
-            try:
-                sql = content.split("SQL: ")[1]
-            except:
-                print("SQL slicing error")
-                sql = "SELECT"
-        return sql
 
     def __process_sql_responses(self, i: int, content: str) -> str:
         sql = extract_sql_query(content)

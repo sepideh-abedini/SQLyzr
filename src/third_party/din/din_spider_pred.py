@@ -7,7 +7,7 @@ from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
 from src.pred.predictor import Predictor, process_responses
 from src.third_party.din.config import DinConfig
-from src.third_party.din.prompt_maker import PromptMaker
+from src.third_party.din.spider.prompt_maker import PromptMaker
 
 
 class DinPredictor(Predictor):

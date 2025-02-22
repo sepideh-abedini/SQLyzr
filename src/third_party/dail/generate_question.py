@@ -4,6 +4,8 @@ Generate questions for LLMs and save it as a task
 import json
 from dataclasses import dataclass
 
+import tqdm
+
 from src.eval.single_run_config import SingleRunConfig
 from src.sqlyzr.file_gen import FileGenerator
 from src.third_party.dail.dail_conf import DailConfig
@@ -12,28 +14,12 @@ from src.third_party.dail.utils.data_builder import load_data
 from src.third_party.dail.utils.enums import LLM
 from src.third_party.dail.utils.utils import cost_estimate
 
-TOKENIZER = 'gpt-3.5-turbo'
-MAX_SEQ_LEN = 4096
-MAX_ANS_LEN = 200
-PROMPT_REPR = "SQL"
-K_SHOT = 9
-EXAMPLE_TYPE = "QA"
-SELECTOR_TYPE = "EUCDISQUESTIONMASK"
-SCOPE_FACTOR = 100
-SPLIT = "test"
-
-
-@dataclass
-class DailParams:
-    selector_type: str
-    k_shot: int
-
 
 class DailQuestionGenerator(FileGenerator):
     __dail_conf: DailConfig
     __run_conf: SingleRunConfig
 
-    def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig,out_path: str):
+    def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig, out_path: str):
         super().__init__(out_path)
         self.__dail_conf = dail_conf
         self.__run_conf = run_conf
@@ -47,22 +33,23 @@ class DailQuestionGenerator(FileGenerator):
 
         databases = data.get_databases()
 
+        params = self.__dail_conf.params
         # select the prompt
-        prompt = prompt_factory(PROMPT_REPR, K_SHOT, EXAMPLE_TYPE, "EUCDISQUESTIONMASK")(data=data,
-                                                                                              tokenizer=TOKENIZER)
+        prompt = prompt_factory(params.prompt_repr, params.k_shot, params.example_type, params.selector_type)(data=data,
+                                                                                                              tokenizer=params.tokenizer)
 
         # format all questions
         questions = list()
         token_cnt = 0
 
         # choose split
-        cross_domain = SPLIT == "train"
+        cross_domain = params.split == "train"
 
-        for question_json in data.get_test_json():
+        for question_json in tqdm.tqdm(data.get_test_json()):
             question_format = prompt.format(target=question_json,
-                                            max_seq_len=MAX_SEQ_LEN,
-                                            max_ans_len=MAX_SEQ_LEN,
-                                            scope_factor=SCOPE_FACTOR,
+                                            max_seq_len=params.max_seq_len,
+                                            max_ans_len=params.max_ans_len,
+                                            scope_factor=params.scope_factor,
                                             cross_domain=cross_domain)
 
             questions.append(question_format)
@@ -74,7 +61,7 @@ class DailQuestionGenerator(FileGenerator):
             print(
                 f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
 
-            n_total_tokens = int(len(questions) * MAX_ANS_LEN + token_cnt)
+            n_total_tokens = int(len(questions) * params.max_ans_len + token_cnt)
             cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)
             cost_text_davinci_003 = cost_estimate(n_total_tokens, LLM.TEXT_DAVINCI_003)
             example_quality = prompt.get_example_quality()

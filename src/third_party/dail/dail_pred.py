@@ -1,5 +1,4 @@
 import json
-import os
 import re
 from typing import List
 
@@ -10,7 +9,7 @@ from src.gpt.models import BatchInputRequest
 from src.pred.predictor import Predictor
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
-from src.third_party.dail.generate_question import DailQuestionGenerator, DailParams
+from src.third_party.dail.generate_question import DailQuestionGenerator
 from src.third_party.dail.generate_second_question import DailSecondQuestionGenerator
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
 from src.util.model_utils import read_jsonl
@@ -55,7 +54,7 @@ class DailPredictor(Predictor):
 
     def __gen_sql_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         dail_question = self.__questions[i]
-        request = self._create_batch_req(f"i{i}", dail_question, self.__conf.params)
+        request = self._create_batch_req(f"i{i}", dail_question, self.__conf.gpt_params)
         return request
 
     def __load_questions(self, path: str):
@@ -82,7 +81,7 @@ class DailPredictor(Predictor):
         results = []
         for i, response in enumerate(responses):
             contents = [choice.message.content for choice in response.choices]
-            if self.__conf.params['n'] == 1:
+            if self.__conf.gpt_params['n'] == 1:
                 for sql in contents:
                     sql = " ".join(sql.replace("\n", " ").split())
                     sql = process_duplication(sql)
@@ -111,7 +110,7 @@ class DailPredictor(Predictor):
                     'db_id': db_id,
                     'p_sqls': processed_sqls
                 }
-                final_sqls = await get_sqls([result], self.__conf.params['n'],
+                final_sqls = await get_sqls([result], self.__conf.gpt_params['n'],
                                             self._run_conf.dataset_config.get_db_path())
                 results.extend(final_sqls)
         return results
