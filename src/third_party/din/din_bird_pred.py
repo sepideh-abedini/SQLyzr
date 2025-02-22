@@ -11,7 +11,7 @@ from src.third_party.din.bird.bird_prompt_maker import schema_linking_prompt, cl
 from src.third_party.din.bird.utils import table_descriptions_parser, get_database_schema, extract_schema_links, \
     extract_label_and_sub_questions, extract_sql_query, extract_revised_sql_query
 from src.third_party.din.config import DinConfig
-from src.third_party.din.prompt_maker import PromptMaker
+from src.third_party.din.spider.prompt_maker import PromptMaker
 
 
 class DinBirdPredictor(Predictor):
