@@ -41,7 +41,8 @@ class DailPredictor(Predictor):
             for sql in sqls:
                 file.write(f"{sql}\n")
 
-        second_question_gen = DailSecondQuestionGenerator(self.__conf, self._run_conf,self.__conf.second_questions_path())
+        second_question_gen = DailSecondQuestionGenerator(self.__conf, self._run_conf,
+                                                          self.__conf.second_questions_path())
         usage = second_question_gen.run()
         self._tracker.add_usage(usage)
 
@@ -67,10 +68,10 @@ class DailPredictor(Predictor):
         content = content.replace("\n", " ")
         if "SQL:" in content:
             pattern = r'.*SQL:[\s`]*(SELECT.*)[\s`]*'
-            content = re.sub(pattern, r'\1', content)
+            content = re.sub(pattern, r'\1', content, flags=re.DOTALL)
         if "```sql" in content:
             pattern = r'.*```sql\s*(SELECT.*)\s*```.*'
-            content = re.sub(pattern, r'\1', content)
+            content = re.sub(pattern, r'\1', content, flags=re.DOTALL)
         return content
 
     async def __process_responses(self, file_path) -> List[str]:

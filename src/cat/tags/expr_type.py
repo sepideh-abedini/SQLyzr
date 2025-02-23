@@ -16,7 +16,8 @@ class ExprType(OrderedTag):
             if node.is_arith_expr():
                 return tags + TagCollectorResult(ExprType.ArithExpr)
             else:
-                if not node.left.has_sub_expr() and not node.right.has_sub_expr():
+                if ((isinstance(node.left, str) or not node.left.has_sub_expr()) and
+                        (isinstance(node.right, str) or not node.right.has_sub_expr())):
                     return tags + TagCollectorResult(ExprType.SingleBinExpr)
                 else:
                     return tags + TagCollectorResult(ExprType.ComplexExpr)

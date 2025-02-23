@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sqlite3
 from functools import lru_cache, cache
@@ -24,7 +25,8 @@ class DatabaseFacade:
         try:
             cursor.execute(sql)
             rows = cursor.fetchall()
-        except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
+        except Exception as e:
+            logger.debug(e)
             rows = None
         cursor.close()
         connection.close()
@@ -34,7 +36,6 @@ class DatabaseFacade:
     async def exec_query_async(self, db_id: str, sql: str) -> Optional[List[Tuple]]:
         db = None
         cursor = None
-
         if not os.path.exists(self.get_db_path(db_id)):
             raise RuntimeError(f"Database file not exists {self.get_db_path(db_id)}")
         try:
@@ -43,7 +44,6 @@ class DatabaseFacade:
             rows = await cursor.fetchall()
             return rows
         except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
-            print(e)
             logger.debug(e)
             return None
         finally:

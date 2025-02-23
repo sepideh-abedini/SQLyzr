@@ -3,6 +3,11 @@ from enum import Enum
 from difflib import SequenceMatcher
 
 
+def delete_whitespace(content):
+    content = content.replace('\n', '').replace('\r', '')
+    return content
+
+
 def pascal_to_snake(name: str) -> str:
     """Example: 'BarBaz' -> 'bar_baz'"""
     snake_case = re.sub('([A-Z])', r'_\1', name).lower()

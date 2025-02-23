@@ -59,7 +59,8 @@ class BinOpExpressionNode(ExpressionNode):
         return True
 
     def left_and_right_terminal(self):
-        return not self.left.has_sub_expr() and not self.right.has_sub_expr()
+        return ((isinstance(self.left, str) or not self.left.has_sub_expr()) and
+                (isinstance(self.right, str) or not self.right.has_sub_expr()))
 
     def is_arith_expr(self):
         if self.left_and_right_terminal() and self.op.value in "/*+-":
