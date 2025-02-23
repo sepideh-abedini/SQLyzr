@@ -55,8 +55,11 @@ class TransformerFinder:
                 pred = SqlInputData(db_id, pred_str)
                 gold = SqlInputData(db_id, gold_str)
                 working_sub = await detector.find_working_sub_sync(pred, gold)
-                rea_score = self.__calc_rea_score(working_sub)
                 ea_score = await ea.calc(gold_str, pred_str, db_id)
+                if ea_score > 0:
+                    rea_score = 1
+                else:
+                    rea_score = self.__calc_rea_score(working_sub)
                 gold_is_empty = 1 - await gne.calc(gold_str, pred_str, db_id)
                 results.append({
                     "db_id": db_id,

@@ -2,6 +2,7 @@ import pandas as pd
 
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.lib import confidence_level_interval
+from src.gpt.file_sender.usage_tracker import ResourceUsage
 from src.sqlyzr.file_sender_usage import FileGeneratorUsage
 from src.util.model_utils import read_model
 
@@ -27,10 +28,12 @@ class ScoresPostProcessor:
         all_cats.to_csv(config.get_scores_path("_all_cats"))
 
         for run_conf in self.__config.eval_conf.get_run_confs():
-            usage = read_model(run_conf.get_usage_path(), FileGeneratorUsage)
+            usage = read_model(run_conf.get_usage_path(), ResourceUsage)
             row_match = (all_cats['tmp'] == run_conf.temp) & (all_cats['itr'] == run_conf.itr)
-            all_cats.loc[row_match, 'total_time'] = usage.total_time
-            all_cats.loc[row_match, 'total_tokens'] = usage.total_tokens
+            all_cats.loc[row_match, 'time'] = usage.time
+            all_cats.loc[row_match, 'mem'] = usage.mem
+            all_cats.loc[row_match, 'cpu'] = usage.cpu
+            all_cats.loc[row_match, 'tokens'] = usage.tokens
             all_cats = all_cats.round(2)
             all_cats.to_csv(config.get_scores_path("_usage"))
 
