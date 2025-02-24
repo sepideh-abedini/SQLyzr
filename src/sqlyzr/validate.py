@@ -11,12 +11,12 @@ from src.configs.sqlyzr import SQLyzrConfig
 from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
 from src.eval.model_eval_config import ModelEvalConfig
-from src.rel.db_facade import DatabaseFacade
+from src.rel.db_facade import DatabaseFacade, DatabaseFactory
 from src.util.async_utils import apply_async
 
 
 async def validate_dataset(conf: SQLyzrConfig):
-    db_facade = DatabaseFacade(conf.eval_conf.dataset_config.get_db_path())
+    db_facade = DatabaseFactory.get_instance(conf.eval_conf.dataset_config)
     catter = Catter()
     errors = []
     total = 0

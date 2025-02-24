@@ -22,7 +22,7 @@ class GptGateway:
         )
         self.__tracker = GptTokenTracker.get_instance()
 
-    @backoff.on_exception(backoff.constant, interval=30, max_tries=100, exception=GptRateLimitException)
+    @backoff.on_exception(backoff.constant, interval=10, max_tries=100, exception=GptRateLimitException)
     async def track_and_send(self, request: BatchInputRequest) -> ChatCompletion:
         logger.debug(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()

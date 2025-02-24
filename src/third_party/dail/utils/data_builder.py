@@ -33,8 +33,7 @@ class BasicDataset:
         if db_id in self.databases:
             return self.databases[db_id]
         else:
-            path_db = self.config.get_db_file_path(db_id)
-            tables = get_tables(path_db)
+            tables = get_tables(self.config, db_id)
             self.databases[db_id] = tables
             return tables
 

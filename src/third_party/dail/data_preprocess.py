@@ -1,13 +1,13 @@
 import json
 import os
-import sqlite3
-from pathlib import Path
 
 from tqdm import tqdm
 
 from src.eval.single_run_config import SingleRunConfig
+from src.rel.db_facade import DatabaseFactory
 from src.sqlyzr.file_gen import FileGenerator
 from src.third_party.dail.dail_conf import DailConfig
+from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy
 from src.third_party.dail.utils.datasets.spider import load_tables
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
 from src.third_party.dail.utils.pretrained_embeddings import GloVe
@@ -33,15 +33,11 @@ class DailSchemaLinksGenerator(FileGenerator):
         # load schemas
         schemas, _ = load_tables([self.run_conf.dataset_config.get_tables_path()])
 
-        # Backup in-memory copies of all the DBs and create the live connections
+        db_facade = DatabaseFactory.get_instance(self.run_conf.dataset_config)
         for db_id, schema in tqdm(schemas.items(), desc="DB connections"):
-            sqlite_path = self.run_conf.dataset_config.get_db_file_path(db_id)
-            source: sqlite3.Connection
-            with sqlite3.connect(str(sqlite_path)) as source:
-                dest = sqlite3.connect(':memory:')
-                dest.row_factory = sqlite3.Row
-                source.backup(dest)
-            schema.connection = dest
+            schema.connection = DatabaseConnectionProxy(db_facade, db_id)
+
+        compute_cv_link = self.run_conf.dataset_config.dataset_type == "spider"
 
         word_emb = GloVe(kind='42B', lemmatize=True)
         linking_processor = SpiderEncoderV2Preproc(min_freq=4,
@@ -50,9 +46,8 @@ class DailSchemaLinksGenerator(FileGenerator):
                                                    word_emb=word_emb,
                                                    fix_issue_16_primary_keys=True,
                                                    compute_sc_link=True,
-                                                   compute_cv_link=True)
+                                                   compute_cv_link=compute_cv_link)
 
-        # build schema-linking
         for data, section in zip([test_data, train_data], ['test', 'train']):
             for item in tqdm(data, desc=f"{section} section linking"):
                 db_id = item["db_id"]

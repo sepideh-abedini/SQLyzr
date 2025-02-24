@@ -5,6 +5,7 @@ import json
 from dataclasses import dataclass
 
 import tqdm
+from loguru import logger
 
 from src.eval.single_run_config import SingleRunConfig
 from src.sqlyzr.file_gen import FileGenerator
@@ -30,6 +31,7 @@ class DailQuestionGenerator(FileGenerator):
 
         # load test dataset here
         data = load_data(run_conf.dataset_config, dail_conf)
+        logger.info("Loading data done!")
 
         databases = data.get_databases()
 
@@ -37,6 +39,8 @@ class DailQuestionGenerator(FileGenerator):
         # select the prompt
         prompt = prompt_factory(params.prompt_repr, params.k_shot, params.example_type, params.selector_type)(data=data,
                                                                                                               tokenizer=params.tokenizer)
+
+        logger.info("Prompt done!")
 
         # format all questions
         questions = list()
@@ -58,8 +62,7 @@ class DailQuestionGenerator(FileGenerator):
 
             # cost estimated
             token_cnt = float(token_cnt) / len(questions)
-            print(
-                f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
+            logger.debug(f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
 
             n_total_tokens = int(len(questions) * params.max_ans_len + token_cnt)
             cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)

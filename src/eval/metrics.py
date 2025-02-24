@@ -2,21 +2,20 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from loguru import logger
+
 from src.cat.catter import Catter
 from src.eval import lib
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
-from src.eval.lib import DatabaseClient
 from src.eval.single_run_config import SingleRunConfig
 from src.rel.base_matcher import ExtraColumnRemoverMatcher
-from src.rel.db_facade import DatabaseFacade
+from src.rel.db_facade import DatabaseFacade, DatabaseFactory
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_transformer import LiteralCorrectorTransformer
 from src.rel.transformer_detector import TransformerDetector
 from src.third_party.spider.evaluation import get_spider_exact_match
-
-from loguru import logger
 
 
 @dataclass
@@ -28,7 +27,7 @@ class Metric(ABC):
     def __init__(self, name: str, conf: DatasetConfig):
         self.name = name
         self.conf = conf
-        self.dbc = DatabaseFacade(conf.get_db_path())
+        self.dbc = DatabaseFactory.get_instance(conf)
 
     @abstractmethod
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
@@ -68,8 +67,7 @@ class TokenUsage(StatMetric):
 class SpiderExactMatch(Metric):
     async def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
-            score = get_spider_exact_match(pred, f"{gold}\t{db_id}", self.conf.get_db_path(),
-                                           self.conf.get_tables_path())
+            score = get_spider_exact_match(pred, f"{gold}\t{db_id}", self.conf)
             return score
         except Exception as e:
             logger.debug(e)

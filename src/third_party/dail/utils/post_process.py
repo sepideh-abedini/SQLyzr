@@ -10,6 +10,10 @@ from typing import Tuple, Any, List, Set
 
 import sqlparse
 import tqdm
+from loguru import logger
+
+from src.eval.dataset_config import DatasetConfig
+from src.rel.db_facade import DatabaseFactory
 
 
 # process the case of duplicated output of ChatGPT and GPT4 for SQL Representation with QA or SQLONLY Organization
@@ -145,27 +149,35 @@ def get_cursor_from_path(sqlite_path: str):
     return cursor
 
 
-async def exec_on_db(sqlite_path: str, query: str) -> Tuple[str, Any]:
-    query = replace_cur_year(query)
-    cursor = get_cursor_from_path(sqlite_path)
-    try:
-        cursor.execute(query)
-        result = cursor.fetchall()
-        cursor.close()
-        cursor.connection.close()
-        return "result", result
-    except Exception as e:
-        cursor.close()
-        cursor.connection.close()
-        return "exception", e
+def exec_on_db(config: DatasetConfig, db_id: str, query: str) -> Tuple[str, Any]:
+    facade = DatabaseFactory.get_instance(config)
+    res = facade.exec_query_sync(db_id, query)
+    if res is not None:
+        return "result", res
+    else:
+        return "exception", None
+    # query = replace_cur_year(query)
+    # cursor = get_cursor_from_path(sqlite_path)
+    # try:
+    #     cursor.execute(query)
+    #     result = cursor.fetchall()
+    #     cursor.close()
+    #     cursor.connection.close()
+    #     return "result", result
+    # except Exception as e:
+    #     cursor.close()
+    #     cursor.connection.close()
+    #     return "exception", e
 
 
-async def exec_on_db_timeout(
-        sqlite_path: str, query: str, process_id: str = "", timeout: int = TIMEOUT
-) -> Tuple[str, Any]:
+async def exec_on_db_timeout(config: DatasetConfig, db_id,
+                             query: str, process_id: str = "", timeout: int = TIMEOUT
+                             ) -> Tuple[str, Any]:
     try:
-        return await asyncio.wait_for(exec_on_db(sqlite_path, query), timeout)
+        async with asyncio.timeout(TIMEOUT):
+            return exec_on_db(config, db_id, query)
     except asyncio.TimeoutError:
+        logger.error("Timeout error")
         return ('exception', TimeoutError)
     except Exception as e:
         return ("exception", e)
@@ -184,11 +196,12 @@ def remove_distinct(s):
 
 
 async def get_exec_output(
-        db: str,
+        config: DatasetConfig,
+        db_id: str,
         sql: str,
         plug_value: bool = False,
         keep_distinct: bool = False,
-        progress_bar_for_each_datapoint: bool = False,
+        progress_bar_for_each_datapoint: bool = True,
 ):
     # post-process the prediction.
     # e.g. removing spaces between ">" and "="
@@ -201,20 +214,11 @@ async def get_exec_output(
         except Exception as e:
             return "exception", []
 
-    db_dir = os.path.dirname(db)
-    db_paths = [os.path.join(db_dir, basename) for basename in os.listdir(db_dir) if ".sqlite" in basename]
-    # print(db_paths)
-    if progress_bar_for_each_datapoint:
-        ranger = tqdm.tqdm(db_paths)
-    else:
-        ranger = db_paths
-    for db_path in ranger:
-        flag, sql_denotation = await exec_on_db_timeout(db_path, sql)
-        # print(sql_denotation)
-        return flag, sql_denotation
+    flag, sql_denotation = await exec_on_db_timeout(config, db_id, sql)
+    return flag, sql_denotation
 
 
-async def get_sqls(results, select_number, db_dir):
+async def get_sqls(results, select_number, config: DatasetConfig):
     db_ids = []
     all_p_sqls = []
     for item in results:
@@ -228,14 +232,10 @@ async def get_sqls(results, select_number, db_dir):
     chosen_p_sqls = []
     for i, db_id in enumerate(db_ids):
         p_sqls = all_p_sqls[i]
-        db_path = f"{db_dir}/{db_id}/{db_id}"
         cluster_sql_list = []
         map_sql2denotation = {}
-        for sql in p_sqls:
-            flag, denotation = await get_exec_output(
-                db_path,
-                sql,
-            )
+        for i, sql in tqdm.tqdm(enumerate(p_sqls), total=len(p_sqls), desc=f"{i}@{db_id}"):
+            flag, denotation = await get_exec_output(config, db_id, sql)
             if flag == "exception":
                 continue
             map_sql2denotation[sql] = denotation

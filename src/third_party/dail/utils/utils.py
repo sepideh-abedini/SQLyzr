@@ -5,6 +5,10 @@ import re
 import sqlite3
 
 from transformers import AutoTokenizer
+
+from src.eval.dataset_config import DatasetConfig
+from src.rel.db_facade import DatabaseFacade, DatabaseFactory
+from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy
 from src.third_party.dail.utils.enums import LLM
 from sql_metadata import Parser
 
@@ -14,16 +18,15 @@ class SqliteTable(dict):
     __setattr__ = dict.__setitem__
 
 
-def get_tables(path_db):
-    if not os.path.exists(path_db):
-        raise RuntimeError(f"{path_db} not exists")
+def get_tables(conf: DatasetConfig, db_id):
+    # if not os.path.exists(path_db):
+    #     raise RuntimeError(f"{path_db} not exists")
 
-    # init sqlite connection
-    connection = sqlite3.connect(path_db)
+    db_facade = DatabaseFactory.get_instance(conf)
+    connection =  DatabaseConnectionProxy(db_facade, db_id)
     cur = connection.cursor()
-
     # extract table information
-    table_info = parse_db(path_db, cur)
+    table_info = parse_db(cur=cur)
     # TODO: ! add here
     table_names = get_table_names(cur=cur)
 
@@ -50,18 +53,18 @@ def get_tables(path_db):
     return res
 
 
-def parse_db(path_db, cur=None):
+def parse_db(cur=None):
     """Parse the sql file and extract primary and foreign keys
 
     :param path_file:
     :return:
     """
     table_info = dict()
-    table_names = get_table_names(path_db, cur)
+    table_names = get_table_names(cur=cur)
 
     for table_name in table_names:
-        pks = get_primary_key(table_name, path_db, cur)
-        fks = get_foreign_key(table_name, path_db, cur)
+        pks = get_primary_key(table_name, cur=cur)
+        fks = get_foreign_key(table_name, cur=cur)
 
         table_info[table_name] = {
             "primary_key": pks,
@@ -76,13 +79,8 @@ def execute_query(queries, path_db=None, cur=None):
     """
     assert not (path_db is None and cur is None), "path_db and cur cannot be NoneType at the same time"
 
-    close_in_func = False
-    if cur is None:
-        con = sqlite3.connect(path_db)
-        cur = con.cursor()
-        close_in_func = True
-
     if isinstance(queries, str):
+
         results = cur.execute(queries).fetchall()
     elif isinstance(queries, list):
         results = list()
@@ -91,10 +89,6 @@ def execute_query(queries, path_db=None, cur=None):
             results.append(res)
     else:
         raise TypeError(f"queries cannot be {type(queries)}")
-
-    # close the connection if needed
-    if close_in_func:
-        con.close()
 
     return results
 
@@ -152,8 +146,8 @@ def cost_estimate(n_tokens: int, model):
 def get_sql_for_database(path_db=None, cur=None):
     close_in_func = False
     if cur is None:
-        con = sqlite3.connect(path_db)
-        cur = con.cursor()
+        conn = sqlite3.connect(path_db)
+        cur = conn.cursor()
         close_in_func = True
 
     table_names = get_table_names(path_db, cur)

@@ -1,9 +1,16 @@
+import os
 import random
 
 import numpy as np
+from loguru import logger
 
 from src.third_party.dail.utils.linking_utils.application import mask_question_with_schema_linking
 from src.third_party.dail.utils.utils import jaccard_similarity
+
+DEVICE = os.environ.get("SQLYZR_DEVICE", "cpu")
+ENC_PROG = os.environ.get("ENC_PROG", True)
+
+logger.info(f"DEVICE: {DEVICE}")
 
 
 class BasicExampleSelector(object):
@@ -12,7 +19,6 @@ class BasicExampleSelector(object):
         self.train_json = self.data.get_train_json()
         self.db_ids = [d["db_id"] for d in self.train_json]
         self.train_questions = self.data.get_train_questions()
-
 
     def get_examples(self, question, num_example, cross_domain=False):
         pass
@@ -51,12 +57,11 @@ class CosineSimilarExampleSelector(BasicExampleSelector):
         # self.SELECT_MODEL = "sentence-transformers/bert-base-nli-mean-tokens"
 
         from sentence_transformers import SentenceTransformer
-        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device="cpu")
-        self.train_embeddings = self.bert_model.encode(self.train_questions)
+        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device=DEVICE)
+        self.train_embeddings = self.bert_model.encode(self.train_questions, show_progress_bar=ENC_PROG)
 
-        
     def get_examples(self, target, num_example, cross_domain=False):
-        target_embedding = self.bert_model.encode([target["question"]])
+        target_embedding = self.bert_model.encode([target["question"]], show_progress_bar=ENC_PROG)
         # target_embedding = self.bert_model.embed_text([target["question"]]).cpu().detach().numpy()
 
         # find the most similar question in train dataset
@@ -87,11 +92,11 @@ class EuclideanDistanceExampleSelector(BasicExampleSelector):
         self.SELECT_MODEL = "sentence-transformers/all-mpnet-base-v2"
 
         from sentence_transformers import SentenceTransformer
-        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device="cpu")
-        self.train_embeddings = self.bert_model.encode(self.train_questions)
+        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device=DEVICE)
+        self.train_embeddings = self.bert_model.encode(self.train_questions, show_progress_bar=ENC_PROG)
 
     def get_examples(self, target, num_example, cross_domain=False):
-        target_embedding = self.bert_model.encode([target["question"]])
+        target_embedding = self.bert_model.encode([target["question"]], show_progress_bar=ENC_PROG)
 
         # find the most similar question in train dataset
         from sklearn.metrics.pairwise import euclidean_distances
@@ -121,11 +126,11 @@ class EuclideanDistanceThresholdExampleSelector(BasicExampleSelector):
         self.threshold = 0.85
 
         from sentence_transformers import SentenceTransformer
-        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device="cpu")
-        self.train_embeddings = self.bert_model.encode(self.train_questions)
+        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device=DEVICE)
+        self.train_embeddings = self.bert_model.encode(self.train_questions, show_progress_bar=ENC_PROG)
 
     def get_examples(self, target, num_example, cross_domain=False):
-        target_embedding = self.bert_model.encode([target["question"]])
+        target_embedding = self.bert_model.encode([target["question"]], show_progress_bar=ENC_PROG)
 
         # find the most similar question in train dataset
         from sklearn.metrics.pairwise import euclidean_distances
@@ -160,13 +165,15 @@ class EuclideanDistanceSkeletonSimilarThresholdSelector(BasicExampleSelector):
         self.value_token = "<unk>"  # the "<unk>" is the unknown token of all-mpnet-base-v2
 
         from sentence_transformers import SentenceTransformer
-        train_mask_questions = mask_question_with_schema_linking(self.train_json, mask_tag=self.mask_token, value_tag=self.value_token)
-        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device="cpu")
-        self.train_embeddings = self.bert_model.encode(train_mask_questions)
+        train_mask_questions = mask_question_with_schema_linking(self.train_json, mask_tag=self.mask_token,
+                                                                 value_tag=self.value_token)
+        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device=DEVICE)
+        self.train_embeddings = self.bert_model.encode(train_mask_questions, show_progress_bar=ENC_PROG)
 
     def get_examples(self, target, num_example, cross_domain=False):
-        target_mask_question = mask_question_with_schema_linking([target], mask_tag=self.mask_token, value_tag=self.value_token)
-        target_embedding = self.bert_model.encode(target_mask_question)
+        target_mask_question = mask_question_with_schema_linking([target], mask_tag=self.mask_token,
+                                                                 value_tag=self.value_token)
+        target_embedding = self.bert_model.encode(target_mask_question, show_progress_bar=ENC_PROG)
 
         # find the most similar question in train dataset
         from sklearn.metrics.pairwise import euclidean_distances
@@ -208,16 +215,18 @@ class EuclideanDistanceQuestionMaskSelector(BasicExampleSelector):
 
         self.SELECT_MODEL = "sentence-transformers/all-mpnet-base-v2"
         self.mask_token = "<mask>"  # the "<mask>" is the mask token of all-mpnet-base-v2
-        self.value_token = "<unk>" # the "<unk>" is the unknown token of all-mpnet-base-v2
+        self.value_token = "<unk>"  # the "<unk>" is the unknown token of all-mpnet-base-v2
 
         from sentence_transformers import SentenceTransformer
-        train_mask_questions = mask_question_with_schema_linking(self.train_json, mask_tag=self.mask_token, value_tag=self.value_token)
-        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device="cpu")
-        self.train_embeddings = self.bert_model.encode(train_mask_questions)
+        train_mask_questions = mask_question_with_schema_linking(self.train_json, mask_tag=self.mask_token,
+                                                                 value_tag=self.value_token)
+        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device=DEVICE)
+        self.train_embeddings = self.bert_model.encode(train_mask_questions, show_progress_bar=ENC_PROG)
 
     def get_examples(self, target, num_example, cross_domain=False):
-        target_mask_question = mask_question_with_schema_linking([target], mask_tag=self.mask_token, value_tag=self.value_token)
-        target_embedding = self.bert_model.encode(target_mask_question)
+        target_mask_question = mask_question_with_schema_linking([target], mask_tag=self.mask_token,
+                                                                 value_tag=self.value_token)
+        target_embedding = self.bert_model.encode(target_mask_question, show_progress_bar=ENC_PROG)
 
         # find the most similar question in train dataset
         from sklearn.metrics.pairwise import euclidean_distances
@@ -236,8 +245,8 @@ class EuclideanDistanceQuestionMaskSelector(BasicExampleSelector):
                 break
 
         return [train_json[index] for (index, d) in top_pairs]
-    
-    
+
+
 class EuclideanDistancePreSkeletonSimilarThresholdSelector(BasicExampleSelector):
     def __init__(self, data, *args, **kwargs):
         super().__init__(data)
@@ -246,11 +255,11 @@ class EuclideanDistancePreSkeletonSimilarThresholdSelector(BasicExampleSelector)
         self.threshold = 0.85
 
         from sentence_transformers import SentenceTransformer
-        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device="cpu")
-        self.train_embeddings = self.bert_model.encode(self.train_questions)
+        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device=DEVICE)
+        self.train_embeddings = self.bert_model.encode(self.train_questions, show_progress_bar=ENC_PROG)
 
     def get_examples(self, target, num_example, cross_domain=False):
-        target_embedding = self.bert_model.encode([target["question"]])
+        target_embedding = self.bert_model.encode([target["question"]], show_progress_bar=ENC_PROG)
 
         # find the most similar question in train dataset
         from sklearn.metrics.pairwise import euclidean_distances
@@ -293,11 +302,11 @@ class EuclideanDistancePreSkeletonSimilarPlusSelector(BasicExampleSelector):
         self.SELECT_MODEL = "sentence-transformers/all-mpnet-base-v2"
 
         from sentence_transformers import SentenceTransformer
-        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device="cpu")
-        self.train_embeddings = self.bert_model.encode(self.train_questions)
+        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device=DEVICE)
+        self.train_embeddings = self.bert_model.encode(self.train_questions, show_progress_bar=ENC_PROG)
 
     def get_examples(self, target, num_example, cross_domain=False):
-        target_embedding = self.bert_model.encode([target["question"]])
+        target_embedding = self.bert_model.encode([target["question"]], show_progress_bar=ENC_PROG)
 
         # find the most similar question in train dataset
         from sklearn.metrics.pairwise import euclidean_distances
@@ -317,7 +326,7 @@ class EuclideanDistancePreSkeletonSimilarPlusSelector(BasicExampleSelector):
                 break
 
         return [train_json[index] for (index, d) in top_pairs]
-    
+
 
 class EuclideanDistanceQuestionMaskPreSkeletonSimilarThresholdSelector(BasicExampleSelector):
     def __init__(self, data, *args, **kwargs):
@@ -329,13 +338,15 @@ class EuclideanDistanceQuestionMaskPreSkeletonSimilarThresholdSelector(BasicExam
         self.threshold = 0.85
 
         from sentence_transformers import SentenceTransformer
-        train_mask_questions = mask_question_with_schema_linking(self.train_json, mask_tag=self.mask_token, value_tag=self.value_token)
-        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device="cpu")
-        self.train_embeddings = self.bert_model.encode(train_mask_questions)
+        train_mask_questions = mask_question_with_schema_linking(self.train_json, mask_tag=self.mask_token,
+                                                                 value_tag=self.value_token)
+        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device=DEVICE)
+        self.train_embeddings = self.bert_model.encode(train_mask_questions, show_progress_bar=ENC_PROG)
 
     def get_examples(self, target, num_example, cross_domain=False):
-        target_mask_question = mask_question_with_schema_linking([target], mask_tag=self.mask_token, value_tag=self.value_token)
-        target_embedding = self.bert_model.encode(target_mask_question)
+        target_mask_question = mask_question_with_schema_linking([target], mask_tag=self.mask_token,
+                                                                 value_tag=self.value_token)
+        target_embedding = self.bert_model.encode(target_mask_question, show_progress_bar=ENC_PROG)
 
         # find the most similar question in train dataset
         from sklearn.metrics.pairwise import euclidean_distances
@@ -381,13 +392,15 @@ class EuclideanDistanceQuestionMaskPreSkeletonSimilarThresholdShiftSelector(Basi
         self.threshold = 0.85
 
         from sentence_transformers import SentenceTransformer
-        train_mask_questions = mask_question_with_schema_linking(self.train_json, mask_tag=self.mask_token, value_tag=self.value_token)
-        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device="cpu")
-        self.train_embeddings = self.bert_model.encode(train_mask_questions)
+        train_mask_questions = mask_question_with_schema_linking(self.train_json, mask_tag=self.mask_token,
+                                                                 value_tag=self.value_token)
+        self.bert_model = SentenceTransformer(self.SELECT_MODEL, device=DEVICE)
+        self.train_embeddings = self.bert_model.encode(train_mask_questions, show_progress_bar=ENC_PROG)
 
     def get_examples(self, target, num_example, cross_domain=False):
-        target_mask_question = mask_question_with_schema_linking([target], mask_tag=self.mask_token, value_tag=self.value_token)
-        target_embedding = self.bert_model.encode(target_mask_question)
+        target_mask_question = mask_question_with_schema_linking([target], mask_tag=self.mask_token,
+                                                                 value_tag=self.value_token)
+        target_embedding = self.bert_model.encode(target_mask_question, show_progress_bar=ENC_PROG)
 
         # find the most similar question in train dataset
         from sklearn.metrics.pairwise import euclidean_distances

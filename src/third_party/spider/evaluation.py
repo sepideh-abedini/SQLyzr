@@ -20,13 +20,13 @@
 ################################
 
 from __future__ import print_function
-import os, sys
-import json
-import sqlite3
-import traceback
-import argparse
 
-from src.third_party.spider.process_sql import tokenize, get_schema, get_tables_with_alias, Schema, get_sql
+import argparse
+import json
+
+from src.eval.dataset_config import DatasetConfig
+from src.rel.db_facade import DatabaseFactory, DatabaseFacade
+from src.third_party.spider.process_sql import get_schema, Schema, get_sql
 
 # Flag to disable value evaluation
 DISABLE_VALUE = True
@@ -432,16 +432,6 @@ class Evaluator:
         return res
 
 
-def isValidSQL(sql, db):
-    conn = sqlite3.connect(db)
-    cursor = conn.cursor()
-    try:
-        cursor.execute(sql)
-    except:
-        return False
-    return True
-
-
 def print_scores(scores, etype):
     levels = ['easy', 'medium', 'hard', 'extra', 'all']
     partial_types = ['select', 'select(no AGG)', 'where', 'where(no OP)', 'group(no Having)',
@@ -477,13 +467,15 @@ def print_scores(scores, etype):
 
 
 class SpiderEvaluator:
-    def __init__(self, db_dir, kmaps):
+    conf: DatasetConfig
+
+    def __init__(self, conf: DatasetConfig, kmaps):
         self.partial_types = ['select', 'select(no AGG)', 'where', 'where(no OP)', 'group(no Having)',
                               'group', 'order', 'and/or', 'IUEN', 'keywords']
         self.entries = []
         self.scores = {}
         self.evaluator = Evaluator()
-        self.db_dir = db_dir
+        self.conf = conf
         self.kmaps = kmaps
 
     def evaluate_pred_gold_str(self, pred: str, gold: str):
@@ -559,8 +551,7 @@ class SpiderEvaluator:
         p_str = p[0]
         g_str, db = g
         db_name = db
-        db = os.path.join(self.db_dir, db, db + ".sqlite")
-        schema = Schema(get_schema(db))
+        schema = Schema(get_schema(self.conf, db_name))
         g_sql = get_sql(schema, g_str)
         hardness = self.evaluator.eval_hardness(g_sql)
         self.scores[hardness]['count'] += 1
@@ -600,7 +591,7 @@ class SpiderEvaluator:
 
         scores = self.scores
         if etype in ["all", "exec"]:
-            exec_score = eval_exec_match(db, p_str, g_str, p_sql, g_sql)
+            exec_score = eval_exec_match(self.conf, db_name, p_str, g_str, p_sql, g_sql)
             if exec_score:
                 scores[hardness]['exec'] += 1.0
                 scores['all']['exec'] += 1.0
@@ -642,21 +633,25 @@ class SpiderEvaluator:
         return exact_score
 
 
-def eval_exec_match(db, p_str, g_str, pred, gold):
+def eval_exec_match(conf: DatasetConfig, db_id, p_str, g_str, pred, gold):
     """
     return 1 if the values between prediction and gold are matching
     in the corresponding index. Currently not support multiple col_unit(pairs).
     """
-    conn = sqlite3.connect(db)
-    cursor = conn.cursor()
-    try:
-        cursor.execute(p_str)
-        p_res = cursor.fetchall()
-    except:
-        return False
+    db_facade = DatabaseFactory.get_instance(conf)
+    p_res = db_facade.exec_query_sync(db_id, p_str)
+    q_res = db_facade.exec_query_sync(db_id, g_str)
 
-    cursor.execute(g_str)
-    q_res = cursor.fetchall()
+    # conn = sqlite3.connect(db)
+    # cursor = conn.cursor()
+    # try:
+    #     cursor.execute(p_str)
+    #     p_res = cursor.fetchall()
+    # except:
+    #     return False
+
+    # cursor.execute(g_str)
+    # q_res = cursor.fetchall()
 
     def res_map(res, val_units):
         rmap = {}
@@ -878,9 +873,9 @@ def build_foreign_key_map_from_json(table):
     return tables
 
 
-def get_spider_exact_match(pred_sql: str, gold_sql: str, db_dir_path: str, tables: str):
-    the_kmaps = build_foreign_key_map_from_json(tables)
-    ev = SpiderEvaluator(db_dir_path, the_kmaps)
+def get_spider_exact_match(pred_sql: str, gold_sql: str, conf: DatasetConfig):
+    the_kmaps = build_foreign_key_map_from_json(conf.get_tables_path())
+    ev = SpiderEvaluator(conf, the_kmaps)
     return ev.evaluate_pred_gold_str(pred_sql, gold_sql)
 
 

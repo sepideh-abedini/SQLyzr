@@ -25,8 +25,10 @@
 ################################
 
 import json
-import sqlite3
 from nltk import word_tokenize
+
+from src.eval.dataset_config import DatasetConfig
+from src.rel.db_facade import DatabaseFactory
 
 CLAUSE_KEYWORDS = ('select', 'from', 'where', 'group', 'order', 'limit', 'intersect', 'union', 'except')
 JOIN_KEYWORDS = ('join', 'on', 'as')
@@ -76,7 +78,7 @@ class Schema:
         return idMap
 
 
-def get_schema(db):
+def get_schema(conf: DatasetConfig, db_name):
     """
     Get database's schema, which is a dict with table name as key
     and list of column names as value
@@ -85,17 +87,20 @@ def get_schema(db):
     """
 
     schema = {}
-    conn = sqlite3.connect(db)
-    cursor = conn.cursor()
+    db_facade = DatabaseFactory.get_instance(conf)
 
     # fetch table names
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    tables = [str(table[0].lower()) for table in cursor.fetchall()]
+    sql = "SELECT name FROM sqlite_master WHERE type='table';"
+    # cursor.execute()
+    results = db_facade.exec_query_sync(db_name, sql)
+    # tables = [str(table[0].lower()) for table in cursor.fetchall()]
+    tables = [str(table[0].lower()) for table in results]
 
     # fetch table info
     for table in tables:
-        cursor.execute("PRAGMA table_info({})".format(table))
-        schema[table] = [str(col[1].lower()) for col in cursor.fetchall()]
+        sql = "PRAGMA table_info({})".format(table)
+        results = db_facade.exec_query_sync(db_name, sql)
+        schema[table] = [str(col[1].lower()) for col in results]
 
     return schema
 

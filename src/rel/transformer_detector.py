@@ -5,7 +5,7 @@ from typing import List
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.rel.base_matcher import Matcher
-from src.rel.db_facade import DatabaseFacade
+from src.rel.db_facade import DatabaseFacade, DatabaseFactory
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_processor import SqlMatchingProcessor
 from src.util.meta_utils import powerset
@@ -14,7 +14,7 @@ from src.util.meta_utils import powerset
 class TransformerDetector:
     def __init__(self, dataset_config: DatasetConfig, processors: List[SqlMatchingProcessor]):
         self.processors = processors
-        self.db_facade = DatabaseFacade(dataset_config.get_db_path())
+        self.db_facade = DatabaseFactory.get_instance(dataset_config)
         self.parser = ExactMatchParser(dataset_config.get_tables_path())
 
     async def run_with(self, pred: SqlInputData, gold: SqlInputData, procs: List[SqlMatchingProcessor]) \

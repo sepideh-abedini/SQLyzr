@@ -2,6 +2,8 @@ import json
 import re
 from typing import List
 
+import tqdm
+from loguru import logger
 from openai.types.chat import ChatCompletion
 
 from src.eval.single_run_config import SingleRunConfig
@@ -12,6 +14,7 @@ from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
 from src.third_party.dail.generate_question import DailQuestionGenerator
 from src.third_party.dail.generate_second_question import DailSecondQuestionGenerator
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
+from src.util.async_utils import apply_async
 from src.util.model_utils import read_jsonl
 
 
@@ -27,14 +30,17 @@ class DailPredictor(Predictor):
         schema_links_gen = DailSchemaLinksGenerator(self.__conf, self._run_conf)
         usage = schema_links_gen.run()
         self._tracker.add_usage(usage)
+        logger.info("Schema linking done!")
 
         question_gen = DailQuestionGenerator(self.__conf, self._run_conf, self.__conf.questions_path())
         usage = question_gen.run()
         self._tracker.add_usage(usage)
+        logger.info("Question generation done!")
 
         self.__load_questions(self.__conf.questions_path())
         self._gen_batch_file(self.__conf.get_path("in"), self.__gen_sql_req)
         await self._ask_file(self.__conf.get_path("in"), self.__conf.get_path("out"))
+        logger.info("SQL generation done!")
 
         sqls = await self.__process_responses(self.__conf.get_path("out"))
         with open(self.__conf.pre_test_result_path(), "w") as file:
@@ -45,11 +51,13 @@ class DailPredictor(Predictor):
                                                           self.__conf.second_questions_path())
         usage = second_question_gen.run()
         self._tracker.add_usage(usage)
+        logger.info("Second Question generation done!")
 
         self.__load_questions(self.__conf.second_questions_path())
         self._gen_batch_file(self.__conf.get_path("in.second"), self.__gen_sql_req)
         await self._ask_file(self.__conf.get_path("in.second"), self.__conf.get_path("out.second"))
         sqls = await self.__process_responses(self.__conf.get_path("out.second"))
+        logger.info("Second SQL generation done!")
 
         self._save_sqls(sqls)
 
@@ -70,8 +78,9 @@ class DailPredictor(Predictor):
             pattern = r'.*SQL:[\s`]*(SELECT.*)[\s`]*'
             content = re.sub(pattern, r'\1', content, flags=re.DOTALL)
         if "```sql" in content:
-            pattern = r'.*```sql\s*(SELECT.*)\s*```.*'
+            pattern = r'.*```sql(.*)```.*'
             content = re.sub(pattern, r'\1', content, flags=re.DOTALL)
+        content = content.strip()
         return content
 
     async def __process_responses(self, file_path) -> List[str]:
@@ -80,7 +89,8 @@ class DailPredictor(Predictor):
             db_ids = [example['db_id'] for example in data]
         responses = read_jsonl(file_path, ChatCompletion)
         results = []
-        for i, response in enumerate(responses):
+        for i, response in tqdm.tqdm(enumerate(responses), total=len(responses),
+                                     desc=f"Processing SQLs {self._run_conf}"):
             contents = [choice.message.content for choice in response.choices]
             if self.__conf.gpt_params['n'] == 1:
                 for sql in contents:
@@ -112,6 +122,6 @@ class DailPredictor(Predictor):
                     'p_sqls': processed_sqls
                 }
                 final_sqls = await get_sqls([result], self.__conf.gpt_params['n'],
-                                            self._run_conf.dataset_config.get_db_path())
+                                            self._run_conf.dataset_config)
                 results.extend(final_sqls)
         return results

@@ -3,6 +3,8 @@ import string
 import collections
 
 import nltk.corpus
+import tqdm
+from loguru import logger
 
 STOPWORDS = set(nltk.corpus.stopwords.words('english'))
 PUNKS = set(a for a in string.punctuation)
@@ -13,6 +15,7 @@ COL_PARTIAL_MATCH_FLAG = "CPM"
 COL_EXACT_MATCH_FLAG = "CEM"
 TAB_PARTIAL_MATCH_FLAG = "TPM"
 TAB_EXACT_MATCH_FLAG = "TEM"
+
 
 # schema linking, similar to IRNet
 def compute_schema_linking(question, column, table):
@@ -95,13 +98,14 @@ def compute_cell_value_linking(tokens, schema):
         p_str = f"select {column} from {table} where {column} like '{word} %' or {column} like '% {word}' or " \
                 f"{column} like '% {word} %' or {column} like '{word}'"
         try:
-            cursor.execute_internal(p_str)
+            cursor.execute(p_str)
             p_res = cursor.fetchall()
-            if len(p_res) == 0:
+            if p_res and len(p_res) == 0:
                 return False
             else:
                 return p_res
         except Exception as e:
+            logger.debug(e)
             return False
 
     def db_word_exact_match(word, column, table, db_conn):
@@ -110,19 +114,20 @@ def compute_cell_value_linking(tokens, schema):
         p_str = f"select {column} from {table} where {column} like '{word}' or {column} like ' {word}' or " \
                 f"{column} like '{word} ' or {column} like ' {word} '"
         try:
-            cursor.execute_internal(p_str)
+            cursor.execute(p_str)
             p_res = cursor.fetchall()
             if len(p_res) == 0:
                 return False
             else:
                 return p_res
         except Exception as e:
+            logger.debug(e)
             return False
 
     num_date_match = {}
     cell_match = {}
 
-    for col_id, column in enumerate(schema.columns):
+    for col_id, column in tqdm.tqdm(enumerate(schema.columns)):
         if col_id == 0:
             assert column.orig_name == "*"
             continue
@@ -134,7 +139,7 @@ def compute_cell_value_linking(tokens, schema):
                 continue
 
             num_flag = isnumber(word)
-            if num_flag:    # TODO refine the date and time match
+            if num_flag:  # TODO refine the date and time match
                 if column.type in ["number", "time"]:
                     num_date_match[f"{q_id},{col_id}"] = column.type.upper()
             else:
@@ -163,7 +168,6 @@ def compute_cell_value_linking(tokens, schema):
 
 
 def match_shift(q_col_match, q_tab_match, cell_match):
-
     q_id_to_match = collections.defaultdict(list)
     for match_key in q_col_match.keys():
         q_id = int(match_key.split(',')[0])

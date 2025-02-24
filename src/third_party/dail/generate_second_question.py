@@ -5,6 +5,7 @@ import json
 from dataclasses import dataclass
 
 import tqdm
+from loguru import logger
 
 from src.eval.single_run_config import SingleRunConfig
 from src.sqlyzr.file_gen import FileGenerator
@@ -37,6 +38,7 @@ class DailSecondQuestionGenerator(FileGenerator):
         params = self.__dail_conf.params
         prompt = prompt_factory(params.prompt_repr, params.k_shot, params.example_type, params.selector_type)(data=data,
                                                                                                               tokenizer=params.tokenizer)
+        logger.info("Prompt done!")
 
         # format all questions
         questions = list()
@@ -58,7 +60,7 @@ class DailSecondQuestionGenerator(FileGenerator):
 
             # cost estimated
             token_cnt = float(token_cnt) / len(questions)
-            print(
+            logger.debug(
                 f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
 
             n_total_tokens = int(len(questions) * params.max_ans_len + token_cnt)
