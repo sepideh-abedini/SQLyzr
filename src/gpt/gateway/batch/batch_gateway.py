@@ -111,6 +111,7 @@ class GptBatchGateway:
                     continue
                 logger.warning(f"Response with custom_id={req.custom_id} not found")
                 responses.insert(i, sample.copy(update={"custom_id": req.custom_id}))
+            return responses
 
     async def __create_batch_if_not_exist(self, info: BatchInfo):
         if info.get_value("bid"):

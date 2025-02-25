@@ -11,6 +11,7 @@ from loguru import logger
 
 from src.third_party.din.din_bird_pred import DinBirdPredictor
 from src.third_party.din.din_spider_pred import DinPredictor
+from src.util.multi_thread_utils import get_thread_pool
 
 
 class ModelRunner(ABC):
@@ -20,8 +21,10 @@ class ModelRunner(ABC):
         self.config = config
 
     async def run(self):
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        with get_thread_pool() as executor:
             results = executor.map(self.run_single, self.config.get_run_confs())
+        for res in results:
+            res.result()
 
     def run_single(self, run_conf: SingleRunConfig):
         logger.info(f"Running for conf={run_conf}")

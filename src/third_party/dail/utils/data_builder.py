@@ -1,6 +1,9 @@
 import json
 import os
 
+import tqdm
+from loguru import logger
+
 from src.eval.dataset_config import DatasetConfig
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.utils import get_tables, sql2skeleton
@@ -24,7 +27,7 @@ class BasicDataset:
             #     self.databases[db_id] = self.get_tables(db_id)
             with open(self.config.get_tables_path()) as f:
                 tables = json.load(f)
-                for tj in tables:
+                for tj in tqdm.tqdm(tables, "Setting up databases", total=len(tables)):
                     db_id = tj["db_id"]
                     self.databases[db_id] = self.get_tables(db_id)
         return self.databases
@@ -91,8 +94,13 @@ class BasicDataset:
     def get_pre_skeleton(self, queries=None, schemas=None):
         if queries:
             skeletons = []
-            for query, schema in zip(queries, schemas):
-                skeletons.append(sql2skeleton(query, schema))
+            for query, schema in tqdm.tqdm(zip(queries, schemas), desc="Get Skeleton", total=len(queries)):
+                try:
+                    skelet = sql2skeleton(query, schema)
+                except Exception as e:
+                    logger.warning(f"Failed to get skeleton: {e}")
+                    skelet = ""
+                skeletons.append(skelet)
             return skeletons
         else:
             return False
@@ -101,7 +109,7 @@ class BasicDataset:
         db_id_to_table_json = dict()
         for table_json in self.get_table_json():
             db_id_to_table_json[table_json["db_id"]] = table_json
-        for data in datas:
+        for data in tqdm.tqdm(datas, desc="Data preprocess", total=len(datas)):
             db_id = data["db_id"]
             data["tables"] = self.get_tables(db_id)
             if data["query"].strip()[:6] != 'SELECT':

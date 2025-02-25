@@ -1,6 +1,7 @@
 import asyncio
 import concurrent
 import json
+import os
 import re
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Tuple
@@ -9,6 +10,7 @@ import tqdm
 from loguru import logger
 from openai.types.chat import ChatCompletion
 
+from src.eval.lib import Timer
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.models import BatchInputRequest
 from src.pred.predictor import Predictor
@@ -19,7 +21,7 @@ from src.third_party.dail.generate_second_question import DailSecondQuestionGene
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
 from src.util.async_utils import apply_async
 from src.util.model_utils import read_jsonl
-from src.util.multi_thread_utils import chunk_list, flatten
+from src.util.multi_thread_utils import chunk_list, flatten, get_thread_pool, NUM_THREADS
 
 
 class DailPredictor(Predictor):
@@ -46,10 +48,19 @@ class DailPredictor(Predictor):
         await self._ask_file(self.__conf.get_path("in"), self.__conf.get_path("out"))
         logger.info("SQL generation done!")
 
-        sqls = self.__process_responses(self.__conf.get_path("out"))
-        with open(self.__conf.pre_test_result_path(), "w") as file:
-            for sql in sqls:
-                file.write(f"{sql}\n")
+        if os.path.exists(self.__conf.pre_test_result_path()):
+            logger.debug(f"Pre test result exists: {self.__conf.pre_test_result_path()}")
+            with open(self.__conf.pre_test_result_path()) as file:
+                sqls = file.readlines()
+        else:
+            timer = Timer.start()
+            sqls = self.__process_responses(self.__conf.get_path("out"))
+            with open(self.__conf.pre_test_result_path(), "w") as file:
+                for sql in sqls:
+                    file.write(f"{sql}\n")
+            lap = timer.lap()
+            with open(f"{self.__conf.pre_test_result_path()}.usage", "w") as usage_file:
+                usage_file.write(f"{lap}")
 
         second_question_gen = DailSecondQuestionGenerator(self.__conf, self._run_conf,
                                                           self.__conf.second_questions_path())
@@ -59,6 +70,7 @@ class DailPredictor(Predictor):
 
         self.__load_questions(self.__conf.second_questions_path())
         self._gen_batch_file(self.__conf.get_path("in.second"), self.__gen_sql_req)
+
         await self._ask_file(self.__conf.get_path("in.second"), self.__conf.get_path("out.second"))
         sqls = self.__process_responses(self.__conf.get_path("out.second"))
         logger.info("Second SQL generation done!")
@@ -133,8 +145,8 @@ class DailPredictor(Predictor):
             db_ids = [example['db_id'] for example in data]
         responses = read_jsonl(file_path, ChatCompletion)
         pairs = list(zip(db_ids, responses))
-        chunks = chunk_list(pairs, 4)
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        chunks = chunk_list(pairs, NUM_THREADS)
+        with get_thread_pool() as executor:
             result_chunks = list(executor.map(self.post_process_response, chunks))
         results = flatten(result_chunks)
         return results

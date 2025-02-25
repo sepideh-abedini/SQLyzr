@@ -22,8 +22,8 @@ def get_tables(conf: DatasetConfig, db_id):
     # if not os.path.exists(path_db):
     #     raise RuntimeError(f"{path_db} not exists")
 
-    db_facade = DatabaseFactory.get_instance(conf)
-    connection =  DatabaseConnectionProxy(db_facade, db_id)
+    db_facade = DatabaseFactory.get_instance(conf, should_timeout=False)
+    connection = DatabaseConnectionProxy(db_facade, db_id)
     cur = connection.cursor()
     # extract table information
     table_info = parse_db(cur=cur)

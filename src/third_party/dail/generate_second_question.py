@@ -36,8 +36,9 @@ class DailSecondQuestionGenerator(FileGenerator):
 
         # select the prompt
         params = self.__dail_conf.params
-        prompt = prompt_factory(params.prompt_repr, params.k_shot, params.example_type, params.selector_type)(data=data,
-                                                                                                              tokenizer=params.tokenizer)
+        prompt = prompt_factory(params.prompt_repr, params.k_shot, params.example_type, params.second_selector_type)(
+            data=data,
+            tokenizer=params.tokenizer)
         logger.info("Prompt done!")
 
         # format all questions
@@ -46,8 +47,8 @@ class DailSecondQuestionGenerator(FileGenerator):
 
         # choose split
         cross_domain = params.split == "train"
-
-        for question_json in tqdm.tqdm(data.get_test_json()):
+        test_data = data.get_test_json()
+        for question_json in tqdm.tqdm(test_data, "Generating questions", total=len(test_data)):
             question_format = prompt.format(target=question_json,
                                             max_seq_len=params.max_seq_len,
                                             max_ans_len=params.max_ans_len,

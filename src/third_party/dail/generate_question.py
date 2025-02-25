@@ -62,7 +62,8 @@ class DailQuestionGenerator(FileGenerator):
 
             # cost estimated
             token_cnt = float(token_cnt) / len(questions)
-            logger.debug(f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
+            logger.debug(
+                f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
 
             n_total_tokens = int(len(questions) * params.max_ans_len + token_cnt)
             cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)

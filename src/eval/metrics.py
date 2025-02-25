@@ -27,7 +27,7 @@ class Metric(ABC):
     def __init__(self, name: str, conf: DatasetConfig):
         self.name = name
         self.conf = conf
-        self.dbc = DatabaseFactory.get_instance(conf)
+        self.dbc = DatabaseFactory.get_instance(conf, should_timeout=False)
 
     @abstractmethod
     async def calc(self, gold: str, pred: str, db_id: str) -> int:

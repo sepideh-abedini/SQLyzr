@@ -39,10 +39,10 @@ class DatabaseFactory:
     __instance: Optional[DatabaseFacade] = None
 
     @staticmethod
-    def get_instance(conf: DatasetConfig):
+    def get_instance(conf: DatasetConfig, **kwargs):
         if not DatabaseFactory.__instance:
             if conf.dataset_type in ["bird", "spider"]:
-                DatabaseFactory.__instance = SqliteFacade(conf)
+                DatabaseFactory.__instance = SqliteFacade(conf, **kwargs)
             else:
                 raise RuntimeError(f"No supported DB facade for dataset = {conf.dataset_type}")
         return DatabaseFactory.__instance
@@ -71,11 +71,13 @@ def sqlite_timelimit(conn: Connection, ms):
 class SqliteFacade(DatabaseFacade):
     sync_conns: Dict[str, Connection]
     file_conns: List[Connection]
+    should_timeout: bool
 
-    def __init__(self, conf: DatasetConfig):
+    def __init__(self, conf: DatasetConfig, should_timeout: bool = True):
         super().__init__(conf)
         self.sync_conns = dict()
         self.file_conns = []
+        self.should_timeout = should_timeout
 
     def get_sync_conn(self, db_id):
 
@@ -97,7 +99,12 @@ class SqliteFacade(DatabaseFacade):
         # conn = self.get_sync_conn(db_id)
 
         conn = sqlite3.connect(f"file:{self.conf.get_db_file_path(db_id)}?mode=ro")
-        with sqlite_timelimit(conn, DB_TIMEOUT):
+        if self.should_timeout:
+            timeout = DB_TIMEOUT
+        else:
+            timeout = 10 * 60_000
+
+        with sqlite_timelimit(conn, timeout):
             cursor = conn.cursor()
             try:
                 cursor.execute(sql)
