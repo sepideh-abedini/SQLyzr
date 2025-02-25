@@ -1,6 +1,9 @@
+import asyncio
+import concurrent
 import json
 import re
-from typing import List
+from concurrent.futures import ThreadPoolExecutor
+from typing import List, Tuple
 
 import tqdm
 from loguru import logger
@@ -16,6 +19,7 @@ from src.third_party.dail.generate_second_question import DailSecondQuestionGene
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
 from src.util.async_utils import apply_async
 from src.util.model_utils import read_jsonl
+from src.util.multi_thread_utils import chunk_list, flatten
 
 
 class DailPredictor(Predictor):
@@ -42,7 +46,7 @@ class DailPredictor(Predictor):
         await self._ask_file(self.__conf.get_path("in"), self.__conf.get_path("out"))
         logger.info("SQL generation done!")
 
-        sqls = await self.__process_responses(self.__conf.get_path("out"))
+        sqls = self.__process_responses(self.__conf.get_path("out"))
         with open(self.__conf.pre_test_result_path(), "w") as file:
             for sql in sqls:
                 file.write(f"{sql}\n")
@@ -56,7 +60,7 @@ class DailPredictor(Predictor):
         self.__load_questions(self.__conf.second_questions_path())
         self._gen_batch_file(self.__conf.get_path("in.second"), self.__gen_sql_req)
         await self._ask_file(self.__conf.get_path("in.second"), self.__conf.get_path("out.second"))
-        sqls = await self.__process_responses(self.__conf.get_path("out.second"))
+        sqls = self.__process_responses(self.__conf.get_path("out.second"))
         logger.info("Second SQL generation done!")
 
         self._save_sqls(sqls)
@@ -83,14 +87,12 @@ class DailPredictor(Predictor):
         content = content.strip()
         return content
 
-    async def __process_responses(self, file_path) -> List[str]:
-        with open(self._run_conf.dataset_config.get_test_path()) as data_file:
-            data = json.load(data_file)
-            db_ids = [example['db_id'] for example in data]
-        responses = read_jsonl(file_path, ChatCompletion)
+    def post_process_response(self, pairs: List[Tuple[str, ChatCompletion]]):
         results = []
-        for i, response in tqdm.tqdm(enumerate(responses), total=len(responses),
-                                     desc=f"Processing SQLs {self._run_conf}"):
+        for i, pair in tqdm.tqdm(enumerate(pairs), total=len(pairs),
+                                 desc=f"Processing SQLs {self._run_conf}"):
+            db_id = pair[0]
+            response = pair[1]
             contents = [choice.message.content for choice in response.choices]
             if self.__conf.gpt_params['n'] == 1:
                 for sql in contents:
@@ -103,7 +105,6 @@ class DailPredictor(Predictor):
                     else:
                         results.append("SELECT " + sql + "\n")
             else:
-                db_id = db_ids[i]
                 sqls = contents
                 processed_sqls = []
                 for sql in sqls:
@@ -121,7 +122,19 @@ class DailPredictor(Predictor):
                     'db_id': db_id,
                     'p_sqls': processed_sqls
                 }
-                final_sqls = await get_sqls([result], self.__conf.gpt_params['n'],
-                                            self._run_conf.dataset_config)
+                final_sqls = get_sqls([result], self.__conf.gpt_params['n'],
+                                      self._run_conf.dataset_config)
                 results.extend(final_sqls)
+        return results
+
+    def __process_responses(self, file_path) -> List[str]:
+        with open(self._run_conf.dataset_config.get_test_path()) as data_file:
+            data = json.load(data_file)
+            db_ids = [example['db_id'] for example in data]
+        responses = read_jsonl(file_path, ChatCompletion)
+        pairs = list(zip(db_ids, responses))
+        chunks = chunk_list(pairs, 4)
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            result_chunks = list(executor.map(self.post_process_response, chunks))
+        results = flatten(result_chunks)
         return results

@@ -15,8 +15,9 @@ from src.gpt.gateway.batch.batch_info import BatchInfo
 from src.gpt.gateway.batch.batch_tracker import BatchTracker
 from src.gpt.gateway.gateway_exceptions import GptBatchNotCompletedException, GptBatchFailedException, \
     GptRateLimitException
-from src.gpt.models import BatchRequestOutput
+from src.gpt.models import BatchRequestOutput, BatchInputRequest
 from src.sqlyzr.file_sender_usage import FileGeneratorUsage
+from src.util.model_utils import read_jsonl
 
 
 def on_rate_limit(details):
@@ -92,12 +93,24 @@ class GptBatchGateway:
         content = self.__client.retrieve_file_content(info.get_value("oid"))
         with open(f"{info.in_path}.outfile.jsonl", "w") as file:
             file.write(content)
+        requests = read_jsonl(info.in_path, BatchInputRequest)
+        requests = natsorted(requests, key=lambda r: r.custom_id)
         responses = []
         for line in content.strip().split("\n"):
             response = BatchRequestOutput.model_validate_json(line)
             responses.append(response)
         responses = natsorted(responses, key=lambda r: r.custom_id)
-        return responses
+        if len(requests) == len(responses):
+            return responses
+        else:
+            logger.warning(f"Batch {info.in_path}: Response count mismatch : {len(responses)}/{len(requests)}")
+            sample = responses[0]
+            for i, req in enumerate(requests):
+                res = responses[i]
+                if req.custom_id == res.custom_id:
+                    continue
+                logger.warning(f"Response with custom_id={req.custom_id} not found")
+                responses.insert(i, sample.copy(update={"custom_id": req.custom_id}))
 
     async def __create_batch_if_not_exist(self, info: BatchInfo):
         if info.get_value("bid"):

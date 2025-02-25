@@ -1,6 +1,9 @@
 import os
 import sqlite3
+import threading
+import time
 from abc import ABC, abstractmethod
+from contextlib import contextmanager
 from functools import cache
 from sqlite3 import Connection
 from typing import List, Tuple, Optional, Dict
@@ -12,7 +15,9 @@ from src.eval.dataset_config import DatasetConfig
 
 IN_MEM_DB = bool(int(os.environ.get("IN_MEM_DB", True)))
 
+DB_TIMEOUT = int(os.environ.get("DB_TIMEOUT", 60_000))
 logger.info(f"In-memory database load: {IN_MEM_DB}")
+logger.info(f"DB_TIMEOUT: {DB_TIMEOUT}")
 
 
 class DatabaseFacade(ABC):
@@ -43,6 +48,26 @@ class DatabaseFactory:
         return DatabaseFactory.__instance
 
 
+@contextmanager
+def sqlite_timelimit(conn: Connection, ms):
+    deadline = time.perf_counter() + (ms / 1000)
+    n = 1000
+    if ms <= 20:
+        n = 1
+
+    def handler():
+        if time.perf_counter() >= deadline:
+            logger.warning("SQLite timeout!")
+            return 1
+
+    conn.set_progress_handler(handler, n)
+    try:
+        yield
+    finally:
+        conn.set_progress_handler(None, n)
+        conn.close()
+
+
 class SqliteFacade(DatabaseFacade):
     sync_conns: Dict[str, Connection]
     file_conns: List[Connection]
@@ -53,6 +78,7 @@ class SqliteFacade(DatabaseFacade):
         self.file_conns = []
 
     def get_sync_conn(self, db_id):
+
         if db_id not in self.sync_conns:
             conn = sqlite3.connect(f"file:{self.conf.get_db_file_path(db_id)}?mode=ro")
             if IN_MEM_DB:
@@ -68,17 +94,21 @@ class SqliteFacade(DatabaseFacade):
 
     @cache
     def exec_query_sync(self, db_id: str, sql: str) -> Optional[List[Tuple]]:
-        conn = self.get_sync_conn(db_id)
-        cursor = conn.cursor()
-        try:
-            cursor.execute(sql)
-            rows = cursor.fetchall()
-        except Exception as e:
-            logger.error(sql)
-            logger.error(e)
-            rows = None
-        cursor.close()
-        return rows
+        # conn = self.get_sync_conn(db_id)
+
+        conn = sqlite3.connect(f"file:{self.conf.get_db_file_path(db_id)}?mode=ro")
+        with sqlite_timelimit(conn, DB_TIMEOUT):
+            cursor = conn.cursor()
+            try:
+                cursor.execute(sql)
+                rows = cursor.fetchall()
+            except Exception as e:
+                logger.error(sql)
+                logger.error(e)
+                rows = None
+            finally:
+                cursor.close()
+            return rows
 
     async def exec_query_async(self, db_id: str, sql: str) -> Optional[List[Tuple]]:
         cursor = None

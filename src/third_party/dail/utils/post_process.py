@@ -195,7 +195,7 @@ def remove_distinct(s):
     return "".join([t for t in toks if t.lower() != "distinct"])
 
 
-async def get_exec_output(
+def get_exec_output(
         config: DatasetConfig,
         db_id: str,
         sql: str,
@@ -214,11 +214,12 @@ async def get_exec_output(
         except Exception as e:
             return "exception", []
 
-    flag, sql_denotation = await exec_on_db_timeout(config, db_id, sql)
+    # flag, sql_denotation = exec_on_db_timeout(config, db_id, sql)
+    flag, sql_denotation = exec_on_db(config, db_id, sql)
     return flag, sql_denotation
 
 
-async def get_sqls(results, select_number, config: DatasetConfig):
+def get_sqls(results, select_number, config: DatasetConfig):
     db_ids = []
     all_p_sqls = []
     for item in results:
@@ -235,7 +236,7 @@ async def get_sqls(results, select_number, config: DatasetConfig):
         cluster_sql_list = []
         map_sql2denotation = {}
         for i, sql in tqdm.tqdm(enumerate(p_sqls), total=len(p_sqls), desc=f"{i}@{db_id}"):
-            flag, denotation = await get_exec_output(config, db_id, sql)
+            flag, denotation = get_exec_output(config, db_id, sql)
             if flag == "exception":
                 continue
             map_sql2denotation[sql] = denotation

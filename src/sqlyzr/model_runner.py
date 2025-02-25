@@ -1,5 +1,6 @@
 import asyncio
 from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor
 
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
@@ -19,15 +20,12 @@ class ModelRunner(ABC):
         self.config = config
 
     async def run(self):
-        futures = []
-        for run_conf in self.config.get_run_confs():
-            future = self.run_single(run_conf)
-            futures.append(future)
-        await asyncio.gather(*futures)
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            results = executor.map(self.run_single, self.config.get_run_confs())
 
-    async def run_single(self, run_conf: SingleRunConfig):
+    def run_single(self, run_conf: SingleRunConfig):
         logger.info(f"Running for conf={run_conf}")
-        result = await self.run_single_internal(run_conf)
+        result = asyncio.run(self.run_single_internal(run_conf))
         return result
 
     @abstractmethod
