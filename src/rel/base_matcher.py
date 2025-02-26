@@ -9,6 +9,8 @@ from src.rel.sql_processor import ResultMatcher, SqlMatchingProcessor
 from src.rel.sql_transformer import SqlTransformer
 from loguru import logger
 
+from src.third_party.dail.utils.utils import DB_LONG_TIMEOUT
+
 
 class Matcher:
     db_facade: DatabaseFacade

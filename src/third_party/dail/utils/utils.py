@@ -18,12 +18,15 @@ class SqliteTable(dict):
     __setattr__ = dict.__setitem__
 
 
+DB_LONG_TIMEOUT = int(os.environ.get("DB_LONG_TIMEOUT", 60000))
+
+
 def get_tables(conf: DatasetConfig, db_id):
     # if not os.path.exists(path_db):
     #     raise RuntimeError(f"{path_db} not exists")
 
-    db_facade = DatabaseFactory.get_instance(conf, should_timeout=False)
-    connection = DatabaseConnectionProxy(db_facade, db_id)
+    db_facade = DatabaseFactory.get_instance(conf)
+    connection = DatabaseConnectionProxy(db_facade, db_id, timeout=DB_LONG_TIMEOUT)
     cur = connection.cursor()
     # extract table information
     table_info = parse_db(cur=cur)

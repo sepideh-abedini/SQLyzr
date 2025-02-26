@@ -15,6 +15,7 @@ from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrde
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_transformer import LiteralCorrectorTransformer
 from src.rel.transformer_detector import TransformerDetector
+from src.third_party.dail.utils.utils import DB_LONG_TIMEOUT
 from src.third_party.spider.evaluation import get_spider_exact_match
 
 
@@ -27,7 +28,7 @@ class Metric(ABC):
     def __init__(self, name: str, conf: DatasetConfig):
         self.name = name
         self.conf = conf
-        self.dbc = DatabaseFactory.get_instance(conf, should_timeout=False)
+        self.dbc = DatabaseFactory.get_instance(conf)
 
     @abstractmethod
     def calc(self, gold: str, pred: str, db_id: str) -> int:
@@ -69,8 +70,8 @@ class SpiderExactMatch(Metric):
 class ExecAcc(Metric):
     def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
-            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
-            pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred)
+            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold, timeout=DB_LONG_TIMEOUT)
+            pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred, timeout=DB_LONG_TIMEOUT)
             if gold_sql_exec_res is None:
                 raise RuntimeError("Gold result is None!")
             if pred_sql_exec_res is None:
@@ -104,7 +105,7 @@ class ComplexityConsistency(Metric):
 class GoldNotEmpty(Metric):
     def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
-            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
+            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold, timeout=DB_LONG_TIMEOUT)
             if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
                 return 1
             else:

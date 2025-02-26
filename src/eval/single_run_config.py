@@ -5,7 +5,7 @@ from src.eval.dataset_config import DatasetConfig
 from src.util.file_utils import get_num_lines
 
 
-@dataclass
+@dataclass(frozen=True)
 class SingleRunConfig:
     dataset_config: DatasetConfig
     pred_dir: str

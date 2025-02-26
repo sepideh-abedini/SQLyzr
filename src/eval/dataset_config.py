@@ -4,7 +4,7 @@ from os import path
 from typing import Literal
 
 
-@dataclass
+@dataclass(frozen=True)
 class DatasetConfig:
     dataset_dir: str
     test_file: str

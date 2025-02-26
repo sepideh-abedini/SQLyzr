@@ -6,7 +6,7 @@ from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pipeline_config import PipelineConfig
 
 
-@dataclass
+@dataclass(frozen=True)
 class SQLyzrConfig:
     eval_conf: ModelEvalConfig
     model: Literal["din", "dail"]

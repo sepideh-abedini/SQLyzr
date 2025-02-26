@@ -19,16 +19,16 @@ def chunk_list(lst, k):
     return [lst[i:i + size] for i in range(0, len(lst), size)]
 
 
-def get_thread_pool():
-    return ThreadPoolExecutor(max_workers=NUM_THREADS)
+def get_thread_pool(num_threads: int = NUM_THREADS):
+    return ThreadPoolExecutor(max_workers=num_threads)
 
 
 T = TypeVar('T')
 U = TypeVar('U')
 
 
-def exec_multi_thread(fun: Callable[[List[T]], List[U]], vals: List[T]):
-    chunks = chunk_list(vals, NUM_THREADS)
+def exec_multi_thread(fun: Callable[[List[T]], List[U]], vals: List[T], num_threads: int = NUM_THREADS):
+    chunks = chunk_list(vals, num_threads)
     with get_thread_pool() as executor:
         result_chunks = list(executor.map(fun, chunks))
     results = flatten(result_chunks)

@@ -1,6 +1,5 @@
 import os
 import sqlite3
-import threading
 import time
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
@@ -19,6 +18,9 @@ DB_TIMEOUT = int(os.environ.get("DB_TIMEOUT", 60_000))
 logger.info(f"In-memory database load: {IN_MEM_DB}")
 logger.info(f"DB_TIMEOUT: {DB_TIMEOUT}")
 
+DB_LONG_TIMEOUT = int(os.environ.get("DB_LONG_TIMEOUT", 60 * 60_000))
+logger.info(f"DB_LONG_TIMEOUT: {DB_LONG_TIMEOUT}")
+
 
 class DatabaseFacade(ABC):
     conf: DatasetConfig
@@ -27,7 +29,7 @@ class DatabaseFacade(ABC):
         self.conf = conf
 
     @abstractmethod
-    def exec_query_sync(self, db_id: str, sql: str) -> Optional[List[Tuple]]:
+    def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
         pass
 
     @abstractmethod
@@ -39,10 +41,10 @@ class DatabaseFactory:
     __instance: Optional[DatabaseFacade] = None
 
     @staticmethod
-    def get_instance(conf: DatasetConfig, **kwargs):
+    def get_instance(conf: DatasetConfig):
         if not DatabaseFactory.__instance:
             if conf.dataset_type in ["bird", "spider"]:
-                DatabaseFactory.__instance = SqliteFacade(conf, **kwargs)
+                DatabaseFactory.__instance = SqliteFacade(conf)
             else:
                 raise RuntimeError(f"No supported DB facade for dataset = {conf.dataset_type}")
         return DatabaseFactory.__instance
@@ -71,16 +73,13 @@ def sqlite_timelimit(conn: Connection, ms):
 class SqliteFacade(DatabaseFacade):
     sync_conns: Dict[str, Connection]
     file_conns: List[Connection]
-    should_timeout: bool
 
-    def __init__(self, conf: DatasetConfig, should_timeout: bool = True):
+    def __init__(self, conf: DatasetConfig):
         super().__init__(conf)
         self.sync_conns = dict()
         self.file_conns = []
-        self.should_timeout = should_timeout
 
     def get_sync_conn(self, db_id):
-
         if db_id not in self.sync_conns:
             conn = sqlite3.connect(f"file:{self.conf.get_db_file_path(db_id)}?mode=ro")
             if IN_MEM_DB:
@@ -95,14 +94,10 @@ class SqliteFacade(DatabaseFacade):
         return conn
 
     @cache
-    def exec_query_sync(self, db_id: str, sql: str) -> Optional[List[Tuple]]:
+    def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
         # conn = self.get_sync_conn(db_id)
 
         conn = sqlite3.connect(f"file:{self.conf.get_db_file_path(db_id)}?mode=ro")
-        if self.should_timeout:
-            timeout = DB_TIMEOUT
-        else:
-            timeout = 10 * 60_000
 
         with sqlite_timelimit(conn, timeout):
             cursor = conn.cursor()

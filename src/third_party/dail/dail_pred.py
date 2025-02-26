@@ -1,9 +1,6 @@
-import asyncio
-import concurrent
 import json
 import os
 import re
-from concurrent.futures import ThreadPoolExecutor
 from typing import List, Tuple
 
 import tqdm
@@ -19,9 +16,10 @@ from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
 from src.third_party.dail.generate_question import DailQuestionGenerator
 from src.third_party.dail.generate_second_question import DailSecondQuestionGenerator
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
-from src.util.async_utils import apply_async
 from src.util.model_utils import read_jsonl
-from src.util.multi_thread_utils import chunk_list, flatten, get_thread_pool, NUM_THREADS
+from src.util.multi_thread_utils import chunk_list, flatten, get_thread_pool
+
+DAIL_THREADS = int(os.environ.get("DAIL_THREADS", 1))
 
 
 class DailPredictor(Predictor):
@@ -145,8 +143,8 @@ class DailPredictor(Predictor):
             db_ids = [example['db_id'] for example in data]
         responses = read_jsonl(file_path, ChatCompletion)
         pairs = list(zip(db_ids, responses))
-        chunks = chunk_list(pairs, NUM_THREADS)
-        with get_thread_pool() as executor:
+        chunks = chunk_list(pairs, DAIL_THREADS)
+        with get_thread_pool(DAIL_THREADS) as executor:
             result_chunks = list(executor.map(self.post_process_response, chunks))
         results = flatten(result_chunks)
         return results

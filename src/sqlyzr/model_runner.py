@@ -1,6 +1,7 @@
 import asyncio
+import os
 from abc import ABC, abstractmethod
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
 
 from src.configs.sqlyzr import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
@@ -13,6 +14,8 @@ from src.third_party.din.din_bird_pred import DinBirdPredictor
 from src.third_party.din.din_spider_pred import DinPredictor
 from src.util.multi_thread_utils import get_thread_pool
 
+RUNNER_THREADS = int(os.environ.get("RUNNER_THREADS", 1))
+
 
 class ModelRunner(ABC):
     config: ModelEvalConfig
@@ -24,7 +27,10 @@ class ModelRunner(ABC):
         with get_thread_pool() as executor:
             results = executor.map(self.run_single, self.config.get_run_confs())
         for res in results:
-            res.result()
+            if isinstance(res, Future):
+                res.result()
+            else:
+                logger.info("Run result:", res)
 
     def run_single(self, run_conf: SingleRunConfig):
         logger.info(f"Running for conf={run_conf}")
