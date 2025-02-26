@@ -42,21 +42,21 @@ class Matcher:
             logger.debug(e)
         return None
 
-    async def exec(self, data: SqlParsedData) -> SqlExecResult:
+    def exec(self, data: SqlParsedData) -> SqlExecResult:
         # res = await self.db_facade.exec_query_async(data.db_id, data.sql)
         res = self.db_facade.exec_query_sync(data.db_id, data.sql)
         return data.to_result(res)
 
-    async def match(self, pred: SqlInputData, gold: SqlInputData):
+    def match(self, pred: SqlInputData, gold: SqlInputData):
         pred_parsed, gold_parsed = self.parse(pred), self.parse(gold)
         if pred_parsed is None or gold_parsed is None:
             return False
-        old_pred_exec, old_gold_exec = await self.exec(pred_parsed), await self.exec(gold_parsed)
+        old_pred_exec, old_gold_exec = self.exec(pred_parsed), self.exec(gold_parsed)
 
         for transformer in self.pre_exec_transformers:
             pred_parsed, gold_parsed = transformer.transform_sql(pred_parsed, gold_parsed)
 
-        pred_exec, gold_exec = await self.exec(pred_parsed), await self.exec(gold_parsed)
+        pred_exec, gold_exec = self.exec(pred_parsed), self.exec(gold_parsed)
         for transformer in sorted(self.post_exec_transformers):
             pred_exec = transformer.transform_result(pred_exec)
             gold_exec = transformer.transform_result(gold_exec)

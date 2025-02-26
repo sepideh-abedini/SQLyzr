@@ -17,7 +17,7 @@ class ScoreCalculator:
     def __init__(self, config: SQLyzrConfig):
         self.__config = config
 
-    async def calc_scores(self):
+    def calc_scores(self):
         config = self.__config.eval_conf
         if os.path.exists(config.get_raw_scores_path()):
             logger.debug(f"Raw scores exists: {config.get_raw_scores_path()}, skipping calculation.")
@@ -41,7 +41,7 @@ class ScoreCalculator:
                 for metric in metrics:
                     # if past:
                     try:
-                        score = await metric.calc(gold, pred, db_id)
+                        score = metric.calc(gold, pred, db_id)
                     except Exception as e:
                         logger.debug(e)
                         score = 0

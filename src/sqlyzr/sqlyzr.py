@@ -25,7 +25,7 @@ class Sqlyzr:
 
         if self.conf.pipeline.eval:
             calc = ScoreCalculator(self.conf)
-            await calc.calc_scores()
+            calc.calc_scores()
             post_processor = ScoresPostProcessor(self.conf)
             post_processor.run()
 

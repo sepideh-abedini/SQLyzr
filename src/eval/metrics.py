@@ -30,7 +30,7 @@ class Metric(ABC):
         self.dbc = DatabaseFactory.get_instance(conf, should_timeout=False)
 
     @abstractmethod
-    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
         pass
 
 
@@ -39,12 +39,12 @@ class StatMetric(ABC):
     name: str
 
     @abstractmethod
-    async def calc(self, run_conf: SingleRunConfig) -> int:
+    def calc(self, run_conf: SingleRunConfig) -> int:
         pass
 
 
 class ExactMatch(Metric):
-    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
         parser = ExactMatchParser(self.conf.get_tables_path())
         try:
             gold_parser = parser.parse(gold, db_id)
@@ -56,16 +56,8 @@ class ExactMatch(Metric):
         return 0
 
 
-class TokenUsage(StatMetric):
-
-    async def calc(self, run_conf: SingleRunConfig) -> int:
-        with open(run_conf.get_stats_path()) as file:
-            data = json.load(file)
-            return int(data["total_tokens"])
-
-
 class SpiderExactMatch(Metric):
-    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
             score = get_spider_exact_match(pred, f"{gold}\t{db_id}", self.conf)
             return score
@@ -75,9 +67,8 @@ class SpiderExactMatch(Metric):
 
 
 class ExecAcc(Metric):
-    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
-            db_file_path = self.conf.get_db_file_path(db_id)
             gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
             pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred)
             if gold_sql_exec_res is None:
@@ -94,7 +85,7 @@ class ExecAcc(Metric):
 
 
 class ComplexityConsistency(Metric):
-    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
             catter = Catter()
             c_gold = catter.get_category(gold)
@@ -111,7 +102,7 @@ class ComplexityConsistency(Metric):
 
 
 class GoldNotEmpty(Metric):
-    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
             gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold)
             if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
@@ -134,11 +125,11 @@ class RelaxedExecAcc(Metric):
             ExtraColumnRemoverMatcher()
         ])
 
-    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
             pd = SqlInputData(db_id, pred)
             gd = SqlInputData(db_id, gold)
-            working_sub = await self.detector.find_working_sub_sync(pd, gd)
+            working_sub = self.detector.find_working_sub_sync(pd, gd)
             if working_sub is not None:
                 return 1
             else:
@@ -150,15 +141,15 @@ class RelaxedExecAcc(Metric):
 
 class Count(Metric):
 
-    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
         return 1
 
 
 class TotalExecTime(Metric):
-    async def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
             timer = lib.Timer.start()
-            await self.dbc.exec_query_async(db_id, pred)
+            self.dbc.exec_query_sync(db_id, pred)
             pred_sql_exec_time = timer.lap()
             return pred_sql_exec_time * 1_000_000
         except Exception as e:
