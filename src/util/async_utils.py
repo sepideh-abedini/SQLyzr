@@ -4,7 +4,7 @@ from asyncio import Semaphore, get_running_loop
 
 from tqdm.asyncio import tqdm
 
-MAX_THREADS = os.getenv("MAX_THREADS", 8)
+MAX_THREADS = int(os.getenv("MAX_THREADS", 4))
 
 
 def partition_list(lst, size=MAX_THREADS):
@@ -16,11 +16,16 @@ async def apply_async(fun, l):
 
     async def worker(item):
         async with semaphore:
-            task = asyncio.create_task(fun(item))
-            return await asyncio.wait_for(task, timeout=1)
+            # task = asyncio.create_task(fun(item))
+            try:
+                # res = await asyncio.wait_for(task)
+                res = await fun(item)
+                return res
+            except asyncio.TimeoutError as e:
+                return e
 
     tasks = [worker(item) for item in l]
-    return await asyncio.gather(*tasks, return_exceptions=True)
+    return await tqdm.gather(*tasks)
 
 # async def apply_async(fun, l):
 #     parts = partition_list(l)

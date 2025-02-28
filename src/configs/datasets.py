@@ -13,8 +13,10 @@ SPIDER_SMALL = DatasetConfig(
 
 SPIDER_ALL = DatasetConfig(
     dataset_dir="data/spider_data",
-    test_file="data.test.json",
-    gold_file="data.test.gold.txt",
+    # test_file="data.test.json",
+    # gold_file="data.test.gold.txt",
+    test_file="all.json",
+    gold_file="all.gold.txt",
     train_file="data.train.json",
     tables_file="tables.all.json",
     db_dir="database"
