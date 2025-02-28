@@ -13,6 +13,7 @@ from tqdm import tqdm
 from src.util.log_util import configure_logging
 
 NUM_THREADS = int(os.environ.get("NUM_THREADS", 1))
+NUM_PROC_CHUNKS = int(os.environ.get("NUM_PROC_CHUNKS"), 1)
 
 logger.info(f"NUM_THREADS={NUM_THREADS}")
 
@@ -48,7 +49,7 @@ def process_initializer():
     configure_logging()
 
 
-def exec_multi_process(fun: Callable[[List[T]], List[U]], vals: List[T], num_procs: int):
+def exec_multi_process(fun: Callable[[List[T]], List[U]], vals: List[T], num_procs: int = NUM_PROC_CHUNKS):
     chunks = chunk_list(vals, num_procs)
     with Pool(num_procs, initializer=process_initializer) as pool:
         result_chunks = list(pool.map(fun, chunks))
