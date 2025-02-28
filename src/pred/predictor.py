@@ -1,7 +1,9 @@
+import os.path
 from abc import ABC, abstractmethod
 from typing import Callable, List, TypeVar, Type
 
 import pandas as pd
+from loguru import logger
 from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
@@ -36,6 +38,9 @@ class Predictor(ABC):
         self._tracker = ResourceUsageTracker(run_conf.get_pred_path())
 
     async def run(self):
+        if os.path.exists(self._run_conf.get_pred_path()):
+            logger.info(f"Pred file exists: {self._run_conf.get_pred_path()}")
+            return
         self._tracker.start_mem()
         await self._run_internal()
         self._tracker.lap_mem()

@@ -11,8 +11,8 @@ from src.sqlyzr.validate import validate_dataset
 class Sqlyzr:
     conf: SQLyzrConfig
 
-    def __init__(self):
-        self.conf = load_config()
+    def __init__(self, conf_path: str):
+        self.conf = load_config(conf_path)
 
     async def run(self):
         if self.conf.pipeline.verify:

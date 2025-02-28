@@ -66,7 +66,9 @@ def bird_pre_process(run_conf: SingleRunConfig, with_evidence=True):
         for data_json in data_jsons:
             ### Append the evidence to the question
             if with_evidence and len(data_json["evidence"]) > 0:
-                data_json['question'] = (data_json['question'] + " " + data_json["evidence"]).strip()
+                if (not 'evidence_added' in data_json) or not data_json['evidence_added']:
+                    data_json['question'] = (data_json['question'] + " " + data_json["evidence"]).strip()
+                data_json['evidence_added'] = True
             question = data_json['question']
             tokens = []
             for token in question.split(' '):

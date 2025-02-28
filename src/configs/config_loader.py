@@ -3,14 +3,12 @@ from typing import Literal, List, Tuple
 
 from pydantic import BaseModel
 
-
 from src.configs.datasets import DatasetName, DatasetSize, DATASETS
 from src.configs.metrics import SPIDER_METRICS, BIRD_METRICS, METRICS
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pipeline_config import PipelineConfig
 
-CONFIG_PATH = "conf.json"
 
 
 class ConfigData(BaseModel):
@@ -42,16 +40,14 @@ class ConfigData(BaseModel):
         return os.path.join(self.get_model_dataset_dir(), "trs")
 
     @staticmethod
-    def load():
-        with open(CONFIG_PATH) as file:
+    def load(path: str):
+        with open(path) as file:
             data = ConfigData.model_validate_json(file.read())
             return data
 
 
-
-
-def load_config() -> SQLyzrConfig:
-    conf_data = ConfigData.load()
+def load_config(path) -> SQLyzrConfig:
+    conf_data = ConfigData.load(path)
     dataset_conf = DATASETS[conf_data.dataset][conf_data.dataset_size]
     dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir()]
     for d in dirs:
