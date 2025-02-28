@@ -274,6 +274,8 @@ class EuclideanDistancePreSkeletonSimilarThresholdSelector(BasicExampleSelector)
             if cross_domain and similar_db_id == target["db_id"]:
                 continue
             # Skeleton similarity
+            if "pre_skeleton" not in train_json[index] or "pre_skeleton" not in target:
+                continue
             if jaccard_similarity(train_json[index]["pre_skeleton"], target["pre_skeleton"]) < self.threshold:
                 continue
             top_pairs.append((index, d))
@@ -286,6 +288,8 @@ class EuclideanDistancePreSkeletonSimilarThresholdSelector(BasicExampleSelector)
                 if cross_domain and similar_db_id == target["db_id"]:
                     continue
                 # Skeleton similarity
+                if "pre_skeleton" not in train_json[index] or "pre_skeleton" not in target:
+                    continue
                 if jaccard_similarity(train_json[index]["pre_skeleton"], target["pre_skeleton"]) >= self.threshold:
                     continue
                 top_pairs.append((index, d))
@@ -312,7 +316,10 @@ class EuclideanDistancePreSkeletonSimilarPlusSelector(BasicExampleSelector):
         from sklearn.metrics.pairwise import euclidean_distances
         distances = np.squeeze(euclidean_distances(target_embedding, self.train_embeddings)).tolist()
         train_json = self.train_json
+
         for i in range(len(train_json)):
+            if "pre_skeleton" not in train_json[i] or "pre_skeleton" not in target:
+                continue
             distances[i] -= jaccard_similarity(train_json[i]["pre_skeleton"], target["pre_skeleton"])
         pairs = [(distance, index) for distance, index in zip(distances, range(len(distances)))]
         pairs_sorted = sorted(pairs, key=lambda x: x[0])
@@ -361,6 +368,8 @@ class EuclideanDistanceQuestionMaskPreSkeletonSimilarThresholdSelector(BasicExam
             if cross_domain and similar_db_id == target["db_id"]:
                 continue
             # Skeleton similarity
+            if "pre_skeleton" not in train_json[index] or "pre_skeleton" not in target:
+                continue
             if jaccard_similarity(train_json[index]["pre_skeleton"], target["pre_skeleton"]) < self.threshold:
                 continue
             top_pairs.append((index, d))
@@ -373,6 +382,8 @@ class EuclideanDistanceQuestionMaskPreSkeletonSimilarThresholdSelector(BasicExam
                 if cross_domain and similar_db_id == target["db_id"]:
                     continue
                 # Skeleton similarity
+                if "pre_skeleton" not in train_json[index] or "pre_skeleton" not in target:
+                    continue
                 if jaccard_similarity(train_json[index]["pre_skeleton"], target["pre_skeleton"]) >= self.threshold:
                     continue
                 top_pairs.append((index, d))
@@ -415,6 +426,8 @@ class EuclideanDistanceQuestionMaskPreSkeletonSimilarThresholdShiftSelector(Basi
             if cross_domain and similar_db_id == target["db_id"]:
                 continue
             # Skeleton similarity
+            if "pre_skeleton" not in train_json[index] or "pre_skeleton" not in target:
+                continue
             if jaccard_similarity(train_json[index]["pre_skeleton"], target["pre_skeleton"]) < self.threshold:
                 continue
             top_pairs.append((index, d))

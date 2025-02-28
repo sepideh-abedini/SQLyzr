@@ -29,6 +29,8 @@ class Timer:
 
 
 def confidence_level_interval(column: pd.Series) -> str:
+    if not pd.api.types.is_numeric_dtype(column):
+        return "NA"
     CONFIDENCE = 0.95
     Z = 1.65
     SE = column.std() / math.sqrt(column.size)

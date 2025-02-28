@@ -14,14 +14,14 @@ class AbstractPreproc(metaclass=abc.ABCMeta):
     '''
 
     @abc.abstractmethod
-    def validate_item(self, item, section):
+    def validate_item(self, item, schema, section):
         '''Checks whether item can be successfully preprocessed.
 
         Returns a boolean and an arbitrary object.'''
         pass
 
     @abc.abstractmethod
-    def add_item(self, item, section, validation_info):
+    def add_item(self, item, schema, section, validation_info):
         '''Add an item to be preprocessed.'''
         pass
 

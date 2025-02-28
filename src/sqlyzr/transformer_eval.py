@@ -3,7 +3,7 @@ from typing import List, Set, Type
 import pandas as pd
 from tqdm.auto import tqdm
 
-from src.configs.sqlyzr import SQLyzrConfig
+from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.metrics import RelaxedExecAcc, ExecAcc, GoldNotEmpty
 from src.rel.base_matcher import SubsetMatcher
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer

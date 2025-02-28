@@ -3,7 +3,7 @@ import os
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, Future
 
-from src.configs.sqlyzr import SQLyzrConfig
+from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import SingleRunConfig
 from src.sqlyzr.dummy_predictor import DummyPredictor
@@ -24,17 +24,12 @@ class ModelRunner(ABC):
         self.config = config
 
     async def run(self):
-        with get_thread_pool() as executor:
-            results = executor.map(self.run_single, self.config.get_run_confs())
-        for res in results:
-            if isinstance(res, Future):
-                res.result()
-            else:
-                logger.info("Run result:", res)
+        for conf in self.config.get_run_confs():
+            res = await self.run_single(conf)
 
-    def run_single(self, run_conf: SingleRunConfig):
+    async def run_single(self, run_conf: SingleRunConfig):
         logger.info(f"Running for conf={run_conf}")
-        result = asyncio.run(self.run_single_internal(run_conf))
+        result = await self.run_single_internal(run_conf)
         return result
 
     @abstractmethod

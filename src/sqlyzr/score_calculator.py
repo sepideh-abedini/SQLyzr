@@ -1,16 +1,38 @@
 import os
 import threading
+from functools import partial
 
 import pandas as pd
-from loguru import logger
 from tqdm import tqdm
 
-from src.configs.sqlyzr import SQLyzrConfig
+from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pred_gold_reader import PredGoldReader
-from src.third_party.dail.dail_pred import DAIL_THREADS
-from src.util.multi_thread_utils import exec_multi_thread
+from src.util.multi_thread_utils import exec_multi_process
+
+EVAL_PROCS = int(os.getenv("EVAL_PROCS", 1))
+
+
+def calc_for_data(eval_conf, run_conf, data):
+    catter = Catter()
+    scores = []
+    metrics = []
+    for metric_name, metric_class in eval_conf.metrics.items():
+        metrics.append(metric_class(metric_name, eval_conf.dataset_config))
+    for i, (pred, gold, db_id) in tqdm(enumerate(data), total=len(data),
+                                       desc=f"Calculating scores for {run_conf}-{threading.get_ident()} -{os.getpid()}"):
+        cat, sub_cat = catter.categorize(gold)
+        example_scores = {"tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub_cat": sub_cat}
+        for metric in metrics:
+            try:
+                score = metric.calc(gold, pred, db_id)
+            except Exception as e:
+                logger.debug(e)
+                score = 0
+            example_scores[metric.name] = score
+        scores.append(example_scores)
+    return scores
 
 
 def calc_for_conf(config: ModelEvalConfig, conf: SingleRunConfig):
@@ -19,31 +41,11 @@ def calc_for_conf(config: ModelEvalConfig, conf: SingleRunConfig):
         logger.info(f"Scores for {conf} exists!")
         return pd.read_csv(scores_path)
 
-    def calc_for_data(data):
-        catter = Catter()
-        metrics = []
-        for metric_name, metric_class in config.metrics.items():
-            metrics.append(metric_class(metric_name, config.dataset_config))
-        for i, (pred, gold, db_id) in tqdm(enumerate(data), total=len(data),
-                                           desc=f"Calculating scores for {conf}-{threading.get_ident()}"):
-            cat, sub_cat = catter.categorize(gold)
-            example_scores = {"tmp": conf.temp, "itr": conf.itr, "cat": str(cat), "sub_cat": sub_cat}
-            for metric in metrics:
-                try:
-                    score = metric.calc(gold, pred, db_id)
-                except Exception as e:
-                    logger.debug(e)
-                    score = 0
-                example_scores[metric.name] = score
-            scores.append(example_scores)
-        return scores
-
     reader = PredGoldReader(conf)
-    data = reader.get_pred_gold_db_id()
-    scores = []
+    all_data = reader.get_pred_gold_db_id()
     logger.info(f"Calculating scores for {conf}")
-    scores = exec_multi_thread(calc_for_data, data, DAIL_THREADS)
-    ti_df = pd.DataFrame(scores)
+    all_scores = exec_multi_process(partial(calc_for_data, config, conf), all_data, EVAL_PROCS)
+    ti_df = pd.DataFrame(all_scores)
     ti_df.to_csv(scores_path)
 
     return ti_df
@@ -62,8 +64,10 @@ class ScoreCalculator:
             return
 
         df = pd.DataFrame()
+
         for conf in config.get_run_confs():
             sub_df = calc_for_conf(config, conf)
             df = pd.concat([df, sub_df])
         df.to_csv(config.get_raw_scores_path())
+
         logger.info("Score calculation finished!")

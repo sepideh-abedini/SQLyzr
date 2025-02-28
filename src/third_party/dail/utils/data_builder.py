@@ -99,7 +99,7 @@ class BasicDataset:
                     skelet = sql2skeleton(query, schema)
                 except Exception as e:
                     logger.warning(f"Failed to get skeleton: {e}")
-                    skelet = ""
+                    skelet = "SELECT"
                 skeletons.append(skelet)
             return skeletons
         else:

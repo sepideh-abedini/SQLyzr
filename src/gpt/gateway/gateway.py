@@ -18,7 +18,7 @@ class GptGateway:
         self._client = AsyncClient(
             organization=os.getenv("OPENAI_GROUP_ID"),
             project=os.getenv("OPENAI_PROJ_ID"),
-            timeout=60
+            timeout=int(os.getenv("OPENAI_TIMEOUT", 60))
         )
         self.__tracker = GptTokenTracker.get_instance()
 

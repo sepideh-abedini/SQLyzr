@@ -12,7 +12,7 @@ from src.aug.text_sql_pair import TextSqlPair
 from src.aug.text_sql_pair_example import TextSqlPairExample
 from src.cat.catter import Catter
 from src.cat.sub_category import SubCategory
-from src.configs.sqlyzr import SQLyzrConfig
+from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.dataset_config import DatasetConfig
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.file_sender.formatted_sender import GptFormattedSingleSender

@@ -5,6 +5,7 @@ from numpy.lib.recfunctions import join_by
 from .lexer import tokens, logic_ops
 from .lexer import get_lexer
 from .node import *
+from loguru import logger
 
 precedence = (
     ('left', 'OR', 'AND'),

@@ -7,7 +7,7 @@ from tqdm import tqdm
 from tqdm.asyncio import tqdm
 
 from src.cat.catter import Catter
-from src.configs.sqlyzr import SQLyzrConfig
+from src.configs.sqlyzr_config import SQLyzrConfig
 from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
 from src.eval.model_eval_config import ModelEvalConfig

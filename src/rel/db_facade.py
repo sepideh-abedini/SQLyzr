@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import threading
 import time
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
@@ -11,6 +12,7 @@ import aiosqlite
 from loguru import logger
 
 from src.eval.dataset_config import DatasetConfig
+from src.util.multi_thread_utils import write_thread_log
 
 IN_MEM_DB = bool(int(os.environ.get("IN_MEM_DB", True)))
 
@@ -59,7 +61,6 @@ def sqlite_timelimit(conn: Connection, ms):
 
     def handler():
         if time.perf_counter() >= deadline:
-            logger.warning("SQLite timeout!")
             return 1
 
     conn.set_progress_handler(handler, n)
@@ -95,8 +96,6 @@ class SqliteFacade(DatabaseFacade):
 
     @cache
     def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
-        # conn = self.get_sync_conn(db_id)
-
         conn = sqlite3.connect(f"file:{self.conf.get_db_file_path(db_id)}?mode=ro")
 
         with sqlite_timelimit(conn, timeout):
@@ -105,8 +104,9 @@ class SqliteFacade(DatabaseFacade):
                 cursor.execute(sql)
                 rows = cursor.fetchall()
             except Exception as e:
-                logger.error(sql)
-                logger.error(e)
+                if e.args == ('interrupted',):
+                    logger.error("SQLite Timed out!")
+                    write_thread_log(f"SQLite Timeout: {sql}\n")
                 rows = None
             finally:
                 cursor.close()

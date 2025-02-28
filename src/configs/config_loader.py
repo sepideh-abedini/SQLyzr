@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from src.configs.datasets import DatasetName, DatasetSize, DATASETS
 from src.configs.metrics import SPIDER_METRICS, BIRD_METRICS, METRICS
-from src.configs.sqlyzr import SQLyzrConfig
+from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pipeline_config import PipelineConfig
 

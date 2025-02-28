@@ -1,13 +1,11 @@
 from src.configs.config_loader import load_config
-from src.configs.sqlyzr import SQLyzrConfig
+from src.configs.sqlyzr_config import SQLyzrConfig
 from src.sqlyzr.augment_data import DatasetAugmentor
 from src.sqlyzr.model_runner import run_model
 from src.sqlyzr.score_calculator import ScoreCalculator
 from src.sqlyzr.scores_post_processor import ScoresPostProcessor
 from src.sqlyzr.transformer_eval import TransformerFinder
 from src.sqlyzr.validate import validate_dataset
-
-from loguru import logger
 
 
 class Sqlyzr:
