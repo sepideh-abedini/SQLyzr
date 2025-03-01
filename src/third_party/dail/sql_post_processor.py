@@ -1,31 +1,32 @@
 import re
 from typing import List, Tuple
 
+from diskcache import Cache
 from openai.types.chat import ChatCompletion
 import tqdm
 
 from src.eval.single_run_config import SingleRunConfig
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
-from src.util.cache_util import lookup_cache, save_cache
+
+CACHE_DIR = "/tmp/dail_post_processor"
 
 
 class DailSqlPostProcessorWorker:
-    CACHE_DIR = "/tmp/dail_post_processor"
     __conf: DailConfig
     _run_conf: SingleRunConfig
 
     def __init__(self, conf: DailConfig, run_conf: SingleRunConfig):
         self.__conf = conf
         self._run_conf = run_conf
+        self.cache = Cache(CACHE_DIR)
 
     def post_proc_single(self, pair: Tuple[str, ChatCompletion]):
         result = ""
         db_id = pair[0]
         response = pair[1]
-        cache_hit = lookup_cache(DailSqlPostProcessorWorker.CACHE_DIR, response.id)
-        if cache_hit:
-            return cache_hit
+        if response.id in self.cache:
+            return self.cache[response.id]
         contents = [choice.message.content for choice in response.choices]
         if self.__conf.gpt_params['n'] == 1:
             for sql in contents:
@@ -58,7 +59,7 @@ class DailSqlPostProcessorWorker:
             final_sqls = get_sqls([result], self.__conf.gpt_params['n'],
                                   self._run_conf.dataset_config)
             result = final_sqls[0]
-        save_cache(DailSqlPostProcessorWorker.CACHE_DIR, response.id, result)
+        self.cache[response.id] = result
         return result
 
     def post_process_response(self, pairs: List[Tuple[str, ChatCompletion]]):
