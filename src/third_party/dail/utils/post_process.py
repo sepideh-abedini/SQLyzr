@@ -1,4 +1,5 @@
 import asyncio
+import math
 import os
 import random
 import re
@@ -6,7 +7,7 @@ import sqlite3
 import threading
 from collections import defaultdict
 from itertools import product
-from typing import Tuple, Any, List, Set
+from typing import Tuple, Any, List, Set, Iterable
 
 import sqlparse
 import tqdm
@@ -63,11 +64,12 @@ def multiset_eq(l1: List, l2: List) -> bool:
     return True
 
 
-def get_constraint_permutation(tab1_sets_by_columns: List[Set], result2: List[Tuple]):
+def get_constraint_permutation(tab1_sets_by_columns: List[Set], result2: List[Tuple]) -> Tuple[Iterable, int]:
     num_cols = len(result2[0])
     perm_constraints = [{i for i in range(num_cols)} for _ in range(num_cols)]
+    result_len = math.prod(map(len, perm_constraints))
     if num_cols <= 3:
-        return product(*perm_constraints)
+        return product(*perm_constraints), result_len
 
     # we sample 20 rows and constrain the space of permutations
     for _ in range(20):
@@ -77,7 +79,9 @@ def get_constraint_permutation(tab1_sets_by_columns: List[Set], result2: List[Tu
             for tab2_col in set(perm_constraints[tab1_col]):
                 if random_tab2_row[tab2_col] not in tab1_sets_by_columns[tab1_col]:
                     perm_constraints[tab1_col].remove(tab2_col)
-    return product(*perm_constraints)
+    result_len = math.prod(map(len, perm_constraints))
+    result = product(*perm_constraints)
+    return result, result_len
 
 
 # check whether two denotations are correct
@@ -110,7 +114,12 @@ def result_eq(result1: List[Tuple], result2: List[Tuple], order_matters: bool) -
     # on a high level, we enumerate all possible column permutations that might make result_1 == result_2
     # we decrease the size of the column permutation space by the function get_constraint_permutation
     # if one of the permutation make result_1, result_2 equivalent, then they are equivalent
-    for perm in get_constraint_permutation(tab1_sets_by_columns, result2):
+    perms, len_perms = get_constraint_permutation(tab1_sets_by_columns, result2)
+    if len_perms > 1_000_000:
+        return False
+
+    # for perm in tqdm.tqdm(perms, total=len_perms, desc="Checking perms"):
+    for perm in perms:
         if len(perm) != len(set(perm)):
             continue
         if num_cols == 1:
@@ -235,7 +244,7 @@ def get_sqls(results, select_number, config: DatasetConfig):
         p_sqls = all_p_sqls[i]
         cluster_sql_list = []
         map_sql2denotation = {}
-        for i, sql in tqdm.tqdm(enumerate(p_sqls), total=len(p_sqls), desc=f"{i}@{db_id}"):
+        for i, sql in enumerate(p_sqls):
             flag, denotation = get_exec_output(config, db_id, sql)
             if flag == "exception":
                 continue
