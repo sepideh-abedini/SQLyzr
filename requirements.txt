@@ -113,3 +113,5 @@ tzdata==2024.1
 urllib3==2.2.3
 yarl==1.16.0
 zstandard==0.23.0
+
+diskcache~=5.6.3
