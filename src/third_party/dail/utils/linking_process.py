@@ -1,17 +1,14 @@
 import collections
-import itertools
 import json
 import os
 
 import attr
-import numpy as np
-import torch
+import tqdm
 
-from src.third_party.dail.utils.linking_utils import abstract_preproc, corenlp, serialization
+from src.third_party.dail.utils.linking_utils import abstract_preproc, serialization
 from src.third_party.dail.utils.linking_utils.spider_match_utils import (
     compute_schema_linking,
-    compute_cell_value_linking,
-    match_shift
+    compute_cell_value_linking
 )
 
 
@@ -142,12 +139,25 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
         preprocessed = self.preprocess_item(item, schema, validation_info)
         self.texts[section].append(preprocessed)
 
+    def add_proc_item(self, section, preprocessed):
+        self.texts[section].append(preprocessed)
+
     def clear_items(self):
         self.texts = collections.defaultdict(list)
 
-    def preprocess_item(self, item, schema, validation_info):
+    def preprocess_items(self, datas):
+        results = []
+        for data in tqdm.tqdm(datas, total=len(datas), desc="Preprocessing data"):
+            result = self.preprocess_item(data)
+            results.append(result)
+        return results
+
+    def preprocess_item(self, proc_data):
+        item = proc_data['item']
+        schema = proc_data['schema']
         question, question_for_copying = self._tokenize_for_copying(item['question_toks'], item['question'])
-        preproc_schema = self._preprocess_schema(schema)
+        # preproc_schema = self.preprocess_schema(schema)
+        preproc_schema = self.preprocessed_schemas[schema.db_id]
         if self.compute_sc_link:
             assert preproc_schema.column_names[0][0].startswith("<type:")
             column_names_without_types = [col[1:] for col in preproc_schema.column_names]
@@ -176,7 +186,7 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
             'primary_keys': preproc_schema.primary_keys,
         }
 
-    def _preprocess_schema(self, schema):
+    def preprocess_schema(self, schema):
         if schema.db_id in self.preprocessed_schemas:
             return self.preprocessed_schemas[schema.db_id]
         result = preprocess_schema_uncached(schema, self._tokenize,
