@@ -51,5 +51,6 @@ for size in "train" "test"; do
     jq '[.[] | select(.query | startswith("WITH") | not)]' $FILE_NAME > "$FILE_NAME".clean
     mv $FILE_NAME.clean $FILE_NAME
     extract_gold.sh -i $FILE_NAME
+    jq "length" "data.$size.json"
     wc -l "data.$size.gold.txt"
 done
