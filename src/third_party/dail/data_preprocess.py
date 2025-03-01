@@ -13,7 +13,7 @@ from src.third_party.dail.utils.datasets.spider import load_tables
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
 from src.third_party.dail.utils.pretrained_embeddings import GloVe
 from src.util.file_utils import read_json
-from src.util.multi_thread_utils import exec_multi_process
+from src.util.multi_thread_utils import exec_multi_process_chunked
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -60,7 +60,7 @@ class DailSchemaLinksGenerator(FileGenerator):
                 proc_data['schema'] = schema
                 linking_processor.preprocess_schema(schema)
                 proc_data_list.append(proc_data)
-            proc_list = exec_multi_process(linking_processor.preprocess_items, proc_data_list)
+            proc_list = exec_multi_process_chunked(linking_processor.preprocess_items, proc_data_list)
 
             for proc in proc_list:
                 linking_processor.add_proc_item(section, proc)

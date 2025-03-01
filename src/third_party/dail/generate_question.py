@@ -16,7 +16,7 @@ from src.third_party.dail.prompt.prompt_builder import prompt_factory
 from src.third_party.dail.utils.data_builder import load_data
 from src.third_party.dail.utils.enums import LLM
 from src.third_party.dail.utils.utils import cost_estimate
-from src.util.multi_thread_utils import exec_multi_process, exec_multi_process_flat
+from src.util.multi_thread_utils import exec_multi_process_chunked, exec_multi_process
 
 SQLYZR_DEVICE = os.environ.get("SQLYZR_DEVICE", "cpu")
 
@@ -79,7 +79,7 @@ class DailQuestionGenerator(FileGenerator):
         if SQLYZR_DEVICE == "mps":
             formats = list(tqdm.tqdm(map(worker.format, test_data), total=len(test_data)))
         else:
-            formats = exec_multi_process_flat(worker.format, test_data)
+            formats = exec_multi_process(worker.format, test_data)
 
         # for question_json in tqdm.tqdm(test_data):
         for question_format in formats:

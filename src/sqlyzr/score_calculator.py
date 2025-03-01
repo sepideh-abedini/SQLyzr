@@ -9,7 +9,7 @@ from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pred_gold_reader import PredGoldReader
-from src.util.multi_thread_utils import exec_multi_process, exec_multi_process_flat
+from src.util.multi_thread_utils import exec_multi_process_chunked, exec_multi_process
 
 
 def calc_for_entry(eval_conf, run_conf, entry):
@@ -51,7 +51,7 @@ def calc_for_conf(config: ModelEvalConfig, conf: SingleRunConfig):
     all_data = reader.get_pred_gold_db_id()
     # all_data = all_data[4500:4800]
     logger.info(f"Calculating scores for {conf}")
-    all_scores = exec_multi_process_flat(partial(calc_for_entry, config, conf), all_data)
+    all_scores = exec_multi_process(partial(calc_for_entry, config, conf), all_data)
     # all_scores = exec_multi_process(partial(calc_for_data, config, conf), all_data)
     # all_scores = list(tqdm(map(partial(calc_for_entry, config, conf), all_data), total=len(all_data)))
     logger.info(f"Score calculation done {conf}")

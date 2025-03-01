@@ -12,7 +12,6 @@ from loguru import logger
 
 from src.third_party.din.din_bird_pred import DinBirdPredictor
 from src.third_party.din.din_spider_pred import DinPredictor
-from src.util.multi_thread_utils import get_thread_pool
 
 RUNNER_THREADS = int(os.environ.get("RUNNER_THREADS", 1))
 
