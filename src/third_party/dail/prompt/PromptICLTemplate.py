@@ -1,17 +1,32 @@
 import numpy as np
 import tqdm
 
+from src.third_party.dail.prompt.ExampleFormatTemplate import ExampleFormatTemplate
+from src.third_party.dail.prompt.ExampleSelectorTemplate import BasicExampleSelector
+from src.third_party.dail.prompt.PromptReprTemplate import BasicPrompt
 from src.third_party.dail.utils.utils import get_tokenizer, count_tokens, jaccard_similarity
 
 
 class BasicICLPrompt(object):
-    NUM_EXAMPLE = None
     SEP_EXAMPLE = "\n\n"
 
-    def __init__(self, tokenizer: str, *args, **kwargs):
+    name: str
+    NUM_EXAMPLE: int
+    target_formatter: BasicPrompt
+    example_selector: BasicExampleSelector
+    example_format_template: ExampleFormatTemplate
+
+    def __init__(self,name: str, tokenizer: str, num_examples: int, target_formatter: BasicPrompt = None,
+                 example_selector: BasicExampleSelector = None, example_format_template: ExampleFormatTemplate = None,
+                 *args, **kwargs):
+        self.name = name
+        self.NUM_EXAMPLE = num_examples
         self.tokenizer = get_tokenizer(tokenizer)
         self.example_qualities = []
         self.pattern_similarities = []
+        self.target_formatter = target_formatter
+        self.example_selector = example_selector
+        self.example_format_template = example_format_template
 
     def record_example_quality(self, examples, target):
         quality_list = []
@@ -46,35 +61,30 @@ class BasicICLPrompt(object):
     def format(self, target: dict, max_seq_len: int, max_ans_len: int, scope_factor: int, cross_domain=False, *args,
                **kwargs):
         # target question
-        prompt_target = self.format_target(target)
+        prompt_target = self.target_formatter.format_target(target)
         sum_tokens = count_tokens(prompt_target, tokenizer=self.tokenizer)
 
         if self.NUM_EXAMPLE != 0:
             # example questions
-            examples = self.get_examples(target, self.NUM_EXAMPLE * scope_factor, cross_domain=cross_domain)
+            examples = self.example_selector.get_examples(target, self.NUM_EXAMPLE * scope_factor, cross_domain=cross_domain)
             prompt_example = list()
-            question = target["question"]
-            example_prefix = self.get_example_prefix()
+            example_prefix = self.example_format_template.get_example_prefix()
             selected_examples = []
-            for example in tqdm.tqdm(examples):
-                example_question = example["question"]
-                # assert example_question != question, f"Example is the same with target question: {question}!, \n{target}\n{example}"
+            # TODO:TQDM
+            # for example in tqdm.tqdm(examples, total=len(examples), desc="Adding examples"):
+            for example in examples:
                 if cross_domain:
                     assert target["db_id"] != example["db_id"]
 
-                example_format = self.format_example(example)
+                example_format = self.example_format_template.format_example(example)
 
-                # count tokens and drop the example if exceed max_len
                 forward_tokens = count_tokens(
                     example_prefix + self.SEP_EXAMPLE.join(prompt_example + [example_format, prompt_target]),
                     tokenizer=self.tokenizer)
 
                 if forward_tokens + max_ans_len <= max_seq_len:
-                    # add an example
                     prompt_example.append(example_format)
-                    # update tokens
                     sum_tokens = forward_tokens
-                    # record the selected examples
                     selected_examples.append(example)
 
                     if len(prompt_example) >= self.NUM_EXAMPLE:

@@ -8,9 +8,7 @@ from src.third_party.dail.utils.linking_utils.application import mask_question_w
 from src.third_party.dail.utils.utils import jaccard_similarity
 
 DEVICE = os.environ.get("SQLYZR_DEVICE", "cpu")
-ENC_PROG = os.environ.get("ENC_PROG", True)
-
-logger.info(f"DEVICE: {DEVICE}")
+ENC_PROG = bool(int(os.environ.get("ENC_PROG", 1)))
 
 
 class BasicExampleSelector(object):

@@ -1,3 +1,4 @@
+from src.third_party.dail.dail_conf import DailParams
 from src.third_party.dail.utils.enums import REPR_TYPE
 from src.third_party.dail.utils.enums import EXAMPLE_TYPE
 from src.third_party.dail.utils.enums import SELECTOR_TYPE
@@ -65,7 +66,7 @@ def get_example_format_cls(example_format: str):
     else:
         raise ValueError(f"{example_format} is not supported yet!")
     return example_format_cls
-    
+
 
 def get_example_selector(selector_type: str):
     if selector_type == SELECTOR_TYPE.COS_SIMILAR:
@@ -91,33 +92,37 @@ def get_example_selector(selector_type: str):
     else:
         raise ValueError(f"{selector_type} is not supported yet!")
     return selector_cls
-    
 
-def prompt_factory(repr_type:str, k_shot: int, example_format: str, selector_type: str):
+
+def prompt_factory(params: DailParams, data, second_stage: bool):
+    tokenizer = params.tokenizer
+    repr_type = params.prompt_repr
+    k_shot = params.k_shot
+    example_format = params.example_type
+
+    if not second_stage:
+        selector_type = params.selector_type
+    else:
+        selector_type = params.second_selector_type
+
     repr_cls = get_repr_cls(repr_type)
 
     if k_shot == 0:
         assert repr_cls is not None
         cls_name = f"{repr_type}_{k_shot}-SHOT"
-        
-        class PromptClass(repr_cls, BasicICLPrompt):
-            name = cls_name
-            NUM_EXAMPLE = k_shot
-            def __init__(self, *args, **kwargs):
-                repr_cls.__init__(self, *args, **kwargs)
-                # init tokenizer
-                BasicICLPrompt.__init__(self, *args, **kwargs)
+
+        target_formatter = repr_cls()
+        return BasicICLPrompt(name=cls_name, num_examples=k_shot, tokenizer=tokenizer,
+                              target_formatter=target_formatter)
     else:
         example_format_cls = get_example_format_cls(example_format)
         selector_cls = get_example_selector(selector_type)
         cls_name = f"{repr_type}_{k_shot}-SHOT_{selector_type}_{example_format}-EXAMPLE"
-        
-        class PromptClass(selector_cls, example_format_cls, repr_cls, BasicICLPrompt):
-            name = cls_name
-            NUM_EXAMPLE = k_shot
-            def __init__(self, *args, **kwargs):
-                selector_cls.__init__(self, *args, **kwargs)
-                # init tokenizer
-                BasicICLPrompt.__init__(self, *args, **kwargs)
-    
-    return PromptClass
+
+        target_formatter = repr_cls()
+        example_selector = selector_cls(data)
+        example_format_template = example_format_cls()
+
+        return BasicICLPrompt(name=cls_name, num_examples=k_shot, tokenizer=tokenizer,
+                              target_formatter=target_formatter, example_selector=example_selector,
+                              example_format_template=example_format_template)
