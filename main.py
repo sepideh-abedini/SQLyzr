@@ -1,6 +1,7 @@
 import argparse
 
 from src.assets.print_logo import print_logo
+from src.eval.lib import Timer
 from src.sqlyzr.sqlyzr import Sqlyzr
 from src.util.log_util import configure_logging
 import asyncio
@@ -16,8 +17,10 @@ async def main(config_path: str):
 
 
 if __name__ == '__main__':
+    timer = Timer.start()
     print_logo()
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", required=False, default="conf.json")
     args = parser.parse_args()
     asyncio.run(main(args.config))
+    print("TOTAL TIME: ", timer.lap())

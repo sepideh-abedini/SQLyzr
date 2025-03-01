@@ -27,7 +27,7 @@ BIRD_SMALL = DatasetConfig(
     test_file="data.test.small.json",
     gold_file="data.test.small.gold.txt",
     train_file="data.train.small.json",
-    tables_file="tables.small.json",
+    tables_file="tables.all.json",
     db_dir="database",
     dataset_type="bird"
 )

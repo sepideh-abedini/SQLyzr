@@ -2,13 +2,13 @@
   "aug_per_sub_cat": 5,
   "error_threshold": 90,
   "dataset": "bird",
-  "dataset_size": "small",
+  "dataset_size": "all",
   "temps": [
     0.2
   ],
   "itrs": 1,
   "model": "dail",
-  "batch": false,
+  "batch": true,
   "force": false,
   "pipeline": {
     "verify": false,
