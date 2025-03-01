@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from tqdm import tqdm
 
@@ -12,8 +13,10 @@ from src.third_party.dail.utils.datasets.spider import load_tables
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
 from src.third_party.dail.utils.pretrained_embeddings import GloVe
 from src.util.file_utils import read_json
+from src.util.multi_thread_utils import exec_multi_process
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 
 class DailSchemaLinksGenerator(FileGenerator):
@@ -47,16 +50,21 @@ class DailSchemaLinksGenerator(FileGenerator):
                                                    fix_issue_16_primary_keys=True,
                                                    compute_sc_link=True,
                                                    compute_cv_link=compute_cv_link)
-
         for data, section in zip([test_data, train_data], ['test', 'train']):
+            proc_data_list = []
             for item in tqdm(data, desc=f"{section} section linking"):
                 db_id = item["db_id"]
                 schema = schemas[db_id]
-                to_add, validation_info = linking_processor.validate_item(item, schema, section)
-                if to_add:
-                    linking_processor.add_item(item, schema, section, validation_info)
+                proc_data = dict()
+                proc_data['item'] = item
+                proc_data['schema'] = schema
+                linking_processor.preprocess_schema(schema)
+                proc_data_list.append(proc_data)
+            proc_list = exec_multi_process(linking_processor.preprocess_items, proc_data_list)
 
-        # save
+            for proc in proc_list:
+                linking_processor.add_proc_item(section, proc)
+
         linking_processor.save({"train": self.dail_conf.train_schema_path(), "test": self.dail_conf.test_schema_path()})
 
 
