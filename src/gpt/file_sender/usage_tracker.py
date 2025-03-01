@@ -83,23 +83,11 @@ class ResourceUsageTracker:
 
     def start(self):
         self.__last_usage = ResourceUsage.cur()
-        self.start_mem()
 
     def lap_time(self):
         cur_usage = ResourceUsage.cur()
         last_usage = self.__last_usage
         self.__usage += cur_usage - last_usage
-        self.lap_mem()
-
-    def start_mem(self):
-        self.__max_mem = ResourceUsage.cur_mem_mb()
-        self.__thread = Thread(target=self.__track_mem)
-        self.__thread.start()
-
-    def lap_mem(self):
-        self.__cond = False
-        self.__thread.join()
-        self.__usage.mem = max(self.__usage.mem, self.__max_mem)
 
     def save_usage(self):
         write_model(self.__usage, self.usage_path)

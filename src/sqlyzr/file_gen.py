@@ -1,6 +1,8 @@
 import os
 from abc import abstractmethod, ABC
 
+from loguru import logger
+
 from src.eval.lib import Timer
 from src.gpt.file_sender.usage_tracker import  ResourceUsageTracker
 from src.sqlyzr.file_sender_usage import FileGeneratorUsage
@@ -16,11 +18,11 @@ class FileGenerator(ABC):
 
     def run(self):
         if os.path.exists(self._out_path):
-            print(f"File exists: {self._out_path}, skipping!")
+            logger.info(f"File exists: {self._out_path}, skipping!")
             return self._tracker.load_usage()
-        self._tracker.start()
+        # self._tracker.start()
         self._run_internal()
-        self._tracker.lap_time()
+        # self._tracker.lap_time()
         return self._tracker.save_usage()
 
     @abstractmethod

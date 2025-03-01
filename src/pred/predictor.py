@@ -41,10 +41,10 @@ class Predictor(ABC):
         if os.path.exists(self._run_conf.get_pred_path()):
             logger.info(f"Pred file exists: {self._run_conf.get_pred_path()}")
             return
-        self._tracker.start_mem()
+        # self._tracker.start_mem()
         await self._run_internal()
-        self._tracker.lap_mem()
-        self._tracker.save_usage()
+        # self._tracker.lap_mem()
+        # self._tracker.save_usage()
 
     @abstractmethod
     async def _run_internal(self):

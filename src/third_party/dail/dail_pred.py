@@ -15,7 +15,7 @@ from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
 from src.third_party.dail.generate_question import DailQuestionGenerator
 from src.third_party.dail.sql_post_processor import DailSqlPostProcessorWorker
 from src.util.model_utils import read_jsonl
-from src.util.multi_thread_utils import exec_multi_process_flat, exec_multi_process
+from src.util.multi_thread_utils import exec_multi_process, exec_multi_process_chunked
 
 
 class DailPredictor(Predictor):
@@ -88,7 +88,5 @@ class DailPredictor(Predictor):
         responses = read_jsonl(file_path, ChatCompletion)
         pairs = list(zip(db_ids, responses))
         post_process_worker = DailSqlPostProcessorWorker(self.__conf, self._run_conf)
-        results = exec_multi_process_flat(post_process_worker.post_proc_single, pairs, desc="Post processing SQLs")
-        # results = exec_multi_process(post_process_worker.post_process_response, pairs)
-        # results = list(tqdm.tqdm(map(post_process_worker.post_proc_single, pairs),total=len(pairs)))
+        results = exec_multi_process(post_process_worker.post_proc_single, pairs, desc="Post processing SQLs")
         return results

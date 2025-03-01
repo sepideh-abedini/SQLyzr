@@ -13,7 +13,7 @@ from src.dataset.models import SpiderExample
 from src.eval.dataset_config import DatasetConfig
 from src.rel.db_facade import DatabaseFactory, DatabaseFacade
 from src.util.log_util import configure_logging
-from src.util.multi_thread_utils import exec_multi_process_flat
+from src.util.multi_thread_utils import exec_multi_process
 
 
 class SqlExecWorker:
@@ -51,7 +51,7 @@ def clean_file(dataset_conf: DatasetConfig, data_file_path: str, overwrite: bool
 
         worker = SqlExecWorker(dataset_conf)
         #
-        results = exec_multi_process_flat(worker.exec, examples)
+        results = exec_multi_process(worker.exec, examples)
         # results = list(tqdm(map(worker.exec, examples),total=len(examples)))
 
         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
