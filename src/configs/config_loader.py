@@ -1,6 +1,7 @@
 import os.path
 from typing import Literal, List, Tuple
 
+from loguru import logger
 from pydantic import BaseModel
 
 from src.configs.datasets import DatasetName, DatasetSize, DATASETS
@@ -8,7 +9,6 @@ from src.configs.metrics import SPIDER_METRICS, BIRD_METRICS, METRICS
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pipeline_config import PipelineConfig
-
 
 
 class ConfigData(BaseModel):
@@ -48,6 +48,12 @@ class ConfigData(BaseModel):
 
 def load_config(path) -> SQLyzrConfig:
     conf_data = ConfigData.load(path)
+    logger.info("########### Configuration #############")
+    logger.info(conf_data)
+    logger.info("#######################################")
+    logger.info("########### Environment #############")
+    logger.info(os.environ.items())
+    logger.info("#######################################")
     dataset_conf = DATASETS[conf_data.dataset][conf_data.dataset_size]
     dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir()]
     for d in dirs:
