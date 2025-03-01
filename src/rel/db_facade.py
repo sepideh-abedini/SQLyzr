@@ -1,6 +1,6 @@
 import os
+import os
 import sqlite3
-import threading
 import time
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
@@ -8,20 +8,19 @@ from functools import cache
 from sqlite3 import Connection
 from typing import List, Tuple, Optional, Dict
 
+from joblib import Memory
+
+from src.util.db_cache import lookup_db_cache, save_db_cache
 import aiosqlite
 from loguru import logger
 
 from src.eval.dataset_config import DatasetConfig
 from src.util.multi_thread_utils import write_thread_log
 
-IN_MEM_DB = bool(int(os.environ.get("IN_MEM_DB", True)))
+IN_MEM_DB = False
 
 DB_TIMEOUT = int(os.environ.get("DB_TIMEOUT", 60_000))
-logger.info(f"In-memory database load: {IN_MEM_DB}")
-logger.info(f"DB_TIMEOUT: {DB_TIMEOUT}")
-
-DB_LONG_TIMEOUT = int(os.environ.get("DB_LONG_TIMEOUT", 60 * 60_000))
-logger.info(f"DB_LONG_TIMEOUT: {DB_LONG_TIMEOUT}")
+DB_CACHE = bool(int(os.environ.get("DB_CACHE", 0)))
 
 
 class DatabaseFacade(ABC):
@@ -35,7 +34,7 @@ class DatabaseFacade(ABC):
         pass
 
     @abstractmethod
-    async def exec_query_async(self, db_id: str, sql: str) -> Optional[List[Tuple]]:
+    def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
         pass
 
 
@@ -54,6 +53,7 @@ class DatabaseFactory:
 
 @contextmanager
 def sqlite_timelimit(conn: Connection, ms):
+    # logger.trace(f"[{os.getpid()}]: Still Executing query!!")
     deadline = time.perf_counter() + (ms / 1000)
     n = 1000
     if ms <= 20:
@@ -72,69 +72,43 @@ def sqlite_timelimit(conn: Connection, ms):
 
 
 class SqliteFacade(DatabaseFacade):
-    sync_conns: Dict[str, Connection]
-    file_conns: List[Connection]
 
     def __init__(self, conf: DatasetConfig):
         super().__init__(conf)
-        self.sync_conns = dict()
-        self.file_conns = []
 
-    def get_sync_conn(self, db_id):
-        if db_id not in self.sync_conns:
-            conn = sqlite3.connect(f"file:{self.conf.get_db_file_path(db_id)}?mode=ro")
-            if IN_MEM_DB:
-                dest = sqlite3.connect(':memory:')
-                conn.backup(dest)
-                self.file_conns.append(conn)
-                self.sync_conns[db_id] = dest
-            else:
-                self.sync_conns[db_id] = conn
-
-        conn = self.sync_conns[db_id]
-        return conn
-
-    @cache
-    def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+    def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
         conn = sqlite3.connect(f"file:{self.conf.get_db_file_path(db_id)}?mode=ro")
+        logger.debug(f"Connection created")
 
-        with sqlite_timelimit(conn, timeout):
+        with sqlite_timelimit(conn, DB_TIMEOUT):
             cursor = conn.cursor()
             try:
                 cursor.execute(sql)
+                logger.debug(f"Query executed")
+
                 rows = cursor.fetchall()
+                logger.debug(f"Result fetched")
             except Exception as e:
                 if e.args == ('interrupted',):
-                    logger.error("SQLite Timed out!")
-                    write_thread_log(f"SQLite Timeout: {sql}\n")
+                    if DB_CACHE:
+                        save_db_cache(db_id, sql, None)
+                    logger.debug(f"SQLite Timed out: {db_id} {sql}")
+                else:
+                    logger.debug(e)
                 rows = None
             finally:
                 cursor.close()
             return rows
 
-    async def exec_query_async(self, db_id: str, sql: str) -> Optional[List[Tuple]]:
-        cursor = None
-        conn = None
-        try:
-            conn = await aiosqlite.connect(self.conf.get_db_file_path(db_id))
-            cursor = await conn.execute(sql)
-            rows = await cursor.fetchall()
-            return rows
-        except Exception as e:
-            logger.error(sql)
-            logger.error(e)
-            return None
-        finally:
-            if cursor:
-                await cursor.close()
-            if conn:
-                await conn.interrupt()
-                await conn.close()
+    def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+        if DB_CACHE:
+            res = lookup_db_cache(db_id, sql)
+            if res:
+                logger.trace("Cache hit")
+                return res
 
-    def __del__(self):
-        for conn in self.sync_conns.values():
-            conn.interrupt()
-            conn.close()
-        for conn in self.file_conns:
-            conn.interrupt()
-            conn.close()
+        result = self.exec_query_uncached(db_id, sql, timeout)
+
+        if DB_CACHE:
+            save_db_cache(db_id, sql, result)
+        return result
