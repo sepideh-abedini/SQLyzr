@@ -105,6 +105,8 @@ class ExtraTupleRemoverMatcher(ResultMatcher):
 class ExtraColumnRemoverMatcher(ResultMatcher):
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
         matched = set()
+        if len(list(gold.res)) * len(list(pred.res)) > 1_000_000:
+            return False
         if pred.res is None or gold.res is None:
             return False
         for g in gold.res:
