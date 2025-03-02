@@ -5,7 +5,6 @@ from openai.types.chat import ChatCompletion
 from tqdm.asyncio import tqdm
 
 from src.gpt.file_sender.file_sender import GptFileSender
-from src.gpt.file_sender.usage_tracker import ResourceUsage
 from src.gpt.gateway.gateway import GptGateway
 from src.gpt.models import BatchInputRequest
 from src.util.model_utils import read_jsonl
@@ -32,9 +31,5 @@ class GptSingleSender(GptFileSender):
 
     async def _send_file(self, in_path: str) -> list[ChatCompletion]:
         reqs = read_jsonl(in_path, BatchInputRequest)
-        self._tracker.start()
         responses = await self.__send_reqs(reqs)
-        tokens = sum(map(lambda res: res.usage.total_tokens if res.usage else 0, responses))
-        self._tracker.lap_time()
-        self._tracker.add_usage(ResourceUsage(tokens=tokens))
         return responses

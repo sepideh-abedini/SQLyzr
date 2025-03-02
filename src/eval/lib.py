@@ -1,16 +1,26 @@
 import datetime
-import os
-from datetime import datetime, timedelta
-
 import math
 import subprocess
-import mysql.connector
-
-from loguru import logger
+from datetime import datetime
 
 import pandas as pd
+from loguru import logger
 
-from src.eval.dataset_config import DatasetConfig
+
+class TimeLogger:
+    idx: str
+
+    def __init__(self, idx: str):
+        self.idx = idx
+
+    @staticmethod
+    def start(idx: str):
+        timer = TimeLogger(idx)
+        logger.info(f"{idx} started", idx=f"{idx}", start=True)
+        return timer
+
+    def lap(self):
+        logger.info(f"{self.idx} finished", idx=f"{self.idx}", finish=True)
 
 
 class Timer:

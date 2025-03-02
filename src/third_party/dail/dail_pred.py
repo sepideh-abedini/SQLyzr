@@ -2,11 +2,10 @@ import json
 import os
 from typing import List
 
-import tqdm
 from loguru import logger
 from openai.types.chat import ChatCompletion
 
-from src.eval.lib import Timer
+from src.eval.lib import TimeLogger
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.models import BatchInputRequest
 from src.pred.predictor import Predictor
@@ -15,7 +14,7 @@ from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
 from src.third_party.dail.generate_question import DailQuestionGenerator
 from src.third_party.dail.sql_post_processor import DailSqlPostProcessorWorker
 from src.util.model_utils import read_jsonl
-from src.util.multi_thread_utils import exec_multi_process, exec_multi_process_chunked
+from src.util.multi_thread_utils import exec_multi_process
 
 
 class DailPredictor(Predictor):
@@ -28,48 +27,27 @@ class DailPredictor(Predictor):
 
     async def _run_internal(self):
         schema_links_gen = DailSchemaLinksGenerator(self.__conf, self._run_conf)
-        usage = schema_links_gen.run()
-        self._tracker.add_usage(usage)
-        logger.info("Schema linking done!")
+        schema_links_gen.run()
 
         question_gen = DailQuestionGenerator(self.__conf, self._run_conf, self.__conf.questions_path())
-        usage = question_gen.run()
-        self._tracker.add_usage(usage)
-        logger.info("Question generation done!")
+        question_gen.run()
 
         self.__load_questions(self.__conf.questions_path())
         self._gen_batch_file(self.__conf.get_path("in"), self.__gen_sql_req)
         await self._ask_file(self.__conf.get_path("in"), self.__conf.get_path("out"))
-        logger.info("SQL prediction done!")
 
-        if os.path.exists(self.__conf.pre_test_result_path()):
-            logger.info(f"Pre test result exists: {self.__conf.pre_test_result_path()}")
-            with open(self.__conf.pre_test_result_path()) as file:
-                sqls = file.readlines()
-        else:
-            timer = Timer.start()
-            sqls = self.__process_responses(self.__conf.get_path("out"))
-            with open(self.__conf.pre_test_result_path(), "w") as file:
-                for sql in sqls:
-                    file.write(f"{sql}\n")
-            lap = timer.lap()
-            with open(f"{self.__conf.pre_test_result_path()}.usage", "w") as usage_file:
-                usage_file.write(f"{lap}")
-        logger.info("SQL post porcessing done!")
+        sqls = self.__process_responses(self.__conf.get_path("out"), self.__conf.pre_test_result_path())
 
         second_question_gen = DailQuestionGenerator(self.__conf, self._run_conf,
                                                     self.__conf.second_questions_path(), second_stage=True)
-        usage = second_question_gen.run()
-        self._tracker.add_usage(usage)
-        logger.info("Second Question generation done!")
+        second_question_gen.run()
 
         self.__load_questions(self.__conf.second_questions_path())
         self._gen_batch_file(self.__conf.get_path("in.second"), self.__gen_sql_req)
 
         await self._ask_file(self.__conf.get_path("in.second"), self.__conf.get_path("out.second"))
-        sqls = self.__process_responses(self.__conf.get_path("out.second"))
-        logger.info("Second SQL generation done!")
 
+        sqls = self.__process_responses(self.__conf.get_path("out.second"), self._run_conf.get_pred_path())
         self._save_sqls(sqls)
 
     def __gen_sql_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
@@ -81,12 +59,22 @@ class DailPredictor(Predictor):
         questions_json = json.load(open(path, "r"))
         self.__questions = [_["prompt"] for _ in questions_json["questions"]]
 
-    def __process_responses(self, file_path) -> List[str]:
+    def __process_responses(self, in_path, out_path) -> List[str]:
+        if os.path.exists(out_path):
+            logger.info(f"File exists, skipping preprocessing: {out_path}")
+            with open(self.__conf.pre_test_result_path()) as file:
+                sqls = file.readlines()
+                return sqls
+        time_logger = TimeLogger.start(f"DAIL:PostProcess:{out_path}")
         with open(self._run_conf.dataset_config.get_test_path()) as data_file:
             data = json.load(data_file)
             db_ids = [example['db_id'] for example in data]
-        responses = read_jsonl(file_path, ChatCompletion)
+        responses = read_jsonl(in_path, ChatCompletion)
         pairs = list(zip(db_ids, responses))
         post_process_worker = DailSqlPostProcessorWorker(self.__conf, self._run_conf)
         results = exec_multi_process(post_process_worker.post_proc_single, pairs, desc="Post processing SQLs")
+        with open(out_path, "w") as file:
+            for sql in results:
+                file.write(f"{sql}\n")
+        time_logger.lap()
         return results

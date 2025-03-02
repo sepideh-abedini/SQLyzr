@@ -1,5 +1,4 @@
 import os
-import threading
 from functools import partial
 
 import pandas as pd
@@ -9,7 +8,7 @@ from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pred_gold_reader import PredGoldReader
-from src.util.multi_thread_utils import exec_multi_process_chunked, exec_multi_process
+from src.util.multi_thread_utils import exec_multi_process
 
 catter = Catter()
 

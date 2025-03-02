@@ -2,8 +2,6 @@ import pandas as pd
 
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.lib import confidence_level_interval
-from src.gpt.file_sender.usage_tracker import ResourceUsage
-from src.util.model_utils import read_model
 
 
 class ScoresPostProcessor:
@@ -51,7 +49,6 @@ class ScoresPostProcessor:
         combined.to_csv(config.get_scores_path("_combined"))
 
         # for run_conf in self.__config.eval_conf.get_run_confs():
-        #     usage = read_model(run_conf.get_usage_path(), ResourceUsage)
         #     row_match = (df_all['tmp'] == run_conf.temp) & (df_all['itr'] == run_conf.itr)
         #     df_all.loc[row_match, 'time'] = usage.time
         #     df_all.loc[row_match, 'mem'] = usage.mem

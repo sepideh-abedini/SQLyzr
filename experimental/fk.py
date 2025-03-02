@@ -6,7 +6,6 @@ import tqdm
 from src.configs.datasets import BIRD_ALL
 from src.rel.db_factory import DatabaseFactory
 
-db_facade = DatabaseFactory.get_instance(BIRD_ALL)
 
 
 def get_num_rows(db_id, table):

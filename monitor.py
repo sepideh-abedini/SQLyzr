@@ -1,44 +1,72 @@
 import argparse
+import sys
+from typing import TypedDict
 
 import psutil
 import time
 
+from loguru import logger
+
+
 class ProcessUsage:
     proc: psutil.Process
+
     def __init__(self, pid: int):
-        process = psutil.Process(pid)
+        self.proc = psutil.Process(pid)
 
     @property
     def mem(self):
         total_memory = self.proc.memory_info().rss
         for child in self.proc.children(recursive=True):
             total_memory += child.memory_info().rss
+        total_memory = total_memory / (1024 * 1024)  # MB
         return total_memory
 
     @property
-    def cpu_(self):
-        total_memory = self.proc.memory_info().rss
+    def cpu(self):
+        total_cpu = self.proc.cpu_percent(interval=0.1)
         for child in self.proc.children(recursive=True):
-            total_memory += child.memory_info().rss
-        return total_memory
+            total_cpu += child.cpu_percent(interval=0.1)
+        return total_cpu
 
+    @property
+    def cpu_time(self):
+        total_cpu = sum(self.proc.cpu_times())
+        for child in self.proc.children(recursive=True):
+            total_cpu += sum(child.cpu_times())
+        return total_cpu
 
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        msg = "Usage Info\n"
+        msg += f"Memory Usage: {self.mem:.2f} MB\n"
+        msg += f"Total CPU Usage: {self.cpu:.2f}%\n"
+        msg += f"Total CPU Time: {self.cpu_time}\n"
+        return msg
+
+    def to_dict(self):
+        return {
+            'cpu': self.cpu,
+            'mem': self.mem,
+            'cpu_time': self.cpu_time
+        }
 
 
 def main(pid):
-    process = psutil.Process(pid)
-    with open("memory.log", "a") as log_file:
-        while True:
-
-            total_cpu = process.cpu_percent(interval=0.1)
-            for child in process.children(recursive=True):
-                total_cpu += child.cpu_percent(interval=0.1)
-            total_memory = total_memory / (1024 * 1024)  # MB
-            log_entry = f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Memory Usage: {total_memory:.2f} MB\n"
-            print(log_entry)
-            log_entry = f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Total CPU Usage: {total_cpu:.2f}%\n"
-            print(log_entry)
-            time.sleep(5)
+    try:
+        logger.remove(0)
+    except Exception:
+        pass
+    logger.add("util.log", level="INFO")
+    logger.add("util.jsonl", level="INFO", serialize=True)
+    logger.add(sys.stderr, level="INFO", colorize=True, enqueue=True,
+               format="<green>{time:HH:mm:ss} | </green><level> {level}: {message}</level>")
+    pu = ProcessUsage(pid)
+    while True:
+        logger.info(str(pu), util=pu.to_dict())
+        time.sleep(1)
 
 
 if __name__ == '__main__':
