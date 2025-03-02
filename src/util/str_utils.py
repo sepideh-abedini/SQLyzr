@@ -8,6 +8,23 @@ def delete_whitespace(content):
     return content
 
 
+def is_quoted(s) -> bool:
+    return (s.startswith('"') and s.endswith('"')) or (s.startswith("'") and s.endswith("'"))
+
+
+def quote_str(s) -> str:
+    if is_quoted(s):
+        return s
+    else:
+        return f"'{s}'"
+
+
+def shrink_whitespaces(s: str) -> str:
+    s = s.replace('\n', ' ').replace('\r', ' ')
+    s = re.sub(r'\s+', ' ', s)
+    return s
+
+
 def pascal_to_snake(name: str) -> str:
     """Example: 'BarBaz' -> 'bar_baz'"""
     snake_case = re.sub('([A-Z])', r'_\1', name).lower()
