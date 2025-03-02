@@ -1,21 +1,15 @@
 import os
-import os
 import sqlite3
 import time
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from functools import cache
 from sqlite3 import Connection
-from typing import List, Tuple, Optional, Dict
-
-from joblib import Memory
+from typing import List, Tuple, Optional
 
 from src.util.db_cache import lookup_db_cache, save_db_cache
-import aiosqlite
 from loguru import logger
 
 from src.eval.dataset_config import DatasetConfig
-from src.util.multi_thread_utils import write_thread_log
 
 IN_MEM_DB = False
 
@@ -32,23 +26,6 @@ class DatabaseFacade(ABC):
     @abstractmethod
     def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
         pass
-
-    @abstractmethod
-    def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
-        pass
-
-
-class DatabaseFactory:
-    __instance: Optional[DatabaseFacade] = None
-
-    @staticmethod
-    def get_instance(conf: DatasetConfig):
-        if not DatabaseFactory.__instance:
-            if conf.dataset_type in ["bird", "spider"]:
-                DatabaseFactory.__instance = SqliteFacade(conf)
-            else:
-                raise RuntimeError(f"No supported DB facade for dataset = {conf.dataset_type}")
-        return DatabaseFactory.__instance
 
 
 @contextmanager
