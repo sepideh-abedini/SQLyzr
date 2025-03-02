@@ -469,6 +469,7 @@ class WhereClauseNode(SqlAstNode):
 class GroupClauseNode(SqlAstNode):
     exprs: List[ExpressionNode]
     having: Optional[ExpressionNode] = None
+    rollup: bool = False
 
     def __add__(self, other):
         if isinstance(other, ExpressionNode):

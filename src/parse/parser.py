@@ -1,5 +1,4 @@
 import ply.yacc as yacc
-from numpy.lib.recfunctions import join_by
 
 # Get the token map from the lexer. This is required.
 from .lexer import tokens, logic_ops
@@ -221,14 +220,20 @@ def p_where_clause(p):
 def p_group_clause(p):
     '''group_clause : GROUP BY expr
                     | group_clause COMMA expr
-                    | group_clause HAVING expr'''
+                    | group_clause HAVING expr
+                    | group_clause WITH ROLLUP
+                    | group_clause WITH ROLLUP HAVING expr'''
     if not isinstance(p[1], GroupClauseNode):
         p[0] = GroupClauseNode([p[3]])
-    else:
+    elif len(p) == 4:
         if p[2] == ',':
             p[0] = p[1] + p[3]
+        elif p[2] == 'with':
+            p[0] = replace(p[1], rollup=True, having=p[3])
         else:
             p[0] = replace(p[1], having=p[3])
+    elif len(p) == 6:
+        p[0] = replace(p[1], rollup=True, having=p[5])
 
 
 def p_column(p):
@@ -346,7 +351,8 @@ def p_join_op(p):
                | INNER JOIN
                | LEFT JOIN
                | LEFT OUTER JOIN
-               | RIGHT JOIN'''
+               | RIGHT JOIN
+               | CROSS JOIN '''
     if len(p) == 2:
         p[0] = TerminalNode('join_op', p[1])
     else:
@@ -357,6 +363,7 @@ def p_type_name(p):
     '''type_name : REAL
                  | FLOAT
                  | INTEGER
+                 | UNSIGNED
                  | INT
                  | TEXT
                  | DATE'''
