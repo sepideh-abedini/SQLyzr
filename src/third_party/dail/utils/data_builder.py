@@ -145,7 +145,7 @@ class BasicDataset:
 
 
 def load_data(config: DatasetConfig, dail_conf: DailConfig):
-    if config.dataset_type.lower() == "spider" or config.dataset_type.lower() == 'bird':
+    if config.dataset_type.lower() in ['spider', 'bird', 'beaver']:
         return BasicDataset(config, dail_conf)
     else:
         raise RuntimeError(f"Unsupported dataset: {config.dataset_type}")

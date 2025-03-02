@@ -10,6 +10,7 @@ from src.util.db_cache import lookup_db_cache, save_db_cache
 from loguru import logger
 
 from src.eval.dataset_config import DatasetConfig
+from src.util.str_utils import shrink_whitespaces
 
 IN_MEM_DB = False
 
@@ -25,6 +26,26 @@ class DatabaseFacade(ABC):
 
     @abstractmethod
     def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+        pass
+
+    @abstractmethod
+    def get_tables(self, db_id):
+        pass
+
+    @abstractmethod
+    def get_primary_key(self, db_id, table_name):
+        pass
+
+    @abstractmethod
+    def get_foreign_key(self, db_id, table_name):
+        pass
+
+    @abstractmethod
+    def get_col_names(self, db_id, table_name):
+        pass
+
+    @abstractmethod
+    def get_create_sql(self, db_id, table_name):
         pass
 
 
@@ -49,6 +70,40 @@ def sqlite_timelimit(conn: Connection, ms):
 
 
 class SqliteFacade(DatabaseFacade):
+
+    def get_create_sql(self, db_id, table_name):
+        query = f"SELECT sql FROM sqlite_master WHERE tbl_name='{table_name}'"
+        result = self.exec_query_sync(db_id, query)
+        result = result[0][0]
+        result = shrink_whitespaces(result)
+        return result
+
+    def get_col_names(self, db_id, table_name):
+        res = self.exec_query_sync(db_id, f'PRAGMA table_info("{table_name}")')
+        col_names = [_[1] for _ in res]
+        return col_names
+
+    def get_foreign_key(self, db_id, table_name):
+        res_raw = self.exec_query_sync(db_id, f'PRAGMA foreign_key_list("{table_name}")')
+        res_clean = list()
+        for row in res_raw:
+            table, source, to = row[2:5]
+            row_clean = f"({table_name}.{source}, {table}.{to})"
+            res_clean.append(row_clean)
+        return res_clean
+
+    def get_primary_key(self, db_id, table_name):
+        res_raw = self.exec_query_sync(db_id, f'PRAGMA table_info("{table_name}");')
+        pks = list()
+        for row in res_raw:
+            if row[5] == 1:
+                pks.append(row[1])
+        return pks
+
+    def get_tables(self, db_id: str):
+        result = self.exec_query_sync(db_id, "SELECT name FROM sqlite_master WHERE type='table'")
+        table_names = [_[0] for _ in result]
+        return table_names
 
     def __init__(self, conf: DatasetConfig):
         super().__init__(conf)

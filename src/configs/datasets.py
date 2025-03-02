@@ -70,6 +70,16 @@ BEAVER_ALL = DatasetConfig(
     dataset_type="beaver"
 )
 
+BEAVER_SMALL = DatasetConfig(
+    dataset_dir="data/beaver",
+    test_file="data.test.small.json",
+    gold_file="data.test.small.gold.txt",
+    train_file="data.train.small.json",
+    tables_file="tables.json",
+    db_dir="database",
+    dataset_type="beaver"
+)
+
 DATASETS = {
     "bird": {
         "small": BIRD_SMALL,
@@ -85,7 +95,8 @@ DATASETS = {
         "all": SPIDER_ALL
     },
     "beaver": {
-        "all": BEAVER_ALL
+        "all": BEAVER_ALL,
+        "small": BEAVER_SMALL
     }
 }
 
