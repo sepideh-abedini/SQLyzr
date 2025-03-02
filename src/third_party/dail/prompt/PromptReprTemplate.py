@@ -1,7 +1,6 @@
-from experimental.fk import db_facade
 from src.rel.db_factory import DatabaseFactory
 from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy
-from src.third_party.dail.utils.utils import get_sql_for_database
+from src.third_party.dail.utils.utils import get_create_sqls_for_database
 import json
 
 
@@ -19,13 +18,10 @@ class BasicPrompt(object):
     def get_extra_info(self, db_id):
         return None
 
-    def get_cur(self, example):
+    def get_db_facade(self, example):
         dataset_config = example['dataset_config']
         db_facade = DatabaseFactory.get_instance(dataset_config)
-        db_id = example['db_id']
-        conn = DatabaseConnectionProxy(db_facade, db_id)
-        cur = conn.cursor()
-        return cur
+        return db_facade
 
 
 class SQLPrompt(BasicPrompt):
@@ -34,8 +30,8 @@ class SQLPrompt(BasicPrompt):
     template_question = "/* Answer the following: {} */"
 
     def format_question(self, example: dict):
-        cur = self.get_cur(example)
-        sqls = get_sql_for_database(cur=cur)
+        dbf = self.get_db_facade(example)
+        sqls = get_create_sqls_for_database(dbf, example["db_id"])
 
         prompt_info = self.template_info.format("\n\n".join(sqls))
         prompt_extra_info = self.get_extra_info(example["db_id"])
@@ -279,8 +275,8 @@ class SQLWithRulePrompt(BasicPrompt):
     template_question = "/* Answer the following with no explanation: {} */"
 
     def format_question(self, example: dict):
-        cur = self.get_cur(example)
-        sqls = get_sql_for_database(cur=cur)
+        dbf = self.get_db_facade(example)
+        sqls = get_create_sqls_for_database(dbf, example["db_id"])
 
         prompt_info = self.template_info.format("\n\n".join(sqls))
         prompt_extra_info = self.get_extra_info(example["db_id"])
@@ -371,8 +367,8 @@ class SQLCOTPrompt(BasicPrompt):
     template_question = "/* Let's think step by step. Answer the following: {} */"
 
     def format_question(self, example: dict):
-        cur = self.get_cur(example)
-        sqls = get_sql_for_database(cur=cur)
+        dbf = self.get_db_facade(example)
+        sqls = get_create_sqls_for_database(dbf, example["db_id"])
 
         prompt_info = self.template_info.format("\n\n".join(sqls))
         prompt_extra_info = self.get_extra_info(example["db_id"])

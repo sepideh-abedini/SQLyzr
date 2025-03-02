@@ -6,6 +6,7 @@ from sql_metadata import Parser
 from transformers import AutoTokenizer
 
 from src.eval.dataset_config import DatasetConfig
+from src.rel.db_facade import DatabaseFacade
 from src.rel.db_factory import DatabaseFactory
 from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy
 from src.third_party.dail.utils.enums import LLM
@@ -27,14 +28,15 @@ def get_tables(conf: DatasetConfig, db_id):
     connection = DatabaseConnectionProxy(db_facade, db_id, timeout=DB_LONG_TIMEOUT)
     cur = connection.cursor()
     # extract table information
-    table_info = parse_db(cur=cur)
+    table_info = parse_db(db_facade, db_id)
     # TODO: ! add here
-    table_names = get_table_names(cur=cur)
+    table_names = db_facade.get_tables(db_id)
 
     res = list()
     for table_name in table_names:
         # schema
-        schema = [_[1] for _ in cur.execute(f'PRAGMA table_info("{table_name}")')]
+        # col_names = [_[1] for _ in db_facade.exec_query_sync(db_id, f'PRAGMA table_info("{table_name}")')]
+        col_names = db_facade.get_col_names(db_id, table_name)
 
         # data
         data = None
@@ -44,7 +46,7 @@ def get_tables(conf: DatasetConfig, db_id):
         res.append(
             SqliteTable(
                 name=table_name,
-                schema=schema,
+                schema=col_names,
                 data=data,
                 table_info=table_info.get(table_name, dict())
             )
@@ -54,78 +56,24 @@ def get_tables(conf: DatasetConfig, db_id):
     return res
 
 
-def parse_db(cur=None):
+def parse_db(db_facade: DatabaseFacade, db_id: str):
     """Parse the sql file and extract primary and foreign keys
 
     :param path_file:
     :return:
     """
     table_info = dict()
-    table_names = get_table_names(cur=cur)
+    table_names = db_facade.get_tables(db_id)
 
     for table_name in table_names:
-        pks = get_primary_key(table_name, cur=cur)
-        fks = get_foreign_key(table_name, cur=cur)
+        pks = db_facade.get_primary_key(db_id, table_name)
+        fks = db_facade.get_foreign_key(db_id, table_name)
 
         table_info[table_name] = {
             "primary_key": pks,
             "foreign_key": fks
         }
     return table_info
-
-
-def execute_query(queries, path_db=None, cur=None):
-    """Execute queries and return results. Reuse cur if it's not None.
-
-    """
-    assert not (path_db is None and cur is None), "path_db and cur cannot be NoneType at the same time"
-
-    if isinstance(queries, str):
-
-        results = cur.execute(queries).fetchall()
-    elif isinstance(queries, list):
-        results = list()
-        for query in queries:
-            res = cur.execute(query).fetchall()
-            results.append(res)
-    else:
-        raise TypeError(f"queries cannot be {type(queries)}")
-
-    return results
-
-
-def format_foreign_key(table_name: str, res: list):
-    # FROM: self key | TO: target key
-    res_clean = list()
-    for row in res:
-        table, source, to = row[2:5]
-        row_clean = f"({table_name}.{source}, {table}.{to})"
-        res_clean.append(row_clean)
-    return res_clean
-
-
-def get_foreign_key(table_name, path_db=None, cur=None):
-    res_raw = execute_query(f'PRAGMA foreign_key_list("{table_name}")', path_db, cur)
-    res = format_foreign_key(table_name, res_raw)
-    return res
-
-
-def get_primary_key(table_name, path_db=None, cur=None):
-    res_raw = execute_query(f'PRAGMA table_info("{table_name}")', path_db, cur)
-    pks = list()
-    for row in res_raw:
-        if row[5] == 1:
-            pks.append(row[1])
-    return pks
-
-
-def get_table_names(path_db=None, cur=None):
-    """Get names of all tables within the database, and reuse cur if it's not None
-
-    """
-    table_names = execute_query(queries="SELECT name FROM sqlite_master WHERE type='table'", path_db=path_db, cur=cur)
-    table_names = [_[0] for _ in table_names]
-    return table_names
 
 
 def filter_json(raw_response: str) -> str:
@@ -144,21 +92,12 @@ def cost_estimate(n_tokens: int, model):
     return LLM.costs_per_thousand[model] * n_tokens / 1000
 
 
-def get_sql_for_database(path_db=None, cur=None):
-    close_in_func = False
-    if cur is None:
-        raise RuntimeError("Connection cursor is None!")
-
-    table_names = get_table_names(path_db, cur)
-
-    queries = [f"SELECT sql FROM sqlite_master WHERE tbl_name='{name}'" for name in table_names]
-
-    sqls = execute_query(queries, path_db, cur)
-
-    if close_in_func:
-        cur.close()
-
-    return [_[0][0] for _ in sqls]
+def get_create_sqls_for_database(dbf: DatabaseFacade, db_id: str):
+    table_names = dbf.get_tables(db_id)
+    sqls = []
+    for t in table_names:
+        sqls.append(dbf.get_create_sql(db_id, t))
+    return sqls
 
 
 # FIXME: Check if this is fine!
