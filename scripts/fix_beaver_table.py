@@ -1,9 +1,9 @@
+import argparse
 import copy
 import json
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
-from src.configs.datasets import BEAVER_SMALL
 from src.util.file_utils import read_json
 
 
@@ -101,36 +101,40 @@ class BeaverSchema:
             file.write(json.dumps(data, indent=4))
 
 
-def create_schema():
-    conf = BEAVER_SMALL
-    tables = read_json(conf.get_rel_path("non_dw.tables.json"))
-    dbs = set(map(lambda t: t['db_id'], tables))
+def create_schema(tables_path):
+    tables = read_json(tables_path)
+    dbs = set(map(lambda t: t['db_id'], tables.values()))
     schema = BeaverSchema()
     for db in dbs:
         schema.dbs[db] = SchemaDB(db)
 
-    for entry in tables:
+    for entry in tables.values():
         ta = SchemaTable(entry['table_name_original'])
         for n, t in zip(entry['column_names_original'], entry['column_types']):
-            ta.cols.append(SchemaCol(n, n in entry['primary_key']))
-        for fk in entry['foreign_key']:
-            ref_t = fk['referenced_table_name'].split("#")[2]
-            ta.fks[fk['column_name']] = (ref_t, fk['referenced_column_name'])
+            is_pk = n in entry['primary_key'] if 'primary_key' in entry else False
+            ta.cols.append(SchemaCol(n, is_pk))
+        if 'foreign_key' in entry:
+            for fk in entry['foreign_key']:
+                ref_t = fk['referenced_table_name'].split("#")[2]
+                ta.fks[fk['column_name']] = (ref_t, fk['referenced_column_name'])
 
         schema.dbs[entry['db_id']].tables.append(ta)
     return schema
 
 
 # FIXME: Fix datatypes
-def convert():
-    conf = BEAVER_SMALL
-    schema = create_schema()
-    schema.export("data/beaver/tables.conv.json")
+def convert(in_file, out_file):
+    schema = create_schema(in_file)
+    schema.export(out_file)
 
 
-def main():
-    convert()
+def main(in_file, out_file):
+    convert(in_file, out_file)
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", required=True)
+    parser.add_argument("-o", required=True)
+    args = parser.parse_args()
+    main(args.i, args.o)

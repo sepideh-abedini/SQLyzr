@@ -49,9 +49,9 @@ def calc_for_conf(config: ModelEvalConfig, conf: SingleRunConfig):
 
     reader = PredGoldReader(conf)
     all_data = reader.get_pred_gold_db_id()
-    # all_data = all_data[4500:4800]
+    # all_data = all_data[141:142]
     logger.info(f"Calculating scores for {conf}")
-    all_scores = exec_multi_process(partial(calc_for_entry, config, conf), all_data)
+    all_scores = exec_multi_process(partial(calc_for_entry, config, conf), all_data, 8)
     # all_scores = exec_multi_process(partial(calc_for_data, config, conf), all_data)
     # all_scores = list(tqdm(map(partial(calc_for_entry, config, conf), all_data), total=len(all_data)))
     logger.info(f"Score calculation done {conf}")

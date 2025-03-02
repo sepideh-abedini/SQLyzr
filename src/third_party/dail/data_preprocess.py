@@ -5,7 +5,7 @@ import sys
 from tqdm import tqdm
 
 from src.eval.single_run_config import SingleRunConfig
-from src.rel.db_facade import DatabaseFactory
+from src.rel.db_factory import DatabaseFactory
 from src.sqlyzr.file_gen import FileGenerator
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy
@@ -18,7 +18,6 @@ from src.util.multi_thread_utils import exec_multi_process_chunked
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
-
 class DailSchemaLinksGenerator(FileGenerator):
     def __init__(self, dail_conf: DailConfig, run_conf: SingleRunConfig):
         super().__init__(dail_conf.test_schema_path())
@@ -28,6 +27,9 @@ class DailSchemaLinksGenerator(FileGenerator):
     def _run_internal(self):
         if self.run_conf.dataset_config.dataset_type == "bird":
             bird_pre_process(self.run_conf)
+
+        if self.run_conf.dataset_config.dataset_type == "beaver":
+            beaver_pre_process(self.run_conf)
 
         # load data
         test_data = read_json(self.run_conf.dataset_config.get_test_path())
@@ -66,6 +68,34 @@ class DailSchemaLinksGenerator(FileGenerator):
                 linking_processor.add_proc_item(section, proc)
 
         linking_processor.save({"train": self.dail_conf.train_schema_path(), "test": self.dail_conf.test_schema_path()})
+
+
+def beaver_pre_process(run_conf: SingleRunConfig):
+    def json_preprocess(data_jsons):
+        new_datas = []
+        for data_json in data_jsons:
+            question = data_json['question']
+            tokens = []
+            for token in question.split(' '):
+                if len(token) == 0:
+                    continue
+                if token[-1] in ['?', '.', ':', ';', ','] and len(token) > 1:
+                    tokens.extend([token[:-1], token[-1:]])
+                else:
+                    tokens.append(token)
+            data_json['question_toks'] = tokens
+            new_datas.append(data_json)
+        return new_datas
+
+    with open(run_conf.dataset_config.get_test_path()) as f:
+        data_jsons = json.load(f)
+    with open(run_conf.dataset_config.get_test_path(), 'w') as wf:
+        json.dump(json_preprocess(data_jsons), wf, indent=4)
+
+    with open(run_conf.dataset_config.get_train_path()) as f:
+        data_jsons = json.load(f)
+    with open(run_conf.dataset_config.get_train_path(), 'w') as wf:
+        json.dump(json_preprocess(data_jsons), wf, indent=4)
 
 
 def bird_pre_process(run_conf: SingleRunConfig, with_evidence=True):

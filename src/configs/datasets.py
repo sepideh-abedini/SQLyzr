@@ -60,14 +60,15 @@ BIRD_ALL = DatasetConfig(
 #     mysql=True
 # )
 #
-# BEAVER_SMALL = DatasetConfig(
-#     dataset_dir="data/beaver",
-#     test_file="non_dw.dev.conv.small.json",
-#     gold_file="non_dw.dev.conv.small.gold.txt",
-#     tables_file="tables.conv.json",
-#     db_dir="database",
-#     mysql=True
-# )
+BEAVER_ALL = DatasetConfig(
+    dataset_dir="data/beaver",
+    test_file="data.test.json",
+    gold_file="data.test.gold.txt",
+    train_file="data.train.json",
+    tables_file="tables.json",
+    db_dir="database",
+    dataset_type="beaver"
+)
 
 DATASETS = {
     "bird": {
@@ -83,9 +84,9 @@ DATASETS = {
         # "train": SPIDER_TRAIN,
         "all": SPIDER_ALL
     },
-    # "beaver": {
-    #     "small": BEAVER_SMALL
-    # }
+    "beaver": {
+        "all": BEAVER_ALL
+    }
 }
 
 DatasetName = Literal["spider", "bird", "beaver"]
