@@ -11,7 +11,8 @@ from src.cat.catter import Catter
 from src.configs.config_loader import load_config
 from src.dataset.models import SpiderExample
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_facade import DatabaseFactory, DatabaseFacade
+from src.rel.db_facade import DatabaseFacade
+from src.rel.db_factory import DatabaseFactory
 from src.util.log_util import configure_logging
 from src.util.multi_thread_utils import exec_multi_process
 
@@ -56,6 +57,7 @@ def clean_file(dataset_conf: DatasetConfig, data_file_path: str, overwrite: bool
 
         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
                              desc=f"Validating dataset: {dataset_conf.dataset_type}"):
+            entry['query'] = entry['query'].replace("\n", " ")
             example = SpiderExample.model_validate(entry)
             cat = catter.get_category(example.query)
             exec_res = results[i]
