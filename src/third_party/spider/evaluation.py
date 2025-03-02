@@ -25,7 +25,8 @@ import argparse
 import json
 
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_facade import DatabaseFactory, DatabaseFacade
+from src.rel.db_facade import DatabaseFacade
+from src.rel.db_factory import DatabaseFactory
 from src.third_party.spider.process_sql import get_schema, Schema, get_sql
 
 # Flag to disable value evaluation
@@ -641,17 +642,6 @@ def eval_exec_match(conf: DatasetConfig, db_id, p_str, g_str, pred, gold):
     db_facade = DatabaseFactory.get_instance(conf)
     p_res = db_facade.exec_query_sync(db_id, p_str)
     q_res = db_facade.exec_query_sync(db_id, g_str)
-
-    # conn = sqlite3.connect(db)
-    # cursor = conn.cursor()
-    # try:
-    #     cursor.execute(p_str)
-    #     p_res = cursor.fetchall()
-    # except:
-    #     return False
-
-    # cursor.execute(g_str)
-    # q_res = cursor.fetchall()
 
     def res_map(res, val_units):
         rmap = {}

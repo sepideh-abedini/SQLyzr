@@ -1,16 +1,14 @@
 import collections
-import json
 import os
 import re
-import sqlite3
 
+from sql_metadata import Parser
 from transformers import AutoTokenizer
 
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_facade import DatabaseFacade, DatabaseFactory
+from src.rel.db_factory import DatabaseFactory
 from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy
 from src.third_party.dail.utils.enums import LLM
-from sql_metadata import Parser
 
 
 class SqliteTable(dict):
@@ -149,9 +147,7 @@ def cost_estimate(n_tokens: int, model):
 def get_sql_for_database(path_db=None, cur=None):
     close_in_func = False
     if cur is None:
-        conn = sqlite3.connect(path_db)
-        cur = conn.cursor()
-        close_in_func = True
+        raise RuntimeError("Connection cursor is None!")
 
     table_names = get_table_names(path_db, cur)
 

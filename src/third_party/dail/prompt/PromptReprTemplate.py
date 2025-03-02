@@ -1,3 +1,6 @@
+from experimental.fk import db_facade
+from src.rel.db_factory import DatabaseFactory
+from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy
 from src.third_party.dail.utils.utils import get_sql_for_database
 import json
 
@@ -16,14 +19,23 @@ class BasicPrompt(object):
     def get_extra_info(self, db_id):
         return None
 
+    def get_cur(self, example):
+        dataset_config = example['dataset_config']
+        db_facade = DatabaseFactory.get_instance(dataset_config)
+        db_id = example['db_id']
+        conn = DatabaseConnectionProxy(db_facade, db_id)
+        cur = conn.cursor()
+        return cur
+
 
 class SQLPrompt(BasicPrompt):
-    template_info =   "/* Given the following database schema: */\n" \
-                      "{}"
-    template_question =  "/* Answer the following: {} */"
+    template_info = "/* Given the following database schema: */\n" \
+                    "{}"
+    template_question = "/* Answer the following: {} */"
 
     def format_question(self, example: dict):
-        sqls = get_sql_for_database(example["path_db"])
+        cur = self.get_cur(example)
+        sqls = get_sql_for_database(cur=cur)
 
         prompt_info = self.template_info.format("\n\n".join(sqls))
         prompt_extra_info = self.get_extra_info(example["db_id"])
@@ -40,7 +52,7 @@ class SQLPrompt(BasicPrompt):
 
 class TextPrompt(BasicPrompt):
     template_info = "Given the following database schema:\n" \
-                  "{}"
+                    "{}"
     template_question = "Answer the following: {}"
 
     def format_question(self, example: dict):
@@ -51,7 +63,7 @@ class TextPrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 
@@ -75,7 +87,7 @@ class NumberSignPrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 
@@ -103,7 +115,7 @@ class BaselinePrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 
@@ -161,7 +173,7 @@ class TextWithForeignKeyPrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 
@@ -218,7 +230,7 @@ class BaselineWithoutForeignKeyPrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 
@@ -262,12 +274,13 @@ class InstructionWithForeignKeyPrompt(BasicPrompt):
 
 
 class SQLWithRulePrompt(BasicPrompt):
-    template_info =   "/* Given the following database schema: */\n" \
-                      "{}"
-    template_question =  "/* Answer the following with no explanation: {} */"
+    template_info = "/* Given the following database schema: */\n" \
+                    "{}"
+    template_question = "/* Answer the following with no explanation: {} */"
 
     def format_question(self, example: dict):
-        sqls = get_sql_for_database(example["path_db"])
+        cur = self.get_cur(example)
+        sqls = get_sql_for_database(cur=cur)
 
         prompt_info = self.template_info.format("\n\n".join(sqls))
         prompt_extra_info = self.get_extra_info(example["db_id"])
@@ -284,7 +297,7 @@ class SQLWithRulePrompt(BasicPrompt):
 
 class TextWithRulePrompt(BasicPrompt):
     template_info = "Given the following database schema:\n" \
-                  "{}"
+                    "{}"
     template_question = "Answer the following with no explanation: {}"
 
     def format_question(self, example: dict):
@@ -295,7 +308,7 @@ class TextWithRulePrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 
@@ -319,7 +332,7 @@ class NumberSignWithoutRulePrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 
@@ -353,12 +366,13 @@ class InstructionWithRulePrompt(BasicPrompt):
 
 
 class SQLCOTPrompt(BasicPrompt):
-    template_info =   "/* Given the following database schema: */\n" \
-                      "{}"
-    template_question =  "/* Let's think step by step. Answer the following: {} */"
+    template_info = "/* Given the following database schema: */\n" \
+                    "{}"
+    template_question = "/* Let's think step by step. Answer the following: {} */"
 
     def format_question(self, example: dict):
-        sqls = get_sql_for_database(example["path_db"])
+        cur = self.get_cur(example)
+        sqls = get_sql_for_database(cur=cur)
 
         prompt_info = self.template_info.format("\n\n".join(sqls))
         prompt_extra_info = self.get_extra_info(example["db_id"])
@@ -378,7 +392,7 @@ class SQLCOTPrompt(BasicPrompt):
 
 class TextCOTPrompt(BasicPrompt):
     template_info = "Given the following database schema:\n" \
-                  "{}"
+                    "{}"
     template_question = "Let's think step by step. Answer the following: {}"
 
     def format_question(self, example: dict):
@@ -389,7 +403,7 @@ class TextCOTPrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 
@@ -416,7 +430,7 @@ class NumberSignCOTPrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 
@@ -478,7 +492,7 @@ class CBRPrompt(BasicPrompt):
         prompt_question = self.template_question.format(example["question"])
 
         if prompt_extra_info is None or prompt_extra_info == "":
-            prompt_components = [prompt_info,prompt_question]
+            prompt_components = [prompt_info, prompt_question]
         else:
             prompt_components = [prompt_info, prompt_extra_info, prompt_question]
 

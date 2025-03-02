@@ -116,7 +116,7 @@ class BasicDataset:
                 data["query_skeleton"] = data["query"]
             else:
                 data["query_skeleton"] = sql2skeleton(data["query"], db_id_to_table_json[db_id])
-            data["path_db"] = self.get_path_db(db_id)
+            data["dataset_config"] = self.config
         if linking_infos:
             db_id_to_table_json = dict()
             for table_json in self.get_table_json():
@@ -148,4 +148,4 @@ def load_data(config: DatasetConfig, dail_conf: DailConfig):
     if config.dataset_type.lower() == "spider" or config.dataset_type.lower() == 'bird':
         return BasicDataset(config, dail_conf)
     else:
-        raise RuntimeError()
+        raise RuntimeError(f"Unsupported dataset: {config.dataset_type}")

@@ -4,7 +4,7 @@ import json
 import tqdm
 
 from src.configs.datasets import BIRD_ALL
-from src.rel.db_facade import DatabaseFactory
+from src.rel.db_factory import DatabaseFactory
 
 db_facade = DatabaseFactory.get_instance(BIRD_ALL)
 

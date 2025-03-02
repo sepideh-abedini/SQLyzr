@@ -3,7 +3,6 @@ import os
 from datetime import datetime, timedelta
 
 import math
-import sqlite3
 import subprocess
 import mysql.connector
 
@@ -40,57 +39,6 @@ def confidence_level_interval(column: pd.Series) -> str:
     interval_end = mean + err_margin
     return "({:.2f}%, {:.2f}%)".format(interval_start * 100, interval_end * 100)
     # return f"({interval_start}, {interval_end})"
-
-
-class DatabaseClient:
-    config: DatasetConfig
-
-    def __init__(self, config: DatasetConfig):
-        self.config = config
-
-    def exec_mysql(self, db_id, sql):
-        connection = mysql.connector.connect(
-            host="localhost",
-            user=os.getenv("MYSQL_USERNAME"),
-            password=os.getenv("MYSQL_PASSWORD"),
-            db=db_id
-        )
-
-        cursor = connection.cursor()
-        try:
-            # Execute the SQL query
-            cursor.execute(sql)
-            res = cursor.fetchall()
-            return res
-        except Exception as err:
-            print(sql)
-            print(f"Error: {err}")
-            return None
-        finally:
-            cursor.close()
-            connection.close()
-
-    # FIXME:
-    def clean(self, sql: str) -> str:
-        sql = sql.replace("\n", "")
-        sql = sql.replace("\\n", "")
-        return sql
-
-    def exec_sql(self, db_id, sql):
-        sql = self.clean(sql)
-        if self.config.mysql:
-            return self.exec_mysql(db_id, sql)
-
-        db_path = self.config.get_db_file_path(db_id)
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        try:
-            cursor.execute(sql)
-            res = cursor.fetchall()
-            return res
-        except (sqlite3.OperationalError, sqlite3.ProgrammingError) as e:
-            logger.debug(e)
-            return None
 
 
 def execute_command(command: str):

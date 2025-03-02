@@ -1,5 +1,3 @@
-import asyncio
-import concurrent
 import json
 
 from loguru import logger
@@ -11,7 +9,7 @@ from src.configs.sqlyzr_config import SQLyzrConfig
 from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
 from src.eval.model_eval_config import ModelEvalConfig
-from src.rel.db_facade import DatabaseFacade, DatabaseFactory
+from src.rel.db_factory import DatabaseFactory
 from src.util.async_utils import apply_async
 
 

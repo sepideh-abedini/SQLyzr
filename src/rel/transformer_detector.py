@@ -1,11 +1,9 @@
-import asyncio
-from asyncio import FIRST_COMPLETED
 from typing import List
 
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.rel.base_matcher import Matcher
-from src.rel.db_facade import DatabaseFacade, DatabaseFactory
+from src.rel.db_factory import DatabaseFactory
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_processor import SqlMatchingProcessor
 from src.util.meta_utils import powerset
