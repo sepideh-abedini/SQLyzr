@@ -11,13 +11,11 @@ from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pred_gold_reader import PredGoldReader
 from src.util.multi_thread_utils import exec_multi_process_chunked, exec_multi_process
 
+catter = Catter()
 
-def calc_for_entry(eval_conf, run_conf, entry):
+
+def calc_for_entry(metrics, run_conf, entry):
     pred, gold, db_id = entry
-    metrics = []
-    for metric_name, metric_class in eval_conf.metrics.items():
-        metrics.append(metric_class(metric_name, eval_conf.dataset_config))
-    catter = Catter()
     cat, sub_cat = catter.categorize(gold)
     example_scores = {"tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub_cat": sub_cat}
     for metric in metrics:
@@ -30,31 +28,35 @@ def calc_for_entry(eval_conf, run_conf, entry):
     return example_scores
 
 
-def calc_for_data(eval_conf, run_conf, data):
+def calc_for_data(metrics, run_conf, data):
     scores = []
     for i, (pred, gold, db_id) in tqdm(enumerate(data), total=len(data),
                                        desc=f"Calculating scores for {run_conf}-{os.getpid()}"):
-        example_scores = calc_for_entry(eval_conf, run_conf, (pred, gold, db_id))
+        example_scores = calc_for_entry(metrics, run_conf, (pred, gold, db_id))
         scores.append(example_scores)
 
     logger.info(f"Calc done: {os.getpid()}")
     return scores
 
 
-def calc_for_conf(config: ModelEvalConfig, conf: SingleRunConfig):
-    scores_path = config.get_scores_path(f"_{conf.temp}_{conf.itr}")
+def calc_for_conf(eval_conf: ModelEvalConfig, run_conf: SingleRunConfig):
+    scores_path = eval_conf.get_scores_path(f"_{run_conf.temp}_{run_conf.itr}")
     if os.path.exists(scores_path):
-        logger.info(f"Scores for {conf} exists!")
+        logger.info(f"Scores for {run_conf} exists!")
         return pd.read_csv(scores_path)
 
-    reader = PredGoldReader(conf)
+    reader = PredGoldReader(run_conf)
     all_data = reader.get_pred_gold_db_id()
-    # all_data = all_data[141:142]
-    logger.info(f"Calculating scores for {conf}")
-    all_scores = exec_multi_process(partial(calc_for_entry, config, conf), all_data, 8)
+    # all_data = all_data[4600:5000]
+    logger.info(f"Calculating scores for {run_conf}")
+    metrics = []
+    for metric_name, metric_class in eval_conf.metrics.items():
+        metrics.append(metric_class(metric_name, eval_conf.dataset_config))
+    # all_scores = exec_multi_process(partial(calc_for_entry, metrics, run_conf), all_data, 8)
+    all_scores = exec_multi_process(partial(calc_for_entry, metrics, run_conf), all_data)
     # all_scores = exec_multi_process(partial(calc_for_data, config, conf), all_data)
     # all_scores = list(tqdm(map(partial(calc_for_entry, config, conf), all_data), total=len(all_data)))
-    logger.info(f"Score calculation done {conf}")
+    logger.info(f"Score calculation done {run_conf}")
     ti_df = pd.DataFrame(all_scores)
     ti_df.to_csv(scores_path)
 

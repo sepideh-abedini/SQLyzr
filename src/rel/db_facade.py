@@ -29,6 +29,10 @@ class DatabaseFacade(ABC):
         pass
 
     @abstractmethod
+    def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+        pass
+
+    @abstractmethod
     def get_tables(self, db_id):
         pass
 

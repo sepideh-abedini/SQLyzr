@@ -46,8 +46,12 @@ class StatMetric(ABC):
 
 
 class ExactMatch(Metric):
+    def __init__(self, name: str, conf: DatasetConfig):
+        super().__init__(name, conf)
+        self.parser = ExactMatchParser(self.conf.get_tables_path())
+
     def calc(self, gold: str, pred: str, db_id: str) -> int:
-        parser = ExactMatchParser(self.conf.get_tables_path())
+        parser = self.parser
         try:
             gold_parser = parser.parse(gold, db_id)
             pred_parser = parser.parse(pred, db_id)
@@ -87,9 +91,13 @@ class ExecAcc(Metric):
 
 
 class ComplexityConsistency(Metric):
+    def __init__(self, name: str, conf: DatasetConfig):
+        super().__init__(name, conf)
+        self.catter = Catter()
+
     def calc(self, gold: str, pred: str, db_id: str) -> int:
+        catter = self.catter
         try:
-            catter = Catter()
             c_gold = catter.get_category(gold)
             c_pred = catter.get_category(pred)
             if c_pred is None:
@@ -151,7 +159,7 @@ class TotalExecTime(Metric):
     def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
             timer = lib.Timer.start()
-            self.dbc.exec_query_sync(db_id, pred)
+            self.dbc.exec_query_uncached(db_id, pred)
             pred_sql_exec_time = timer.lap()
             return pred_sql_exec_time * 1_000_000
         except Exception as e:
