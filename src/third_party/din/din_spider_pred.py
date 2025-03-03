@@ -1,6 +1,7 @@
 import re
 from typing import List
 
+from src.eval.lib import TimeLogger
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.models import BatchInputRequest
@@ -173,8 +174,10 @@ class DinPredictor(Predictor):
 
     @staticmethod
     def __post_process(sqls: List[str]) -> List[str]:
+        time_logger = TimeLogger.start(f"DIN:SPIDER:PostProcessor")
         result = []
         for sql in sqls:
             sql = sql.replace("\n", " ")
             result.append(sql)
+        time_logger.lap()
         return result

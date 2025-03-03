@@ -7,6 +7,7 @@ from loguru import logger
 from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
+from src.eval.lib import TimeLogger
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.file_sender.batch_sender import GptBatchFileSender
 from src.gpt.file_sender.single_sender import GptSingleSender
@@ -76,12 +77,14 @@ def identity_processor(i: int, content: T) -> T:
 
 
 def process_responses(file_path: str, response_processor: ResponseProcessor = identity_processor) -> List[str]:
+    time_logger = TimeLogger.start(f"ResponseProcessor:{file_path}")
     responses = read_jsonl(file_path, ChatCompletion)
     results = []
     for i, response in enumerate(responses):
         content = response.choices[0].message.content
         processed = response_processor(i, content)
         results.append(processed)
+    time_logger.lap()
     return results
 
 
