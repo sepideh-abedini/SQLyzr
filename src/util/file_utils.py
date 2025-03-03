@@ -7,6 +7,11 @@ def read_json(path: str):
         return json.load(f)
 
 
+def write_json(path: str, data):
+    with open(path, "w") as f:
+        f.write(json.dumps(data, indent=4))
+
+
 def get_num_lines(file_path: str):
     with open(file_path) as f:
         return len(f.readlines())

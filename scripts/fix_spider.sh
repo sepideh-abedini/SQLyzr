@@ -8,14 +8,18 @@ usage() {
 while getopts "zd:" opt; do
   case $opt in
     z) UNARCHIVE=1;;
-    d) BIRD_DIR=$OPTARG;;
+    d) SPIDER_DIR=$OPTARG;;
     *) usage ;;
   esac
 done
 
-unzip -n spider_data.zip
+if [ -z "$SPIDER_DIR" ] ; then
+    usage
+fi
 
-SPIDER_DIR=spider_data
+if [ -n "$UNARCHIVE" ]; then
+  unzip -n spider_data.zip
+fi
 
 cd $SPIDER_DIR
 

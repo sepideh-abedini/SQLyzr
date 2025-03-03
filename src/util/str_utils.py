@@ -20,6 +20,7 @@ def quote_str(s) -> str:
 
 
 def shrink_whitespaces(s: str) -> str:
+    s = s.strip()
     s = s.replace('\n', ' ').replace('\r', ' ')
     s = re.sub(r'\s+', ' ', s)
     return s

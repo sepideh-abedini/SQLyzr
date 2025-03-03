@@ -6,8 +6,10 @@ from openai.types.chat import ChatCompletion
 import tqdm
 
 from src.eval.single_run_config import SingleRunConfig
+from src.rel.db_facade import DB_CACHE
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
+from src.util.str_utils import shrink_whitespaces
 
 CACHE_DIR = "/tmp/dail_post_processor"
 
@@ -25,8 +27,9 @@ class DailSqlPostProcessorWorker:
         result = ""
         db_id = pair[0]
         response = pair[1]
-        if response.id in self.cache:
-            return self.cache[response.id]
+        if DB_CACHE:
+            if response.id in self.cache:
+                return self.cache[response.id]
         contents = [choice.message.content for choice in response.choices]
         if self.__conf.gpt_params['n'] == 1:
             for sql in contents:
@@ -42,7 +45,6 @@ class DailSqlPostProcessorWorker:
             sqls = contents
             processed_sqls = []
             for sql in sqls:
-                sql = " ".join(sql.replace("\n", " ").split())
                 sql = process_duplication(sql)
                 sql = process_gpt_4o_mini_sql(sql)
                 if sql.startswith("SELECT"):
@@ -73,12 +75,18 @@ class DailSqlPostProcessorWorker:
 
 def process_gpt_4o_mini_sql(content: str) -> str:
     content = content.strip()
-    content = content.replace("\n", " ")
     if "SQL:" in content:
+        content = content.replace("\n", " ")
         pattern = r'.*SQL:[\s`]*(SELECT.*)[\s`]*'
         content = re.sub(pattern, r'\1', content, flags=re.DOTALL)
     if "```sql" in content:
-        pattern = r'.*```sql(.*)```.*'
-        content = re.sub(pattern, r'\1', content, flags=re.DOTALL)
-    content = content.strip()
+        pattern = r"\s--.*$(```)?"
+        content = re.sub(pattern, "", content, flags=re.MULTILINE)
+        pattern = r'.*```sql(.*?)```.*'
+        if re.fullmatch(pattern, content, flags=re.DOTALL):
+            content = re.sub(pattern, r'\1', content, flags=re.DOTALL)
+        else:
+            pattern = r'.*```sql(.*)'
+            content = re.sub(pattern, r'\1', content, flags=re.DOTALL)
+    content = shrink_whitespaces(content)
     return content

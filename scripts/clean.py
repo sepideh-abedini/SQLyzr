@@ -86,11 +86,11 @@ def clean_file(dataset_conf: DatasetConfig, data_file_path: str, overwrite: bool
         if overwrite:
             with open(f"{data_file_path}", "w") as out_file:
                 out_file.write(json.dumps(valid_examples, indent=True))
+            logger.info(f"Invalid examples removed!")
 
         with open(f"{file_stem}.errors.json", "w") as out_file:
             out_file.write(json.dumps(errors, indent=True))
 
-        logger.info(f"Invalid examples removed!")
     else:
         logger.info("Dataset is valid!")
 
