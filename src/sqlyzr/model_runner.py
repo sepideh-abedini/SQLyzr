@@ -1,15 +1,14 @@
-import asyncio
 import os
 from abc import ABC, abstractmethod
-from concurrent.futures import ThreadPoolExecutor, Future
+
+from loguru import logger
+from tqdm.asyncio import tqdm
 
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import SingleRunConfig
 from src.sqlyzr.dummy_predictor import DummyPredictor
 from src.third_party.dail.dail_pred import DailPredictor
-from loguru import logger
-
 from src.third_party.din.din_bird_pred import DinBirdPredictor
 from src.third_party.din.din_spider_pred import DinPredictor
 
@@ -23,13 +22,15 @@ class ModelRunner(ABC):
         self.config = config
 
     async def run(self):
+        futures = []
         for conf in self.config.get_run_confs():
-            res = await self.run_single(conf)
+            task = self.run_single(conf)
+            futures.append(task)
+        await tqdm.gather(*futures)
 
     async def run_single(self, run_conf: SingleRunConfig):
         logger.info(f"Running for conf={run_conf}")
-        result = await self.run_single_internal(run_conf)
-        return result
+        await self.run_single_internal(run_conf)
 
     @abstractmethod
     async def run_single_internal(self, run_conf: SingleRunConfig):
@@ -40,8 +41,7 @@ class DailRunner(ModelRunner):
 
     async def run_single_internal(self, run_conf: SingleRunConfig):
         predictor = DailPredictor(run_conf)
-        result = await predictor.run()
-        return result
+        await predictor.run()
 
 
 class DinRunner(ModelRunner):
