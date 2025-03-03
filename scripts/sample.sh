@@ -21,4 +21,4 @@ fi
 FILE_NAME=$(basename -- "$FILE_PATH" .json)
 DIR_NAME=$(dirname -- "$FILE_PATH")
 SMALL_FILE="$DIR_NAME/$FILE_NAME.small.json"
-jq ".[1000:$((1000+NUM_SAMPLES))]" $FILE_PATH > $SMALL_FILE
+jq ".[:$((NUM_SAMPLES))]" $FILE_PATH > $SMALL_FILE

@@ -23,8 +23,11 @@ class MonitorProcess(Process):
         logger.bind(pid=self.tracking_pid)
         pu = ProcessUsage(self.tracking_pid)
         while self.running:
-            logger.info(str(pu), util=pu.to_dict())
-            time.sleep(1)
+            try:
+                logger.info(str(pu), util=pu.to_dict())
+                time.sleep(1)
+            except Exception as e:
+                print(e)
 
     def stop(self):
         self.running = False

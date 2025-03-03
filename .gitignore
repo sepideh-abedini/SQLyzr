@@ -19,3 +19,4 @@ vector_cache
 .batch.tokens.json
 experimental
 *.log
+conf.

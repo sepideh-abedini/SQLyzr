@@ -128,9 +128,9 @@ class SqliteFacade(DatabaseFacade):
                 if e.args == ('interrupted',):
                     if DB_CACHE:
                         save_db_cache(db_id, sql, None)
-                    logger.debug(f"SQLite Timed out: {db_id} {sql}")
+                    logger.error(f"SQLite Timed out: {db_id} {sql}")
                 else:
-                    logger.debug(e)
+                    logger.debug(f"SQLite Error: {e}")
                 rows = None
             finally:
                 cursor.close()
