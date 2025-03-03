@@ -9,6 +9,7 @@ from src.parse.parser import SqlParser
 from src.pred.predictor import Predictor, process_responses
 from src.third_party.din.config import DinConfig
 from src.third_party.din.spider.prompt_maker import PromptMaker
+from src.util.str_utils import shrink_whitespaces
 
 
 class DinPredictor(Predictor):
@@ -110,22 +111,20 @@ class DinPredictor(Predictor):
 
     @staticmethod
     def __process_gpt_4o_mini_sql(i: int, content: str) -> str:
-        content = content.strip()
-        content = content.replace("\n", " ")
+        content = shrink_whitespaces(content)
         if "SQL:" in content:
             pattern = r'.*SQL:[\s`]*(SELECT.*)[\s`]*'
             content = re.sub(pattern, r'\1', content)
         if "```sql" in content:
-            pattern = r'.*```sql\s*(SELECT.*)\s*```'
+            pattern = r'.*```sql(.*?)```.*'
             content = re.sub(pattern, r'\1', content)
         return content
 
     def __process_gpt_4o_mini_debug(self, i: int, content: str) -> str:
-        content = content.replace("\n", " ")
-        content = content.strip()
+        content = shrink_whitespaces(content)
         if not content.startswith("SELECT"):
             return self.__sqls[i]
-        pattern = r'.*```sql\s*([^`]*).*'
+        pattern = r'.*```sql(.*?)```.*'
         sql = re.sub(pattern, r'\1', content)
         sql = sql.strip()
         return sql
@@ -177,7 +176,7 @@ class DinPredictor(Predictor):
         time_logger = TimeLogger.start(f"DIN:SPIDER:PostProcessor")
         result = []
         for sql in sqls:
-            sql = sql.replace("\n", " ")
+            sql = shrink_whitespaces(sql)
             result.append(sql)
         time_logger.lap()
         return result

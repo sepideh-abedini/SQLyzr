@@ -6,6 +6,8 @@ from .lexer import get_lexer
 from .node import *
 from loguru import logger
 
+from ..util.str_utils import shrink_whitespaces
+
 precedence = (
     ('left', 'OR', 'AND'),
     ('left', 'COMP_OP', 'ARITH_OP')
@@ -517,7 +519,7 @@ class SqlParser:
 
     # FIXME:
     def clean(self, sql: str) -> str:
-        sql = sql.replace("\n", "")
+        sql = shrink_whitespaces(sql)
         sql = sql.replace("\\n", "")
         return sql
 

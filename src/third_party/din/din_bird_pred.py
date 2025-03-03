@@ -13,7 +13,7 @@ from src.third_party.din.bird.utils import table_descriptions_parser, get_databa
     extract_label_and_sub_questions, extract_sql_query, extract_revised_sql_query
 from src.third_party.din.config import DinConfig
 from src.third_party.din.spider.prompt_maker import PromptMaker
-from src.util.str_utils import delete_whitespace
+from src.util.str_utils import delete_whitespace, shrink_whitespaces
 
 
 class DinBirdPredictor(Predictor):
@@ -160,14 +160,14 @@ class DinBirdPredictor(Predictor):
 
     def __process_sql_responses(self, i: int, content: str) -> str:
         sql = extract_sql_query(content)
-        sql = delete_whitespace(sql)
+        sql = shrink_whitespaces(sql)
         return sql
 
     def __process_sql_debug_response(self, i: int, content: str) -> str:
         sql = extract_revised_sql_query(content)
         if sql is None:
             return self.__sqls[i]
-        sql = delete_whitespace(sql)
+        sql = shrink_whitespaces(sql)
         return sql
 
     @staticmethod
@@ -175,7 +175,7 @@ class DinBirdPredictor(Predictor):
         time_logger = TimeLogger.start(f"DIN:BIRD:PostProcessor")
         result = []
         for sql in sqls:
-            sql = sql.replace("\n", " ")
+            sql = shrink_whitespaces(sql)
             result.append(sql)
         time_logger.lap()
         return result

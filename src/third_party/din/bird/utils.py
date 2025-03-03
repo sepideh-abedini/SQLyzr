@@ -52,7 +52,7 @@ def extract_label_and_sub_questions(input_text: str) -> Tuple[str, List[str]]:
 
 def extract_sql_query(input_text: str):
     if "```sql" in input_text.lower():
-        pattern = r'.*```sql.*(SELECT.*)```.*'
+        pattern = r'.*```sql(.*?)```.*'
         content = re.sub(pattern, r'\1', input_text, flags=re.DOTALL)
         return content
     sql_pattern = r'SQL:\s*(.*?)$'
@@ -65,7 +65,7 @@ def extract_sql_query(input_text: str):
 
 def extract_revised_sql_query(input_text):
     if "```sql" in input_text.lower():
-        pattern = r'.*```sql.*(SELECT.*)```.*'
+        pattern = r'.*```sql(.*?)```.*'
         content = re.sub(pattern, r'\1', input_text, flags=re.DOTALL)
         return content
     sql_pattern = r'Revised_SQL:\s*(.*?)$'

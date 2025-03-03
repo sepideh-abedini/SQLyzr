@@ -43,7 +43,10 @@ class ProcessUsage:
     def mem(self):
         total_memory = self.proc.memory_info().rss
         for child in self.proc.children(recursive=True):
-            total_memory += child.memory_info().rss
+            try:
+                total_memory += child.memory_info().rss
+            except Exception as e:
+                pass
         total_memory = total_memory / (1024 * 1024)  # MB
         return total_memory
 
@@ -51,14 +54,20 @@ class ProcessUsage:
     def cpu(self):
         total_cpu = self.proc.cpu_percent(interval=0.1)
         for child in self.proc.children(recursive=True):
-            total_cpu += child.cpu_percent(interval=0.1)
+            try:
+                total_cpu += child.cpu_percent(interval=0.1)
+            except Exception as e:
+                pass
         return total_cpu
 
     @property
     def cpu_time(self):
         total_cpu = sum(self.proc.cpu_times())
         for child in self.proc.children(recursive=True):
-            total_cpu += sum(child.cpu_times())
+            try:
+                total_cpu += sum(child.cpu_times())
+            except Exception as e:
+                pass
         return total_cpu
 
     def __repr__(self):

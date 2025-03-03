@@ -33,7 +33,8 @@ class DailSqlPostProcessorWorker:
         contents = [choice.message.content for choice in response.choices]
         if self.__conf.gpt_params['n'] == 1:
             for sql in contents:
-                sql = " ".join(sql.replace("\n", " ").split())
+                sql = shrink_whitespaces(sql)
+                # sql = " ".join(sql.replace("\n", " ").split())
                 sql = process_duplication(sql)
                 if sql.startswith("SELECT"):
                     result = sql + "\n"
@@ -76,7 +77,7 @@ class DailSqlPostProcessorWorker:
 def process_gpt_4o_mini_sql(content: str) -> str:
     content = content.strip()
     if "SQL:" in content:
-        content = content.replace("\n", " ")
+        content = shrink_whitespaces(content)
         pattern = r'.*SQL:[\s`]*(SELECT.*)[\s`]*'
         content = re.sub(pattern, r'\1', content, flags=re.DOTALL)
     if "```sql" in content:

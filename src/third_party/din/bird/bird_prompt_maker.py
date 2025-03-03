@@ -1,10 +1,3 @@
-import os
-import re
-import pandas as pd
-import json
-import glob
-
-from typing import List, Tuple
 from langchain.prompts import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
@@ -12,8 +5,7 @@ from langchain.prompts import (
 )
 
 from src.third_party.din.bird.prompts import *
-from src.third_party.din.bird.utils import extract_schema_links, extract_label_and_sub_questions, extract_sql_query, \
-    extract_revised_sql_query, table_descriptions_parser, get_database_schema
+from src.third_party.din.bird.utils import table_descriptions_parser, get_database_schema
 
 system_schema_linking_prompt = SystemMessagePromptTemplate.from_template(
     SYSTEM_SCHEMA_LINKING_TEMPLATE)  # noqa: E501
@@ -53,63 +45,3 @@ def get_db_info(db_uri, db_description_dir):
 
 def send_prompt(msg):
     return ""
-
-
-def run(schema, columns_descriptions, question, hint):
-    msg = schema_linking_prompt.format(question=question, schema=schema, hint=hint,
-                                       columns_descriptions=columns_descriptions)
-    schema_linking = send_prompt(msg)
-    schema_links = extract_schema_links(schema_linking)
-
-    msg = classification_prompt.format(question=question,
-                                       schema=schema,
-                                       hint=hint,
-                                       columns_descriptions=columns_descriptions,
-                                       schema_links=schema_links)
-    classification = send_prompt(msg)
-    label, sub_questions = extract_label_and_sub_questions(classification)
-
-    if "EASY" in label:
-        msg = easy_prompt.run(
-            question=question,
-            schema=schema,
-            hint=hint,
-            columns_descriptions=columns_descriptions,
-            schema_links=schema_links)
-        easy = send_prompt(msg)
-        sql_query = extract_sql_query(easy)
-    elif "NON-NESTED" in label:
-        msg = medium_prompt.format(question=question,
-                                   schema=schema,
-                                   hint=hint,
-                                   columns_descriptions=columns_descriptions,
-                                   schema_links=schema_links)
-        medium = send_prompt(msg)
-        sql_query = extract_sql_query(medium)
-    else:
-        msg = hard_prompt.format(
-            question=question,
-            schema=schema,
-            hint=hint,
-            columns_descriptions=columns_descriptions,
-            schema_links=schema_links,
-            sub_questions=sub_questions)
-        hard = send_prompt(msg)
-        sql_query = extract_sql_query(hard)
-
-    msg = correction_prompt.format(question=question,
-                                   schema=schema,
-                                   columns_descriptions=columns_descriptions,
-                                   hint=hint,
-                                   sql_query=sql_query)
-    correction = send_prompt(msg)
-    finall_sql = extract_revised_sql_query(correction)
-
-    if finall_sql is not None:
-        one_liner_sql_query = finall_sql.replace('\n', '').replace('\r', '')
-    else:
-        if sql_query is not None:
-            one_liner_sql_query = sql_query.replace('\n', '').replace('\r', '')
-        else:
-            one_liner_sql_query = "SELECT * FROM table"  # no query generated, placeholder to avoid errors # noqa: E501
-    return one_liner_sql_query
