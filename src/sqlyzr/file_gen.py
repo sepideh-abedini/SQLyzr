@@ -16,7 +16,7 @@ class FileGenerator(ABC):
         if os.path.exists(self._out_path):
             logger.info(f"File exists: {self._out_path}, skipping!")
             return
-        time_logger = TimeLogger.start(f"DAIL:{self.__class__.__name__}")
+        time_logger = TimeLogger.start(f"DAIL:{self.__class__.__name__}:{self._out_path}")
         self._run_internal()
         time_logger.lap()
 

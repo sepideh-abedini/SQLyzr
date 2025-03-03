@@ -16,11 +16,11 @@ class TimeLogger:
     @staticmethod
     def start(idx: str):
         timer = TimeLogger(idx)
-        logger.info(f"{idx} started", idx=f"{idx}", start=True)
+        logger.info(f"started", idx=f"{idx}", start=True)
         return timer
 
     def lap(self):
-        logger.info(f"{self.idx} finished", idx=f"{self.idx}", finish=True)
+        logger.info(f"finished", idx=f"{self.idx}", finish=True)
 
 
 class Timer:
