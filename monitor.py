@@ -1,11 +1,33 @@
 import argparse
-import sys
-from typing import TypedDict
+import os
+import time
+from multiprocessing import Process
 
 import psutil
-import time
-
 from loguru import logger
+
+
+class MonitorProcess(Process):
+    tracking_pid: int
+    running: bool = False
+
+    def __init__(self, pid):
+        super().__init__()
+        self.running = True
+        self.tracking_pid = pid
+
+    def run(self):
+        logger.remove()
+        logger.add("util.log")
+        logger.add("util.jsonl", serialize=True)
+        logger.bind(pid=self.tracking_pid)
+        pu = ProcessUsage(self.tracking_pid)
+        while self.running:
+            logger.info(str(pu), util=pu.to_dict())
+            time.sleep(1)
+
+    def stop(self):
+        self.running = False
 
 
 class ProcessUsage:
@@ -55,18 +77,20 @@ class ProcessUsage:
 
 
 def main(pid):
+    monitor = MonitorProcess(os.getpid())
     try:
         logger.remove(0)
     except Exception:
         pass
-    logger.add("util.log", level="INFO")
-    logger.add("util.jsonl", level="INFO", serialize=True)
-    logger.add(sys.stderr, level="INFO", colorize=True, enqueue=True,
-               format="<green>{time:HH:mm:ss} | </green><level> {level}: {message}</level>")
-    pu = ProcessUsage(pid)
-    while True:
-        logger.info(str(pu), util=pu.to_dict())
+    monitor.start()
+    for i in range(3):
+        print("working")
         time.sleep(1)
+    monitor.stop()
+    monitor.terminate()
+    print("After stop")
+    monitor.join()
+    print("After join")
 
 
 if __name__ == '__main__':
