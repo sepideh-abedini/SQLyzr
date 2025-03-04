@@ -20,3 +20,8 @@ vector_cache
 experimental
 *.log
 conf.
+*.jsonl
+*.json
+!conf.json
+*.patch
+*.tar.gz

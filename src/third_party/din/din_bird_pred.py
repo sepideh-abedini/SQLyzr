@@ -1,4 +1,3 @@
-import re
 from typing import List
 
 from src.eval.lib import TimeLogger
@@ -13,7 +12,7 @@ from src.third_party.din.bird.utils import table_descriptions_parser, get_databa
     extract_label_and_sub_questions, extract_sql_query, extract_revised_sql_query
 from src.third_party.din.config import DinConfig
 from src.third_party.din.spider.prompt_maker import PromptMaker
-from src.util.str_utils import delete_whitespace, shrink_whitespaces
+from src.util.str_utils import shrink_whitespaces
 
 
 class DinBirdPredictor(Predictor):

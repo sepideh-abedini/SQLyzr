@@ -15,6 +15,7 @@ from src.rel.db_facade import DatabaseFacade
 from src.rel.db_factory import DatabaseFactory
 from src.util.log_util import configure_logging
 from src.util.multi_thread_utils import exec_multi_process
+from src.util.str_utils import shrink_whitespaces
 
 
 class SqlExecWorker:
@@ -57,7 +58,7 @@ def clean_file(dataset_conf: DatasetConfig, data_file_path: str, overwrite: bool
 
         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
                              desc=f"Validating dataset: {dataset_conf.dataset_type}"):
-            entry['query'] = entry['query'].replace("\n", " ")
+            entry['query'] = shrink_whitespaces(entry['query'])
             example = SpiderExample.model_validate(entry)
             cat = catter.get_category(example.query)
             exec_res = results[i]
