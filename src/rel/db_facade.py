@@ -74,6 +74,25 @@ def sqlite_timelimit(conn: Connection, ms):
 
 
 class SqliteFacade(DatabaseFacade):
+    def get_schema_str(self, db_id):
+        tables_str = []
+        for table in self.get_tables(db_id):
+            tables_str.append(self.get_table_schema_str(db_id, table))
+        return "\n".join(tables_str)
+
+    def get_table_schema_str(self, db_id, table):
+        schema_str = ""
+        create_sql = self.get_create_sql(db_id, table)
+        cols = self.get_col_names(db_id, table)
+        cols_str = "\t".join(cols)
+        sample_rows = self.exec_query_sync(db_id, f"SELECT * FROM {table} LIMIT 3")
+        if sample_rows:
+            rows_str = "\n".join(map(lambda r: "\t".join(list(map(lambda cv: str(cv)[:50], r))), sample_rows))
+        else:
+            rows_str = "\n"
+        schema_str += f"\n {create_sql}\n"
+        schema_str += f"\n/*\n3 rows from {table}:\n{cols_str}\n{rows_str}\n*/\n"
+        return schema_str
 
     def get_create_sql(self, db_id, table_name):
         query = f"SELECT sql FROM sqlite_master WHERE tbl_name='{table_name}'"

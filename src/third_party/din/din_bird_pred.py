@@ -1,18 +1,33 @@
+from functools import partial
 from typing import List
 
+import tqdm
+
+from src.eval.dataset_config import DatasetConfig
 from src.eval.lib import TimeLogger
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
 from src.pred.predictor import Predictor, process_responses, load_data
+from src.rel.db_factory import DatabaseFactory
 from src.third_party.din.bird.bird_prompt_maker import schema_linking_prompt, classification_prompt, easy_prompt, \
     medium_prompt, hard_prompt, correction_prompt
 from src.third_party.din.bird.utils import table_descriptions_parser, get_database_schema, extract_schema_links, \
     extract_label_and_sub_questions, extract_sql_query, extract_revised_sql_query
 from src.third_party.din.config import DinConfig
 from src.third_party.din.spider.prompt_maker import PromptMaker
+from src.util.multi_thread_utils import exec_multi_process
 from src.util.str_utils import shrink_whitespaces
+
+
+def get_schema(dataset_conf: DatasetConfig, db_id):
+    db_facade = DatabaseFactory.get_instance(dataset_conf)
+    schema = get_database_schema(dataset_conf.get_db_file_path(db_id))
+    if not schema:
+        print("Error Schema: ", db_id)
+        schema = db_facade.get_schema_str(db_id)
+    return schema
 
 
 class DinBirdPredictor(Predictor):
@@ -38,15 +53,15 @@ class DinBirdPredictor(Predictor):
         self.__hints = []
         self.__schemas = []
         self.__column_descriptions = []
-        for i, example in enumerate(examples):
+        db_ids = list(map(lambda e: e['db_id'], examples))
+        self.__schemas = exec_multi_process(partial(get_schema, self._run_conf.dataset_config), db_ids)
+        for i, example in tqdm.tqdm(enumerate(examples), desc="Preprocessing examples", total=len(examples)):
             db_id = example['db_id']
             question = example['question']
             columns_descriptions = table_descriptions_parser(
                 self._run_conf.dataset_config.get_db_description_path(db_id))
-            schema = get_database_schema(self._run_conf.dataset_config.get_db_file_path(db_id))
             self.__hints.append(example['evidence'])
             self.__column_descriptions.append(columns_descriptions)
-            self.__schemas.append(schema)
 
     async def _run_internal(self):
         conf = self.__conf

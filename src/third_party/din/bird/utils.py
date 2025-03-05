@@ -19,7 +19,10 @@ def get_database_schema(DB_URI: str) -> str:
     """
     db = SQLDatabase.from_uri("sqlite:///" + DB_URI)
     db._sample_rows_in_table_info = 3
-    return db.get_table_info_no_throw()
+    try:
+        return db.get_table_info_no_throw()
+    except Exception as e:
+        return None
 
 
 def extract_schema_links(input_text: str) -> List[str]:
