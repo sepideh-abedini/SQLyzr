@@ -19,7 +19,8 @@ BIRD_METRICS = {
     "em": ExactMatch,
     "ea": ExecAcc,
     "rea": RelaxedExecAcc,
-    "et": TotalExecTime
+    "et": TotalExecTime,
+    "cc": ComplexityConsistency
     # TotalExecTime("et", config.dataset_config),
     # SpiderExactMatch("sem", config.dataset_config),
     # RelaxedExecAcc("rea", config.dataset_config),

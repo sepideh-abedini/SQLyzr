@@ -1,7 +1,5 @@
 import os
-import shutil
 import threading
-from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool
 from typing import Callable, TypeVar, List
 
@@ -19,13 +17,13 @@ def flatten(lst):
     return flat
 
 
-def chunk_list(lst, k):
-    size = len(lst) // k + (len(lst) % k > 0)
-    return [lst[i:i + size] for i in range(0, len(lst), size)]
-
-
 T = TypeVar('T')
 U = TypeVar('U')
+
+
+def chunk_list(lst: List[T], k: int) -> List[List[T]]:
+    size = len(lst) // k + (len(lst) % k > 0)
+    return [lst[i:i + size] for i in range(0, len(lst), size)]
 
 
 def process_initializer():

@@ -1,7 +1,11 @@
+import asyncio
+import os.path
 from functools import partial
 from typing import List
 
 import tqdm
+from loguru import logger
+from tqdm.asyncio import tqdm as atqdm
 
 from src.eval.dataset_config import DatasetConfig
 from src.eval.lib import TimeLogger
@@ -17,7 +21,9 @@ from src.third_party.din.bird.utils import table_descriptions_parser, get_databa
     extract_label_and_sub_questions, extract_sql_query, extract_revised_sql_query
 from src.third_party.din.config import DinConfig
 from src.third_party.din.spider.prompt_maker import PromptMaker
-from src.util.multi_thread_utils import exec_multi_process
+from src.util.file_utils import chunk_jsonl, concat_files
+from src.util.model_utils import read_jsonl
+from src.util.multi_thread_utils import exec_multi_process, chunk_list, NUM_PROC_CHUNKS
 from src.util.str_utils import shrink_whitespaces
 
 
@@ -25,7 +31,6 @@ def get_schema(dataset_conf: DatasetConfig, db_id):
     db_facade = DatabaseFactory.get_instance(dataset_conf)
     schema = get_database_schema(dataset_conf.get_db_file_path(db_id))
     if not schema:
-        print("Error Schema: ", db_id)
         schema = db_facade.get_schema_str(db_id)
     return schema
 
@@ -63,12 +68,31 @@ class DinBirdPredictor(Predictor):
             self.__hints.append(example['evidence'])
             self.__column_descriptions.append(columns_descriptions)
 
+    async def _ask_file(self, in_path: str, out_path: str):
+        chunk_paths = chunk_jsonl(in_path)
+        out_chunk_paths = []
+        tasks = []
+        for i, chunk_path in enumerate(chunk_paths):
+            out_chunk_path = f"{out_path}.chunk_{i}.jsonl"
+            out_chunk_paths.append(out_chunk_path)
+            task = super()._ask_file(chunk_path, out_chunk_path)
+            tasks.append(task)
+        await asyncio.gather(*tasks)
+        concat_files(out_chunk_paths, out_path)
+
+    def __gen_schema_in(self):
+        schema_in_path = self.__conf.get_path("schema", "in")
+        if os.path.exists(schema_in_path):
+            logger.debug(f"File exists: {schema_in_path}, skipping batch input file generation")
+            return
+        self._gen_batch_file(schema_in_path, self.__generate_schema_req)
+
     async def _run_internal(self):
         conf = self.__conf
-
+        
         self.__preprocess()
 
-        self._gen_batch_file(conf.get_path("schema", "in"), self.__generate_schema_req)
+        self.__gen_schema_in()
 
         await self._ask_file(conf.get_path("schema", "in"), conf.get_path("schema", "out"))
 

@@ -1,5 +1,7 @@
 import json
-from typing import Iterable
+from typing import Iterable, List
+
+from src.util.multi_thread_utils import chunk_list, NUM_PROC_CHUNKS
 
 
 def read_json(path: str):
@@ -33,3 +35,16 @@ def concat_jsons(files: Iterable[str], out_path: str):
             data.extend(in_data)
     with open(out_path, 'w') as out_file:
         out_file.write(json.dumps(data, sort_keys=True, indent=4))
+
+
+def chunk_jsonl(in_path: str) -> List[str]:
+    with open(in_path) as in_file:
+        in_lines = in_file.readlines()
+    chunks = chunk_list(in_lines, NUM_PROC_CHUNKS)
+    chunk_paths = []
+    for i, chunk in enumerate(chunks):
+        chunk_path = f"{in_path}.chunk_{i}.jsonl"
+        with open(chunk_path, "w") as chunk_file:
+            chunk_file.writelines(chunk)
+        chunk_paths.append(chunk_path)
+    return chunk_paths
