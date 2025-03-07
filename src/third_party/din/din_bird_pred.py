@@ -59,7 +59,7 @@ class DinBirdPredictor(Predictor):
         self.__schemas = []
         self.__column_descriptions = []
         db_ids = list(map(lambda e: e['db_id'], examples))
-        self.__schemas = exec_multi_process(partial(get_schema, self._run_conf.dataset_config), db_ids)
+        self.__schemas = exec_multi_process(partial(get_schema, self._run_conf.dataset_config), db_ids,desc="Extracting Schemas")
         for i, example in tqdm.tqdm(enumerate(examples), desc="Preprocessing examples", total=len(examples)):
             db_id = example['db_id']
             question = example['question']
@@ -89,7 +89,7 @@ class DinBirdPredictor(Predictor):
 
     async def _run_internal(self):
         conf = self.__conf
-        
+
         self.__preprocess()
 
         self.__gen_schema_in()
@@ -147,20 +147,22 @@ class DinBirdPredictor(Predictor):
         schema = self.__schemas[i]
         hint = self.__hints[i]
         label, sub_questions = extract_label_and_sub_questions(classification)
-        if "EASY" in label:
+        if label and ("EASY" in label):
             prompt = easy_prompt.format(
                 question=question,
                 schema=schema,
                 hint=hint,
                 columns_descriptions=columns_descriptions,
                 schema_links=schema_links)
-        elif "NON-NESTED" in label:
+        elif label and ("NON-NESTED" in label):
             prompt = medium_prompt.format(question=question,
                                           schema=schema,
                                           hint=hint,
                                           columns_descriptions=columns_descriptions,
                                           schema_links=schema_links)
         else:
+            if label is None:
+                logger.warning("Label is none: ", classification)
             prompt = hard_prompt.format(
                 question=question,
                 schema=schema,

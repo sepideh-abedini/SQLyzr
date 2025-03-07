@@ -45,6 +45,11 @@ def extract_label_and_sub_questions(input_text: str) -> Tuple[str, List[str]]:
 
     label = label_match.group(1) if label_match else None
 
+    if label is None:
+        label_pattern = r'Label:\s\*\*(.*?)\*\*'
+        label_match = re.search(label_pattern, input_text)
+        label = label_match.group(1) if label_match else None
+
     sub_questions = []
     if sub_questions_match:
         sub_questions_str = sub_questions_match.group(1)
