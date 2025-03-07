@@ -1,6 +1,7 @@
 import re
 from enum import Enum
 from difflib import SequenceMatcher
+from typing import Optional
 
 
 def delete_whitespace(content):
@@ -19,7 +20,9 @@ def quote_str(s) -> str:
         return f"'{s}'"
 
 
-def shrink_whitespaces(s: str) -> str:
+def shrink_whitespaces(s: Optional[str]) -> Optional[str]:
+    if s is None:
+        return s
     s = s.strip()
     s = s.replace('\n', ' ').replace('\r', ' ')
     s = re.sub(r'\s+', ' ', s)

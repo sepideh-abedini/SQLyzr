@@ -5,7 +5,6 @@ from typing import List
 
 import tqdm
 from loguru import logger
-from tqdm.asyncio import tqdm as atqdm
 
 from src.eval.dataset_config import DatasetConfig
 from src.eval.lib import TimeLogger
@@ -22,8 +21,7 @@ from src.third_party.din.bird.utils import table_descriptions_parser, get_databa
 from src.third_party.din.config import DinConfig
 from src.third_party.din.spider.prompt_maker import PromptMaker
 from src.util.file_utils import chunk_jsonl, concat_files
-from src.util.model_utils import read_jsonl
-from src.util.multi_thread_utils import exec_multi_process, chunk_list, NUM_PROC_CHUNKS
+from src.util.multi_thread_utils import exec_multi_process
 from src.util.str_utils import shrink_whitespaces
 
 
@@ -59,7 +57,8 @@ class DinBirdPredictor(Predictor):
         self.__schemas = []
         self.__column_descriptions = []
         db_ids = list(map(lambda e: e['db_id'], examples))
-        self.__schemas = exec_multi_process(partial(get_schema, self._run_conf.dataset_config), db_ids,desc="Extracting Schemas")
+        self.__schemas = exec_multi_process(partial(get_schema, self._run_conf.dataset_config), db_ids,
+                                            desc="Extracting Schemas")
         for i, example in tqdm.tqdm(enumerate(examples), desc="Preprocessing examples", total=len(examples)):
             db_id = example['db_id']
             question = example['question']
