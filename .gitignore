@@ -25,3 +25,5 @@ conf.
 !conf.json
 *.patch
 *.tar.gz
+*.png
+*.pdf

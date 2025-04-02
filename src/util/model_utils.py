@@ -24,10 +24,13 @@ def write_jsonl(data: list[BaseModel], out_path: str):
             out_file.write(f"{entry.json()}\n")
 
 
-def read_jsonl(in_path: str, model_class: Type[T]) -> List[T]:
+def read_jsonl(in_path: str, model_class: Type[T] = None) -> List[T]:
     with open(in_path) as in_file:
         data = []
         for line in in_file.readlines():
-            res = model_class.model_validate_json(line)
+            if model_class:
+                res = model_class.model_validate_json(line)
+            else:
+                res = json.loads(line)
             data.append(res)
         return data

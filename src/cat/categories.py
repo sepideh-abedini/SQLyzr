@@ -68,7 +68,7 @@ CAT_5 = StatementCategory(
     SubCategory("s26", frozenset([StructureType.Nested, GroupType.UnconditionalGroup]),
                 "Having nested sub-queries plus having GROUP BY clause without condition"),
     SubCategory("s27", frozenset([StructureType.Nested, JoinConditions.UnconditionalJoin]),
-                "Having nested sub-queries plus with a joing clause without a condition"),
+                "Having nested sub-queries plus with a join clause without a condition"),
     SubCategory("s28", frozenset([StructureType.Nested, ExtraKeywords.AGGREGATE]),
                 "Having nested sub-queries plus with aggregate functions"),
     SubCategory("s29", frozenset([NestLevel.Two]), "Having exactly two level of nested sub-queries")
@@ -76,7 +76,7 @@ CAT_5 = StatementCategory(
 
 CAT_6 = StatementCategory(
     6,
-    SubCategory("s30", frozenset([NestLevel.Many]), "Having at more than two level of nested sub-queries"),
+    SubCategory("s30", frozenset([NestLevel.Many]), "Having more than two level of nested sub-queries"),
     SubCategory("s31", frozenset([StructureType.Compound, StructureType.Nested]),
                 "Having a composition keyword such as (INTERSECT or UNION) and having nested sub-queries"),
     SubCategory("s32", frozenset([ComplexKeywords.CaseExpr]),

@@ -1,6 +1,7 @@
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import List
 
 from loguru import logger
 
@@ -155,11 +156,40 @@ class Count(Metric):
         return 1
 
 
-class TotalExecTime(Metric):
+class ExecTime(Metric):
     def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
             timer = lib.Timer.start()
             self.dbc.exec_query_uncached(db_id, pred)
+            pred_sql_exec_time = timer.lap()
+            return pred_sql_exec_time * 1_000_000
+        except Exception as e:
+            logger.debug(e)
+            return 0
+
+
+class TokenUsage(Metric):
+    tokens: List[int]
+
+    def __init__(self, name: str, conf: DatasetConfig):
+        super().__init__(name, conf)
+
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
+        try:
+            timer = lib.Timer.start()
+            self.dbc.exec_query_uncached(db_id, pred)
+            pred_sql_exec_time = timer.lap()
+            return pred_sql_exec_time * 1_000_000
+        except Exception as e:
+            logger.debug(e)
+            return 0
+
+
+class GoldExecTime(Metric):
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
+        try:
+            timer = lib.Timer.start()
+            self.dbc.exec_query_uncached(db_id, gold)
             pred_sql_exec_time = timer.lap()
             return pred_sql_exec_time * 1_000_000
         except Exception as e:
