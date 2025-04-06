@@ -234,7 +234,7 @@ class Drawer:
         sns.countplot(df, x="Category")
         plt.savefig(os.path.join(OUT_DIR, f"cat_count.png"))
 
-        plt.figure(figsize=(20, 5))
+        plt.figure(figsize=(50, 5))
         sns.countplot(df, x="SubCategory")
         plt.savefig(os.path.join(OUT_DIR, f"sub_cat_count.png"))
 

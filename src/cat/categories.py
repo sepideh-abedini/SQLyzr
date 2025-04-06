@@ -8,7 +8,7 @@ from src.cat.tags.extra import ExtraKeywords
 from src.cat.tags.group_cond import GroupType
 from src.cat.tags.join_cond import JoinConditions
 from src.cat.tags.join_tables import JoinTables
-from src.cat.tags.join_type import JoinType
+from src.cat.tags.join_type import JoinType, JoinSub
 from src.cat.tags.nest_level import NestLevel
 from src.cat.tags.select_columns import SelectColumns
 from src.cat.tags.structure import StructureType
@@ -63,6 +63,39 @@ CAT_4 = StatementCategory(
     SubCategory("s25", frozenset([JoinType.NonSimpleJoin]), "Having inner,outer joins")
 )
 
+CAT_4_NEW = StatementCategory(
+    4,
+    SubCategory("s20", frozenset([NestLevel.One]), "Having exactly one level of nested queries"),
+    SubCategory("s21", frozenset([StructureType.Compound]), "Having a composition keyword such as INTERSECT or UNION"),
+    SubCategory("s22", frozenset([JoinTables.MultiJoin]), "Having more than two joins"),
+    SubCategory("s23", frozenset([NestLevel.One, ExtraKeywords.EXISTS]),
+                "Having nested subqueries with Exists expressions"),
+    SubCategory("s24", frozenset([NestLevel.One, ExtraKeywords.IN]),
+                "Having nested subqueries with IN expressions"),
+    SubCategory("s25_4_4_5", frozenset([JoinSub.INNER, JoinConditions.ConditionalJoin, ExtraKeywords.AGGREGATE]),
+                "Conditional inner join with aggregation"),
+    SubCategory("s25_4_4_4", frozenset([JoinSub.INNER, JoinConditions.ConditionalJoin, ExprType.ArithExpr]),
+                "Conditional inner join with arithmetic expressions"),
+    SubCategory("s25_4_4_3", frozenset([JoinSub.INNER, JoinConditions.ConditionalJoin, GroupType.ConditionalGroup]),
+                "Conditional inner join with conditional group by"),
+    SubCategory("s25_4_4_2", frozenset([JoinSub.INNER, JoinConditions.ConditionalJoin, GroupType.UnconditionalGroup]),
+                "Conditional inner join with unconditional group by"),
+    SubCategory("s25_4_4_1", frozenset([JoinSub.INNER, JoinConditions.ConditionalJoin, ExtraKeywords.OrderBy]),
+                "Conditional inner join with order by"),
+    SubCategory("s25_4_3", frozenset([JoinSub.INNER, JoinType.EquiJoin]),
+                "Inner equi-join"),
+    SubCategory("s25_4_2", frozenset([JoinSub.INNER, JoinType.NonEquiJoin]),
+                "Inner non-equi-join"),
+    SubCategory("s25_4_1", frozenset([JoinSub.INNER, JoinConditions.UnconditionalJoin]),
+                "Unconditional inner join"),
+    SubCategory("s25_3", frozenset([JoinSub.LEFT]),
+                "Left join"),
+    SubCategory("s25_2", frozenset([JoinSub.RIGHT]),
+                "Right join"),
+    SubCategory("s25_1", frozenset([JoinSub.OUTER]),
+                "Full outer join"),
+)
+
 CAT_5 = StatementCategory(
     5,
     SubCategory("s26", frozenset([StructureType.Nested, GroupType.UnconditionalGroup]),
@@ -87,7 +120,7 @@ CAT_6 = StatementCategory(
                 "Having a window function"),
 )
 
-CATS = [CAT_1, CAT_2, CAT_3, CAT_4, CAT_5, CAT_6]
+CATS = [CAT_1, CAT_2, CAT_3, CAT_4_NEW, CAT_5, CAT_6]
 
 
 def get_all_sub_cats(cats: List[StatementCategory]):

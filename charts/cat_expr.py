@@ -64,18 +64,17 @@ data = read_json("charts/in.json")
 df = pd.read_csv("joins.csv")
 
 subs1 = {
-    "s25_1_1_1": {JoinSub.INNER, JoinConditions.ConditionalJoin, ExtraKeywords.AGGREGATE},
-    "s25_1_1_2": {JoinSub.INNER, JoinConditions.ConditionalJoin, ExprType.ArithExpr},
-    "s25_1_1_3": {JoinSub.INNER, JoinConditions.ConditionalJoin, GroupType.ConditionalGroup},
-    "s25_1_1_4": {JoinSub.INNER, JoinConditions.ConditionalJoin, GroupType.UnconditionalGroup},
-    # "s25_1_1_5": {JoinSub.INNER, JoinConditions.ConditionalJoin, JoinTables.MultiJoin},
-    "s25_1_1_6": {JoinSub.INNER, JoinConditions.ConditionalJoin, ExtraKeywords.OrderBy},
-    "s25_1_2": {JoinSub.INNER, JoinType.EquiJoin},
-    "s25_1_3": {JoinSub.INNER, JoinType.NonEquiJoin},
-    "s25_1_4": {JoinSub.INNER, JoinConditions.UnconditionalJoin},
-    "s25_2": {JoinSub.LEFT},
-    "s25_3": {JoinSub.RIGHT},
-    "s25_4": {JoinSub.OUTER},
+    "s25_4_4_5": {JoinSub.INNER, JoinConditions.ConditionalJoin, ExtraKeywords.AGGREGATE},
+    "s25_4_4_4": {JoinSub.INNER, JoinConditions.ConditionalJoin, ExprType.ArithExpr},
+    "s25_4_4_3": {JoinSub.INNER, JoinConditions.ConditionalJoin, GroupType.ConditionalGroup},
+    "s25_4_4_2": {JoinSub.INNER, JoinConditions.ConditionalJoin, GroupType.UnconditionalGroup},
+    "s25_4_4_1": {JoinSub.INNER, JoinConditions.ConditionalJoin, ExtraKeywords.OrderBy},
+    "s25_4_3": {JoinSub.INNER, JoinType.EquiJoin},
+    "s25_4_2": {JoinSub.INNER, JoinType.NonEquiJoin},
+    "s25_4_1": {JoinSub.INNER, JoinConditions.UnconditionalJoin},
+    "s25_3": {JoinSub.LEFT},
+    "s25_2": {JoinSub.RIGHT},
+    "s25_1": {JoinSub.OUTER},
 }
 
 subs2 = {
@@ -95,7 +94,7 @@ def has_tag(row, tags):
 
 
 for i, row in df.iterrows():
-    all_tags = natsorted(subs1.items(), key=lambda x: x[0], reverse=False)
+    all_tags = natsorted(subs1.items(), key=lambda x: x[0], reverse=True)
     for sub, tags in all_tags:
         if has_tag(row, tags):
             sub_count[sub] = sub_count.setdefault(sub, 0) + 1

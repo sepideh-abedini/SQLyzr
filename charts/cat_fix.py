@@ -26,6 +26,7 @@ catter = Catter()
 
 rows = []
 c = 0
+sc = 0
 for i, row in tqdm.tqdm(df.iterrows(), total=len(df)):
     orig_cat = row['cat']
     orig_sub_cat = row['sub_cat']
@@ -37,10 +38,13 @@ for i, row in tqdm.tqdm(df.iterrows(), total=len(df)):
     sub_cat = catter.get_sub_category(sql)
     row['sub_cat'] = sub_cat
     rows.append(row)
-    if sub_cat.name != orig_sub_cat:
+    if cat.name != orig_cat:
         c += 1
+        print("HEREEE", orig_cat)
+    if sub_cat.name != orig_sub_cat:
+        sc += 1
         # print(f"DIFF: {orig_cat}:{orig_sub_cat} -> {cat}:{sub_cat}")
 
 new_df = pd.DataFrame(rows)
-new_df.to_csv("charts/all_scores_new.csv")
+new_df.to_csv("charts/all_scores_new_v3.csv")
 print(c)

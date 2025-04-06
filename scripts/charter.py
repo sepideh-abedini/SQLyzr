@@ -5,7 +5,7 @@ from natsort import natsorted
 from scripts.chart_lib.drawer import Drawer, proc_df
 
 # SCORES_PATH = "charts/all_scores_v1.csv"
-SCORES_PATH = "charts/all_scores_new.csv"
+SCORES_PATH = "charts/all_scores_new_v3.csv"
 
 drawer = Drawer(SCORES_PATH)
 metrics = [
@@ -19,10 +19,10 @@ metrics = [
     # "REA-EA Diff"
 ]
 
-drawer.draw_overall()
+# drawer.draw_overall()
 # for metric in tqdm.tqdm(metrics):
 #     drawer.draw(metric)
-# drawer.draw_cats()
+drawer.draw_cats()
 
 exit(0)
 
