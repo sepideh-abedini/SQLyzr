@@ -60,7 +60,7 @@ CAT_4 = StatementCategory(
                 "Having nested subqueries with Exists expressions"),
     SubCategory("s24", frozenset([NestLevel.One, ExtraKeywords.IN]),
                 "Having nested subqueries with IN expressions"),
-    SubCategory("s25", frozenset([JoinType.NonSimpleJoin]), "Having inner,outer joins"),
+    SubCategory("s25", frozenset([JoinType.NonSimpleJoin]), "Having inner,outer joins")
 )
 
 CAT_5 = StatementCategory(

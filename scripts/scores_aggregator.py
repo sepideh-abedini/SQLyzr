@@ -1,9 +1,6 @@
 import os.path
 
 import pandas as pd
-import tqdm
-
-from src.cat.catter import Catter
 
 DATA_DIRS = [
     "dail_spider_all",
@@ -23,8 +20,9 @@ def parse_data_dir(data_dir: str):
 dfs = []
 for data_dir in DATA_DIRS:
     model, dataset, size = parse_data_dir(data_dir)
-    raw_scores_path = os.path.join("data", data_dir, "scores_raw_with_toks.csv")
+    raw_scores_path = os.path.join("data", data_dir, "scores_raw_with_toks.csv.new.csv")
     df = pd.read_csv(raw_scores_path)
+    print(df.columns)
     df['model'] = model
     df['dataset'] = dataset
     df = df.add_prefix(f"{model}_{dataset}_", axis=0)
@@ -34,8 +32,8 @@ agg_df = pd.concat(dfs)
 
 agg_df.to_csv(os.path.join("data", "all.csv"))
 
-sample = agg_df.groupby(["tmp", "dataset", "model"]).apply(lambda df: df.sample(100))
-sample.to_csv(os.path.join("data", "sample.csv"))
+# sample = agg_df.groupby(["tmp", "dataset", "model"]).apply(lambda df: df.sample(100))
+# sample.to_csv(os.path.join("data", "sample.csv"))
 
 # catter = Catter()
 # rows = []

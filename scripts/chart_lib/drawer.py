@@ -25,7 +25,8 @@ COL_NAMES = {
     "sub_cat": "SubCategory",
     "model": "Model",
     "dataset": "Dataset",
-    "tmp": "Temp"
+    "tmp": "Temp",
+    "diff": "REA-EA Diff"
 }
 
 custom_palette = ["#1f77b4", "#ff7f0e"]
@@ -54,19 +55,21 @@ def proc_df(scores_path: str):
     sub_cats = natsorted(df['sub_cat'].unique())
     df['cat'] = pd.Categorical(df['cat'], categories=cats, ordered=True)
     df['sub_cat'] = pd.Categorical(df['sub_cat'], categories=sub_cats, ordered=True)
+    df = df.sort_values(by=['cat', 'sub_cat'])
     df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
-    df['etc'] = (df['etc'] & df["ea"])
-    df["cconst"] = (df["cc"] & df["ea"])
+    df['etc'] = (df['etc'] & df["rea"])
+    df["cconst"] = (df["cc"] & df["rea"])
+    df['diff'] = df['rea'] - df['ea']
     df = df.drop(columns=[col for col in df.columns if "Unnamed" in col])
 
     df = df[df['tmp'] == TOP_TEMP]
 
-    mean_values = df.drop(columns=['cat', 'sub_cat', "dataset"]).groupby('model').mean()
-    for value in df['model'].unique():
-        new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
-        new_row.update(mean_values.loc[value].to_dict())
-        row = pd.DataFrame([new_row])
-        df = pd.concat([df, row], ignore_index=True)
+    # mean_values = df.drop(columns=['cat', 'sub_cat', "dataset"]).groupby('model').mean()
+    # for value in df['model'].unique():
+    #     new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
+    #     new_row.update(mean_values.loc[value].to_dict())
+    #     row = pd.DataFrame([new_row])
+    #     df = pd.concat([df, row], ignore_index=True)
 
     df = df.rename(columns=COL_NAMES)
 
@@ -75,9 +78,7 @@ def proc_df(scores_path: str):
 
 
 def melt_scores(df):
-    df["Complexity Consistency"] = (df["cc"] & df["ea"])
-    df = df.rename(columns=COL_NAMES)
-    df = pd.melt(df, id_vars=['Model', 'Dataset', 'Category', 'Temp', 'Sub-Category'],
+    df = pd.melt(df, id_vars=['Model', 'Dataset', 'Category', 'Temp', 'SubCategory'],
                  value_vars=['Execution Accuracy', 'Relaxed Execution Accuracy', 'Exact Match',
                              'Complexity Consistency', "Execution Time Consistency"],
                  var_name="Metric",
@@ -100,6 +101,15 @@ class Drawer:
         return os.path.join(OUT_DIR, snakecase(metric))
 
     def draw_barplot(self, x: str, y: str, hue: str, estimator: str):
+        order = [
+            's0',
+            's1', 's2',
+            's8', 's6', 's3', 's9', 's7', 's4', 's5',
+            's16', 's17', 's13', 's19', 's12', 's11', 's14', 's15', 's18',
+            's20', 's21', 's22', 's25', 's24',
+            's28', 's29', 's26', 's27',
+            's30', 's32', 's31', 's34', 's33'
+        ]
         ax = sns.barplot(self.df, x=x, y=y, hue=hue, estimator=estimator, width=0.8)
         return ax
 
@@ -203,7 +213,7 @@ class Drawer:
     def draw(self, metric: str):
         os.makedirs(self.metric_dir(metric), exist_ok=True)
         # self.draw_metric_mean("Temp", metric)
-        # self.draw_metric_mean("Category", metric)
+        self.draw_metric_mean("Category", metric)
         self.draw_metric_mean("SubCategory", metric)
         # self.grid_1d("Category", "SubCategory", metric)
         # self.grid_1d("Category", "SubCategory", metric, save_indiv=False)
@@ -215,6 +225,28 @@ class Drawer:
         # self.grid_1d("Temp", "SubCategory", metric, row=True, save_indiv=False)
         # self.grid_2d("Category", "Temp", "SubCategory", metric)
         # self.grid_2d("Category", "Temp", "SubCategory", metric, save_indiv=False)
+
+    def draw_cats(self):
+        df = self.df
+        df = df[(df['Temp'] == 0.2) & (df['Model'] == "din") & (df['itr'] == 0)]
+        plt.figure(figsize=(5, 5))
+
+        sns.countplot(df, x="Category")
+        plt.savefig(os.path.join(OUT_DIR, f"cat_count.png"))
+
+        plt.figure(figsize=(20, 5))
+        sns.countplot(df, x="SubCategory")
+        plt.savefig(os.path.join(OUT_DIR, f"sub_cat_count.png"))
+
+        plt.show()
+
+    def draw_overall(self):
+        df = melt_scores(self.df)
+        plt.figure(figsize=(15, 5))
+        ax = sns.barplot(df, x="Metric", y="Score",hue="Model")
+        ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+        ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
+        plt.savefig(os.path.join(OUT_DIR, f"overall.png"))
 
     def draw_all(self):
         pass

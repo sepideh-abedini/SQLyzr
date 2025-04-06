@@ -1,5 +1,7 @@
 from typing import List
 
+from natsort import natsorted
+
 from src.cat.categories import CAT_1, CAT_2, CAT_3, CAT_4, CAT_5, CAT_6, CATS
 from src.cat.statement_category import StatementCategory
 from src.cat.sub_category import SubCategory
@@ -31,8 +33,8 @@ class Categorizer:
             # harder categories
             sub_cats = c.matches(tag_set)
             if sub_cats:
-                return sorted(sub_cats)[-1]
-
+                sorted_sub_cats = natsorted(sub_cats, key=lambda s: s.name)
+                return sorted_sub_cats[-1]
                 # return f"{c.name}_{sub_cat.name}"
                 # return f"{sub_cat.name}"
                 # return f"{c.name}"
