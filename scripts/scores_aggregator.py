@@ -32,6 +32,10 @@ agg_df = pd.concat(dfs)
 
 agg_df.to_csv(os.path.join("data", "all.csv"))
 
+tmp = agg_df[
+    (agg_df['dataset'] == "beaver") & (agg_df['model'] == "din") & (agg_df['tmp'] == 0.2) & (agg_df['itr'] == 0)]
+print(tmp['rea'].sum())
+
 # sample = agg_df.groupby(["tmp", "dataset", "model"]).apply(lambda df: df.sample(100))
 # sample.to_csv(os.path.join("data", "sample.csv"))
 

@@ -11,6 +11,7 @@ from pandas import DataFrame
 
 ET_TRESH = 0.1
 TOP_TEMP = 0.2
+INCLUDE_ALL = True
 
 COL_NAMES = {
     "ea": "Execution Accuracy",
@@ -23,10 +24,11 @@ COL_NAMES = {
     "tokens": "Token Usage",
     "cat": "Category",
     "sub_cat": "SubCategory",
+    "cdiff": "Complexity Inconsistency",
+    "etcdiff": "Execution Time Inconsistency",
     "model": "Model",
     "dataset": "Dataset",
     "tmp": "Temp",
-    "diff": "REA-EA Diff"
 }
 
 custom_palette = ["#1f77b4", "#ff7f0e"]
@@ -56,20 +58,25 @@ def proc_df(scores_path: str):
     df['cat'] = pd.Categorical(df['cat'], categories=cats, ordered=True)
     df['sub_cat'] = pd.Categorical(df['sub_cat'], categories=sub_cats, ordered=True)
     df = df.sort_values(by=['cat', 'sub_cat'])
+    df = df[df['rea'] == 1]
     df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
     df['etc'] = (df['etc'] & df["rea"])
     df["cconst"] = (df["cc"] & df["rea"])
+    df["cdiff"] = ((~df["cc"]) & df["rea"])
+    df["etcdiff"] = ((~df["etc"]) & df["rea"])
     df['diff'] = df['rea'] - df['ea']
     df = df.drop(columns=[col for col in df.columns if "Unnamed" in col])
+    # df = df[df['cat'] != 'c6']
 
     df = df[df['tmp'] == TOP_TEMP]
 
-    # mean_values = df.drop(columns=['cat', 'sub_cat', "dataset"]).groupby('model').mean()
-    # for value in df['model'].unique():
-    #     new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
-    #     new_row.update(mean_values.loc[value].to_dict())
-    #     row = pd.DataFrame([new_row])
-    #     df = pd.concat([df, row], ignore_index=True)
+    if INCLUDE_ALL:
+        mean_values = df.drop(columns=['cat', 'sub_cat', "dataset"]).groupby('model').mean()
+        for value in df['model'].unique():
+            new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
+            new_row.update(mean_values.loc[value].to_dict())
+            row = pd.DataFrame([new_row])
+            df = pd.concat([df, row], ignore_index=True)
 
     df = df.rename(columns=COL_NAMES)
 
@@ -243,7 +250,7 @@ class Drawer:
     def draw_overall(self):
         df = melt_scores(self.df)
         plt.figure(figsize=(15, 5))
-        ax = sns.barplot(df, x="Metric", y="Score",hue="Model")
+        ax = sns.barplot(df, x="Metric", y="Score", hue="Model")
         ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
         ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
         plt.savefig(os.path.join(OUT_DIR, f"overall.png"))

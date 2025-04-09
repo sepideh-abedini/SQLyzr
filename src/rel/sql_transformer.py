@@ -37,7 +37,6 @@ class AddLimitTransformer(SqlTransformer):
         match = re.match(r'(.*)limit\s*([^\s]*)(.*)', gold.sql, flags=re.IGNORECASE)
         if match is not None:
             gold_limit_expr = match.groups()[1]
-            old_sql = pred.sql
             pred.sql = self.replace_limit_expr(pred.sql, gold_limit_expr)
         return pred, gold
 

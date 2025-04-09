@@ -5,23 +5,24 @@ from natsort import natsorted
 from scripts.chart_lib.drawer import Drawer, proc_df
 
 # SCORES_PATH = "charts/all_scores_v1.csv"
-SCORES_PATH = "charts/all_scores_new_v3.csv"
+SCORES_PATH = "charts/all_scores_new_v7.csv"
 
 drawer = Drawer(SCORES_PATH)
 metrics = [
-    "Execution Accuracy",
-    "Relaxed Execution Accuracy",
-    "Exact Match",
-    "Execution Time",
-    "Execution Time Consistency",
-    "Token Usage",
-    "Complexity Consistency",
-    # "REA-EA Diff"
+    # "Execution Accuracy",
+    # "Relaxed Execution Accuracy",
+    # "Exact Match",
+    # "Execution Time",
+    # "Token Usage",
+    # "Execution Time Consistency",
+    # "Execution Time Inconsistency",
+    # "Complexity Consistency",
+    # "Complexity Inconsistency"
 ]
 
-# drawer.draw_overall()
-# for metric in tqdm.tqdm(metrics):
-#     drawer.draw(metric)
+drawer.draw_overall()
+for metric in tqdm.tqdm(metrics):
+    drawer.draw(metric)
 drawer.draw_cats()
 
 exit(0)

@@ -27,9 +27,6 @@ catter = Catter()
 rows = []
 c = 0
 sc = 0
-# df = df[(df['tmp'] == 0.2) & (df['itr'] == 0) & (df['model'] == 'din')]
-df = df[(df['tmp'] == 0.2)]
-
 for i, row in tqdm.tqdm(df.iterrows(), total=len(df)):
     orig_cat = row['cat']
     orig_sub_cat = row['sub_cat']
@@ -39,7 +36,6 @@ for i, row in tqdm.tqdm(df.iterrows(), total=len(df)):
     sql = dataset[idx]['query']
     cat = catter.get_category(sql)
     sub_cat = catter.get_sub_category(sql)
-    row['cat'] = cat
     row['sub_cat'] = sub_cat
     rows.append(row)
     if cat.name != orig_cat:
@@ -50,5 +46,5 @@ for i, row in tqdm.tqdm(df.iterrows(), total=len(df)):
         # print(f"DIFF: {orig_cat}:{orig_sub_cat} -> {cat}:{sub_cat}")
 
 new_df = pd.DataFrame(rows)
-new_df.to_csv("charts/all_scores_new_v7.csv")
+new_df.to_csv("charts/all_scores_new_v6.csv")
 print(c)

@@ -18,11 +18,11 @@ SPIDER_METRICS = {
 
 BIRD_METRICS = {
     # "em": ExactMatch,
-    # "ea": ExecAcc,
-    # "rea": RelaxedExecAcc,
+    "ea": ExecAcc,
+    "rea": RelaxedExecAcc,
     # "et": ExecTime,
-    "cc": ComplexityConsistency,
-    "get": GoldExecTime,
+    # "cc": ComplexityConsistency,
+    # "get": GoldExecTime,
     # TotalExecTime("et", config.dataset_config),
     # SpiderExactMatch("sem", config.dataset_config),
     # RelaxedExecAcc("rea", config.dataset_config),

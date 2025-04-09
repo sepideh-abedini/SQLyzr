@@ -11,6 +11,8 @@ from loguru import logger
 
 from src.third_party.dail.utils.utils import DB_LONG_TIMEOUT
 
+MAX_PERM = 1_000_000
+
 
 class Matcher:
     db_facade: DatabaseFacade
@@ -62,7 +64,6 @@ class Matcher:
         for transformer in sorted(self.post_exec_transformers):
             pred_exec = transformer.transform_result(pred_exec)
             gold_exec = transformer.transform_result(gold_exec)
-
         result = False
         for matcher in self.result_matchers:
             result = matcher.check_res(pred_exec, gold_exec)
@@ -105,9 +106,9 @@ class ExtraTupleRemoverMatcher(ResultMatcher):
 class ExtraColumnRemoverMatcher(ResultMatcher):
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
         matched = set()
-        if len(list(gold.res)) * len(list(pred.res)) > 1_000_000:
-            return False
         if pred.res is None or gold.res is None:
+            return False
+        if len(list(gold.res)) * len(list(pred.res)) > MAX_PERM:
             return False
         for g in gold.res:
             g = frozenset(g)

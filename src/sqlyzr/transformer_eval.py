@@ -40,7 +40,6 @@ class TransformerFinder:
         detector = TransformerDetector(config, [
             AddLimitTransformer(),
             LiteralCorrectorTransformer(),
-            ColCorrectorTransformer(),
             IgnoreListOrderTransformer(),
             IgnoreColOrderTransformer(),
             SubsetMatcher()

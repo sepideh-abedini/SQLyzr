@@ -17,7 +17,6 @@ data = read_json("charts/in.json")
 
 counts = {}
 
-
 # parser = SqlParser()
 # sql = "SELECT CAST(SUM(type = 'gold' AND STRFTIME('%Y', issued) < '1998') AS REAL) * 100 / COUNT(card_id) FROM card"
 # sql = "Select a * 2 from b"
@@ -36,18 +35,15 @@ def cts():
         ast = parser.parse(sql)
         sub = catter.get_sub_category(sql)
         counts[sub.name] = counts.setdefault(sub.name, 0) + 1
-        # if sub.name == "s0":
-        #     print(sql)
-        #     tags = tag_extractor.extract_tags(ast)
-        #     print(tags.tag_set.tags)
+        if sub.name == "s0":
+            print(sql)
+            tags = tag_extractor.extract_tags(ast)
+            print(tags.tag_set.tags)
     print("done")
 
 
 cts()
-df = pd.DataFrame(counts.items())
-df.to_csv("cats.count.csv")
-
-# print(counts)
+print(counts)
 exit(0)
 
 

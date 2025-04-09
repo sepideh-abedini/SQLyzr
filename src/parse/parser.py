@@ -281,6 +281,7 @@ def p_bin_op_expr(p):
                    | expr OR expr
                    | expr ARITH_OP expr
                    | expr LIKE expr
+                   | expr STAR expr
                    | expr REGEXP expr
                    | expr COMP_OP expr
                    | expr IS expr

@@ -2,7 +2,7 @@ import pandas as pd
 
 from src.eval.lib import confidence_level_interval
 
-df = pd.read_csv("charts/all_scores_new_v7.csv")
+df = pd.read_csv("charts/all_scores_new_v5.csv")
 
 df = df.drop(columns=[col for col in df.columns if col.startswith("Unnamed")])
 df = df.drop(columns=["ds_idx"])
