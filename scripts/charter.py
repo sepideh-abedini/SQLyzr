@@ -1,30 +1,87 @@
+import os
+import shutil
+
 import pandas as pd
 import tqdm
+from dataclasses_json.stringcase import snakecase
 from natsort import natsorted
 
-from scripts.chart_lib.drawer import Drawer, proc_df
+from scripts.chart_lib.drawer import Drawer
 
 # SCORES_PATH = "charts/all_scores_v1.csv"
 SCORES_PATH = "charts/all_scores_new_v7.csv"
+drawer = Drawer(SCORES_PATH, include_all=True, show=True)
+drawer.draw("Execution Accuracy")
+exit(0)
 
-drawer = Drawer(SCORES_PATH)
-metrics = [
-    # "Execution Accuracy",
-    # "Relaxed Execution Accuracy",
-    # "Exact Match",
-    # "Execution Time",
-    # "Token Usage",
-    # "Execution Time Consistency",
-    # "Execution Time Inconsistency",
-    # "Complexity Consistency",
-    # "Complexity Inconsistency"
-]
 
-drawer.draw_overall()
-for metric in tqdm.tqdm(metrics):
-    drawer.draw(metric)
-drawer.draw_cats()
+def draw_all_charts():
+    drawer = Drawer(SCORES_PATH)
+    drawer.draw_cats()
+    drawer.draw_overall()
 
+    drawer = Drawer(SCORES_PATH, include_all=True)
+    metrics = [
+        "Execution Accuracy",
+        "Relaxed Execution Accuracy",
+        "Exact Match",
+        "Execution Time",
+        "Token Usage",
+    ]
+    for metric in tqdm.tqdm(metrics):
+        drawer.draw(metric)
+
+    drawer = Drawer(SCORES_PATH, include_all=True, only_correct=True)
+    metrics = [
+        "Execution Time Consistency",
+        "Execution Time Inconsistency",
+    ]
+    for metric in tqdm.tqdm(metrics):
+        drawer.draw(metric)
+
+    drawer = Drawer(SCORES_PATH, include_all=True, only_correct=True, exclude_c6=True)
+    metrics = [
+        "Complexity Consistency",
+        "Complexity Inconsistency"
+    ]
+    for metric in tqdm.tqdm(metrics):
+        drawer.draw(metric)
+
+
+def first_letters(s):
+    s = s.lower()
+    return "".join(map(lambda w: w[0], s.split(" ")))
+
+
+def copy_charts():
+    os.makedirs("charts/paper", exist_ok=True)
+
+    shutil.copy("charts/cat_count.png", f"charts/paper/catcount.png")
+    shutil.copy("charts/sub_cat_count.png", f"charts/paper/subcount.png")
+    shutil.copy("charts/overall.png", f"charts/paper/overall.png")
+
+    metrics = [
+        "Execution Accuracy",
+        "Relaxed Execution Accuracy",
+        "Exact Match",
+        "Execution Time",
+        "Token Usage",
+        "Execution Time Consistency",
+        "Execution Time Inconsistency",
+        "Complexity Consistency",
+        "Complexity Inconsistency"
+    ]
+    for m in metrics:
+        p = f"charts/{snakecase(m)}/mean__{snakecase(m)}_per__category.png"
+        shutil.copy(p, f"charts/paper/{first_letters(m)}cat.png")
+
+    for m in metrics:
+        p = f"charts/{snakecase(m)}/mean__{snakecase(m)}_per__sub_category.png"
+        shutil.copy(p, f"charts/paper/{first_letters(m)}sub.png")
+
+
+draw_all_charts()
+copy_charts()
 exit(0)
 
 model = "dail"
