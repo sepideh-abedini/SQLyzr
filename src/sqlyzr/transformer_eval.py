@@ -5,12 +5,11 @@ from tqdm.auto import tqdm
 
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.metrics import RelaxedExecAcc, ExecAcc, GoldNotEmpty
-from src.rel.base_matcher import SubsetMatcher
+from src.rel.base_matcher import ExtraColumnsMatcher, ExtraTupleMatcher, ExtraColumnAndTupleMatcher
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_processor import SqlMatchingProcessor
-from src.rel.sql_transformer import LiteralCorrectorTransformer, ColCorrectorTransformer, \
-    AddLimitTransformer
+from src.rel.sql_transformer import LetterCasingTransformer, FixPredLimitTransformer
 from src.rel.transformer_detector import TransformerDetector
 from src.sqlyzr.pred_gold_reader import PredGoldReader
 
@@ -38,11 +37,13 @@ class TransformerFinder:
         ea = ExecAcc("ea", config)
         gne = GoldNotEmpty("gne", config)
         detector = TransformerDetector(config, [
-            AddLimitTransformer(),
-            LiteralCorrectorTransformer(),
+            FixPredLimitTransformer(),
+            LetterCasingTransformer(),
             IgnoreListOrderTransformer(),
             IgnoreColOrderTransformer(),
-            SubsetMatcher()
+            ExtraColumnsMatcher(),
+            ExtraTupleMatcher(),
+            ExtraColumnAndTupleMatcher()
         ])
         run_confs = self.__config.eval_conf.get_run_confs()
         for conf in tqdm(run_confs, desc="Finding transformers", total=len(run_confs), leave=False, position=0):
