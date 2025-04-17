@@ -98,7 +98,7 @@ def clean_file(dataset_conf: DatasetConfig, data_file_path: str, overwrite: bool
 
 def clean_dataset(config_path: str, overwrite: bool):
     conf = load_config(config_path)
-    dataset_conf = conf.eval_conf.dataset_config
+    dataset_conf = conf.eval_conf.dataset_configs
     clean_file(dataset_conf, dataset_conf.get_train_path(), overwrite)
     clean_file(dataset_conf, dataset_conf.get_test_path(), overwrite)
 

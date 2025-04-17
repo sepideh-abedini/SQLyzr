@@ -14,25 +14,28 @@ class ModelEvalConfig:
     eval_dir: str
     pred_dir: str
     trs_dir: str
-    dataset_config: DatasetConfig
+    dataset_configs: List[DatasetConfig]
     metrics: Dict[str, Type[Metric]]
 
     def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str,
-                 dataset_config: DatasetConfig,
+                 dataset_configs: [DatasetConfig],
                  metrics: Dict[str, Type[Metric]], batch: bool):
         self.pred_dir = pred_dir
         self.eval_dir = eval_dir
         self.trs_dir = trs_dir
         self.run_confs = {}
-        self.dataset_config = dataset_config
+        self.dataset_configs = dataset_configs
         for temp, itr in product(temps, range(num_itrs)):
-            conf = SingleRunConfig(dataset_config=dataset_config,
-                                   pred_dir=pred_dir,
-                                   trs_dir=trs_dir,
-                                   temp=temp,
-                                   itr=itr,
-                                   batch=batch)
-            self.run_confs.setdefault(temp, []).append(conf)
+            for dataset_config in self.dataset_configs:
+                sub_pred_dir = os.path.join(pred_dir, dataset_config.dataset_type)
+                os.makedirs(sub_pred_dir, exist_ok=True)
+                conf = SingleRunConfig(dataset_config=dataset_config,
+                                       pred_dir=sub_pred_dir,
+                                       trs_dir=trs_dir,
+                                       temp=temp,
+                                       itr=itr,
+                                       batch=batch)
+                self.run_confs.setdefault(temp, []).append(conf)
         self.metrics = metrics
 
     def get_run_confs(self):

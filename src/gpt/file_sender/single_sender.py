@@ -1,3 +1,4 @@
+import os
 from typing import List
 import asyncio
 
@@ -13,7 +14,7 @@ from src.util.model_utils import read_jsonl
 
 class GptSingleSender(GptFileSender):
     _gateway: GptGateway
-    BATCH_COUNT = 10
+    BATCH_COUNT = int(os.environ.get("ASYNC_BATCH", 1))
 
     def __init__(self):
         super().__init__()

@@ -41,7 +41,7 @@ class Auger:
         self.__sub_cats = sub_cats
         self.__catter = Catter()
         self.__gpt_sender = GptFormattedSingleSender(TextSqlPair)
-        self.schema_repo = DatabaseSchemaRepo(self.__sqlyzr_conf.eval_conf.dataset_config.get_tables_path())
+        self.schema_repo = DatabaseSchemaRepo(self.__sqlyzr_conf.eval_conf.dataset_configs.get_tables_path())
         if db_id:
             self.__db_id = db_id
         else:
@@ -57,7 +57,7 @@ class Auger:
 
     def __extract_examples(self):
         examples = {}
-        with open(self.__sqlyzr_conf.eval_conf.dataset_config.get_test_path() + ".cat.json") as dataset_file:
+        with open(self.__sqlyzr_conf.eval_conf.dataset_configs.get_test_path() + ".cat.json") as dataset_file:
             dataset_data = json.load(dataset_file)
             for entry in tqdm.tqdm(dataset_data, desc="Extracting examples", total=len(dataset_data)):
                 db_id = entry["db_id"]

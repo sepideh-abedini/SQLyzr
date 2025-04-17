@@ -54,7 +54,7 @@ def load_config(path) -> SQLyzrConfig:
     logger.info("########### Environment #############")
     logger.info(os.environ.items())
     logger.info("#######################################")
-    dataset_conf = DATASETS[conf_data.dataset][conf_data.dataset_size]
+    dataset_confs = DATASETS[conf_data.dataset][conf_data.dataset_size]
     dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir()]
     for d in dirs:
         if conf_data.force:
@@ -66,7 +66,7 @@ def load_config(path) -> SQLyzrConfig:
         pred_dir=conf_data.get_pred_dir(),
         eval_dir=conf_data.get_eval_dir(),
         trs_dir=conf_data.get_trs_dir(),
-        dataset_config=dataset_conf,
+        dataset_configs=dataset_confs,
         metrics=METRICS[conf_data.dataset],
         batch=conf_data.batch
     )

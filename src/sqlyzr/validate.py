@@ -14,12 +14,12 @@ from src.util.async_utils import apply_async
 
 
 async def validate_dataset(conf: SQLyzrConfig):
-    db_facade = DatabaseFactory.get_instance(conf.eval_conf.dataset_config)
+    db_facade = DatabaseFactory.get_instance(conf.eval_conf.dataset_configs)
     catter = Catter()
     errors = []
     total = 0
     valid_examples = []
-    data_file_path = conf.eval_conf.dataset_config.get_test_path()
+    data_file_path = conf.eval_conf.dataset_configs.get_test_path()
     with open(data_file_path) as file:
         data = json.load(file)
         examples = []
@@ -29,7 +29,7 @@ async def validate_dataset(conf: SQLyzrConfig):
         results = await apply_async(lambda example: db_facade.exec_query_async(example.db_id, example.query), examples)
 
         for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
-                             desc=f"Validating dataset: {conf.eval_conf.dataset_config.dataset_dir}"):
+                             desc=f"Validating dataset: {conf.eval_conf.dataset_configs.dataset_dir}"):
             example = SpiderExample.model_validate(entry)
             cat = catter.get_category(example.query)
             exec_res = results[i]
@@ -54,10 +54,10 @@ async def validate_dataset(conf: SQLyzrConfig):
 
 
 def validate_preds(conf: ModelEvalConfig):
-    parser = ExactMatchParser(conf.dataset_config.get_tables_path())
+    parser = ExactMatchParser(conf.dataset_configs.get_tables_path())
     for run_conf in conf.get_run_confs():
         errors = []
-        with (open(run_conf.dataset_config.get_test_path()) as data_file,
+        with (open(run_conf.dataset_configs.get_test_path()) as data_file,
               open(run_conf.get_pred_path()) as pred_file):
             data = json.load(data_file)
             pred_lines = pred_file.readlines()

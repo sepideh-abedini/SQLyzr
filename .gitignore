@@ -27,3 +27,5 @@ conf.
 *.tar.gz
 *.png
 *.pdf
+*.csv
+*.txt

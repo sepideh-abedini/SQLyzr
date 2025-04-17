@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict
 
 from src.eval.dataset_config import DatasetConfig
 from src.rel.db_facade import DatabaseFacade, SqliteFacade
@@ -6,15 +6,14 @@ from src.rel.mysql_facade import MysqlFacade
 
 
 class DatabaseFactory:
-    __instance: Optional[DatabaseFacade] = None
+    __instances: Dict[str, DatabaseFacade] = dict()
 
     @staticmethod
     def get_instance(conf: DatasetConfig):
-        if not DatabaseFactory.__instance:
+        if conf.dataset_type not in DatabaseFactory.__instances:
             instance = DatabaseFactory.get_new_instance_dangerous(conf)
-            DatabaseFactory.__instance = instance
-            return instance
-        return DatabaseFactory.__instance
+            DatabaseFactory.__instances[conf.dataset_type] = instance
+        return DatabaseFactory.__instances[conf.dataset_type]
 
     @staticmethod
     def get_new_instance_dangerous(conf: DatasetConfig):

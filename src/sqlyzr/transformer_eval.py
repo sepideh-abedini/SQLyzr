@@ -27,13 +27,13 @@ class TransformerFinder:
     def __calc_rea_score(self, working_sub: List[SqlMatchingProcessor]) -> int:
         if working_sub is None:
             return 0
-        rea = RelaxedExecAcc("rea", self.__config.eval_conf.dataset_config)
+        rea = RelaxedExecAcc("rea", self.__config.eval_conf.dataset_configs)
         rea_procs = self.__get_transformers_classes(rea.detector.processors)
         working_procs = self.__get_transformers_classes(working_sub)
         return 1 if working_procs.issubset(rea_procs) else 0
 
     async def run(self):
-        config = self.__config.eval_conf.dataset_config
+        config = self.__config.eval_conf.dataset_configs
         ea = ExecAcc("ea", config)
         gne = GoldNotEmpty("gne", config)
         detector = TransformerDetector(config, [

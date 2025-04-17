@@ -9,7 +9,7 @@ from src.sqlyzr.pipeline_config import PipelineConfig
 @dataclass(frozen=True)
 class SQLyzrConfig:
     eval_conf: ModelEvalConfig
-    model: Literal["din", "dail"]
+    model: Literal["din", "dail", "dum"]
     aug_dir: str
     error_threshold: float
     aug_per_sub_cat: int = 2

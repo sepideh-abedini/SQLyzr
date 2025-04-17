@@ -69,26 +69,33 @@ BEAVER_SMALL = DatasetConfig(
     dataset_type="beaver"
 )
 
+AGG_SMALL = [
+    SPIDER_SMALL, BEAVER_SMALL
+]
+
 DATASETS = {
+    "agg": {
+        "small": AGG_SMALL
+    },
     "bird": {
-        "small": BIRD_SMALL,
-        "all": BIRD_ALL
+        "small": [BIRD_SMALL],
+        "all": [BIRD_ALL]
         #     "dev": BIRD_DEV,
         #     "train": BIRD_TRAIN
     },
     "spider": {
-        "small": SPIDER_SMALL,
-        "500": SPIDER_500,
+        "small": [SPIDER_SMALL],
+        "500": [SPIDER_500],
         # "dev": SPIDER_DEV,
         # "test": SPIDER_TEST,
         # "train": SPIDER_TRAIN,
-        "all": SPIDER_ALL
+        "all": [SPIDER_ALL]
     },
     "beaver": {
-        "all": BEAVER_ALL,
-        "small": BEAVER_SMALL
+        "all": [BEAVER_ALL],
+        "small": [BEAVER_SMALL]
     }
 }
 
-DatasetName = Literal["spider", "bird", "beaver"]
+DatasetName = Literal["spider", "bird", "beaver", "agg"]
 DatasetSize = Literal["small", "dev", "train", "test", "all", "500"]
