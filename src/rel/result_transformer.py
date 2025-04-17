@@ -21,6 +21,7 @@ class ResultTransformer(SqlMatchingProcessor, ABC):
 
 
 class IgnoreListOrderTransformer(ResultTransformer):
+
     def __init__(self):
         super().__init__(2)
 
@@ -28,6 +29,9 @@ class IgnoreListOrderTransformer(ResultTransformer):
         if data.res:
             return replace(data, res=frozenset(data.res))
         return data
+
+    def msg(self) -> str:
+        return "The order of rows in the result set should be fixed."
 
 
 class IgnoreColOrderTransformer(ResultTransformer):
@@ -38,3 +42,6 @@ class IgnoreColOrderTransformer(ResultTransformer):
         if data.res:
             return replace(data, res=list(map(lambda tuple: frozenset(map(lambda col: str(col), tuple)), data.res)))
         return data
+
+    def msg(self) -> str:
+        return "The order of columns in the result set should be fixed."
