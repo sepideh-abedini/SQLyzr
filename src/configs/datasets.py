@@ -11,6 +11,15 @@ SPIDER_SMALL = DatasetConfig(
     db_dir="database"
 )
 
+SPIDER_500 = DatasetConfig(
+    dataset_dir="data/spider",
+    test_file="data.500.json",
+    gold_file="data.500.gold.txt",
+    train_file="data.500.json",
+    tables_file="tables.json",
+    db_dir="database"
+)
+
 SPIDER_ALL = DatasetConfig(
     dataset_dir="data/spider",
     test_file="data.test.json",
@@ -69,6 +78,7 @@ DATASETS = {
     },
     "spider": {
         "small": SPIDER_SMALL,
+        "500": SPIDER_500,
         # "dev": SPIDER_DEV,
         # "test": SPIDER_TEST,
         # "train": SPIDER_TRAIN,
@@ -81,4 +91,4 @@ DATASETS = {
 }
 
 DatasetName = Literal["spider", "bird", "beaver"]
-DatasetSize = Literal["small", "dev", "train", "test", "all"]
+DatasetSize = Literal["small", "dev", "train", "test", "all", "500"]
