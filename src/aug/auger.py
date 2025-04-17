@@ -34,14 +34,18 @@ class Auger:
     __catter: Catter
     __sqlyzr_conf: SQLyzrConfig
 
-    def __init__(self, sqlyzr_config: SQLyzrConfig, sub_cats: Set[SubCategory], conf=DEFAULT_CONF):
+    def __init__(self, sqlyzr_config: SQLyzrConfig, sub_cats: Set[SubCategory], db_id: str = None,
+                 conf=DEFAULT_CONF):
         self.__sqlyzr_conf = sqlyzr_config
         self.__conf = AugerConf(sqlyzr_config.aug_dir)
         self.__sub_cats = sub_cats
         self.__catter = Catter()
         self.__gpt_sender = GptFormattedSingleSender(TextSqlPair)
         self.schema_repo = DatabaseSchemaRepo(self.__sqlyzr_conf.eval_conf.dataset_config.get_tables_path())
-        self.__db_id = self.schema_repo.get_db_id_with_most_columns()
+        if db_id:
+            self.__db_id = db_id
+        else:
+            self.__db_id = self.schema_repo.get_db_id_with_most_columns()
         self.__examples = self.__extract_examples()
 
     async def run(self):
@@ -53,16 +57,17 @@ class Auger:
 
     def __extract_examples(self):
         examples = {}
-        with open(self.__sqlyzr_conf.eval_conf.dataset_config.get_test_path()) as dataset_file:
+        with open(self.__sqlyzr_conf.eval_conf.dataset_config.get_test_path() + ".cat.json") as dataset_file:
             dataset_data = json.load(dataset_file)
             for entry in tqdm.tqdm(dataset_data, desc="Extracting examples", total=len(dataset_data)):
                 db_id = entry["db_id"]
                 sql = entry["query"]
-                root_cat = self.__catter.get_category(sql)
-                cat = self.__catter.get_sub_category(sql)
+                sub = entry["sub_cat"]
+                # root_cat = self.__catter.get_category(sql)
+                # cat = self.__catter.get_sub_category(sql)
                 schema = self.schema_repo.dbs[db_id]
                 ex = TextSqlPairExample(sql=sql, question=entry["question"], schema=schema)
-                examples.setdefault(cat, []).append(ex)
+                examples.setdefault(sub, []).append(ex)
         return examples
 
     def __get_prompt_for_sub_cat(self, cat: SubCategory) -> GptPromptSubCat:
