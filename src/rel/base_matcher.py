@@ -1,5 +1,6 @@
-from abc import ABC, abstractmethod
 from typing import List
+
+from loguru import logger
 
 from src.eval.exact_match import ExactMatchParser
 from src.rel.db_facade import DatabaseFacade
@@ -7,9 +8,6 @@ from src.rel.result_transformer import ResultTransformer
 from src.rel.sql_data import SqlInputData, SqlParsedData, SqlExecResult
 from src.rel.sql_processor import ResultMatcher, SqlMatchingProcessor
 from src.rel.sql_transformer import SqlTransformer
-from loguru import logger
-
-from src.third_party.dail.utils.utils import DB_LONG_TIMEOUT
 
 MAX_PERM = 1_000_000
 
@@ -84,11 +82,17 @@ class Matcher:
 
 
 class ExactMatcher(ResultMatcher):
+    def msg(self) -> str:
+        return "You should fix the query!"
+
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
         return pred.res == gold.res
 
 
-class ExtraTupleRemoverMatcher(ResultMatcher):
+class ExtraTupleMatcher(ResultMatcher):
+    def msg(self) -> str:
+        return "The predicted SQL has extra rows in the result set."
+
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
         matched = set()
         if pred.res is None or gold.res is None:
@@ -103,7 +107,10 @@ class ExtraTupleRemoverMatcher(ResultMatcher):
             return False
 
 
-class ExtraColumnRemoverMatcher(ResultMatcher):
+class ExtraColumnsMatcher(ResultMatcher):
+    def msg(self) -> str:
+        return "The predicted SQL used extra columns that should be removed."
+
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
         matched = set()
         if pred.res is None or gold.res is None:
@@ -122,7 +129,38 @@ class ExtraColumnRemoverMatcher(ResultMatcher):
             return False
 
 
-class SubsetMatcher(ResultMatcher):
+class MissingColumnsMatcher(ResultMatcher):
+    MAX_MISSING_COLS = 1
+
+    def msg(self) -> str:
+        return "There are missing columns in the predicted SQL query that should be fixed."
+
+    def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
+        matched = set()
+        if pred.res is None or gold.res is None:
+            return False
+        if len(list(gold.res)) * len(list(pred.res)) > MAX_PERM:
+            return False
+        if len(list(gold.res)) > 0 and len(list(pred.res)) > 0:
+            if (len(pred.res[0]) + 1) != len(gold.res[0]):
+                return False
+
+        for g in gold.res:
+            g = frozenset(g)
+            for p in pred.res:
+                p = frozenset(p)
+                if p.issubset(g):
+                    matched.add(g)
+        if matched == gold.res and len(gold.res) == len(pred.res):
+            return True
+        else:
+            return False
+
+
+class ExtraColumnAndTupleMatcher(ResultMatcher):
+    def msg(self) -> str:
+        return ""
+
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
         matched = set()
         if pred.res is None or gold.res is None:
