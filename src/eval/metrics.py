@@ -10,12 +10,12 @@ from src.eval import lib
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.eval.single_run_config import SingleRunConfig
-from src.rel.base_matcher import ExtraColumnRemoverMatcher
+from src.rel.base_matcher import ExtraColumnsMatcher
 from src.rel.db_facade import DatabaseFacade
 from src.rel.db_factory import DatabaseFactory
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
-from src.rel.sql_transformer import LiteralCorrectorTransformer
+from src.rel.sql_transformer import LetterCasingTransformer
 from src.rel.transformer_detector import TransformerDetector
 from src.third_party.dail.utils.utils import DB_LONG_TIMEOUT
 from src.third_party.spider.evaluation import get_spider_exact_match
@@ -130,10 +130,10 @@ class RelaxedExecAcc(Metric):
     def __init__(self, name: str, conf: DatasetConfig):
         super().__init__(name, conf)
         self.detector = TransformerDetector(conf, [
-            LiteralCorrectorTransformer(),
+            LetterCasingTransformer(),
             IgnoreListOrderTransformer(),
             IgnoreColOrderTransformer(),
-            ExtraColumnRemoverMatcher()
+            ExtraColumnsMatcher()
         ])
 
     def calc(self, gold: str, pred: str, db_id: str) -> int:

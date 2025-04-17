@@ -9,9 +9,9 @@ class GptRateLimits:
 
 
 TIER1_LIMITS = GptRateLimits(
-    tokens_per_min=140_000,
+    tokens_per_min=100_000,
     batch_tokens_per_day=2_000_000,
-    req_per_min=500
+    req_per_min=400
 )
 
 TIER5_LIMITS = GptRateLimits(
