@@ -10,7 +10,8 @@ class AugerConf:
     gen_out: str = "gen.out.jsonl"
     gpt_params = {
         'model': "gpt-4o-mini",
-        'max_tokens': 600
+        'max_tokens': 600,
+        'temperature': 1.0
     }
 
     def get_aug_in(self):
