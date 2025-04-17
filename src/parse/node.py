@@ -233,7 +233,7 @@ class ResultColumnNode(SqlAstNode):
     def __eq__(self, other):
         if not isinstance(other, ResultColumnNode):
             return False
-        if self.expr == other.expr:
+        if self.expr == other.expr and self.column_alias == other.column_alias:
             return True
         else:
             self.log_self()
