@@ -11,10 +11,16 @@ class DatabaseFactory:
     @staticmethod
     def get_instance(conf: DatasetConfig):
         if not DatabaseFactory.__instance:
-            if conf.dataset_type in ["bird", "spider"]:
-                DatabaseFactory.__instance = SqliteFacade(conf)
-            elif conf.dataset_type == "beaver":
-                DatabaseFactory.__instance = MysqlFacade(conf)
-            else:
-                raise RuntimeError(f"No supported DB facade for dataset = {conf.dataset_type}")
+            instance = DatabaseFactory.get_new_instance_dangerous(conf)
+            DatabaseFactory.__instance = instance
+            return instance
         return DatabaseFactory.__instance
+
+    @staticmethod
+    def get_new_instance_dangerous(conf: DatasetConfig):
+        if conf.dataset_type in ["bird", "spider"]:
+            return SqliteFacade(conf)
+        elif conf.dataset_type == "beaver":
+            return MysqlFacade(conf)
+        else:
+            raise RuntimeError(f"No supported DB facade for dataset = {conf.dataset_type}")
