@@ -4,6 +4,10 @@ from src.rel.sql_data import SqlExecResult
 
 
 class SqlMatchingProcessor(ABC):
+    @abstractmethod
+    def msg(self) -> str:
+        pass
+
     def __repr__(self):
         return str(self)
 

@@ -18,6 +18,9 @@ class SqlTransformer(SqlMatchingProcessor, ABC):
 
 
 class LimitRemoverTransformer(SqlTransformer):
+    def msg(self) -> str:
+        return "A limit clause with a value of .. should be added to the SQL query"
+
     def delete_limit(self, sql: str) -> str:
         return re.sub(r'(.*)limit\s*([^\s]*)(.*)', r"\1\3", sql, flags=re.IGNORECASE)
 
@@ -27,11 +30,13 @@ class LimitRemoverTransformer(SqlTransformer):
         return pred, gold
 
 
-class AddLimitTransformer(SqlTransformer):
+class FixPredLimitTransformer(SqlTransformer):
+    def msg(self) -> str:
+        return "The limit value in the SQL query should change to"
 
     def replace_limit_expr(self, sql: str, gold_limit_expr) -> str:
         s = f"\\g<1>\\g<2>{gold_limit_expr}\\g<4>"
-        return re.sub(r'(.*)(limit\s*)([^\s]*)(.*)', s , sql, flags=re.IGNORECASE)
+        return re.sub(r'(.*)(limit\s*)([^\s]*)(.*)', s, sql, flags=re.IGNORECASE)
 
     def transform_sql(self, pred: SqlParsedData, gold: SqlParsedData) -> (SqlParsedData, SqlParsedData):
         match = re.match(r'(.*)limit\s*([^\s]*)(.*)', gold.sql, flags=re.IGNORECASE)
@@ -68,7 +73,11 @@ def find_literal_matching(pred: SqlParsedData, gold: SqlParsedData):
         return None
 
 
-class LiteralCorrectorTransformer(SqlTransformer):
+class LetterCasingTransformer(SqlTransformer):
+
+    def msg(self) -> str:
+        return "The letter case of the literal values in the SQL query should be changed."
+
     def transform_sql(self, pred: SqlParsedData, gold: SqlParsedData) -> (SqlParsedData, SqlParsedData):
         matching = find_literal_matching(pred, gold)
         if matching:
@@ -81,6 +90,9 @@ class LiteralCorrectorTransformer(SqlTransformer):
 
 
 class ColCorrectorTransformer(SqlTransformer):
+    def msg(self) -> str:
+        return "?"
+
     def transform_sql(self, pred: SqlParsedData, gold: SqlParsedData) -> (SqlParsedData, SqlParsedData):
         if not pred.ast or not gold.ast:
             return pred, gold
