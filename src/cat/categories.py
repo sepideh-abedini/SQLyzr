@@ -18,12 +18,12 @@ CAT_1 = StatementCategory(
     1,
     SubCategory("s0", frozenset([SelectColumns.SingleColumn]), "Having single column in SELECT clause"),
     SubCategory("s1", frozenset([SelectColumns.MultiColumn]), "Having single column in SELECT clause"),
-    SubCategory("s2", frozenset([SelectColumns.StarColumn]), "Having single star column in the SELECT clause")
+    SubCategory("s2", frozenset([SelectColumns.StarColumn]), "Having single star column in the SELECT clause"),
+    SubCategory("s3", frozenset([ExtraKeywords.OrderBy]), "Having ORDER_BY keyword"),
 )
 
 CAT_2 = StatementCategory(
     2,
-    SubCategory("s3", frozenset([ExtraKeywords.OrderBy]), "Having ORDER_BY keyword"),
     SubCategory("s4", frozenset([WhereType.SingleWhereExpr, ExprType.SingleBinExpr]),
                 "Having a single binary expression in the where clause"),
     SubCategory("s5", frozenset([ExprType.ArithExpr]), "Only having arithmetic expressions"),
