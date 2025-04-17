@@ -50,40 +50,6 @@ def full_extent(ax, pad=0.0):
     return bbox.expanded(1.0 + pad, 1.0 + pad)
 
 
-def proc_df(scores_path: str):
-    df = pd.read_csv(scores_path)
-    df = df.dropna(subset=["cat"])
-    cats = natsorted(df['cat'].unique())
-    sub_cats = natsorted(df['sub_cat'].unique())
-    df['cat'] = pd.Categorical(df['cat'], categories=cats, ordered=True)
-    df['sub_cat'] = pd.Categorical(df['sub_cat'], categories=sub_cats, ordered=True)
-    df = df.sort_values(by=['cat', 'sub_cat'])
-    df = df[df['rea'] == 1]
-    df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
-    df['etc'] = (df['etc'] & df["rea"])
-    df["cconst"] = (df["cc"] & df["rea"])
-    df["cdiff"] = ((~df["cc"]) & df["rea"])
-    df["etcdiff"] = ((~df["etc"]) & df["rea"])
-    df['diff'] = df['rea'] - df['ea']
-    df = df.drop(columns=[col for col in df.columns if "Unnamed" in col])
-    # df = df[df['cat'] != 'c6']
-
-    df = df[df['tmp'] == TOP_TEMP]
-
-    if INCLUDE_ALL:
-        mean_values = df.drop(columns=['cat', 'sub_cat', "dataset"]).groupby('model').mean()
-        for value in df['model'].unique():
-            new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
-            new_row.update(mean_values.loc[value].to_dict())
-            row = pd.DataFrame([new_row])
-            df = pd.concat([df, row], ignore_index=True)
-
-    df = df.rename(columns=COL_NAMES)
-
-    df.to_csv("charts/data.csv", index=False)
-    return df
-
-
 def melt_scores(df):
     df = pd.melt(df, id_vars=['Model', 'Dataset', 'Category', 'Temp', 'SubCategory'],
                  value_vars=['Execution Accuracy', 'Relaxed Execution Accuracy', 'Exact Match',
@@ -98,11 +64,62 @@ OUT_DIR = "charts"
 
 
 class Drawer:
+    include_all: bool
+    only_correct: bool
+    exclude_c6: bool
     df: DataFrame
 
-    def __init__(self, scores_path: str, show: bool = False):
-        self.df = proc_df(scores_path)
+    def __init__(self, scores_path: str, include_all: bool = False, only_correct: bool = False,
+                 exclude_c6: bool = False, show: bool = False):
         self.show = show
+        self.include_all = include_all
+        self.only_correct = only_correct
+        self.exclude_c6 = exclude_c6
+        self.df = self.proc_df(scores_path)
+
+    def proc_df(self, scores_path: str):
+        df = pd.read_csv(scores_path)
+        df = df.dropna(subset=["cat"])
+        cats = natsorted(df['cat'].unique())
+        sub_cats = natsorted(df['sub_cat'].unique())
+        df['cat'] = pd.Categorical(df['cat'], categories=cats, ordered=True)
+        df['sub_cat'] = pd.Categorical(df['sub_cat'], categories=sub_cats, ordered=True)
+        df = df.sort_values(by=['cat', 'sub_cat'])
+        if self.only_correct:
+            df = df[df['rea'] == 1]
+        df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
+        df['etc'] = (df['etc'] & df["rea"])
+        df["cconst"] = (df["cc"] & df["rea"])
+        df["cdiff"] = ((~df["cc"]) & df["rea"])
+        df["etcdiff"] = ((~df["etc"]) & df["rea"])
+        df['diff'] = df['rea'] - df['ea']
+        df = df.drop(columns=[col for col in df.columns if "Unnamed" in col])
+        if self.exclude_c6:
+            df = df[df['cat'] != 'c6']
+
+        df = df[df['tmp'] == TOP_TEMP]
+
+        if self.include_all:
+            # mean_values = df.drop(columns=['cat', 'sub_cat', "dataset"]).groupby('model').mean()
+            # for value in df['model'].unique():
+            #     new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
+            #     new_row.update(mean_values.loc[value].to_dict())
+            #     row = pd.DataFrame([new_row])
+            #     df = pd.concat([df, row], ignore_index=True)
+
+            mean_values = df.drop(columns=['sub_cat', "dataset"]).groupby(['model', 'cat']).mean()
+            mean_values = mean_values.groupby(['model']).mean()
+            #
+            for value in df['model'].unique():
+                new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
+                new_row.update(mean_values.loc[value].to_dict())
+                row = pd.DataFrame([new_row])
+                df = pd.concat([df, row], ignore_index=True)
+
+        df = df.rename(columns=COL_NAMES)
+
+        df.to_csv("charts/data.csv", index=False)
+        return df
 
     def metric_dir(self, metric):
         return os.path.join(OUT_DIR, snakecase(metric))
@@ -121,12 +138,20 @@ class Drawer:
         return ax
 
     def fix_axis(self, metric: str, ax: Axes):
+        if self.include_all:
+            custom_error = 0.1
+            bar = ax.patches[6]
+            x = bar.get_x() + bar.get_width() / 2
+            y = bar.get_height()
+            ax.errorbar(x=x, y=y, yerr=custom_error, capsize=1, color='black')
+
         if self.df[metric].max() - self.df[metric].min() <= 1:
             ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
             ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
 
     def save_fig(self, metric, ax: Axes):
         title = ax.get_title()
+        ax.set_title("")
         path = os.path.join(self.metric_dir(metric), f"{snakecase(title)}.png")
         plt.savefig(path, bbox_inches='tight', dpi=300)
 
@@ -221,7 +246,7 @@ class Drawer:
         os.makedirs(self.metric_dir(metric), exist_ok=True)
         # self.draw_metric_mean("Temp", metric)
         self.draw_metric_mean("Category", metric)
-        self.draw_metric_mean("SubCategory", metric)
+        # self.draw_metric_mean("SubCategory", metric)
         # self.grid_1d("Category", "SubCategory", metric)
         # self.grid_1d("Category", "SubCategory", metric, save_indiv=False)
         # self.grid_1d("Category", "Temp", metric)
