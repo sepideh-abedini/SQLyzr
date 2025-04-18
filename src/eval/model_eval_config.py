@@ -27,10 +27,8 @@ class ModelEvalConfig:
         self.dataset_configs = dataset_configs
         for temp, itr in product(temps, range(num_itrs)):
             for dataset_config in self.dataset_configs:
-                sub_pred_dir = os.path.join(pred_dir, dataset_config.dataset_type)
-                os.makedirs(sub_pred_dir, exist_ok=True)
                 conf = SingleRunConfig(dataset_config=dataset_config,
-                                       pred_dir=sub_pred_dir,
+                                       pred_dir=pred_dir,
                                        trs_dir=trs_dir,
                                        temp=temp,
                                        itr=itr,

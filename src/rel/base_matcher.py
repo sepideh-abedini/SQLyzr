@@ -159,7 +159,7 @@ class MissingColumnsMatcher(ResultMatcher):
 
 class ExtraColumnAndTupleMatcher(ResultMatcher):
     def msg(self) -> str:
-        return ""
+        return "Extra Column and Tuple Matcher"
 
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
         matched = set()
