@@ -18,7 +18,7 @@ class ModelEvalConfig:
     metrics: Dict[str, Type[Metric]]
 
     def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str,
-                 dataset_configs: [DatasetConfig],
+                 dataset_configs: List[DatasetConfig],
                  metrics: Dict[str, Type[Metric]], batch: bool):
         self.pred_dir = pred_dir
         self.eval_dir = eval_dir
