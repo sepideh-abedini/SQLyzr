@@ -27,20 +27,4 @@ async def apply_async(fun, l):
     tasks = [worker(item) for item in l]
     return await tqdm.gather(*tasks)
 
-# async def apply_async(fun, l):
-#     parts = partition_list(l)
-#     results = []
-#     for part in parts:
-#         res = await apply_async_chunk(fun, part)
-#         results.extend(res)
-#     return results
-#
-#
-# async def apply_async_chunk(fun, l):
-#     tasks = []
-#     for e in l:
-#         tasks.append(fun(e))
-#
-#     results = await tqdm.gather(*tasks)
 
-# return results

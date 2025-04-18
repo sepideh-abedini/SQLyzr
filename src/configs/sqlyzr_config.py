@@ -12,6 +12,7 @@ class SQLyzrConfig:
     model: Literal["din", "dail", "dum"]
     aug_dir: str
     error_threshold: float
+    etc_ratio: float = 1.1
     aug_per_sub_cat: int = 2
     pipeline: PipelineConfig = PipelineConfig
 

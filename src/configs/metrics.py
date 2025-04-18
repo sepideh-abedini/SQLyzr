@@ -10,22 +10,15 @@ SPIDER_METRICS = {
     "get": GoldExecTime,
     "sem": SpiderExactMatch,
     "cc": ComplexityConsistency,
-    # "et": TotalExecTime
-    # TotalExecTime("et", config.dataset_config),
-    # SpiderExactMatch("sem", config.dataset_config),
-    # RelaxedExecAcc("rea", config.dataset_config),
 }
 
 BIRD_METRICS = {
-    # "em": ExactMatch,
+    "em": ExactMatch,
     "ea": ExecAcc,
     "rea": RelaxedExecAcc,
-    # "et": ExecTime,
-    # "cc": ComplexityConsistency,
-    # "get": GoldExecTime,
-    # TotalExecTime("et", config.dataset_config),
-    # SpiderExactMatch("sem", config.dataset_config),
-    # RelaxedExecAcc("rea", config.dataset_config),
+    "et": ExecTime,
+    "cc": ComplexityConsistency,
+    "get": GoldExecTime,
 }
 METRICS = {
     "spider": SPIDER_METRICS,
