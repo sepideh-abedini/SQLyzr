@@ -7,7 +7,7 @@ SPIDER_SMALL = DatasetConfig(
     test_file="data.test.small.json",
     gold_file="data.test.small.gold.txt",
     train_file="data.train.small.json",
-    tables_file="tables.json",
+    tables_file="tables.small.json",
     db_dir="database"
 )
 
@@ -34,7 +34,7 @@ BIRD_SMALL = DatasetConfig(
     test_file="data.test.small.json",
     gold_file="data.test.small.gold.txt",
     train_file="data.train.small.json",
-    tables_file="tables.json",
+    tables_file="tables.small.json",
     db_dir="database",
     dataset_type="bird"
 )
@@ -64,13 +64,13 @@ BEAVER_SMALL = DatasetConfig(
     test_file="data.test.small.json",
     gold_file="data.test.small.gold.txt",
     train_file="data.train.small.json",
-    tables_file="tables.json",
+    tables_file="tables.small.json",
     db_dir="database",
     dataset_type="beaver"
 )
 
 AGG_SMALL = [
-    SPIDER_SMALL, BEAVER_SMALL
+    SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL
 ]
 
 DATASETS = {

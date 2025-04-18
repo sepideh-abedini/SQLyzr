@@ -51,7 +51,8 @@ def __exec_with_map(fun: Callable[[T], U], vals: List[T], desc: str = "") -> Lis
 
 
 def __exec_with_map_chunked(fun: Callable[[List[T]], List[U]], vals: List[T], desc: str = "") -> List[U]:
-    return list(tqdm(map(fun, vals), total=len(vals), desc=desc))
+    return fun(vals)
+    # return list(tqdm(map(fun, vals), total=len(vals), desc=desc))
 
 
 def __exec_multi_process_chunked(fun: Callable[[List[T]], List[U]], vals: List[T], num_procs: int = NUM_PROC_CHUNKS,

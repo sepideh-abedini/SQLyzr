@@ -27,6 +27,8 @@ else
   cp data.train.json data.train.small.json
 fi
 
+cat data.train.small.json | jq "length"
+
 sample.sh -i data.test.json -n $TEST_SIZE
 
 extract_gold.sh -i data.train.small.json
@@ -37,4 +39,5 @@ wc -l data.test.small.gold.txt
 
 tables=$(jq '.[].db_id' data.test.small.json data.train.small.json | uniq | awk -v ORS=, '{print $1}' | sed 's/,$//' )
 echo $tables
-jq --argjson ids "[$tables]" '[.[] | select(.db_id | IN($ids[]))]' tables.all.json > tables.small.json
+jq --argjson ids "[$tables]" '[.[] | select(.db_id | IN($ids[]))]' tables.json > tables.small.json
+#

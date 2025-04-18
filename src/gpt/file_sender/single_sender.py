@@ -14,14 +14,14 @@ from src.util.model_utils import read_jsonl
 
 class GptSingleSender(GptFileSender):
     _gateway: GptGateway
-    BATCH_COUNT = int(os.environ.get("ASYNC_BATCH", 1))
+    ASYNC_BATCH = int(os.environ.get("ASYNC_BATCH", 1))
 
     def __init__(self):
         super().__init__()
         self._gateway = GptGateway()
 
     async def __send_reqs(self, reqs: List[BatchInputRequest]) -> List[ChatCompletion]:
-        semaphore = asyncio.Semaphore(self.BATCH_COUNT)
+        semaphore = asyncio.Semaphore(self.ASYNC_BATCH)
         results = []
 
         async def sem_task(req: BatchInputRequest):
@@ -30,10 +30,7 @@ class GptSingleSender(GptFileSender):
                 return await self.__send_single_req(req)
 
         tasks = [asyncio.create_task(sem_task(req)) for req in reqs]
-        for f in tqdm.as_completed(tasks, desc="Waiting for responses"):
-            result = await f
-            results.append(result)
-
+        results = await tqdm.gather(*tasks, desc="Waiting for responses")
         return results
 
     async def __send_single_req(self, req: BatchInputRequest) -> ChatCompletion:
