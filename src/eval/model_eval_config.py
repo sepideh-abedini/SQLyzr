@@ -53,3 +53,4 @@ class ModelEvalConfig:
 
     def get_trs_result_path(self):
         return os.path.join(self.trs_dir, f"trs.csv")
+

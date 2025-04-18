@@ -45,15 +45,22 @@ class ConfigData(BaseModel):
             data = ConfigData.model_validate_json(file.read())
             return data
 
+    def __str__(self):
+        return f"""
+############ SQLyzr Config ############
+Dataset: {self.dataset}
+Dataset Size: {self.dataset_size}
+Model: {self.model}
+Batch: {self.batch}
+Temps: {self.temps}
+Itrs: {self.itrs}
+#######################################
+"""
+
 
 def load_config(path) -> SQLyzrConfig:
     conf_data = ConfigData.load(path)
-    logger.info("########### Configuration #############")
     logger.info(conf_data)
-    logger.info("#######################################")
-    logger.info("########### Environment #############")
-    logger.info(os.environ.items())
-    logger.info("#######################################")
     dataset_confs = DATASETS[conf_data.dataset][conf_data.dataset_size]
     dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir()]
     for d in dirs:

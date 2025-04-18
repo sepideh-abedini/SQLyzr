@@ -1,3 +1,5 @@
+from loguru import logger
+
 from src.configs.config_loader import load_config
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.sqlyzr.augment_data import DatasetAugmentor

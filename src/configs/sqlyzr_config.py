@@ -18,3 +18,16 @@ class SQLyzrConfig:
 
     def get_aug_out(self):
         return os.path.join(self.aug_dir, "gen.jsonl")
+
+    def __str__(self):
+        return f"""
+######## SQLyzr Config ########
+Model: {self.model}
+Eval Config:
+  Pred Directory: {self.eval_conf.pred_dir}
+  Eval Directory: {self.eval_conf.eval_dir}
+  TRS Directory: {self.eval_conf.trs_dir}
+  Metrics: {', '.join(self.eval_conf.get_metric_names())}
+  Dataset Configs: {len(self.eval_conf.dataset_configs)}
+  Run Configurations: {len(self.eval_conf.get_run_confs())}
+"""

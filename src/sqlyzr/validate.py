@@ -11,7 +11,6 @@ from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
 from src.eval.model_eval_config import ModelEvalConfig
 from src.rel.db_factory import DatabaseFactory
-from src.util.async_utils import apply_async
 from src.util.multi_thread_utils import exec_multi_process
 
 
