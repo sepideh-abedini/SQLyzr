@@ -16,6 +16,7 @@ class SingleRunConfig:
     pred_file_name: str = "pred"
     usage_file_name: str = "usage"
     trs_file_name: str = "trs"
+    tokens_file_name: str = "tokens"
     batch: bool = False
 
     def __post_init__(self):
@@ -25,6 +26,9 @@ class SingleRunConfig:
     def get_pred_path(self):
         return os.path.join(self.pred_dir, self.dataset_config.dataset_type,
                             f"{self.pred_file_name}_{self.temp}_{self.itr}.txt")
+
+    def get_tokens_path(self):
+        return f"{self.get_pred_path()}.tokens.txt"
 
     def get_usage_path(self):
         return f"{self.get_pred_path()}.usage.json"

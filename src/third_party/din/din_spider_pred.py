@@ -13,6 +13,9 @@ from src.util.str_utils import shrink_whitespaces
 
 
 class DinPredictor(Predictor):
+    def get_out_batch_files(self) -> List[str]:
+        return ["classif.out.jsonl", "schema.out.jsonl", "sql.out.jsonl", "sql_debug.out.jsonl"]
+
     __conf: DinConfig
     __prompt_maker: PromptMaker
     __gpt_sender: GptFileSender

@@ -1,5 +1,5 @@
 from src.eval.metrics import ExactMatch, ExecAcc, GoldNotEmpty, ExecTime, RelaxedExecAcc, SpiderExactMatch, \
-    ComplexityConsistency, GoldExecTime
+    GoldExecTime
 
 SPIDER_METRICS = {
     "em": ExactMatch,
@@ -9,7 +9,6 @@ SPIDER_METRICS = {
     "et": ExecTime,
     "get": GoldExecTime,
     "sem": SpiderExactMatch,
-    "cc": ComplexityConsistency,
 }
 
 BIRD_METRICS = {
@@ -17,7 +16,6 @@ BIRD_METRICS = {
     "ea": ExecAcc,
     "rea": RelaxedExecAcc,
     "et": ExecTime,
-    "cc": ComplexityConsistency,
     "get": GoldExecTime,
 }
 METRICS = {

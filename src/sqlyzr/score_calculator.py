@@ -8,6 +8,7 @@ from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pred_gold_reader import PredGoldReader
+from src.util.file_utils import file_exists_not_forced
 from src.util.log_util import log
 from src.util.multi_thread_utils import exec_multi_process
 
@@ -17,8 +18,10 @@ catter = Catter()
 def calc_for_entry(eval_conf, run_conf: SingleRunConfig, entry):
     pred, gold, db_id = entry
     cat, sub_cat = catter.categorize(gold)
-    example_scores = {"tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub_cat": sub_cat,
-                      "dst": run_conf.dataset_config.dataset_type}
+    pred_cat, pred_sub_cat = catter.categorize(pred)
+    example_scores = {"tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub": sub_cat,
+                      "dst": run_conf.dataset_config.dataset_type,
+                      "pcat": pred_cat.name, "psub": pred_sub_cat.name}
     metrics = []
     for metric_name, metric_class in eval_conf.metrics.items():
         metrics.append(metric_class(metric_name, run_conf.dataset_config))
@@ -46,14 +49,18 @@ def calc_for_data(eval_conf, run_conf, data):
 @log("Score calculation for single conf")
 def calc_for_conf(eval_conf: ModelEvalConfig, run_conf: SingleRunConfig):
     scores_path = eval_conf.get_scores_path(f"_{run_conf.temp}_{run_conf.itr}_{run_conf.dataset_config.dataset_type}")
-    if os.path.exists(scores_path):
+    if file_exists_not_forced(scores_path):
         logger.info(f"Scores for {run_conf} exists!")
         return pd.read_csv(scores_path)
 
     reader = PredGoldReader(run_conf)
     all_data = reader.get_pred_gold_db_id()
-    all_scores = exec_multi_process(partial(calc_for_entry, eval_conf, run_conf), all_data, desc=f"Score calculation for {run_conf}")
+    all_scores = exec_multi_process(partial(calc_for_entry, eval_conf, run_conf), all_data,
+                                    desc=f"Score calculation for {run_conf}")
     ti_df = pd.DataFrame(all_scores)
+    with open(run_conf.get_tokens_path(), "r") as f:
+        tokens = [int(line.strip()) for line in f if line.strip()]
+    ti_df["tokens"] = tokens
     ti_df.to_csv(scores_path)
 
     return ti_df
@@ -68,7 +75,7 @@ class ScoreCalculator:
     @log("Score calculation")
     def calc_scores(self):
         config = self.__config.eval_conf
-        if os.path.exists(config.get_raw_scores_path()):
+        if file_exists_not_forced(config.get_raw_scores_path()):
             logger.info(f"Raw scores exists: {config.get_raw_scores_path()}, skipping calculation.")
             return
 

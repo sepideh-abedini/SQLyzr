@@ -1,7 +1,14 @@
 import json
+import os
 from typing import Iterable, List
 
 from src.util.multi_thread_utils import chunk_list, NUM_PROC_CHUNKS
+
+FORCE = bool(int(os.environ.get("FORCE", 0)))
+
+
+def file_exists_not_forced(path: str):
+    return os.path.exists(path) and not FORCE
 
 
 def read_json(path: str):

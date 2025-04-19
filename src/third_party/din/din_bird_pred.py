@@ -46,6 +46,9 @@ class DinBirdPredictor(Predictor):
     __column_descriptions: List[str]
     __hints: List[str]
 
+    def get_out_batch_files(self) -> List[str]:
+        return ["classif.out.jsonl", "schema.out.jsonl", "sql.out.jsonl", "sql_debug.out.jsonl"]
+
     def __init__(self, run_conf: SingleRunConfig):
         super().__init__(run_conf)
         self.__conf = DinConfig(run_conf.get_pred_path())

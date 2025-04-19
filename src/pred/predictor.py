@@ -13,8 +13,10 @@ from src.gpt.file_sender.batch_sender import GptBatchFileSender
 from src.gpt.file_sender.single_sender import GptSingleSender
 from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
+from src.util.file_utils import file_exists_not_forced
 from src.util.log_util import alog
 from src.util.model_utils import read_jsonl
+from src.util.str_utils import shrink_whitespaces
 
 ResponseProcessor = Callable[[int, str], str]
 
@@ -37,15 +39,30 @@ class Predictor(ABC):
             self.__gpt_sender = GptSingleSender()
 
     async def run(self):
-        if os.path.exists(self._run_conf.get_pred_path()):
+        if file_exists_not_forced(self._run_conf.get_pred_path()):
             logger.info(f"Pred file exists: {self._run_conf.get_pred_path()}, skipping")
             return
         await self._run_internal()
+        self.save_tokens()
 
     @abstractmethod
     async def _run_internal(self):
         pass
 
+    @abstractmethod
+    def get_out_batch_files(self) -> List[str]:
+        pass
+
+    def save_tokens(self):
+        all_toks = []
+        for file in self.get_out_batch_files():
+            p = f"{self._run_conf.get_pred_path()}.{file}"
+            data = read_jsonl(p, ChatCompletion)
+            toks = list(map(lambda r: r.usage.total_tokens, data))
+            all_toks.append(toks)
+        sum_toks = list(map(lambda s: sum(s), zip(*all_toks)))
+        with open(self._run_conf.get_tokens_path(), "w") as tok_file:
+            tok_file.write("\n".join(map(str, sum_toks)))
 
     @alog("Asking GPT")
     async def _ask_file(self, in_path: str, out_path: str):
@@ -67,6 +84,7 @@ class Predictor(ABC):
     def _save_sqls(self, sqls: List[str]):
         with open(self._run_conf.get_pred_path(), 'w') as file:
             for sql in sqls:
+                sql = shrink_whitespaces(sql)
                 file.write(f"{sql}\n")
 
 

@@ -37,3 +37,6 @@ class Sqlyzr:
         if self.conf.pipeline.augment:
             augmentor = DatasetAugmentor(self.conf)
             await augmentor.augment_data()
+
+        if self.conf.pipeline.charts:
+            pass

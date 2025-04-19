@@ -7,6 +7,7 @@ class PipelineConfig(BaseModel):
     eval: bool = True,
     transformers: bool = True,
     augment: bool = True
+    charts: bool = True
 
     def __str__(self):
         return " ".join([

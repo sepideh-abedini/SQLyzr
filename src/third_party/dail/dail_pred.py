@@ -25,6 +25,9 @@ class DailPredictor(Predictor):
         super().__init__(run_conf)
         self.__conf = DailConfig(run_conf.get_pred_path())
 
+    def get_out_batch_files(self) -> List[str]:
+        return ["sql.out.jsonl", "sql.out.second.jsonl"]
+
     async def _run_internal(self):
         logger.info("Starting DAIL Predictor")
 

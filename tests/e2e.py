@@ -2,9 +2,7 @@ from threading import Thread
 
 import pandas as pd
 import pytest
-from langchain.smith.evaluation.config import EvalConfig
 
-from src.configs.datasets import AGG_SMALL
 from src.mock_server import MockHTTPServer
 from src.sqlyzr.sqlyzr import Sqlyzr
 from src.util.log_util import configure_logging
@@ -12,7 +10,7 @@ from src.util.log_util import configure_logging
 
 @pytest.mark.asyncio
 async def test_sqlyzr():
-    server = MockHTTPServer(config_file="src/mock_server/confing.json", host="localhost", port=8888)
+    server = MockHTTPServer(config_file="src/mock_server/config.json", host="localhost", port=8888)
     t = Thread(target=server.start)
     t.start()
     configure_logging()

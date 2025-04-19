@@ -37,15 +37,6 @@ class Metric(ABC):
         pass
 
 
-@dataclass
-class StatMetric(ABC):
-    name: str
-
-    @abstractmethod
-    def calc(self, run_conf: SingleRunConfig) -> int:
-        pass
-
-
 class ExactMatch(Metric):
     def __init__(self, name: str, conf: DatasetConfig):
         super().__init__(name, conf)
@@ -83,27 +74,6 @@ class ExecAcc(Metric):
             if pred_sql_exec_res is None:
                 return 0
             if pred_sql_exec_res == gold_sql_exec_res:
-                return 1
-            else:
-                return 0
-        except Exception as e:
-            logger.debug(e)
-            return 0
-
-
-class ComplexityConsistency(Metric):
-    def __init__(self, name: str, conf: DatasetConfig):
-        super().__init__(name, conf)
-        self.catter = Catter()
-
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
-        catter = self.catter
-        try:
-            c_gold = catter.get_category(gold)
-            c_pred = catter.get_category(pred)
-            if c_pred is None:
-                return 0
-            if c_pred <= c_gold:
                 return 1
             else:
                 return 0
