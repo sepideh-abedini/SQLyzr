@@ -2,6 +2,8 @@ import json
 from os.path import split
 from typing import Dict
 
+from loguru import logger
+
 from src.util.database_schema import DatabaseSchema
 from src.util.str_utils import split_to_snake
 
@@ -45,5 +47,5 @@ class DatabaseSchemaRepo:
             if num_cols > max_cols:
                 max_cols = num_cols
                 best_db_id = db_id
-        print(f"DB with most columns: {best_db_id}:{max_cols}")
+        logger.info(f"DB with most columns: {best_db_id}:{max_cols}")
         return best_db_id

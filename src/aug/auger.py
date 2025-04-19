@@ -16,6 +16,7 @@ from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.dataset_config import DatasetConfig
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.file_sender.formatted_sender import GptFormattedSingleSender
+from src.gpt.file_sender.single_sender import GptSingleSender
 from src.gpt.models import BatchInputRequest
 from src.pred.predictor import process_formatted_responses
 from src.util.log_util import log
@@ -44,6 +45,7 @@ class Auger:
         self.__sub_cats = sub_cats
         self.__catter = Catter()
         self.__gpt_sender = GptFormattedSingleSender(TextSqlPair)
+        # self.__gpt_sender = GptSingleSender()
         self.schema_repo = DatabaseSchemaRepo(self.__dataset_conf.get_tables_path())
         if db_id:
             self.__db_id = db_id
@@ -51,6 +53,10 @@ class Auger:
             self.__db_id = self.schema_repo.get_db_id_with_most_columns()
         self.__examples = self.__extract_examples(self.__dataset_conf)
         os.makedirs(self.__conf.aug_dir, exist_ok=True)
+        logger.info(
+            f"Augmenting Data for {self.__dataset_conf.dataset_type}, db_id={self.__db_id}, subs={self.__sub_cats}")
+        logger.info(
+            f"Augmentation config: examples={self.__conf.num_examples}, per_sub={self.__sqlyzr_conf.aug_per_sub_cat}")
 
     async def run(self):
         conf = self.__conf

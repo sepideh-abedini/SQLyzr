@@ -1,11 +1,11 @@
 from typing import Optional, List, Tuple
 
-from src.rel.db_facade import DatabaseFacade, DB_TIMEOUT, DB_CACHE
 import mysql.connector
 from loguru import logger
 
+from src.rel.db_facade import DatabaseFacade, DB_TIMEOUT, DB_CACHE
 from src.util.db_cache import lookup_db_cache, save_db_cache
-from src.util.str_utils import shrink_whitespaces, quote_str
+from src.util.str_utils import shrink_whitespaces
 
 
 class MysqlFacade(DatabaseFacade):
@@ -54,7 +54,7 @@ class MysqlFacade(DatabaseFacade):
             res = cursor.fetchall()
             return res
         except Exception as e:
-            logger.error(e)
+            logger.debug(f"MySQL Error: {e}")
         finally:
             if cursor:
                 cursor.close()

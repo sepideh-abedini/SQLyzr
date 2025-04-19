@@ -2,7 +2,6 @@ import os
 from abc import ABC, abstractmethod
 
 from loguru import logger
-from tqdm.asyncio import tqdm
 
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig

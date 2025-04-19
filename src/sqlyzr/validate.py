@@ -16,7 +16,7 @@ from src.util.multi_thread_utils import exec_multi_process
 
 
 def exec_example(db_facade, e: SpiderExample):
-    return db_facade.exec_query_sync(e.db_id, e.query, timeout=10)
+    return db_facade.exec_query_sync(e.db_id, e.query)
 
 
 async def validate_dataset(conf: SQLyzrConfig):

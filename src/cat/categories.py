@@ -106,6 +106,9 @@ CAT_6 = StatementCategory(
                 "Having a window function"),
 )
 
+CAT_INF = StatementCategory(1000)
+SUB_INF = SubCategory("s100", frozenset(), "Inf complexity")
+
 CATS = [CAT_1, CAT_2, CAT_3, CAT_4_NEW, CAT_5, CAT_6]
 
 
@@ -128,11 +131,11 @@ def find_sub(cat_name: str) -> Optional[SubCategory]:
         for s in c.sub_cats:
             if s.name == cat_name:
                 return s
-    return None
+    return SUB_INF
 
 
-def find_cat(cat_name: str) -> Optional[SubCategory]:
+def find_cat(cat_name: str) -> Optional[StatementCategory]:
     for c in CATS:
         if c.name == cat_name:
             return c
-    return None
+    return CAT_INF

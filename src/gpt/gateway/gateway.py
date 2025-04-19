@@ -40,7 +40,7 @@ class GptGateway:
             usage = await self.__tracker.add_usage(tokens)
             result = await self.send_without_tracking(request)
             logger.debug(f"TOKENS DIFF: {tokens}@{result.usage.total_tokens}")
-            usage.expire()
+            # usage.expire()
             if GPT_CACHE:
                 cache[s] = result
             return result

@@ -22,7 +22,8 @@ def calc_for_entry(conf: SQLyzrConfig, run_conf: SingleRunConfig, entry):
     pred_cat, pred_sub_cat = catter.categorize(pred)
     example_scores = {"model": conf.model, "tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub": sub_cat,
                       "dst": run_conf.dataset_config.dataset_type,
-                      "pcat": pred_cat.name, "psub": pred_sub_cat.name}
+                      "pcat": pred_cat.name,
+                      "psub": pred_sub_cat.name}
     metrics = []
     for metric_name, metric_class in conf.eval_conf.metrics.items():
         metrics.append(metric_class(metric_name, run_conf.dataset_config))

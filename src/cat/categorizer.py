@@ -2,7 +2,7 @@ from typing import List
 
 from natsort import natsorted
 
-from src.cat.categories import CAT_1, CAT_2, CAT_3, CAT_4, CAT_5, CAT_6, CATS
+from src.cat.categories import CAT_1, CAT_2, CAT_3, CAT_4, CAT_5, CAT_6, CATS, CAT_INF, SUB_INF
 from src.cat.statement_category import StatementCategory
 from src.cat.sub_category import SubCategory
 
@@ -25,7 +25,7 @@ class Categorizer:
                 # return f"{sub_cat.name}"
                 # return f"{c.name}"
                 return c
-        return None
+        return CAT_INF
 
     def get_sub_category(self, tag_set: SubCategory):
         matched_sub_cats = []
@@ -39,4 +39,4 @@ class Categorizer:
                 # return f"{sub_cat.name}"
                 # return f"{c.name}"
 
-        return None
+        return SUB_INF

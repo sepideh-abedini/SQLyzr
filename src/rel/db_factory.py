@@ -1,8 +1,9 @@
 from typing import Optional, Dict
 
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_facade import DatabaseFacade, SqliteFacade
+from src.rel.db_facade import DatabaseFacade
 from src.rel.mysql_facade import MysqlFacade
+from src.rel.sqlite_facade import SqliteFacade
 
 
 class DatabaseFactory:

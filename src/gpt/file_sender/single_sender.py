@@ -30,7 +30,7 @@ class GptSingleSender(GptFileSender):
                 return await self.__send_single_req(req)
 
         tasks = [asyncio.create_task(sem_task(req)) for req in reqs]
-        results = await tqdm.gather(*tasks, desc="Waiting for responses")
+        results = await tqdm.gather(*tasks, desc="Waiting for GPT response")
         return results
 
     async def __send_single_req(self, req: BatchInputRequest) -> ChatCompletion:
