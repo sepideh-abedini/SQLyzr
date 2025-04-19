@@ -13,6 +13,7 @@ from src.gpt.file_sender.batch_sender import GptBatchFileSender
 from src.gpt.file_sender.single_sender import GptSingleSender
 from src.gpt.models import BatchInputRequest
 from src.parse.parser import SqlParser
+from src.util.log_util import alog
 from src.util.model_utils import read_jsonl
 
 ResponseProcessor = Callable[[int, str], str]
@@ -37,7 +38,7 @@ class Predictor(ABC):
 
     async def run(self):
         if os.path.exists(self._run_conf.get_pred_path()):
-            logger.info(f"Pred file exists: {self._run_conf.get_pred_path()}")
+            logger.info(f"Pred file exists: {self._run_conf.get_pred_path()}, skipping")
             return
         await self._run_internal()
 
@@ -45,10 +46,10 @@ class Predictor(ABC):
     async def _run_internal(self):
         pass
 
+
+    @alog("Asking GPT")
     async def _ask_file(self, in_path: str, out_path: str):
-        logger.info(f"GPT Started", idx=f"GPT:{out_path}", start=True)
         await self.__gpt_sender.send_and_save(in_path, out_path)
-        logger.info(f"GPT Finished", idx=f"GPT:{out_path}", finish=True)
 
     def _gen_batch_file(self, file_path: str, gen_req: BatchRequestGenerator):
         examples = load_data(self._run_conf.dataset_config.get_test_path()).to_dict("records")

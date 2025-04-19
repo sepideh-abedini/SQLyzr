@@ -14,6 +14,7 @@ from src.rel.sql_transformer import LetterCasingTransformer, FixPredLimitTransfo
 from src.rel.transformer_detector import TransformerDetector
 from src.sqlyzr.pred_gold_reader import PredGoldReader
 from src.util.file_utils import write_json
+from src.util.log_util import alog
 
 
 class TransformerFinder:
@@ -34,6 +35,7 @@ class TransformerFinder:
         working_procs = self.__get_transformers_classes(working_sub)
         return 1 if working_procs.issubset(rea_procs) else 0
 
+    @alog("Finding repairs")
     async def run(self):
         run_confs = self.__config.eval_conf.get_run_confs()
         for conf in tqdm(run_confs, desc="Finding transformers", total=len(run_confs), leave=False, position=0):

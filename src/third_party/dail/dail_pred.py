@@ -5,7 +5,6 @@ from typing import List
 from loguru import logger
 from openai.types.chat import ChatCompletion
 
-from src.eval.lib import TimeLogger
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.models import BatchInputRequest
 from src.pred.predictor import Predictor
@@ -13,6 +12,7 @@ from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
 from src.third_party.dail.generate_question import DailQuestionGenerator
 from src.third_party.dail.sql_post_processor import DailSqlPostProcessorWorker
+from src.util.log_util import log
 from src.util.model_utils import read_jsonl
 from src.util.multi_thread_utils import exec_multi_process
 
@@ -26,6 +26,8 @@ class DailPredictor(Predictor):
         self.__conf = DailConfig(run_conf.get_pred_path())
 
     async def _run_internal(self):
+        logger.info("Starting DAIL Predictor")
+
         schema_links_gen = DailSchemaLinksGenerator(self.__conf, self._run_conf)
         schema_links_gen.run()
 
@@ -59,13 +61,13 @@ class DailPredictor(Predictor):
         questions_json = json.load(open(path, "r"))
         self.__questions = [_["prompt"] for _ in questions_json["questions"]]
 
+    @log("Dail response processing")
     def __process_responses(self, in_path, out_path) -> List[str]:
         if os.path.exists(out_path):
             logger.info(f"File exists, skipping preprocessing: {out_path}")
             with open(self.__conf.pre_test_result_path()) as file:
                 sqls = file.readlines()
                 return sqls
-        time_logger = TimeLogger.start(f"DAIL:PostProcess:{out_path}")
         with open(self._run_conf.dataset_config.get_test_path()) as data_file:
             data = json.load(data_file)
             db_ids = [example['db_id'] for example in data]
@@ -76,5 +78,4 @@ class DailPredictor(Predictor):
         with open(out_path, "w") as file:
             for sql in results:
                 file.write(f"{sql}\n")
-        time_logger.lap()
         return results

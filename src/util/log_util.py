@@ -1,6 +1,7 @@
+import functools
 import os
 import sys
-from typing import Callable, TypedDict
+from typing import Callable, TypedDict, Any
 
 from loguru import logger
 
@@ -43,3 +44,29 @@ def trace(func: Callable):
         func(*args)
 
     return wrapper
+
+
+def log(name: str):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            logger.info(f"[{name}] Starting!")
+            result = func(*args, **kwargs)
+            logger.info(f"[{name}] Finished!")
+            return result
+
+        return wrapper
+
+    return decorator
+
+def alog(name: str) -> Callable:
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs) -> Any:
+            logger.info(f"[{name}] Starting!")
+            result = await func(*args, **kwargs)
+            logger.info(f"[{name}] Finished!")
+            return result
+        return wrapper
+    return decorator
+
+

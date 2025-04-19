@@ -4,6 +4,7 @@ import os
 
 import attr
 import tqdm
+from loguru import logger
 
 from src.third_party.dail.utils.linking_utils import abstract_preproc, serialization
 from src.third_party.dail.utils.linking_utils.spider_match_utils import (
@@ -36,6 +37,7 @@ def preprocess_schema_uncached(schema,
     """If it's bert, we also cache the normalized version of
     question/column/table for schema linking"""
     r = PreprocessedSchema()
+    logger.info(f"Processing schema: {schema.db_id}")
 
     if bert: assert not include_table_name_in_column
 
@@ -146,11 +148,7 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
         self.texts = collections.defaultdict(list)
 
     def preprocess_items(self, datas):
-        results = []
-        for data in tqdm.tqdm(datas, total=len(datas), desc="Preprocessing data"):
-            result = self.preprocess_item(data)
-            results.append(result)
-        return results
+        return list(tqdm.tqdm(map(self.preprocess_item, datas), total=len(datas), desc="Preprocessing data items"))
 
     def preprocess_item(self, proc_data):
         item = proc_data['item']

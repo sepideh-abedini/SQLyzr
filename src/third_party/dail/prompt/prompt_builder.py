@@ -6,6 +6,7 @@ from src.third_party.dail.prompt.PromptReprTemplate import *
 from src.third_party.dail.prompt.ExampleFormatTemplate import *
 from src.third_party.dail.prompt.ExampleSelectorTemplate import *
 from src.third_party.dail.prompt.PromptICLTemplate import BasicICLPrompt
+from src.util.log_util import log
 
 
 def get_repr_cls(repr_type: str):
@@ -94,6 +95,7 @@ def get_example_selector(selector_type: str):
     return selector_cls
 
 
+@log("Dail prompt creation")
 def prompt_factory(params: DailParams, data, second_stage: bool):
     tokenizer = params.tokenizer
     repr_type = params.prompt_repr

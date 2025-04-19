@@ -41,5 +41,5 @@ class DatasetConfig:
         db_file = os.path.join(self.db_dir, db_id, f"{db_id}.sqlite")
         return self.get_rel_path(db_file)
 
-    def to_thread_conf(self, chunk_num: int):
-        return replace(self, dataset_dir=f"{self.dataset_dir}_chunk_{chunk_num}")
+    def __str__(self):
+        return self.dataset_dir

@@ -8,6 +8,7 @@ class AugerConf:
     num_examples: int = 1
     gen_in: str = "gen.in.jsonl"
     gen_out: str = "gen.out.jsonl"
+    gen_res: str = "gen.jsonl"
     gpt_params = {
         'model': "gpt-4o-mini",
         'max_tokens': 600,
@@ -19,6 +20,9 @@ class AugerConf:
 
     def get_aug_out(self):
         return os.path.join(self.aug_dir, self.gen_out)
+
+    def get_aug_res(self):
+        return os.path.join(self.aug_dir, self.gen_res)
 
 
 DEFAULT_CONF = AugerConf(

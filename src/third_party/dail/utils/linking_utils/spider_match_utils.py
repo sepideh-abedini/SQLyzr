@@ -127,7 +127,7 @@ def compute_cell_value_linking(tokens, schema):
     num_date_match = {}
     cell_match = {}
 
-    for col_id, column in tqdm.tqdm(enumerate(schema.columns)):
+    for col_id, column in enumerate(schema.columns):
         if col_id == 0:
             assert column.orig_name == "*"
             continue

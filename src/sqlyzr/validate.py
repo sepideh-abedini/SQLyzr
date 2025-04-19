@@ -11,6 +11,7 @@ from src.dataset.models import SpiderExample
 from src.eval.exact_match import ExactMatchParser
 from src.eval.model_eval_config import ModelEvalConfig
 from src.rel.db_factory import DatabaseFactory
+from src.util.file_utils import read_json
 from src.util.multi_thread_utils import exec_multi_process
 
 
@@ -24,35 +25,32 @@ async def validate_dataset(conf: SQLyzrConfig):
     total = 0
     valid_examples = []
     for ds_conf in conf.eval_conf.dataset_configs:
-        data_file_path = ds_conf.get_test_path()
-        with open(data_file_path) as file:
-            db_facade = DatabaseFactory.get_instance(ds_conf)
-            data = json.load(file)
-            examples = []
-            for i, entry in enumerate(data):
-                example = SpiderExample.model_validate(entry)
-                examples.append(example)
-                results = exec_multi_process(partial(exec_example, db_facade), examples)
+        test_data = read_json(ds_conf.get_test_path())
+        db_facade = DatabaseFactory.get_instance(ds_conf)
 
-            for i, entry in tqdm(enumerate(data), colour="green", total=len(data),
-                                 desc=f"Validating dataset: {ds_conf.dataset_dir}"):
-                example = SpiderExample.model_validate(entry)
-                cat = catter.get_category(example.query)
-                exec_res = results[i]
-                if exec_res is None or cat is None:
-                    errors.append((i, example.query))
-                else:
-                    valid_examples.append(entry)
-                total += 1
+        examples = list(map(SpiderExample.model_validate, test_data))
 
-        with open(f"{data_file_path}.err", "w") as errors_file:
+        results = exec_multi_process(partial(exec_example, db_facade), examples, "Executing gold SQLs")
+
+        for i, entry in tqdm(enumerate(test_data), total=len(test_data),
+                             desc=f"Validating dataset: {ds_conf.dataset_dir}"):
+            example = SpiderExample.model_validate(entry)
+            cat = catter.get_category(example.query)
+            exec_res = results[i]
+            if exec_res is None or cat is None:
+                errors.append((i, example.query))
+            else:
+                valid_examples.append(entry)
+            total += 1
+
+        with open(f"{ds_conf.get_test_path()}.err", "w") as errors_file:
             for error in errors:
                 errors_file.write(f"{error}\n")
 
         if len(errors) > 0:
             logger.error("Invalid SQLs found!")
             logger.error(f"Num dataset errors: {len(errors)}/{total}")
-            with open(f"{data_file_path}.clean", "w") as out_file:
+            with open(f"{ds_conf.get_test_path()}.clean", "w") as out_file:
                 out_file.write(json.dumps(valid_examples, indent=True))
             raise RuntimeError("Invalid dataset")
         else:

@@ -38,7 +38,7 @@ class SingleRunConfig:
             self.dataset_config.get_gold_path())
 
     def __str__(self):
-        return f"temp = {self.temp}, iter={self.itr}"
+        return f"temp = {self.temp}, iter={self.itr}, ds={self.dataset_config.dataset_type}"
 
     def __repr__(self):
         return str(self)

@@ -28,18 +28,17 @@ def chunk_list(lst: List[T], k: int) -> List[List[T]]:
 
 def process_initializer():
     configure_logging()
-    logger.info(f"Started new process: {os.getpid()}")
 
 
-def exec_multi_process(fun: Callable[[T], U], vals: List[T], num_procs: int = NUM_PROCS, desc: str = "") -> List[U]:
+def exec_multi_process(fun: Callable[[T], U], vals: List[T], desc: str = "", num_procs: int = NUM_PROCS) -> List[U]:
     if num_procs < 2:
         return __exec_with_map(fun, vals, desc)
     else:
         return __exec_multi_process(fun, vals, num_procs, desc)
 
 
-def exec_multi_process_chunked(fun: Callable[[List[T]], List[U]], vals: List[T], num_procs: int = NUM_PROC_CHUNKS,
-                               desc: str = "") -> List[U]:
+def exec_multi_process_chunked(fun: Callable[[List[T]], List[U]], vals: List[T], desc: str = "",
+                               num_procs: int = NUM_PROC_CHUNKS) -> List[U]:
     if num_procs < 2:
         return __exec_with_map_chunked(fun, vals, desc)
     else:
@@ -59,7 +58,7 @@ def __exec_multi_process_chunked(fun: Callable[[List[T]], List[U]], vals: List[T
                                  desc: str = "") -> List[U]:
     chunks = chunk_list(vals, num_procs)
     with Pool(num_procs, initializer=process_initializer) as pool:
-        result_chunks = list(pool.map(fun, chunks))
+        result_chunks = list(tqdm(pool.map(fun, chunks), total=len(chunks), desc=desc))
     results = flatten(result_chunks)
     return results
 

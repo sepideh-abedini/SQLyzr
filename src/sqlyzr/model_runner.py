@@ -11,6 +11,7 @@ from src.sqlyzr.dummy_predictor import DummyPredictor
 from src.third_party.dail.dail_pred import DailPredictor
 from src.third_party.din.din_bird_pred import DinBirdPredictor
 from src.third_party.din.din_spider_pred import DinPredictor
+from src.util.async_utils import apply_async
 
 RUNNER_THREADS = int(os.environ.get("RUNNER_THREADS", 1))
 
@@ -22,14 +23,10 @@ class ModelRunner(ABC):
         self.config = config
 
     async def run(self):
-        futures = []
-        for conf in self.config.get_run_confs():
-            task = self.run_single(conf)
-            futures.append(task)
-        await tqdm.gather(*futures)
+        await apply_async(self.run_single, self.config.get_run_confs(), "Running model for each conf")
 
     async def run_single(self, run_conf: SingleRunConfig):
-        logger.info(f"Running for conf={run_conf}")
+        logger.info(f"Running model for conf={run_conf}")
         await self.run_single_internal(run_conf)
 
     @abstractmethod
@@ -70,6 +67,7 @@ MODELS = {
 
 async def run_model(config: SQLyzrConfig):
     model_type = MODELS[config.model]
-    logger.info(f"Running model: {model_type}")
     runner = model_type(config.eval_conf)
+    logger.info(f"Running model")
     await runner.run()
+    logger.info(f"Running model finished")

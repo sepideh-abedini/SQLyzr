@@ -16,6 +16,7 @@ from src.third_party.dail.prompt.prompt_builder import prompt_factory
 from src.third_party.dail.utils.data_builder import load_data
 from src.third_party.dail.utils.enums import LLM
 from src.third_party.dail.utils.utils import cost_estimate
+from src.util.log_util import log
 from src.util.multi_thread_utils import exec_multi_process_chunked, exec_multi_process
 
 SQLYZR_DEVICE = os.environ.get("SQLYZR_DEVICE", "cpu")
@@ -50,20 +51,19 @@ class DailQuestionGenerator(FileGenerator):
         self.__run_conf = run_conf
         self.second_stage = second_stage
 
+    @log("Dail question generation")
     def _run_internal(self):
         dail_conf = self.__dail_conf
         run_conf = self.__run_conf
 
         # load test dataset here
         data = load_data(run_conf.dataset_config, dail_conf)
-        logger.info("Loading data done!")
 
         databases = data.get_databases()
 
         params = self.__dail_conf.params
-        prompt = prompt_factory(params, data, self.second_stage)
 
-        logger.info("Prompt done!")
+        prompt = prompt_factory(params, data, self.second_stage)
 
         # format all questions
         questions = list()
@@ -76,10 +76,10 @@ class DailQuestionGenerator(FileGenerator):
 
         test_data = data.get_test_json()
         # formats = exec_multi_process(worker.format_list, test_data, 8)
-        if SQLYZR_DEVICE == "mps":
-            formats = list(tqdm.tqdm(map(worker.format, test_data), total=len(test_data)))
+        if SQLYZR_DEVICE == "cpu":
+            formats = exec_multi_process(worker.format, test_data, desc="Creating prompt")
         else:
-            formats = exec_multi_process(worker.format, test_data)
+            formats = list(tqdm.tqdm(map(worker.format, test_data), total=len(test_data),desc="Creating prompt"))
 
         # for question_json in tqdm.tqdm(test_data):
         for question_format in formats:

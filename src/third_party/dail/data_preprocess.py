@@ -2,6 +2,7 @@ import json
 import os
 import sys
 
+from loguru import logger
 from tqdm import tqdm
 
 from src.eval.single_run_config import SingleRunConfig
@@ -13,6 +14,7 @@ from src.third_party.dail.utils.datasets.spider import load_tables
 from src.third_party.dail.utils.linking_process import SpiderEncoderV2Preproc
 from src.third_party.dail.utils.pretrained_embeddings import GloVe
 from src.util.file_utils import read_json
+from src.util.log_util import log
 from src.util.multi_thread_utils import exec_multi_process_chunked
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -24,6 +26,7 @@ class DailSchemaLinksGenerator(FileGenerator):
         self.dail_conf = dail_conf
         self.run_conf = run_conf
 
+    @log("Dail schema generation")
     def _run_internal(self):
         if self.run_conf.dataset_config.dataset_type == "bird":
             bird_pre_process(self.run_conf)
@@ -31,15 +34,12 @@ class DailSchemaLinksGenerator(FileGenerator):
         if self.run_conf.dataset_config.dataset_type == "beaver":
             beaver_pre_process(self.run_conf)
 
-        # load data
         test_data = read_json(self.run_conf.dataset_config.get_test_path())
         train_data = read_json(self.run_conf.dataset_config.get_train_path())
-
-        # load schemas
         schemas, _ = load_tables([self.run_conf.dataset_config.get_tables_path()])
 
         db_facade = DatabaseFactory.get_instance(self.run_conf.dataset_config)
-        for db_id, schema in tqdm(schemas.items(), desc="DB connections"):
+        for db_id, schema in schemas.items():
             schema.connection = DatabaseConnectionProxy(db_facade, db_id)
 
         compute_cv_link = self.run_conf.dataset_config.dataset_type == "spider"
@@ -54,7 +54,7 @@ class DailSchemaLinksGenerator(FileGenerator):
                                                    compute_cv_link=compute_cv_link)
         for data, section in zip([test_data, train_data], ['test', 'train']):
             proc_data_list = []
-            for item in tqdm(data, desc=f"{section} section linking"):
+            for item in tqdm(data, desc=f"{section} section linking", total=len(data)):
                 db_id = item["db_id"]
                 schema = schemas[db_id]
                 proc_data = dict()
@@ -62,7 +62,9 @@ class DailSchemaLinksGenerator(FileGenerator):
                 proc_data['schema'] = schema
                 linking_processor.preprocess_schema(schema)
                 proc_data_list.append(proc_data)
-            proc_list = exec_multi_process_chunked(linking_processor.preprocess_items, proc_data_list)
+
+            proc_list = exec_multi_process_chunked(linking_processor.preprocess_items, proc_data_list,
+                                                   desc=f"{section} preprocessing")
 
             for proc in proc_list:
                 linking_processor.add_proc_item(section, proc)
@@ -70,6 +72,7 @@ class DailSchemaLinksGenerator(FileGenerator):
         linking_processor.save({"train": self.dail_conf.train_schema_path(), "test": self.dail_conf.test_schema_path()})
 
 
+@log("Dail beaver pre processing")
 def beaver_pre_process(run_conf: SingleRunConfig):
     def json_preprocess(data_jsons):
         new_datas = []
@@ -98,6 +101,7 @@ def beaver_pre_process(run_conf: SingleRunConfig):
         json.dump(json_preprocess(data_jsons), wf, indent=4)
 
 
+@log("Dail bird pre processing")
 def bird_pre_process(run_conf: SingleRunConfig, with_evidence=True):
     def json_preprocess(data_jsons):
         new_datas = []

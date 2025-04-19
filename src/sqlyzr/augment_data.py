@@ -7,6 +7,7 @@ from src.aug.auger import Auger
 from src.cat.categories import CATS
 from src.cat.sub_category import SubCategory
 from src.configs.sqlyzr_config import SQLyzrConfig
+from src.util.log_util import alog
 
 
 class DatasetAugmentor:
@@ -15,14 +16,15 @@ class DatasetAugmentor:
     def __init__(self, config: SQLyzrConfig):
         self.__config = config
 
+    @alog("Dataset augmentation")
     async def augment_data(self):
         sub_cats = self.__find_cats_with_low_scores()
         if len(sub_cats) < 1:
-            logger.debug(f"No category found with score below: {self.__config.error_threshold}, skipping augmentation")
+            logger.info(f"No category found with score below: {self.__config.error_threshold}, skipping augmentation")
             return
-        logger.debug(f"Generating data for sub_categories: {sub_cats}")
-        auger = Auger(self.__config, sub_cats)
-        await auger.run()
+        for ds_conf in self.__config.eval_conf.dataset_configs:
+            auger = Auger(self.__config, ds_conf, sub_cats)
+            await auger.run()
 
     def __find_cats_with_low_scores(self) -> Set[SubCategory]:
         scores = pd.read_csv(self.__config.eval_conf.get_scores_path())

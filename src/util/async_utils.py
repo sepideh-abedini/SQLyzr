@@ -2,29 +2,21 @@ import asyncio
 import os
 from asyncio import Semaphore, get_running_loop
 
+from loguru import logger
 from tqdm.asyncio import tqdm
 
-MAX_THREADS = int(os.getenv("MAX_THREADS", 4))
+from src.gpt.models import BatchInputRequest
+
+ASYNC_BATCH = int(os.environ.get("ASYNC_BATCH", 1))
 
 
-def partition_list(lst, size=MAX_THREADS):
-    return [lst[i:i + size] for i in range(0, len(lst), size)]
+async def apply_async(fun, items, desc=""):
+    semaphore = asyncio.Semaphore(ASYNC_BATCH)
 
-
-async def apply_async(fun, l):
-    semaphore = Semaphore(MAX_THREADS)
-
-    async def worker(item):
+    async def sem_task(item):
         async with semaphore:
-            # task = asyncio.create_task(fun(item))
-            try:
-                # res = await asyncio.wait_for(task)
-                res = await fun(item)
-                return res
-            except asyncio.TimeoutError as e:
-                return e
+            return await fun(item)
 
-    tasks = [worker(item) for item in l]
-    return await tqdm.gather(*tasks)
-
-
+    tasks = [asyncio.create_task(sem_task(item)) for item in items]
+    results = await tqdm.gather(*tasks, total=len(items), desc=desc)
+    return results

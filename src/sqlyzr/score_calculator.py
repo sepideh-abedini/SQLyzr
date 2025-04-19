@@ -8,6 +8,7 @@ from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pred_gold_reader import PredGoldReader
+from src.util.log_util import log
 from src.util.multi_thread_utils import exec_multi_process
 
 catter = Catter()
@@ -16,7 +17,8 @@ catter = Catter()
 def calc_for_entry(eval_conf, run_conf: SingleRunConfig, entry):
     pred, gold, db_id = entry
     cat, sub_cat = catter.categorize(gold)
-    example_scores = {"tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub_cat": sub_cat, "dst": run_conf.dataset_config.dataset_type}
+    example_scores = {"tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub_cat": sub_cat,
+                      "dst": run_conf.dataset_config.dataset_type}
     metrics = []
     for metric_name, metric_class in eval_conf.metrics.items():
         metrics.append(metric_class(metric_name, run_conf.dataset_config))
@@ -38,10 +40,10 @@ def calc_for_data(eval_conf, run_conf, data):
         example_scores = calc_for_entry(eval_conf, run_conf, (pred, gold, db_id))
         scores.append(example_scores)
 
-    logger.info(f"Calc done: {os.getpid()}")
     return scores
 
 
+@log("Score calculation for single conf")
 def calc_for_conf(eval_conf: ModelEvalConfig, run_conf: SingleRunConfig):
     scores_path = eval_conf.get_scores_path(f"_{run_conf.temp}_{run_conf.itr}_{run_conf.dataset_config.dataset_type}")
     if os.path.exists(scores_path):
@@ -50,13 +52,7 @@ def calc_for_conf(eval_conf: ModelEvalConfig, run_conf: SingleRunConfig):
 
     reader = PredGoldReader(run_conf)
     all_data = reader.get_pred_gold_db_id()
-    # all_data = all_data[4600:5000]
-    logger.info(f"Calculating scores for {run_conf}")
-    # all_scores = exec_multi_process(partial(calc_for_entry, metrics, run_conf), all_data, 8)
-    all_scores = exec_multi_process(partial(calc_for_entry, eval_conf, run_conf), all_data)
-    # all_scores = exec_multi_process(partial(calc_for_data, config, conf), all_data)
-    # all_scores = list(tqdm(map(partial(calc_for_entry, config, conf), all_data), total=len(all_data)))
-    logger.info(f"Score calculation done {run_conf}")
+    all_scores = exec_multi_process(partial(calc_for_entry, eval_conf, run_conf), all_data, desc=f"Score calculation for {run_conf}")
     ti_df = pd.DataFrame(all_scores)
     ti_df.to_csv(scores_path)
 
@@ -69,6 +65,7 @@ class ScoreCalculator:
     def __init__(self, config: SQLyzrConfig):
         self.__config = config
 
+    @log("Score calculation")
     def calc_scores(self):
         config = self.__config.eval_conf
         if os.path.exists(config.get_raw_scores_path()):
@@ -81,5 +78,3 @@ class ScoreCalculator:
             sub_df = calc_for_conf(config, conf)
             df = pd.concat([df, sub_df])
         df.to_csv(config.get_raw_scores_path())
-
-        logger.info("Score calculation finished!")

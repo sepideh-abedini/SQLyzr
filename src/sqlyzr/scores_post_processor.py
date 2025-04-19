@@ -2,6 +2,7 @@ import pandas as pd
 
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.lib import confidence_level_interval
+from src.util.log_util import log
 
 
 class ScoresPostProcessor:
@@ -22,6 +23,7 @@ class ScoresPostProcessor:
 
         return agg_fun
 
+    @log("Score post-processing")
     def run(self):
         config = self.__config.eval_conf
         df = pd.read_csv(config.get_raw_scores_path(), index_col=0)
@@ -53,7 +55,7 @@ class ScoresPostProcessor:
         df_cat['sub_cat'] = 'all'
         df_cat = df_cat.reset_index()
         df_cat.to_csv(config.get_scores_path("_cat"))
-        cat_means = df_cat[['ea_mean', 'rea_mean', 'etc_mean', 'cc_mean', 'em_mean']].groupby(['tmp']).mean()
+        # cat_means = df_cat[['ea_mean', 'rea_mean', 'etc_mean', 'cc_mean', 'em_mean']].groupby(['tmp']).mean()
 
         df_all = df.groupby(['tmp']).agg(
             **aggs
