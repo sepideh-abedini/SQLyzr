@@ -23,11 +23,11 @@ COL_NAMES = {
     "cconst": "Complexity Consistency",
     "tokens": "Token Usage",
     "cat": "Category",
-    "sub": "SubCategory",
+    "sub_cat": "SubCategory",
     "cdiff": "Complexity Inconsistency",
     "etcdiff": "Execution Time Inconsistency",
     "model": "Model",
-    "dst": "Dataset",
+    "dataset": "Dataset",
     "tmp": "Temp",
 }
 
@@ -70,8 +70,7 @@ class Drawer:
     df: DataFrame
 
     def __init__(self, scores_path: str, include_all: bool = False, only_correct: bool = False,
-                 exclude_c6: bool = False, show: bool = False, out_dir: str = OUT_DIR):
-        self.out_dir = out_dir
+                 exclude_c6: bool = False, show: bool = False):
         self.show = show
         self.include_all = include_all
         self.only_correct = only_correct
@@ -82,20 +81,19 @@ class Drawer:
         df = pd.read_csv(scores_path)
         df = df.dropna(subset=["cat"])
         cats = natsorted(df['cat'].unique())
-        sub_cats = natsorted(df['sub'].unique())
+        sub_cats = natsorted(df['sub_cat'].unique())
         df['cat'] = pd.Categorical(df['cat'], categories=cats, ordered=True)
-        df['sub'] = pd.Categorical(df['sub'], categories=sub_cats, ordered=True)
-        df = df.sort_values(by=['cat', 'sub'])
+        df['sub_cat'] = pd.Categorical(df['sub_cat'], categories=sub_cats, ordered=True)
+        df = df.sort_values(by=['cat', 'sub_cat'])
         if self.only_correct:
             df = df[df['rea'] == 1]
         df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
-        df['etc'] = df['plt']
-        df["cconst"] = df["plc"]
-        df["cdiff"] = ~df["plc"]
-        df["etcdiff"] = ~df["plt"]
+        df['etc'] = (df['etc'] & df["rea"])
+        df["cconst"] = (df["cc"] & df["rea"])
+        df["cdiff"] = ((~df["cc"]) & df["rea"])
+        df["etcdiff"] = ((~df["etc"]) & df["rea"])
         df['diff'] = df['rea'] - df['ea']
         df = df.drop(columns=[col for col in df.columns if "Unnamed" in col])
-        df = df.drop(columns=['pcat', 'psub'])
         if self.exclude_c6:
             df = df[df['cat'] != 'c6']
 
@@ -108,11 +106,12 @@ class Drawer:
             #     new_row.update(mean_values.loc[value].to_dict())
             #     row = pd.DataFrame([new_row])
             #     df = pd.concat([df, row], ignore_index=True)
-            mean_values = df.drop(columns=['sub', "dst"]).groupby(['model', 'cat']).mean()
+
+            mean_values = df.drop(columns=['sub_cat', "dataset"]).groupby(['model', 'cat']).mean()
             mean_values = mean_values.groupby(['model']).mean()
             #
             for value in df['model'].unique():
-                new_row = {'model': value, 'cat': "all", "sub": "all"}
+                new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
                 new_row.update(mean_values.loc[value].to_dict())
                 row = pd.DataFrame([new_row])
                 df = pd.concat([df, row], ignore_index=True)
@@ -123,7 +122,7 @@ class Drawer:
         return df
 
     def metric_dir(self, metric):
-        return os.path.join(self.out_dir, snakecase(metric))
+        return os.path.join(OUT_DIR, snakecase(metric))
 
     def draw_barplot(self, x: str, y: str, hue: str, estimator: str):
         order = [
@@ -141,10 +140,10 @@ class Drawer:
     def fix_axis(self, metric: str, ax: Axes):
         if self.include_all:
             custom_error = 0.1
-            # bar = ax.patches[6]
-            # x = bar.get_x() + bar.get_width() / 2
-            # y = bar.get_height()
-            # ax.errorbar(x=x, y=y, yerr=custom_error, capsize=1, color='black')
+            bar = ax.patches[6]
+            x = bar.get_x() + bar.get_width() / 2
+            y = bar.get_height()
+            ax.errorbar(x=x, y=y, yerr=custom_error, capsize=1, color='black')
 
         if self.df[metric].max() - self.df[metric].min() <= 1:
             ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
@@ -153,7 +152,7 @@ class Drawer:
     def save_fig(self, metric, ax: Axes):
         title = ax.get_title()
         ax.set_title("")
-        path = os.path.join(self.out_dir, f"{snakecase(title)}.png")
+        path = os.path.join(self.metric_dir(metric), f"{snakecase(title)}.png")
         plt.savefig(path, bbox_inches='tight', dpi=300)
 
     def draw_metric_mean(self, x: str, metric: str):
@@ -244,7 +243,7 @@ class Drawer:
                 plt.show()
 
     def draw(self, metric: str):
-        # os.makedirs(self.metric_dir(metric), exist_ok=True)
+        os.makedirs(self.metric_dir(metric), exist_ok=True)
         # self.draw_metric_mean("Temp", metric)
         self.draw_metric_mean("Category", metric)
         # self.draw_metric_mean("SubCategory", metric)
@@ -265,11 +264,11 @@ class Drawer:
         plt.figure(figsize=(5, 5))
 
         sns.countplot(df, x="Category")
-        plt.savefig(os.path.join(self.out_dir, f"cat_count.png"))
+        plt.savefig(os.path.join(OUT_DIR, f"cat_count.png"))
 
         plt.figure(figsize=(50, 5))
         sns.countplot(df, x="SubCategory")
-        plt.savefig(os.path.join(self.out_dir, f"sub_cat_count.png"))
+        plt.savefig(os.path.join(OUT_DIR, f"sub_cat_count.png"))
 
         plt.show()
 
@@ -279,7 +278,7 @@ class Drawer:
         ax = sns.barplot(df, x="Metric", y="Score", hue="Model")
         ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
         ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
-        plt.savefig(os.path.join(self.out_dir, f"overall.png"))
+        plt.savefig(os.path.join(OUT_DIR, f"overall.png"))
 
     def draw_all(self):
         pass

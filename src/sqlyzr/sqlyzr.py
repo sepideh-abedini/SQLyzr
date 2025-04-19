@@ -40,5 +40,6 @@ class Sqlyzr:
             await augmentor.augment_data()
 
         if self.conf.pipeline.charts:
-            draw_all_charts(self.conf.eval_conf.get_raw_scores_path())
-
+            draw_all_charts(self.conf.eval_conf.get_raw_scores_path(),
+                            out_dir=self.conf.eval_conf.charts_dir,
+                            included_charts=self.conf.eval_conf.included_charts)

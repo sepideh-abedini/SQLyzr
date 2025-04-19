@@ -8,6 +8,7 @@ from src.configs.datasets import DatasetName, DatasetSize, DATASETS
 from src.configs.metrics import SPIDER_METRICS, BIRD_METRICS, METRICS
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
+from src.sqlyzr.chart_config import ChartName
 from src.sqlyzr.pipeline_config import PipelineConfig
 
 
@@ -23,6 +24,7 @@ class ConfigData(BaseModel):
     batch: bool = False
     force: bool = False
     pipeline: PipelineConfig = PipelineConfig()
+    charts: List[ChartName] = []
 
     def get_model_dataset_dir(self):
         return os.path.join(self.data_dir, f"{self.model}_{self.dataset}_{self.dataset_size}")
@@ -38,6 +40,9 @@ class ConfigData(BaseModel):
 
     def get_trs_dir(self):
         return os.path.join(self.get_model_dataset_dir(), "trs")
+
+    def get_charts_dir(self):
+        return os.path.join(self.get_model_dataset_dir(), "charts")
 
     @staticmethod
     def load(path: str):
@@ -63,7 +68,8 @@ def load_config(path) -> SQLyzrConfig:
     conf_data = ConfigData.load(path)
     logger.info(conf_data)
     dataset_confs = DATASETS[conf_data.dataset][conf_data.dataset_size]
-    dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir()]
+    dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir(),
+            conf_data.get_charts_dir()]
     for d in dirs:
         if conf_data.force:
             os.rmdir(d)
@@ -74,9 +80,11 @@ def load_config(path) -> SQLyzrConfig:
         pred_dir=conf_data.get_pred_dir(),
         eval_dir=conf_data.get_eval_dir(),
         trs_dir=conf_data.get_trs_dir(),
+        charts_dir=conf_data.get_charts_dir(),
         dataset_configs=dataset_confs,
         metrics=METRICS[conf_data.dataset],
-        batch=conf_data.batch
+        batch=conf_data.batch,
+        included_charts=conf_data.charts
     )
     conf = SQLyzrConfig(
         eval_conf=eval_conf,

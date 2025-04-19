@@ -6,6 +6,7 @@ from typing import List, Dict, Type
 from src.eval.dataset_config import DatasetConfig
 from src.eval.metrics import Metric
 from src.eval.single_run_config import SingleRunConfig
+from src.sqlyzr.chart_config import ChartName
 
 
 @dataclass
@@ -14,15 +15,21 @@ class ModelEvalConfig:
     eval_dir: str
     pred_dir: str
     trs_dir: str
+    charts_dir: str
+    included_charts: List[ChartName]
     dataset_configs: List[DatasetConfig]
     metrics: Dict[str, Type[Metric]]
 
-    def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str,
+    def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str, charts_dir: str,
                  dataset_configs: List[DatasetConfig],
-                 metrics: Dict[str, Type[Metric]], batch: bool):
+                 metrics: Dict[str, Type[Metric]],
+                 included_charts: List[ChartName],
+                 batch: bool):
         self.pred_dir = pred_dir
         self.eval_dir = eval_dir
         self.trs_dir = trs_dir
+        self.charts_dir = charts_dir
+        self.included_charts = included_charts
         self.run_confs = {}
         self.dataset_configs = dataset_configs
         for temp, itr in product(temps, range(num_itrs)):
@@ -53,4 +60,3 @@ class ModelEvalConfig:
 
     def get_trs_result_path(self):
         return os.path.join(self.trs_dir, f"trs.csv")
-
