@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from src.cat.statement_category import StatementCategory
 from src.cat.sub_category import SubCategory
@@ -121,3 +121,18 @@ def get_all_sub_cats(cats: List[StatementCategory]):
 
 def get_all_cats(cats: List[StatementCategory]):
     return list(map(lambda c: c.name, cats))
+
+
+def find_sub(cat_name: str) -> Optional[SubCategory]:
+    for c in CATS:
+        for s in c.sub_cats:
+            if s.name == cat_name:
+                return s
+    return None
+
+
+def find_cat(cat_name: str) -> Optional[SubCategory]:
+    for c in CATS:
+        if c.name == cat_name:
+            return c
+    return None

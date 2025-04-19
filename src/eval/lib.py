@@ -38,7 +38,7 @@ class Timer:
         return (datetime.now() - self.start_time).total_seconds()
 
 
-def confidence_level_interval(column: pd.Series) -> str:
+def confidence_interval(column: pd.Series) -> str:
     if not pd.api.types.is_numeric_dtype(column):
         return "NA"
     CONFIDENCE = 0.95
@@ -48,7 +48,10 @@ def confidence_level_interval(column: pd.Series) -> str:
     mean = column.mean()
     interval_start = mean - err_margin
     interval_end = mean + err_margin
-    return "({:.2f}%, {:.2f}%)".format(interval_start * 100, interval_end * 100)
+    if interval_start >= 0 and interval_end <= 1 and interval_start >= 0 and interval_end <= 1:
+        return "({:.2f}%, {:.2f}%)".format(interval_start * 100, interval_end * 100)
+    else:
+        return "({:.2f}, {:.2f})".format(interval_start * 100, interval_end * 100)
     # return f"({interval_start}, {interval_end})"
 
 

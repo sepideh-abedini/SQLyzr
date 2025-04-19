@@ -1,25 +1,43 @@
 import pandas as pd
+from loguru import logger
 
+from src.cat.categories import find_cat
 from src.configs.sqlyzr_config import SQLyzrConfig
-from src.eval.lib import confidence_level_interval
+from src.eval.lib import confidence_interval
 from src.util.log_util import log
 
-AGG_FUNS = {
-    'sum': 'sum',
-    'mean': 'mean',
-    'ci': confidence_level_interval
+
+def metric_consistency(metric):
+    def agg_fun(grouped):
+        ea = grouped['ea']
+        ms = grouped[metric]
+        den = ea.sum()
+        if den == 0:
+            return 0.0
+        return (ea & ms).sum() / den
+
+    return agg_fun
+
+
+def metric_agg(metric, agg_fun):
+    return pd.NamedAgg(column=metric, aggfunc=agg_fun)
+
+
+METRICS = [
+    "em", "ea", "rea", "et", "get"
+]
+
+SUMS = {
+    f"{m}_sum": pd.NamedAgg(column=m, aggfunc="sum") for m in METRICS
 }
 
-SCORES_AGGS = {
-    'ea': ['sum', 'mean', 'ci'],
-    'em': ['sum', 'mean', 'ci'],
-    'rea': ['sum', 'mean', 'ci'],
+MEANS = {
+    f"{m}_mean": pd.NamedAgg(column=m, aggfunc="mean") for m in METRICS
 }
 
-aggs = dict()
-for s, sa in SCORES_AGGS.items():
-    for a in sa:
-        aggs[f"{s}_{a}"] = pd.NamedAgg(column=s, aggfunc=AGG_FUNS[a])
+CIS = {
+    f"{m}_ci": pd.NamedAgg(column=m, aggfunc=confidence_interval) for m in METRICS
+}
 
 
 class ScoresPostProcessor:
@@ -28,72 +46,54 @@ class ScoresPostProcessor:
     def __init__(self, config: SQLyzrConfig):
         self.__config = config
 
-    @staticmethod
-    def metric_consistency(metric):
-        def agg_fun(grouped):
-            ea = grouped['ea']
-            ms = grouped[metric]
-            den = ea.sum()
-            if den == 0:
-                return 0.0
-            return (ea & ms).sum() / den
-
-        return agg_fun
-
     @log("Score post-processing")
     def run(self):
         config = self.__config.eval_conf
         df = pd.read_csv(config.get_raw_scores_path(), index_col=0)
         df['count'] = 1
+        df['pmc'] = df.apply(lambda e: find_cat(e['pcat']) <= find_cat(e['cat']), axis=1)
+        df['pmt'] = df.apply(lambda e: (e['et'] / e['get']) < self.__config.etc_ratio, axis=1)
+        df = df.drop(columns=['pcat', 'psub', 'dst', 'itr'])
 
-        cat_grouped = df.groupby(['tmp', 'cat'])
-        cat_grouped = cat_grouped.agg(**aggs)
+        sub_grouped = df.groupby(['tmp', 'cat', 'sub'])
+        cc = sub_grouped.apply(metric_consistency('pmc'))
+        etc = sub_grouped.apply(metric_consistency('pmt'))
+        sub_grouped = sub_grouped.agg(**SUMS, **MEANS, **CIS)
+        sub_grouped['cc'] = cc
+        sub_grouped['etc'] = etc
+        sub_grouped = sub_grouped.reset_index()
+        sub_grouped.to_csv(config.get_scores_path("_sub"))
+        logger.info(f"Sub grouped cols: {len(sub_grouped.columns)}")
+
+        cat_grouped = df.drop(columns=['sub']).groupby(['tmp', 'cat'])
+        cc = cat_grouped.apply(metric_consistency('pmc'))
+        etc = cat_grouped.apply(metric_consistency('pmt'))
+        cat_grouped = cat_grouped.agg(**MEANS, **SUMS, **CIS)
+        cat_grouped['cc'] = cc
+        cat_grouped['etc'] = etc
         cat_grouped['sub'] = 'all'
+        cat_grouped = cat_grouped.reset_index()
         cat_grouped.to_csv(config.get_scores_path("_cat"))
+        logger.info(f"sub = all  cols: {len(cat_grouped.columns)}")
 
-        # sub_grouped = df.groupby(['tmp', 'cat', 'sub'])
-        # sub_grouped = sub_grouped.reset_index()
-        # sub_grouped.to_csv(config.get_scores_path("_sub"))
-        # cat_grouped = df.groupby(['tmp', 'cat'])
+        tmp_cat_grouped = df.drop(columns=['sub']).groupby(['tmp', 'cat'])
+        cc = tmp_cat_grouped.apply(metric_consistency('pmc'))
+        etc = tmp_cat_grouped.apply(metric_consistency('pmt'))
+        tmp_cat_grouped = tmp_cat_grouped.mean()
+        tmp_cat_grouped['cc'] = cc
+        tmp_cat_grouped['etc'] = etc
+        tmp_cat_grouped = tmp_cat_grouped.reset_index()
+        all_cats = tmp_cat_grouped.drop(columns=['cat']).groupby(['tmp'])
+        all_cats = all_cats.agg(**SUMS, **MEANS, **CIS, cc=pd.NamedAgg(column="cc", aggfunc="mean"),
+                                etc=pd.NamedAgg(column="etc", aggfunc="mean"))
+        all_cats['cat'] = 'all'
+        all_cats['sub'] = 'all'
+        all_cats = all_cats.reset_index()
+        all_cats.to_csv(config.get_scores_path("_all"))
+        logger.info(f"cat = all cols: {len(all_cats.columns)}")
 
-        # aggs = dict()
-        #
-        # metric_names = config.get_metric_names()
-        # metric_names.append('count')
-        #
-        # for m in metric_names:
-        #     aggs[f"{m}_sum"] = pd.NamedAgg(column=m, aggfunc='sum')
-        #     aggs[f"{m}_mean"] = pd.NamedAgg(column=m, aggfunc='mean')
-        #     aggs[f"{m}_ci"] = pd.NamedAgg(column=m, aggfunc=confidence_level_interval)
-        # df_subcat_grouped = df.groupby(['tmp', 'cat', 'sub_cat'])
-        # cc = df_subcat_grouped.apply(ScoresPostProcessor.metric_consistency('cc'))
-        # etc = df_subcat_grouped.apply(ScoresPostProcessor.metric_consistency('etc'))
-        # df_subcat = df.groupby(['tmp', 'cat', "sub_cat"]).agg(
-        #     **aggs
-        # )
-        # df_subcat = df_subcat.reset_index()
-        # df_subcat['cc_mean'] = cc.values
-        # df_subcat['etc_mean'] = etc.values
-        # df_subcat.to_csv(config.get_scores_path("_cat_subcat"))
-        #
-        # df_cat = df.groupby(['tmp', 'cat']).agg(
-        #     **aggs
-        # )
-        # df_cat['sub_cat'] = 'all'
-        # df_cat = df_cat.reset_index()
-        # df_cat.to_csv(config.get_scores_path("_cat"))
-        # cat_means = df_cat[['ea_mean', 'rea_mean', 'etc_mean', 'cc_mean', 'em_mean']].groupby(['tmp']).mean()
-        #
-        # df_all = df.groupby(['tmp']).agg(
-        #     **aggs
-        # )
-        # df_all['sub_cat'] = 'all'
-        # df_all['cat'] = 'all'
-        # df_all = df_all.reset_index()
-        # df_all.to_csv(config.get_scores_path("_all"))
-        #
-        # combined = pd.concat([df_subcat, df_cat, df_all], ignore_index=True)
-        # combined.to_csv(config.get_scores_path("_combined"))
-        # final = combined.copy()
-        # final = final.round(2)
-        # final.to_csv(config.get_scores_path())
+        combined = pd.concat([sub_grouped, cat_grouped, all_cats], ignore_index=True)
+        combined.to_csv(config.get_scores_path("_combined"))
+        final = combined.copy()
+        final = final.round(2)
+        final.to_csv(config.get_scores_path())

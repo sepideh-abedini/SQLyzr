@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.eval.lib import confidence_level_interval
+from src.eval.lib import confidence_interval
 
 df = pd.read_csv("charts/all_scores_new_v5.csv")
 
@@ -17,7 +17,7 @@ metric_names = ["em", "ea", "rea", "et", "cc", "tokens", "count"]
 for m in metric_names:
     aggs[f"{m}_sum"] = pd.NamedAgg(column=m, aggfunc='sum')
     aggs[f"{m}_mean"] = pd.NamedAgg(column=m, aggfunc='mean')
-    aggs[f"{m}_ci"] = pd.NamedAgg(column=m, aggfunc=confidence_level_interval)
+    aggs[f"{m}_ci"] = pd.NamedAgg(column=m, aggfunc=confidence_interval)
 df_cat_subcat = df.groupby(['tmp', 'cat', "sub_cat", "model"]).agg(
     **aggs
 )
