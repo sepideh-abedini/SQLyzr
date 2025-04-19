@@ -50,7 +50,7 @@ class ScoresPostProcessor:
     def run(self):
         config = self.__config.eval_conf
         df = pd.read_csv(config.get_raw_scores_path(), index_col=0)
-        df = df.drop(columns=['pcat', 'psub', 'dst', 'itr'])
+        df = df.drop(columns=['pcat', 'psub', 'dst', 'itr', "model"])
 
         sub_grouped = df.groupby(['tmp', 'cat', 'sub'])
         cc = sub_grouped.apply(metric_consistency('plc'))
@@ -92,5 +92,6 @@ class ScoresPostProcessor:
         combined = pd.concat([sub_grouped, cat_grouped, all_cats], ignore_index=True)
         combined.to_csv(config.get_scores_path("_combined"))
         final = combined.copy()
+        final['model'] = self.__config.model
         final = final.round(2)
         final.to_csv(config.get_scores_path())

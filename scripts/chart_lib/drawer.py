@@ -23,11 +23,11 @@ COL_NAMES = {
     "cconst": "Complexity Consistency",
     "tokens": "Token Usage",
     "cat": "Category",
-    "sub_cat": "SubCategory",
+    "sub": "SubCategory",
     "cdiff": "Complexity Inconsistency",
     "etcdiff": "Execution Time Inconsistency",
     "model": "Model",
-    "dataset": "Dataset",
+    "dst": "Dataset",
     "tmp": "Temp",
 }
 
@@ -88,12 +88,13 @@ class Drawer:
         if self.only_correct:
             df = df[df['rea'] == 1]
         df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
-        df['etc'] = (df['etc'] & df["rea"])
-        df["cconst"] = (df["cc"] & df["rea"])
-        df["cdiff"] = ((~df["cc"]) & df["rea"])
-        df["etcdiff"] = ((~df["etc"]) & df["rea"])
+        df['etc'] = df['plt']
+        df["cconst"] =df["plc"]
+        df["cdiff"] = ~df["plc"]
+        df["etcdiff"] = ~df["plt"]
         df['diff'] = df['rea'] - df['ea']
         df = df.drop(columns=[col for col in df.columns if "Unnamed" in col])
+        df = df.drop(columns=['pcat','psub'])
         if self.exclude_c6:
             df = df[df['cat'] != 'c6']
 
@@ -106,8 +107,7 @@ class Drawer:
             #     new_row.update(mean_values.loc[value].to_dict())
             #     row = pd.DataFrame([new_row])
             #     df = pd.concat([df, row], ignore_index=True)
-
-            mean_values = df.drop(columns=['sub', "dataset"]).groupby(['model', 'cat']).mean()
+            mean_values = df.drop(columns=['sub', "dst"]).groupby(['model', 'cat']).mean()
             mean_values = mean_values.groupby(['model']).mean()
             #
             for value in df['model'].unique():
@@ -140,10 +140,10 @@ class Drawer:
     def fix_axis(self, metric: str, ax: Axes):
         if self.include_all:
             custom_error = 0.1
-            bar = ax.patches[6]
-            x = bar.get_x() + bar.get_width() / 2
-            y = bar.get_height()
-            ax.errorbar(x=x, y=y, yerr=custom_error, capsize=1, color='black')
+            # bar = ax.patches[6]
+            # x = bar.get_x() + bar.get_width() / 2
+            # y = bar.get_height()
+            # ax.errorbar(x=x, y=y, yerr=custom_error, capsize=1, color='black')
 
         if self.df[metric].max() - self.df[metric].min() <= 1:
             ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])

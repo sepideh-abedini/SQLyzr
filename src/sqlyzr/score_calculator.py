@@ -16,15 +16,15 @@ from src.util.multi_thread_utils import exec_multi_process
 catter = Catter()
 
 
-def calc_for_entry(eval_conf, run_conf: SingleRunConfig, entry):
+def calc_for_entry(conf: SQLyzrConfig, run_conf: SingleRunConfig, entry):
     pred, gold, db_id = entry
     cat, sub_cat = catter.categorize(gold)
     pred_cat, pred_sub_cat = catter.categorize(pred)
-    example_scores = {"tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub": sub_cat,
+    example_scores = {"model": conf.model, "tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub": sub_cat,
                       "dst": run_conf.dataset_config.dataset_type,
                       "pcat": pred_cat.name, "psub": pred_sub_cat.name}
     metrics = []
-    for metric_name, metric_class in eval_conf.metrics.items():
+    for metric_name, metric_class in conf.eval_conf.metrics.items():
         metrics.append(metric_class(metric_name, run_conf.dataset_config))
 
     for metric in metrics:
@@ -57,14 +57,14 @@ def calc_for_conf(conf: SQLyzrConfig, run_conf: SingleRunConfig):
 
     reader = PredGoldReader(run_conf)
     all_data = reader.get_pred_gold_db_id()
-    all_scores = exec_multi_process(partial(calc_for_entry, conf.eval_conf, run_conf), all_data,
+    all_scores = exec_multi_process(partial(calc_for_entry, conf, run_conf), all_data,
                                     desc=f"Score calculation for {run_conf}")
     df = pd.DataFrame(all_scores)
     with open(run_conf.get_tokens_path(), "r") as f:
         tokens = [int(line.strip()) for line in f if line.strip()]
     df["tokens"] = tokens
     df['count'] = 1
-    df['plc'] = df.apply(lambda e: int(not (find_cat(e['pcat']) <= find_cat(e['cat']))), axis=1)
+    df['plc'] = df.apply(lambda e: int(find_cat(e['pcat']) <= find_cat(e['cat'])), axis=1)
     df['plt'] = df.apply(lambda e: int((e['et'] / e['get']) > conf.etc_ratio), axis=1)
     df.to_csv(scores_path)
 
