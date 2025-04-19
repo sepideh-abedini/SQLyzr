@@ -51,7 +51,7 @@ class GptGateway:
         logger.debug("Sending GPT Request")
         try:
             result = await self._client.chat.completions.create(
-                **request.body.dict()
+                **request.body.dict(), extra_headers={'custom_id': request.custom_id},
             )
             logger.debug("Received GPT Response")
         except RateLimitError as e:

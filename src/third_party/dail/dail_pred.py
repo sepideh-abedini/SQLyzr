@@ -45,7 +45,7 @@ class DailPredictor(Predictor):
         second_question_gen.run()
 
         self.__load_questions(self.__conf.second_questions_path())
-        self._gen_batch_file(self.__conf.get_path("in.second"), self.__gen_sql_req)
+        self._gen_batch_file(self.__conf.get_path("in.second"), self.__gen_second_sql_req)
 
         await self._ask_file(self.__conf.get_path("in.second"), self.__conf.get_path("out.second"))
 
@@ -54,7 +54,14 @@ class DailPredictor(Predictor):
 
     def __gen_sql_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         dail_question = self.__questions[i]
-        request = self._create_batch_req(f"i{i}", dail_question, self.__conf.gpt_params)
+        idx = f"dail_{self._run_conf.dataset_config.dataset_type}_sql_{i}"
+        request = self._create_batch_req(idx, dail_question, self.__conf.gpt_params)
+        return request
+
+    def __gen_second_sql_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
+        dail_question = self.__questions[i]
+        idx = f"dail_{self._run_conf.dataset_config.dataset_type}_second_sql_{i}"
+        request = self._create_batch_req(idx, dail_question, self.__conf.gpt_params)
         return request
 
     def __load_questions(self, path: str):
