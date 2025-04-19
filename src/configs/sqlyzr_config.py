@@ -9,7 +9,6 @@ from src.sqlyzr.pipeline_config import PipelineConfig
 @dataclass(frozen=True)
 class SQLyzrConfig:
     eval_conf: ModelEvalConfig
-    model: Literal["din", "dail", "dum"]
     aug_dir: str
     error_threshold: float
     etc_ratio: float = 1.1
@@ -22,7 +21,6 @@ class SQLyzrConfig:
     def __str__(self):
         return f"""
 ######## SQLyzr Config ########
-Model: {self.model}
 Eval Config:
   Pred Directory: {self.eval_conf.pred_dir}
   Eval Directory: {self.eval_conf.eval_dir}

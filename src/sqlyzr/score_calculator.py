@@ -20,7 +20,8 @@ def calc_for_entry(conf: SQLyzrConfig, run_conf: SingleRunConfig, entry):
     pred, gold, db_id = entry
     cat, sub_cat = catter.categorize(gold)
     pred_cat, pred_sub_cat = catter.categorize(pred)
-    example_scores = {"model": conf.model, "tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat), "sub": sub_cat,
+    example_scores = {"model": run_conf.model, "tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat),
+                      "sub": sub_cat,
                       "dst": run_conf.dataset_config.dataset_type,
                       "pcat": pred_cat.name,
                       "psub": pred_sub_cat.name}

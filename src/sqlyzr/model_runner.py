@@ -11,21 +11,15 @@ from src.third_party.dail.dail_pred import DailPredictor
 from src.third_party.din.din_bird_pred import DinBirdPredictor
 from src.third_party.din.din_spider_pred import DinPredictor
 from src.util.async_utils import apply_async
+from src.util.log_util import log
 
 RUNNER_THREADS = int(os.environ.get("RUNNER_THREADS", 1))
 
 
 class ModelRunner(ABC):
-    config: ModelEvalConfig
-
-    def __init__(self, config: ModelEvalConfig):
-        self.config = config
-
-    async def run(self):
-        await apply_async(self.run_single, self.config.get_run_confs(), "Running model for each conf")
-
+    @log("Model execution")
     async def run_single(self, run_conf: SingleRunConfig):
-        logger.info(f"Running model for conf={run_conf}")
+        logger.info(f"Running model for conf: {run_conf}")
         await self.run_single_internal(run_conf)
 
     @abstractmethod
@@ -58,15 +52,13 @@ class DummyRunner(ModelRunner):
 
 
 MODELS = {
-    "din": DinRunner,
-    "dail": DailRunner,
-    "dum": DummyRunner
+    "din": DinRunner(),
+    "dail": DailRunner(),
+    "dum": DummyRunner()
 }
 
 
 async def run_model(config: SQLyzrConfig):
-    model_type = MODELS[config.model]
-    runner = model_type(config.eval_conf)
-    logger.info(f"Running model")
-    await runner.run()
-    logger.info(f"Running model finished")
+    for run_conf in config.eval_conf.get_run_confs():
+        model_runner = MODELS[run_conf.model]
+        await model_runner.run_single(run_conf)

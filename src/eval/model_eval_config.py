@@ -2,10 +2,9 @@ import os
 from dataclasses import dataclass
 from itertools import product
 from typing import List, Dict, Type
-
 from src.eval.dataset_config import DatasetConfig
 from src.eval.metrics import Metric
-from src.eval.single_run_config import SingleRunConfig
+from src.eval.single_run_config import SingleRunConfig, ModelName
 from src.sqlyzr.chart_config import ChartName
 
 
@@ -24,6 +23,7 @@ class ModelEvalConfig:
                  dataset_configs: List[DatasetConfig],
                  metrics: Dict[str, Type[Metric]],
                  included_charts: List[ChartName],
+                 models: List[ModelName],
                  batch: bool):
         self.pred_dir = pred_dir
         self.eval_dir = eval_dir
@@ -32,15 +32,17 @@ class ModelEvalConfig:
         self.included_charts = included_charts
         self.run_confs = {}
         self.dataset_configs = dataset_configs
-        for temp, itr in product(temps, range(num_itrs)):
-            for dataset_config in self.dataset_configs:
-                conf = SingleRunConfig(dataset_config=dataset_config,
-                                       pred_dir=pred_dir,
-                                       trs_dir=trs_dir,
-                                       temp=temp,
-                                       itr=itr,
-                                       batch=batch)
-                self.run_confs.setdefault(temp, []).append(conf)
+        for model in models:
+            for temp, itr in product(temps, range(num_itrs)):
+                for dataset_config in self.dataset_configs:
+                    conf = SingleRunConfig(dataset_config=dataset_config,
+                                           pred_dir=pred_dir,
+                                           trs_dir=trs_dir,
+                                           temp=temp,
+                                           itr=itr,
+                                           batch=batch,
+                                           model=model)
+                    self.run_confs.setdefault(temp, []).append(conf)
         self.metrics = metrics
 
     def get_run_confs(self):
