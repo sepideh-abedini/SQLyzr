@@ -11,13 +11,13 @@ from src.third_party.dail.dail_pred import DailPredictor
 from src.third_party.din.din_bird_pred import DinBirdPredictor
 from src.third_party.din.din_spider_pred import DinPredictor
 from src.util.async_utils import apply_async
-from src.util.log_util import log
+from src.util.log_util import log, alog
 
 RUNNER_THREADS = int(os.environ.get("RUNNER_THREADS", 1))
 
 
 class ModelRunner(ABC):
-    @log("Model execution")
+    @alog("Model execution")
     async def run_single(self, run_conf: SingleRunConfig):
         logger.info(f"Running model for conf: {run_conf}")
         await self.run_single_internal(run_conf)

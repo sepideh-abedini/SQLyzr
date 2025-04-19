@@ -51,11 +51,9 @@ def calc_for_data(eval_conf, run_conf, data):
 
 @log("Score calculation for single conf")
 def calc_for_conf(conf: SQLyzrConfig, run_conf: SingleRunConfig):
-    scores_path = conf.eval_conf.get_scores_path(
-        f"_{run_conf.temp}_{run_conf.itr}_{run_conf.dataset_config.dataset_type}")
-    if file_exists_not_forced(scores_path):
+    if file_exists_not_forced(run_conf.get_scores_path()):
         logger.info(f"Scores for {run_conf} exists!")
-        return pd.read_csv(scores_path)
+        return pd.read_csv(run_conf.get_scores_path())
 
     reader = PredGoldReader(run_conf)
     all_data = reader.get_pred_gold_db_id()
@@ -68,7 +66,7 @@ def calc_for_conf(conf: SQLyzrConfig, run_conf: SingleRunConfig):
     df['count'] = 1
     df['plc'] = df.apply(lambda e: int(find_cat(e['pcat']) <= find_cat(e['cat'])), axis=1)
     df['plt'] = df.apply(lambda e: int((e['et'] / e['get']) > conf.etc_ratio), axis=1)
-    df.to_csv(scores_path)
+    df.to_csv(run_conf.get_scores_path())
 
     return df
 

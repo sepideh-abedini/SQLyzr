@@ -14,6 +14,7 @@ class SingleRunConfig:
     dataset_config: DatasetConfig
     pred_dir: str
     trs_dir: str
+    eval_dir: str
     temp: float
     itr: int
     model: ModelName
@@ -21,15 +22,21 @@ class SingleRunConfig:
     usage_file_name: str = "usage"
     trs_file_name: str = "trs"
     tokens_file_name: str = "tokens"
+    scores_file_name: str = "scores"
     batch: bool = False
 
     def __post_init__(self):
         os.makedirs(Path(self.get_pred_path()).parent, exist_ok=True)
         os.makedirs(Path(self.get_trs_path()).parent, exist_ok=True)
+        os.makedirs(Path(self.get_scores_path()).parent, exist_ok=True)
 
     def get_pred_path(self):
         return os.path.join(self.pred_dir, self.model, self.dataset_config.dataset_type,
                             f"{self.pred_file_name}_{self.temp}_{self.itr}.txt")
+
+    def get_scores_path(self):
+        return os.path.join(self.eval_dir, self.model, self.dataset_config.dataset_type,
+                            f"{self.scores_file_name}_{self.temp}_{self.itr}.csv")
 
     def get_tokens_path(self):
         return f"{self.get_pred_path()}.tokens.txt"

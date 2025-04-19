@@ -1,5 +1,7 @@
 from typing import List
 
+import tqdm
+
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.rel.base_matcher import Matcher
@@ -26,6 +28,7 @@ class TransformerDetector:
 
     def find_sub(self, pred: SqlInputData, gold: SqlInputData):
         pows = powerset(self.processors)
+        # for sub in tqdm.tqdm(pows, desc="Evaluating with transformers", total=len(pows)):
         for sub in pows:
             res = self.run_with(pred, gold, list(sub))
             if res is not None:

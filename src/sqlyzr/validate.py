@@ -26,6 +26,10 @@ async def validate_dataset(conf: SQLyzrConfig):
     valid_examples = []
     for ds_conf in conf.eval_conf.dataset_configs:
         test_data = read_json(ds_conf.get_test_path())
+        train_data = read_json(ds_conf.get_test_path())
+
+        logger.info(f"Validating dataset={ds_conf.dataset_type}, train={len(train_data)}, test={len(test_data)} ")
+
         db_facade = DatabaseFactory.get_instance(ds_conf)
 
         examples = list(map(SpiderExample.model_validate, test_data))

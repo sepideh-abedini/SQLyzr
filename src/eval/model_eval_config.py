@@ -38,6 +38,7 @@ class ModelEvalConfig:
                     conf = SingleRunConfig(dataset_config=dataset_config,
                                            pred_dir=pred_dir,
                                            trs_dir=trs_dir,
+                                           eval_dir=eval_dir,
                                            temp=temp,
                                            itr=itr,
                                            batch=batch,

@@ -91,8 +91,8 @@ class Drawer:
         df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
         df['etc'] = df['plt']
         df["cconst"] = df["plc"]
-        df["cdiff"] = ~df["plc"]
-        df["etcdiff"] = ~df["plt"]
+        df["cdiff"] = 1 - df["plc"]
+        df["etcdiff"] = 1 - df["plt"]
         df['diff'] = df['rea'] - df['ea']
         df = df.drop(columns=[col for col in df.columns if "Unnamed" in col])
         df = df.drop(columns=['pcat', 'psub'])
@@ -108,7 +108,7 @@ class Drawer:
             #     new_row.update(mean_values.loc[value].to_dict())
             #     row = pd.DataFrame([new_row])
             #     df = pd.concat([df, row], ignore_index=True)
-            mean_values = df.drop(columns=['sub', "dst"]).groupby(['model', 'cat']).mean()
+            mean_values = df.drop(columns=['sub', "dst"]).groupby(['model', 'cat'], observed=False).mean()
             mean_values = mean_values.groupby(['model']).mean()
             #
             for value in df['model'].unique():
@@ -247,7 +247,7 @@ class Drawer:
         # os.makedirs(self.metric_dir(metric), exist_ok=True)
         # self.draw_metric_mean("Temp", metric)
         self.draw_metric_mean("Category", metric)
-        # self.draw_metric_mean("SubCategory", metric)
+        self.draw_metric_mean("SubCategory", metric)
         # self.grid_1d("Category", "SubCategory", metric)
         # self.grid_1d("Category", "SubCategory", metric, save_indiv=False)
         # self.grid_1d("Category", "Temp", metric)

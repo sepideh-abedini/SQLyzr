@@ -97,6 +97,10 @@ class ExtraTupleMatcher(ResultMatcher):
         matched = set()
         if pred.res is None or gold.res is None:
             return False
+
+        if len(gold.res) * len(pred.res) > MAX_PERM:
+            return False
+
         for g in gold.res:
             g = frozenset(g)
             if g in pred.res:
@@ -115,7 +119,7 @@ class ExtraColumnsMatcher(ResultMatcher):
         matched = set()
         if pred.res is None or gold.res is None:
             return False
-        if len(list(gold.res)) * len(list(pred.res)) > MAX_PERM:
+        if len(gold.res) * len(pred.res) > MAX_PERM:
             return False
         for g in gold.res:
             g = frozenset(g)
@@ -159,11 +163,13 @@ class MissingColumnsMatcher(ResultMatcher):
 
 class ExtraColumnAndTupleMatcher(ResultMatcher):
     def msg(self) -> str:
-        return "Extra Column and Tuple Matcher"
+        return "The predicted SQL includes extra and it has extra rows in that should be excluded."
 
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
         matched = set()
         if pred.res is None or gold.res is None:
+            return False
+        if len(gold.res) * len(pred.res) > MAX_PERM:
             return False
         for g in gold.res:
             g = frozenset(g)

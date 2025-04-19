@@ -1,25 +1,25 @@
 set -eo pipefail
 
 usage() {
-  echo "Usage $0 [-d BIRD directory] [-r train size] [-t test size]"
+  echo "Usage $0 [-d dataset directory] [-r train size] [-t test size]"
   echo "Extracts the first num_samples entries in input_file and write them to a file with .small.json suffix"
   exit 1
 }
 
 while getopts "r:t:d:" opt; do
   case $opt in
-    d) BIRD_DIR=$OPTARG;;
+    d) DS_DIR=$OPTARG;;
     r) TRAIN_SIZE=$OPTARG;;
     t) TEST_SIZE=$OPTARG;;
     *) usage ;;
   esac
 done
 
-if [ -z "$BIRD_DIR" ] || [ -z "$TEST_SIZE" ]; then
+if [ -z "$DS_DIR" ] || [ -z "$TEST_SIZE" ]; then
     usage
 fi
 
-cd $BIRD_DIR
+cd $DS_DIR
 
 if [ -n "$TRAIN_SIZE" ]; then
   sample.sh -i data.train.json -n $TRAIN_SIZE
@@ -40,4 +40,3 @@ wc -l data.test.small.gold.txt
 tables=$(jq '.[].db_id' data.test.small.json data.train.small.json | uniq | awk -v ORS=, '{print $1}' | sed 's/,$//' )
 echo $tables
 jq --argjson ids "[$tables]" '[.[] | select(.db_id | IN($ids[]))]' tables.json > tables.small.json
-#

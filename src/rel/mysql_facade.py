@@ -48,7 +48,7 @@ class MysqlFacade(DatabaseFacade):
         try:
             conn = self.get_connection()
             cursor = conn.cursor()
-            cursor.execute(f"SET SESSION MAX_EXECUTION_TIME={timeout}")
+            cursor.execute(f"SET SESSION MAX_EXECUTION_TIME={timeout};")
             cursor.execute(f"USE {db_id}")
             cursor.execute(sql)
             res = cursor.fetchall()
@@ -65,7 +65,8 @@ class MysqlFacade(DatabaseFacade):
         connection = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="sheep"
+            password="sheep",
+            connect_timeout=DB_TIMEOUT
         )
         return connection
 

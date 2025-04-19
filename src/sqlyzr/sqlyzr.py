@@ -30,16 +30,16 @@ class Sqlyzr:
             post_processor = ScoresPostProcessor(self.conf)
             post_processor.run()
 
+        if self.conf.pipeline.charts:
+            draw_all_charts(self.conf.eval_conf.get_raw_scores_path(),
+                            out_dir=self.conf.eval_conf.charts_dir,
+                            included_charts=self.conf.eval_conf.included_charts)
+
         if self.conf.pipeline.transformers:
             trs_finder = TransformerFinder(self.conf)
-            await trs_finder.run()
+            trs_finder.run()
             trs_finder.post_process()
 
         if self.conf.pipeline.augment:
             augmentor = DatasetAugmentor(self.conf)
             await augmentor.augment_data()
-
-        if self.conf.pipeline.charts:
-            draw_all_charts(self.conf.eval_conf.get_raw_scores_path(),
-                            out_dir=self.conf.eval_conf.charts_dir,
-                            included_charts=self.conf.eval_conf.included_charts)

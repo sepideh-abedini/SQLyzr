@@ -61,6 +61,7 @@ Batch: {self.batch}
 Temps: {self.temps}
 Itrs: {self.itrs}
 Pipeline: {self.pipeline}
+Charts: {self.charts}
 #######################################
 """
 

@@ -19,7 +19,7 @@ from src.gpt.file_sender.formatted_sender import GptFormattedSingleSender
 from src.gpt.file_sender.single_sender import GptSingleSender
 from src.gpt.models import BatchInputRequest
 from src.pred.predictor import process_formatted_responses
-from src.util.log_util import log
+from src.util.log_util import log, alog
 from src.util.model_utils import write_jsonl
 from src.util.schema_repo import DatabaseSchemaRepo
 
@@ -100,7 +100,7 @@ class Auger:
                 file.write(f"{request.json()}\n")
         file.close()
 
-    @log("Asking GPT")
+    @alog("Asking GPT")
     async def __ask_file(self, in_path: str, out_path: str):
         if os.path.exists(out_path):
             logger.debug(f"Output path exists: {out_path}, skip asking gpt.")
