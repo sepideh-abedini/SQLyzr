@@ -51,13 +51,13 @@ class ScoresPostProcessor:
         config = self.__config.eval_conf
         df = pd.read_csv(config.get_raw_scores_path(), index_col=0)
         df['count'] = 1
-        df['pmc'] = df.apply(lambda e: find_cat(e['pcat']) <= find_cat(e['cat']), axis=1)
-        df['pmt'] = df.apply(lambda e: (e['et'] / e['get']) < self.__config.etc_ratio, axis=1)
+        df['plc'] = df.apply(lambda e: not (find_cat(e['pcat']) <= find_cat(e['cat'])), axis=1)
+        df['plt'] = df.apply(lambda e: (e['et'] / e['get']) > self.__config.etc_ratio, axis=1)
         df = df.drop(columns=['pcat', 'psub', 'dst', 'itr'])
 
         sub_grouped = df.groupby(['tmp', 'cat', 'sub'])
-        cc = sub_grouped.apply(metric_consistency('pmc'))
-        etc = sub_grouped.apply(metric_consistency('pmt'))
+        cc = sub_grouped.apply(metric_consistency('plc'))
+        etc = sub_grouped.apply(metric_consistency('plt'))
         sub_grouped = sub_grouped.agg(**SUMS, **MEANS, **CIS)
         sub_grouped['cc'] = cc
         sub_grouped['etc'] = etc
@@ -66,8 +66,8 @@ class ScoresPostProcessor:
         logger.info(f"Sub grouped cols: {len(sub_grouped.columns)}")
 
         cat_grouped = df.drop(columns=['sub']).groupby(['tmp', 'cat'])
-        cc = cat_grouped.apply(metric_consistency('pmc'))
-        etc = cat_grouped.apply(metric_consistency('pmt'))
+        cc = cat_grouped.apply(metric_consistency('plc'))
+        etc = cat_grouped.apply(metric_consistency('plt'))
         cat_grouped = cat_grouped.agg(**MEANS, **SUMS, **CIS)
         cat_grouped['cc'] = cc
         cat_grouped['etc'] = etc
@@ -77,8 +77,8 @@ class ScoresPostProcessor:
         logger.info(f"sub = all  cols: {len(cat_grouped.columns)}")
 
         tmp_cat_grouped = df.drop(columns=['sub']).groupby(['tmp', 'cat'])
-        cc = tmp_cat_grouped.apply(metric_consistency('pmc'))
-        etc = tmp_cat_grouped.apply(metric_consistency('pmt'))
+        cc = tmp_cat_grouped.apply(metric_consistency('plc'))
+        etc = tmp_cat_grouped.apply(metric_consistency('plt'))
         tmp_cat_grouped = tmp_cat_grouped.mean()
         tmp_cat_grouped['cc'] = cc
         tmp_cat_grouped['etc'] = etc
