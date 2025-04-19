@@ -4,6 +4,7 @@ from functools import partial
 import pandas as pd
 from tqdm import tqdm
 
+from src.cat.categories import find_cat
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.metrics import *
 from src.eval.model_eval_config import ModelEvalConfig
@@ -47,23 +48,27 @@ def calc_for_data(eval_conf, run_conf, data):
 
 
 @log("Score calculation for single conf")
-def calc_for_conf(eval_conf: ModelEvalConfig, run_conf: SingleRunConfig):
-    scores_path = eval_conf.get_scores_path(f"_{run_conf.temp}_{run_conf.itr}_{run_conf.dataset_config.dataset_type}")
+def calc_for_conf(conf: SQLyzrConfig, run_conf: SingleRunConfig):
+    scores_path = conf.eval_conf.get_scores_path(
+        f"_{run_conf.temp}_{run_conf.itr}_{run_conf.dataset_config.dataset_type}")
     if file_exists_not_forced(scores_path):
         logger.info(f"Scores for {run_conf} exists!")
         return pd.read_csv(scores_path)
 
     reader = PredGoldReader(run_conf)
     all_data = reader.get_pred_gold_db_id()
-    all_scores = exec_multi_process(partial(calc_for_entry, eval_conf, run_conf), all_data,
+    all_scores = exec_multi_process(partial(calc_for_entry, conf.eval_conf, run_conf), all_data,
                                     desc=f"Score calculation for {run_conf}")
-    ti_df = pd.DataFrame(all_scores)
+    df = pd.DataFrame(all_scores)
     with open(run_conf.get_tokens_path(), "r") as f:
         tokens = [int(line.strip()) for line in f if line.strip()]
-    ti_df["tokens"] = tokens
-    ti_df.to_csv(scores_path)
+    df["tokens"] = tokens
+    df['count'] = 1
+    df['plc'] = df.apply(lambda e: int(not (find_cat(e['pcat']) <= find_cat(e['cat']))), axis=1)
+    df['plt'] = df.apply(lambda e: int((e['et'] / e['get']) > conf.etc_ratio), axis=1)
+    df.to_csv(scores_path)
 
-    return ti_df
+    return df
 
 
 class ScoreCalculator:
@@ -82,6 +87,6 @@ class ScoreCalculator:
         df = pd.DataFrame()
 
         for conf in config.get_run_confs():
-            sub_df = calc_for_conf(config, conf)
+            sub_df = calc_for_conf(self.__config, conf)
             df = pd.concat([df, sub_df])
         df.to_csv(config.get_raw_scores_path())

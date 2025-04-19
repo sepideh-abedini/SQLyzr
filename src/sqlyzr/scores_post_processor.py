@@ -50,9 +50,6 @@ class ScoresPostProcessor:
     def run(self):
         config = self.__config.eval_conf
         df = pd.read_csv(config.get_raw_scores_path(), index_col=0)
-        df['count'] = 1
-        df['plc'] = df.apply(lambda e: not (find_cat(e['pcat']) <= find_cat(e['cat'])), axis=1)
-        df['plt'] = df.apply(lambda e: (e['et'] / e['get']) > self.__config.etc_ratio, axis=1)
         df = df.drop(columns=['pcat', 'psub', 'dst', 'itr'])
 
         sub_grouped = df.groupby(['tmp', 'cat', 'sub'])

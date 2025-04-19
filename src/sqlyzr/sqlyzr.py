@@ -1,5 +1,6 @@
 from loguru import logger
 
+from src.chart.charter import draw_all_charts
 from src.configs.config_loader import load_config
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.sqlyzr.augment_data import DatasetAugmentor
@@ -39,4 +40,5 @@ class Sqlyzr:
             await augmentor.augment_data()
 
         if self.conf.pipeline.charts:
-            pass
+            draw_all_charts(self.conf.eval_conf.get_raw_scores_path())
+

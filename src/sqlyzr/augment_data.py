@@ -29,11 +29,11 @@ class DatasetAugmentor:
     def __find_cats_with_low_scores(self) -> Set[SubCategory]:
         scores = pd.read_csv(self.__config.eval_conf.get_scores_path())
         scores = scores.sort_values('ea_mean')
-        scores = scores[scores['sub_cat'] != "all"]
+        scores = scores[scores['sub'] != "all"]
         scores = scores[scores['ea_mean'] < self.__config.error_threshold]
         if scores.shape[0] < 1:
             return set()
-        return set(map(self.__find_cat, list(scores['sub_cat'])))
+        return set(map(self.__find_cat, list(scores['sub'])))
 
     @staticmethod
     def __find_cat(cat_name: str) -> Optional[SubCategory]:

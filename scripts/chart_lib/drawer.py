@@ -81,10 +81,10 @@ class Drawer:
         df = pd.read_csv(scores_path)
         df = df.dropna(subset=["cat"])
         cats = natsorted(df['cat'].unique())
-        sub_cats = natsorted(df['sub_cat'].unique())
+        sub_cats = natsorted(df['sub'].unique())
         df['cat'] = pd.Categorical(df['cat'], categories=cats, ordered=True)
-        df['sub_cat'] = pd.Categorical(df['sub_cat'], categories=sub_cats, ordered=True)
-        df = df.sort_values(by=['cat', 'sub_cat'])
+        df['sub'] = pd.Categorical(df['sub'], categories=sub_cats, ordered=True)
+        df = df.sort_values(by=['cat', 'sub'])
         if self.only_correct:
             df = df[df['rea'] == 1]
         df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
@@ -107,11 +107,11 @@ class Drawer:
             #     row = pd.DataFrame([new_row])
             #     df = pd.concat([df, row], ignore_index=True)
 
-            mean_values = df.drop(columns=['sub_cat', "dataset"]).groupby(['model', 'cat']).mean()
+            mean_values = df.drop(columns=['sub', "dataset"]).groupby(['model', 'cat']).mean()
             mean_values = mean_values.groupby(['model']).mean()
             #
             for value in df['model'].unique():
-                new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
+                new_row = {'model': value, 'cat': "all", "sub": "all"}
                 new_row.update(mean_values.loc[value].to_dict())
                 row = pd.DataFrame([new_row])
                 df = pd.concat([df, row], ignore_index=True)
