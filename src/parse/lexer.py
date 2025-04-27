@@ -1,5 +1,4 @@
 import re
-from datetime import datetime
 
 import ply.lex as lex
 
@@ -18,6 +17,7 @@ sort_orders = {
 
 set_ops = {
     'union': 'UNION',
+    'minus': 'SET_MINUS',
     'except': 'EXCEPT',
     'intersect': 'INTERSECT'
 }
