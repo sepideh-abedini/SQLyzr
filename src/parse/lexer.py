@@ -50,15 +50,14 @@ keywords = {
     'exists': 'EXISTS',
     'inner': 'INNER',
     'cast': 'CAST',
-    'integer': 'INTEGER',
-    'float': 'FLOAT',
-    'real': 'REAL',
     'left': 'LEFT',
+    'full': 'FULL',
     'outer': 'OUTER',
     'cross': 'CROSS',
     'rollup': 'ROLLUP',
     'right': 'RIGHT',
     'rank': 'RANK',
+    'row_number': 'ROW_NUMBER',
     'dense_rank': 'DENSE_RANK',
     'partition': 'PARTITION',
     'over': 'OVER',
@@ -69,10 +68,6 @@ keywords = {
     'when': 'WHEN',
     'with': 'WITH',
     'recursive': 'RECURSIVE',
-    'int': 'INT',
-    'unsigned': 'UNSIGNED',
-    'text': 'TEXT',
-    'date': 'DATE',
     'all': 'ALL',
     'using': 'USING'
 }
@@ -80,19 +75,29 @@ keywords = {
 reserved = keywords | sort_orders | set_ops | logic_ops
 
 tokens = [
+             'ID',
+             'NUMBER',
              'COMMA',
              'LPAREN',
              'RPAREN',
              'COMP_OP',
              'ARITH_OP',
-             'NUMBER',
              'DOT',
              'STRING',
              'STAR',
-             'ID',
              'ORR',
-             'DATE_LITERAL'
+             'MINUS',
+             'DATE_LITERAL',
+             'TYPE_NAME'
          ] + list(reserved.values())
+
+def t_NUMBER(t):
+    r'\b(?:\d+\.\d+)\b|\.\d+\b|\b(?:\d+)\b'
+    if t.value.isdigit():
+        t.value = int(t.value)
+    else:
+        t.value = float(t.value)
+    return t
 
 t_COMMA = r','
 t_LPAREN = r'\('
@@ -100,6 +105,13 @@ t_RPAREN = r'\)'
 t_STAR = r'\*'
 t_DOT = r'\.'
 t_ORR = r'\|\|'
+t_MINUS = r'-'
+
+
+def t_TYPE_NAME(t):
+    r'\b(?:integer|int|float|real|unsigned|text|date|numeric|varchar|datetime|datetime2|time|char)\b'
+    t.value = t.value.lower()
+    return t
 
 
 def t_DATE_LITERAL(t):
@@ -107,13 +119,6 @@ def t_DATE_LITERAL(t):
     return t
 
 
-def t_NUMBER(t):
-    r'(\-\d+\.\d+)|(\d+\.\d+)|(\-\d+)|(\d+)'
-    if t.value.isdigit():
-        t.value = int(t.value)
-    else:
-        t.value = float(t.value)
-    return t
 
 
 # r'\'[^\']*\'|\"[^\"]*\"'
@@ -130,7 +135,7 @@ def t_STRING(t):
 
 
 def t_ARITH_OP(t):
-    r'[-+/]'
+    r'[+/\%\^]'
     return t
 
 
@@ -140,7 +145,7 @@ def t_COMP_OP(t):
 
 
 def t_ID(t):
-    r'\w+'
+    r'\[[^\[\]]+\]|\w+'
     if t.value.lower() in reserved:
         t.value = t.value.lower()
         t.type = reserved[t.value.lower()]

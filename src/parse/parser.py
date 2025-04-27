@@ -10,7 +10,7 @@ from ..util.str_utils import shrink_whitespaces
 
 precedence = (
     ('left', 'OR', 'AND'),
-    ('left', 'COMP_OP', 'ARITH_OP')
+    ('left', 'COMP_OP', 'ARITH_OP'),
 )
 
 NULL_LITERAL = LiteralNode("NULL")
@@ -277,8 +277,10 @@ def p_fun_expr(p):
 
 # expr bin_op expr
 def p_bin_op_expr(p):
-    '''bin_op_expr : expr AND expr
+    '''bin_op_expr : NOT expr
+                   | expr AND expr
                    | expr OR expr
+                   | expr MINUS expr
                    | expr ARITH_OP expr
                    | expr LIKE expr
                    | expr STAR expr
@@ -292,7 +294,9 @@ def p_bin_op_expr(p):
                    | expr IN LPAREN literal_list RPAREN
                    | expr NOT IN LPAREN literal_list RPAREN
                    | expr NOT IN LPAREN select_statement RPAREN'''
-    if len(p) == 4:
+    if len(p) == 3:
+        p[0] = FunctionExpressionNode(TerminalNode('fun_name', "not"), [p[2]], negation=True)
+    elif len(p) == 4:
         p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', p[2]), p[3])
     elif len(p) == 5:
         p[0] = BinOpExpressionNode(p[1], TerminalNode('bin_op', f"{p[2]} {p[3]}"), p[4])
@@ -305,10 +309,8 @@ def p_bin_op_expr(p):
 def p_expr(p):
     '''expr : column
             | LPAREN select_statement RPAREN
-            | expr ARITH_OP expr
             | LPAREN expr RPAREN
             | literal_value
-            | expr STAR expr
             | bin_op_expr
             | fun_expr
             | between_expr
@@ -330,6 +332,7 @@ def p_set_op(p):
     '''set_op : UNION
               | EXCEPT
               | UNION ALL
+              | SET_MINUS
               | INTERSECT'''
     p[0] = TerminalNode('set_op', p[1])
 
@@ -353,7 +356,10 @@ def p_join_op(p):
     '''join_op : JOIN
                | INNER JOIN
                | LEFT JOIN
+               | FULL JOIN
                | LEFT OUTER JOIN
+               | RIGHT OUTER JOIN
+               | FULL OUTER JOIN
                | RIGHT JOIN
                | CROSS JOIN '''
     if len(p) == 2:
@@ -363,14 +369,12 @@ def p_join_op(p):
 
 
 def p_type_name(p):
-    '''type_name : REAL
-                 | FLOAT
-                 | INTEGER
-                 | UNSIGNED
-                 | INT
-                 | TEXT
-                 | DATE'''
-    p[0] = TerminalNode('type_name', p[1])
+    '''type_name : TYPE_NAME
+                 | type_name LPAREN NUMBER RPAREN'''
+    if len(p) == 2:
+        p[0] = TerminalNode('type_name', p[1])
+    elif len(p) == 5:
+        p[0] = TerminalNode('type_name', f"{p[1]}({p[3]})")
 
 
 def p_cast_expr(p):
@@ -378,6 +382,7 @@ def p_cast_expr(p):
     p[0] = CastExpressionNode(p[3], p[5])
 
 
+# FIXME: Not between
 def p_between_expr(p):
     '''between_expr : expr BETWEEN expr bin_op expr
                     | expr NOT BETWEEN expr bin_op expr'''
@@ -391,22 +396,29 @@ def p_column_alias(p):
     '''column_alias : ID
                     | STRING
                     | END
-                    | RANK'''
+                    | RANK
+                    | TYPE_NAME'''
     p[0] = TerminalNode('column_alias', p[1])
 
 
 def p_fun_name(p):
     '''fun_name : ID
-                | DATE'''
+                | LEFT
+                | TYPE_NAME'''
     p[0] = TerminalNode('fun_name', p[1])
 
 
 def p_literal_value(p):
     '''literal_value : NUMBER
                      | STRING
+                     | MINUS NUMBER
                      | DATE_LITERAL
                      | NULL'''
-    p[0] = LiteralNode(p[1])
+    if len(p) == 2:
+        p[0] = LiteralNode(p[1])
+    else:
+        if p[1] == '-':
+            p[0] = LiteralNode(-p[2])
 
 
 def p_column_name(p):
@@ -414,9 +426,8 @@ def p_column_name(p):
                    | STRING
                    | STAR
                    | RANK
-                   | DATE
                    | END
-                   | TEXT'''
+                   | TYPE_NAME'''
     p[0] = TerminalNode('column_name', p[1])
 
 
@@ -444,9 +455,11 @@ def p_win_def(p):
     '''win_def : order_by
                | PARTITION BY result_column
                | win_def COMMA result_column
-               | PARTITION BY result_column order_by'''
+               | win_def order_by'''
     if len(p) == 2:
         p[0] = WindowDefinitionNode([], p[1])
+    if len(p) == 3:
+        p[0] = replace(p[1], orderby=p[2])
     if len(p) == 4:
         if p[2] != ",":
             p[0] = WindowDefinitionNode([p[3]], None)
@@ -458,7 +471,8 @@ def p_win_def(p):
 
 def p_win_fun(p):
     '''win_fun : RANK
-               | DENSE_RANK'''
+               | DENSE_RANK
+               | ROW_NUMBER'''
     p[0] = TerminalNode('win_fun_name', p[1])
 
 
