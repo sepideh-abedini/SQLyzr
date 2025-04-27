@@ -1,11 +1,7 @@
 import asyncio
 import os
-from asyncio import Semaphore, get_running_loop
 
-from loguru import logger
 from tqdm.asyncio import tqdm
-
-from src.gpt.models import BatchInputRequest
 
 ASYNC_BATCH = int(os.environ.get("ASYNC_BATCH", 1))
 

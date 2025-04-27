@@ -91,6 +91,7 @@ tokens = [
              'TYPE_NAME'
          ] + list(reserved.values())
 
+
 def t_NUMBER(t):
     r'\b(?:\d+\.\d+)\b|\.\d+\b|\b(?:\d+)\b'
     if t.value.isdigit():
@@ -98,6 +99,7 @@ def t_NUMBER(t):
     else:
         t.value = float(t.value)
     return t
+
 
 t_COMMA = r','
 t_LPAREN = r'\('
@@ -117,8 +119,6 @@ def t_TYPE_NAME(t):
 def t_DATE_LITERAL(t):
     r'\d{4}-\d{2}-\d{2}'  # Match dates in YYYY-MM-DD format
     return t
-
-
 
 
 # r'\'[^\']*\'|\"[^\"]*\"'
