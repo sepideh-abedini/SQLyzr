@@ -155,12 +155,16 @@ def p_from_clause(p):
 
 def p_table_or_subquery(p):
     '''table_or_subquery : table_name
-                         | table_name AS table_alias
                          | table_name table_alias
+                         | table_name DOT table_name
+                         | table_name AS table_alias
                          | LPAREN select_statement RPAREN
                          | LPAREN join_clause RPAREN
+                         | table_name DOT table_name table_alias
                          | LPAREN select_statement RPAREN table_alias
-                         | LPAREN select_statement RPAREN AS table_alias'''
+                         | LPAREN select_statement RPAREN AS table_alias
+                         | table_name DOT table_name AS table_alias
+                         | table_name DOT table_name DOT table_name'''
     if len(p) == 2:
         p[0] = TableOrSubqueryNode(table_name=p[1])
     elif len(p) == 3:
@@ -171,11 +175,23 @@ def p_table_or_subquery(p):
         elif isinstance(p[2], JoinClauseNode):
             p[0] = TableOrSubqueryNode(join_clause=p[2])
         else:
-            p[0] = TableOrSubqueryNode(table_name=p[1], table_alias=p[3])
+            if p[2] == '.':
+                p[0] = TableOrSubqueryNode(table_name=p[3], schema_name=p[1])
+            else:
+                p[0] = TableOrSubqueryNode(table_name=p[1], table_alias=p[3])
     elif len(p) == 5:
-        p[0] = TableOrSubqueryNode(select_statement=p[2], table_alias=p[4])
+        if p[2] == '.':
+            p[0] = TableOrSubqueryNode(table_name=p[3], schema_name=p[1], table_alias=p[4])
+        else:
+            p[0] = TableOrSubqueryNode(select_statement=p[2], table_alias=p[4])
     else:
-        p[0] = TableOrSubqueryNode(select_statement=p[2], table_alias=p[5])
+        if p[2] == '.':
+            if p[4] == '.':
+                p[0] = TableOrSubqueryNode(db_name=p[1], schema_name=p[3], table_name=p[5])
+            else:
+                p[0] = TableOrSubqueryNode(schema_name=p[1], table_name=p[3], table_alias=p[5])
+        else:
+            p[0] = TableOrSubqueryNode(select_statement=p[2], table_alias=p[5])
 
 
 def p_table_name(p):
@@ -244,7 +260,7 @@ def p_column(p):
 
     if len(p) == 2:
         p[0] = ColumnNode(p[1])
-    else:
+    elif len(p) == 4:
         p[0] = ColumnNode(p[3], p[1])
 
 

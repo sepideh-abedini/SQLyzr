@@ -274,6 +274,7 @@ class SelectClauseNode(SqlAstNode):
 
 @dataclass
 class TableOrSubqueryNode(SqlAstNode):
+    schema_name: Optional[TerminalNode] = None
     table_name: Optional[TerminalNode] = None  # none or one object
     select_statement: Optional['SelectStatementNode'] = None
     table_alias: Optional[TerminalNode] = None
@@ -285,7 +286,7 @@ class TableOrSubqueryNode(SqlAstNode):
     def __eq__(self, other):
         if not isinstance(other, TableOrSubqueryNode):
             return False
-        if self.table_name == other.table_name and self.select_statement == other.select_statement and self.join_clause == other.join_clause:
+        if self.table_name == other.table_name and self.schema_name == other.schema_name and self.select_statement == other.select_statement and self.join_clause == other.join_clause:
             return True
         else:
             self.log_self()
