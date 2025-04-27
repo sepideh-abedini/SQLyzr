@@ -270,8 +270,8 @@ class Drawer:
         plt.figure(figsize=(50, 5))
         sns.countplot(df, x="SubCategory")
         plt.savefig(os.path.join(self.out_dir, f"sub_cat_count.png"))
-
-        plt.show()
+        if self.show:
+            plt.show()
 
     def draw_overall(self):
         df = melt_scores(self.df)

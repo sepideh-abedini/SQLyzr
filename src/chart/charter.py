@@ -26,7 +26,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
     drawer.draw_cats()
     drawer.draw_overall()
 
-    drawer = Drawer(scores_path, include_all=True, out_dir=out_dir)
+    drawer = Drawer(scores_path, include_all=True,show=False, out_dir=out_dir)
     metrics = [
         "Execution Accuracy",
         "Relaxed Execution Accuracy",
@@ -38,7 +38,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         if metric in included_charts:
             drawer.draw(metric)
 
-    drawer = Drawer(scores_path, include_all=True, only_correct=True, out_dir=out_dir)
+    drawer = Drawer(scores_path, include_all=True,show=False, only_correct=True, out_dir=out_dir)
     metrics = [
         "Execution Time Consistency",
         "Execution Time Inconsistency",
@@ -47,7 +47,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         if metric in included_charts:
             drawer.draw(metric)
 
-    drawer = Drawer(scores_path, include_all=True, only_correct=True, exclude_c6=True, out_dir=out_dir)
+    drawer = Drawer(scores_path, include_all=True, only_correct=True,show=False, exclude_c6=True, out_dir=out_dir)
     metrics = [
         "Complexity Consistency",
         "Complexity Inconsistency"
