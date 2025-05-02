@@ -104,7 +104,7 @@ class Drawer:
         if self.include_all:
             # mean_values = df.drop(columns=['cat', 'sub_cat', "dataset"]).groupby('model').mean()
             # for value in df['model'].unique():
-            #     new_row = {'model': value, 'cat': "all", "sub_cat": "all"}
+            #     new_row = {'model': value, 'cat': "overall", "sub_cat": "overall"}
             #     new_row.update(mean_values.loc[value].to_dict())
             #     row = pd.DataFrame([new_row])
             #     df = pd.concat([df, row], ignore_index=True)
@@ -112,7 +112,7 @@ class Drawer:
             mean_values = mean_values.groupby(['model']).mean()
             #
             for value in df['model'].unique():
-                new_row = {'model': value, 'cat': "all", "sub": "all"}
+                new_row = {'model': value, 'cat': "overall", "sub": "overall"}
                 new_row.update(mean_values.loc[value].to_dict())
                 row = pd.DataFrame([new_row])
                 df = pd.concat([df, row], ignore_index=True)

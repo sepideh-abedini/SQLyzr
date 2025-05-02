@@ -1,6 +1,7 @@
 import os.path
 from typing import Literal, List, Tuple
 
+from jupyter_server.transutils import base_dir
 from loguru import logger
 from pydantic import BaseModel
 
@@ -26,6 +27,10 @@ class ConfigData(BaseModel):
     force: bool = False
     pipeline: PipelineConfig = PipelineConfig()
     charts: List[ChartName] = []
+
+    @property
+    def idx(self):
+        return f"{'_'.join(self.models)}_{self.dataset}_{self.dataset_size}"
 
     def get_model_dataset_dir(self):
         return os.path.join(self.data_dir, f"{'-'.join(self.models)}_{self.dataset}_{self.dataset_size}")
@@ -79,6 +84,7 @@ def load_config(path) -> SQLyzrConfig:
     eval_conf = ModelEvalConfig(
         temps=conf_data.temps,
         num_itrs=conf_data.itrs,
+        base_dir=conf_data.get_model_dataset_dir(),
         pred_dir=conf_data.get_pred_dir(),
         eval_dir=conf_data.get_eval_dir(),
         trs_dir=conf_data.get_trs_dir(),
@@ -90,6 +96,7 @@ def load_config(path) -> SQLyzrConfig:
         models=conf_data.models
     )
     conf = SQLyzrConfig(
+        idx=conf_data.idx,
         eval_conf=eval_conf,
         aug_dir=conf_data.get_aug_dir(),
         error_threshold=conf_data.error_threshold,

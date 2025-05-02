@@ -8,6 +8,7 @@ from src.sqlyzr.pipeline_config import PipelineConfig
 
 @dataclass(frozen=True)
 class SQLyzrConfig:
+    idx: str
     eval_conf: ModelEvalConfig
     aug_dir: str
     error_threshold: float

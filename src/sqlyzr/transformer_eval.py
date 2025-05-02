@@ -44,13 +44,13 @@ class TransformerFinder:
             return
 
         detector = TransformerDetector(conf.dataset_config, [
-            FixPredLimitTransformer(),
+            # FixPredLimitTransformer(),
             # LetterCasingTransformer(),
             IgnoreListOrderTransformer(),
             IgnoreColOrderTransformer(),
-            # ExtraColumnsMatcher(),
-            # ExtraTupleMatcher(),
-            ExtraColumnAndTupleMatcher()
+            ExtraColumnsMatcher(),
+            ExtraTupleMatcher(),
+            # ExtraColumnAndTupleMatcher()
         ])
         ea = ExecAcc("ea", conf.dataset_config)
         gne = GoldNotEmpty("gne", conf.dataset_config)

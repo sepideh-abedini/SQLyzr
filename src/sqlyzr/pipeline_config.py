@@ -2,12 +2,12 @@ from pydantic import BaseModel
 
 
 class PipelineConfig(BaseModel):
-    verify: bool = True
-    predict: bool = True
-    eval: bool = True,
-    transformers: bool = True,
-    augment: bool = True
-    charts: bool = True
+    verify: bool = False
+    predict: bool = False
+    eval: bool = False,
+    transformers: bool = False,
+    augment: bool = False
+    charts: bool = False
 
     def __str__(self):
         return " ".join([

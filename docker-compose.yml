@@ -6,3 +6,15 @@ services:
     volumes:
       - "./data:/app/data"
       - "./conf.json:/app/conf.json"
+  mysql:
+    image: mysql:8.0
+    restart: on-failure
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_HOSTS=%
+      - MYSQL_ROOT_PASSWORD=sheep
+    volumes:
+      - "./mysql.cnf:/etc/mysql/conf.d/mysql.cnf"
+      - "./data/beaver:/beaver"
+      - "./data:/var/lib/mysql"

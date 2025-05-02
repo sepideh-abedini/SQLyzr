@@ -4,6 +4,7 @@ import random
 from typing import List, Dict, Set
 
 import tqdm
+from loguru import logger
 
 from src.aug.aug_out import AugOut
 from src.aug.auger_conf import AugerConf, DEFAULT_CONF
@@ -16,14 +17,11 @@ from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.dataset_config import DatasetConfig
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.file_sender.formatted_sender import GptFormattedSingleSender
-from src.gpt.file_sender.single_sender import GptSingleSender
 from src.gpt.models import BatchInputRequest
 from src.pred.predictor import process_formatted_responses
 from src.util.log_util import log, alog
 from src.util.model_utils import write_jsonl
 from src.util.schema_repo import DatabaseSchemaRepo
-
-from loguru import logger
 
 
 class Auger:
@@ -96,7 +94,9 @@ class Auger:
         for sub_cat in self.__sub_cats:
             for i in range(self.__sqlyzr_conf.aug_per_sub_cat):
                 prompt = self.__get_prompt_for_sub_cat(sub_cat)
-                request = BatchInputRequest.create_prompt_req(f"a{i}", str(prompt), self.__conf.gpt_params)
+                request = BatchInputRequest.create_prompt_req(f"{self.__sqlyzr_conf.idx}_aug_{sub_cat}_{i}",
+                                                              str(prompt),
+                                                              self.__conf.gpt_params)
                 file.write(f"{request.json()}\n")
         file.close()
 

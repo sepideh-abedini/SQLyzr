@@ -11,6 +11,7 @@ from src.sqlyzr.chart_config import ChartName
 @dataclass
 class ModelEvalConfig:
     run_confs: Dict[float, List[SingleRunConfig]]
+    base_dir: str
     eval_dir: str
     pred_dir: str
     trs_dir: str
@@ -20,11 +21,13 @@ class ModelEvalConfig:
     metrics: Dict[str, Type[Metric]]
 
     def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str, charts_dir: str,
+                 base_dir: str,
                  dataset_configs: List[DatasetConfig],
                  metrics: Dict[str, Type[Metric]],
                  included_charts: List[ChartName],
                  models: List[ModelName],
                  batch: bool):
+        self.base_dir = base_dir
         self.pred_dir = pred_dir
         self.eval_dir = eval_dir
         self.trs_dir = trs_dir
@@ -45,6 +48,14 @@ class ModelEvalConfig:
                                            model=model)
                     self.run_confs.setdefault(temp, []).append(conf)
         self.metrics = metrics
+
+    @property
+    def models(self):
+        return set(map(lambda conf: conf.model, self.get_run_confs()))
+
+    @property
+    def datasets(self):
+        return set(map(lambda conf: conf.dataset_type, self.dataset_configs))
 
     def get_run_confs(self):
         return list([conf for ll in self.run_confs.values() for conf in ll])
