@@ -1,0 +1,30 @@
+{
+  "dataset": "agg",
+  "dataset_size": "small",
+  "models": [
+    "din",
+    "dail"
+  ],
+  "itrs": 1,
+  "temps": [
+    0.2
+  ],
+  "aug_per_sub_cat": 1,
+  "error_threshold": 90,
+  "batch": false,
+  "pipeline": {
+    "predict": true,
+    "eval": true
+  },
+  "charts": [
+    "Execution Accuracy",
+    "Relaxed Execution Accuracy",
+    "Exact Match",
+    "Execution Time",
+    "Token Usage",
+    "Execution Time Consistency",
+    "Execution Time Inconsistency",
+    "Complexity Consistency",
+    "Complexity Inconsistency"
+  ]
+}

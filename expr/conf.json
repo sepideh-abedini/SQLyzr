@@ -1,0 +1,20 @@
+{
+  "dataset": "bird",
+  "dataset_size": "all",
+  "model": "dail",
+  "itrs": 3,
+  "temps": [
+    0.2
+  ],
+  "aug_per_sub_cat": 5,
+  "error_threshold": 90,
+  "batch": false,
+  "force": false,
+  "pipeline": {
+    "verify": false,
+    "predict": false,
+    "eval": true,
+    "transformers": false,
+    "augment": false
+  }
+}
