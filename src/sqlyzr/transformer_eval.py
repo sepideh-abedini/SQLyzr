@@ -8,7 +8,7 @@ from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.dataset_config import DatasetConfig
 from src.eval.metrics import RelaxedExecAcc, ExecAcc, GoldNotEmpty
 from src.eval.single_run_config import SingleRunConfig
-from src.rel.base_matcher import ExtraColumnsMatcher, ExtraTupleMatcher, ExtraColumnAndTupleMatcher
+from src.rel.result_matcher import ExtraColumnsMatcher, ExtraTupleMatcher
 from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_processor import SqlMatchingProcessor
@@ -44,13 +44,12 @@ class TransformerFinder:
             return
 
         detector = TransformerDetector(conf.dataset_config, [
-            # FixPredLimitTransformer(),
-            # LetterCasingTransformer(),
+            FixPredLimitTransformer(),
+            LetterCasingTransformer(),
             IgnoreListOrderTransformer(),
             IgnoreColOrderTransformer(),
             ExtraColumnsMatcher(),
             ExtraTupleMatcher(),
-            # ExtraColumnAndTupleMatcher()
         ])
         ea = ExecAcc("ea", conf.dataset_config)
         gne = GoldNotEmpty("gne", conf.dataset_config)
@@ -59,8 +58,6 @@ class TransformerFinder:
         results = []
         for idx, (pred_str, gold_str, db_id) in tqdm(enumerate(data), desc=f"Finding transformer for {conf}",
                                                      leave=False, position=1, total=len(data)):
-            # if idx < 16:
-            #     continue
             pred = SqlInputData(db_id, pred_str)
             gold = SqlInputData(db_id, gold_str)
             working_sub = detector.find_working_sub_sync(pred, gold)
