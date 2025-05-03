@@ -17,7 +17,7 @@ def get_overall_score(df, model, metric):
 async def e2e_test():
     conf_file = "e2e.json"
     configure_logging()
-    server = MockHTTPServer(mock_data_dir="src/mock_server/mock_data", conf=conf_file, host="localhost",
+    server = MockHTTPServer(mock_data_dir="data/mock_data", conf=conf_file, host="localhost",
                             port=8888)
     t = Thread(target=server.start)
     t.start()

@@ -1,0 +1,29 @@
+services:
+  sqlyzr:
+    build: .
+    restart: no
+    env_file: ".env.e2e.docker"
+    volumes:
+      - "/data:/app/data"
+      - "./e2e.py:/app/e2e.py"
+      - "./e2e.json:/app/e2e.json"
+    entrypoint: "tail -f"
+    network_mode: host
+    shm_size: '8gb'
+
+  mysql:
+    image: mysql:8.0
+    restart: on-failure
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_HOSTS=%
+      - MYSQL_ROOT_PASSWORD=sheep
+    volumes:
+      - "/data/beaver/dumps:/docker-entrypoint-initdb.d"
+      - "/data/beaver/mysql.cnf:/etc/mysql/conf.d/mysql.cnf"
+      - "/data/beaver:/beaver"
+      - "beaver_data:/var/lib/mysql"
+
+volumes:
+  beaver_data:
