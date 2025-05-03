@@ -13,7 +13,9 @@ import multiprocessing as mp
 
 
 def get_overall_score(df, model, metric):
-    return df.loc[(df['cat'] == 'all') & (df['model'] == model), metric].values[0]
+    score = df.loc[(df['cat'] == 'all') & (df['model'] == model), metric].values[0]
+    print(f"Model: {model}, Metric: {metric}, Score: {score}")
+    return score
 
 
 async def e2e_test():
