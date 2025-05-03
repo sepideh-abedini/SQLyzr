@@ -1,0 +1,12 @@
+services:
+  sqlyzr:
+    build: .
+    restart: no
+    env_file: ".env.e2e.docker"
+    volumes:
+      - "/data:/app/data"
+      - "./e2e.py:/app/e2e.py"
+      - "./e2e.json:/app/e2e.json"
+    entrypoint: "python e2e.py"
+    network_mode: host
+    shm_size: '8gb'

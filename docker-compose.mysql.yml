@@ -11,6 +11,6 @@ services:
       - "/data/beaver/dumps:/docker-entrypoint-initdb.d"
       - "/data/beaver/mysql.cnf:/etc/mysql/conf.d/mysql.cnf"
       - "/data/beaver:/beaver"
-      - "beaver_data:/var/lib/mysql"
+      - "/data/beaver_data:/var/lib/mysql"
 volumes:
   beaver_data:

@@ -1,5 +1,7 @@
 import os
 from abc import ABC, abstractmethod
+from collections import defaultdict
+from pathlib import Path
 
 from loguru import logger
 
@@ -58,7 +60,18 @@ MODELS = {
 }
 
 
+def merge_pred_files(config: SQLyzrConfig):
+    logger.info("Merging pred files")
+
+    per_model_confs = defaultdict(list)
+    for run_conf in config.eval_conf.get_run_confs():
+        per_model_confs[run_conf.model].append(run_conf)
+
+
 async def run_model(config: SQLyzrConfig):
+    # Run each model on each dataset
     for run_conf in config.eval_conf.get_run_confs():
         model_runner = MODELS[run_conf.model]
         await model_runner.run_single(run_conf)
+
+    merge_pred_files(config)

@@ -13,8 +13,7 @@
   "error_threshold": 90,
   "batch": false,
   "pipeline": {
-    "predict": true,
-    "eval": true
+    "transformers": true
   },
   "charts": [
     "Execution Accuracy",
