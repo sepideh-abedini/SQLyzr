@@ -1,5 +1,5 @@
 FROM python:3.11-slim
-RUN apt update && apt install -y --no-install-recommends vim jq default-jre
+RUN apt update && apt install -y --no-install-recommends vim jq default-jre curl
 
 WORKDIR /app
 
