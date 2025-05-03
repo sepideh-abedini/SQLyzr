@@ -22,7 +22,7 @@
     "predict": true,
     "verify": true,
     "transformers": true,
-    "augment": true,
+    "augment": false,
     "charts": true
   },
   "temps": [
