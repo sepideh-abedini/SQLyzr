@@ -22,6 +22,7 @@ conf.
 *.jsonl
 *.json
 !conf.json
+!e2e.json
 *.patch
 *.tar.gz
 *.png

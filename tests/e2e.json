@@ -1,0 +1,18 @@
+{
+  "models": [
+    "dail"
+  ],
+  "dataset": "agg",
+  "dataset_size": "small",
+  "itrs": 1,
+  "temps": [
+    0.2
+  ],
+  "batch": false,
+  "aug_per_sub_cat": 5,
+  "error_threshold": 90,
+  "force": false,
+  "pipeline": {
+    "verify": true
+  }
+}
