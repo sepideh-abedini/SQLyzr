@@ -15,20 +15,5 @@ jobs:
         uses: docker/setup-buildx-action@v3
       #
       - name: Run E2E tests
-        env:
-          HOST_PORT: 80
         run: |
           docker compose -f docker-compose.e2e.runner.yml up --build --exit-code-from sqlyzr
-
-      - name: Health check
-        run: |
-          for i in {1..10}; do
-            if curl -fs http://localhost:7777/health; then
-              echo "Server is up"
-              exit 0
-            fi
-            echo "Waiting for server..."
-            sleep 3
-          done
-          echo "Health check failed"
-          exit 1

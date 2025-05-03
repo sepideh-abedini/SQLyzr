@@ -16,5 +16,20 @@ jobs:
         uses: docker/setup-buildx-action@v3
       #
       - name: Deploy Web GUI
+        env:
+          HOST_PORT: 80
         run: |
           docker compose -f docker-compose.web.yml up --build -d
+
+      - name: Health check
+        run: |
+          for i in {1..10}; do
+            if curl -fs http://localhost/health; then
+              echo "Server is up"
+              exit 0
+            fi
+            echo "Waiting for server..."
+            sleep 3
+          done
+          echo "Health check failed"
+          exit 1
