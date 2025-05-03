@@ -15,12 +15,15 @@
   "force": false,
   "itrs": 1,
   "models": [
-    "din",
-    "dail"
+    "din"
   ],
   "pipeline": {
+    "eval": true,
     "predict": true,
-    "eval": true
+    "verify": null,
+    "transformers": null,
+    "augment": true,
+    "charts": true
   },
   "temps": [
     0.2
