@@ -128,7 +128,8 @@ class DinBirdPredictor(Predictor):
         hint = self.__hints[i]
         prompt = schema_linking_prompt.format(question=question, schema=schema, hint=hint,
                                               columns_descriptions=columns_descriptions)
-        return self._create_batch_req(f"s{i}", prompt, self.__conf.default_params)
+        idx = f"din_bird_{self._run_conf.dataset_config.dataset_type}_schema_links_{i}"
+        return self._create_batch_req(idx, prompt, self.__conf.default_params)
 
     def __generate_classif_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         schema_links = self.__schema_links[i]
@@ -140,7 +141,8 @@ class DinBirdPredictor(Predictor):
                                               hint=hint,
                                               columns_descriptions=columns_descriptions,
                                               schema_links=schema_links)
-        return self._create_batch_req(f"c{i}", prompt, self.__conf.default_params)
+        idx = f"din_bird_{self._run_conf.dataset_config.dataset_type}_classif_{i}"
+        return self._create_batch_req(idx, prompt, self.__conf.default_params)
 
     def __create_sql_prompt(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         schema_links = self.__schema_links[i]
@@ -172,7 +174,8 @@ class DinBirdPredictor(Predictor):
                 columns_descriptions=columns_descriptions,
                 schema_links=schema_links,
                 sub_questions=sub_questions)
-        return self._create_batch_req(f"s{i}", prompt, self.__conf.default_params)
+        idx = f"din_bird_{self._run_conf.dataset_config.dataset_type}_sql_{i}"
+        return self._create_batch_req(idx, prompt, self.__conf.default_params)
 
     def __create_debug_sql_prompt(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         sql_query = self.__sqls[i]
@@ -184,7 +187,8 @@ class DinBirdPredictor(Predictor):
                                           columns_descriptions=columns_descriptions,
                                           hint=hint,
                                           sql_query=sql_query)
-        return self._create_batch_req(f"sd{i}", prompt, self.__conf.debug_params)
+        idx = f"din_bird_{self._run_conf.dataset_config.dataset_type}_sql_debug_{i}"
+        return self._create_batch_req(idx, prompt, self.__conf.debug_params)
 
     @staticmethod
     def __process_schema_response(i: int, content: str) -> str:

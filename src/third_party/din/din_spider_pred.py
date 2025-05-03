@@ -65,12 +65,14 @@ class DinPredictor(Predictor):
 
     def __generate_schema_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         prompt = self.__prompt_maker.schema_linking_prompt_maker(question, db_id)
-        return self._create_batch_req(f"s{i}", prompt, self.__conf.default_params)
+        idx = f"din_spider_{self._run_conf.dataset_config.dataset_type}_schema_links_{i}"
+        return self._create_batch_req(idx, prompt, self.__conf.default_params)
 
     def __generate_classif_req(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         schema_link = self.__schema_links[i]
         prompt = self.__prompt_maker.classification_prompt_maker(question, db_id, schema_link[1:])
-        return self._create_batch_req(f"c{i}", prompt, self.__conf.default_params)
+        idx = f"din_spider_{self._run_conf.dataset_config.dataset_type}_classif_{i}"
+        return self._create_batch_req(idx, prompt, self.__conf.default_params)
 
     def __create_sql_prompt(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         pred_class = self.__pred_classes[i]
@@ -87,12 +89,14 @@ class DinPredictor(Predictor):
                 # print("No sub questions found! :(")
                 sub_questions = []
             prompt = self.__prompt_maker.hard_prompt_maker(question, db_id, schema_link, sub_questions)
-        return self._create_batch_req(f"s{i}", prompt, self.__conf.default_params)
+        idx = f"din_spider_{self._run_conf.dataset_config.dataset_type}_sql_{i}"
+        return self._create_batch_req(idx, prompt, self.__conf.default_params)
 
     def __create_debug_sql_prompt(self, i: int, db_id: str, question: str) -> BatchInputRequest:
         sql = self.__sqls[i]
         prompt = self.__prompt_maker.debuger(question, db_id, sql)
-        return self._create_batch_req(f"sd{i}", prompt, self.__conf.debug_params)
+        idx = f"din_spider_{self._run_conf.dataset_config.dataset_type}_sql_debug_{i}"
+        return self._create_batch_req(idx, prompt, self.__conf.debug_params)
 
     @staticmethod
     def __process_schema_response(i: int, content: str) -> str:
