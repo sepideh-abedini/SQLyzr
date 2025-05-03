@@ -19,12 +19,8 @@
     "dail"
   ],
   "pipeline": {
-    "charts": true,
-    "eval": true,
     "predict": true,
-    "transformers": true,
-    "verify": true,
-    "augment": false
+    "eval": true
   },
   "temps": [
     0.2

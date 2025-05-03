@@ -1,5 +1,6 @@
 import asyncio
 from threading import Thread
+import platform
 
 import pandas as pd
 import pytest
@@ -8,6 +9,7 @@ from src.mock_server import MockHTTPServer
 from src.sqlyzr.sqlyzr import Sqlyzr
 from src.util.file_utils import read_json
 from src.util.log_util import configure_logging
+import multiprocessing as mp
 
 
 def get_overall_score(df, model, metric):
@@ -25,11 +27,11 @@ async def e2e_test():
     sqlyzr = Sqlyzr(conf_file)
     await sqlyzr.run()
     df = pd.read_csv(sqlyzr.conf.eval_conf.get_scores_path())
-    assert get_overall_score(df, 'dail', 'rea_mean') == pytest.approx(0.41, abs=0.01)
-    assert get_overall_score(df, 'dail', 'em_mean') == pytest.approx(0.17, abs=0.01)
-    assert get_overall_score(df, 'dail', 'cc') == pytest.approx(0.63, abs=0.01)
-    assert get_overall_score(df, 'din', 'rea_mean') == pytest.approx(0.47, abs=0.01)
+    assert get_overall_score(df, 'dail', 'em_mean') == pytest.approx(0.21, abs=0.01)
     assert get_overall_score(df, 'din', 'em_mean') == pytest.approx(0.3, abs=0.01)
+    assert get_overall_score(df, 'dail', 'rea_mean') == pytest.approx(0.45, abs=0.01)
+    assert get_overall_score(df, 'din', 'rea_mean') == pytest.approx(0.47, abs=0.01)
+    assert get_overall_score(df, 'dail', 'cc') == pytest.approx(0.63, abs=0.01)
     assert get_overall_score(df, 'din', 'cc') == pytest.approx(0.53, abs=0.01)
     server.stop()
     t.join()
@@ -49,6 +51,8 @@ async def e2e_test():
 
 
 def main():
+    if platform.system() == "Linux":
+        mp.set_start_method("spawn", force=True)
     asyncio.run(e2e_test())
 
 

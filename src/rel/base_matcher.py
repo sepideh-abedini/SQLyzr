@@ -41,7 +41,7 @@ class Matcher:
 
     def exec(self, data: SqlParsedData) -> SqlExecResult:
         # res = await self.db_facade.exec_query_async(data.db_id, data.sql)
-        res = self.db_facade.exec_query_sync(data.db_id, data.sql, timeout=1000)
+        res = self.db_facade.exec_query_sync(data.db_id, data.sql, timeout=2500)
         return data.to_result(res)
 
     def match(self, pred: SqlInputData, gold: SqlInputData):
