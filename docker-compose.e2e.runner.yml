@@ -19,6 +19,7 @@ services:
       - "ASYNC_BATCH=20"
       - "PYTHONUNBUFFERED=1"
       - "MYSQL_HOST=localhost"
+      - "FORCE=1"
     volumes:
       - "/data:/app/data"
       - "./e2e.py:/app/e2e.py"

@@ -67,6 +67,63 @@ def merge_pred_files(config: SQLyzrConfig):
     for run_conf in config.eval_conf.get_run_confs():
         per_model_confs[run_conf.model].append(run_conf)
 
+    # For each model, merge files across dataset directories
+    for model, run_confs in per_model_confs.items():
+        # Group configurations by dataset type
+        per_dataset_confs = defaultdict(list)
+        for run_conf in run_confs:
+            per_dataset_confs[run_conf.dataset_config.dataset_type].append(run_conf)
+
+        # Skip if there's only one dataset type
+        if len(per_dataset_confs) <= 1:
+            logger.info(f"Skipping merge for model {model} as there's only one dataset type")
+            continue
+
+        # Get all dataset types for this model
+        dataset_types = list(per_dataset_confs.keys())
+        logger.info(f"Merging files for model {model} across dataset types: {dataset_types}")
+
+        # Get the base directory for this model
+        model_base_dir = os.path.join(config.eval_conf.pred_dir, model)
+
+        # Find all files in each dataset directory
+        all_files = {}
+        for dataset_type in dataset_types:
+            dataset_dir = os.path.join(model_base_dir, dataset_type)
+            if os.path.exists(dataset_dir):
+                all_files[dataset_type] = [f for f in os.listdir(dataset_dir) if os.path.isfile(os.path.join(dataset_dir, f))]
+
+        # Find common file patterns across dataset directories
+        file_groups = defaultdict(list)
+        for dataset_type, files in all_files.items():
+            for file in files:
+                # Add the full path to the file group
+                file_groups[file].append((dataset_type, os.path.join(model_base_dir, dataset_type, file)))
+
+        # Use the model base directory for merged files, which is at the same level as dataset directories
+        merged_dir = model_base_dir
+
+        # Merge files with the same name
+        for file_name, file_paths in file_groups.items():
+            # Only merge if the file exists in all dataset directories
+            if len(file_paths) == len(dataset_types):
+                merged_file_path = os.path.join(merged_dir, file_name)
+                logger.info(f"Merging {len(file_paths)} files into {merged_file_path}")
+
+                # Create the merged file
+                with open(merged_file_path, 'w') as merged_file:
+                    for dataset_type, file_path in file_paths:
+                        logger.info(f"Adding content from {file_path}")
+                        with open(file_path, 'r') as input_file:
+                            content = input_file.read()
+                            merged_file.write(f"--- {dataset_type} ---\n")
+                            merged_file.write(content)
+                            if not content.endswith('\n'):
+                                merged_file.write('\n')
+                            merged_file.write('\n')
+            else:
+                logger.info(f"Skipping {file_name} as it doesn't exist in all dataset directories")
+
 
 async def run_model(config: SQLyzrConfig):
     # Run each model on each dataset
