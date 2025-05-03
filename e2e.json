@@ -20,8 +20,8 @@
   "pipeline": {
     "eval": true,
     "predict": true,
-    "verify": null,
-    "transformers": null,
+    "verify": true,
+    "transformers": true,
     "augment": true,
     "charts": true
   },
