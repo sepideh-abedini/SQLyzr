@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  e2e-test:
+  deploy:
     runs-on: self-hosted
     steps:
       - name: Checkout repository
