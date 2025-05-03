@@ -2,7 +2,7 @@ name: Deploy GUI
 
 on:
   push:
-    branches: [ synth ]
+    branches: [ synths ]
   workflow_dispatch:
 
 jobs:
