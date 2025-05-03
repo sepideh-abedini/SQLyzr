@@ -71,6 +71,3 @@ class ModelEvalConfig:
 
     def get_metric_names(self):
         return list(self.metrics.keys())
-
-    def get_trs_result_path(self):
-        return os.path.join(self.trs_dir, f"trs.csv")

@@ -1,7 +1,6 @@
 import os.path
 from typing import Literal, List, Tuple
 
-from jupyter_server.transutils import base_dir
 from loguru import logger
 from pydantic import BaseModel
 

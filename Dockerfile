@@ -11,11 +11,12 @@ RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt_tab
 ENV PYTHONPATH=/app
 
 COPY ./src src
+COPY ./scripts scripts
 COPY ./main.py .
-COPY ./conf.json .
 COPY ./scripts/ /usr/local/bin
 RUN chmod +x /usr/local/bin/*.sh
 RUN echo 'alias sqlyzr="python3 /app/main.py"' >> ~/.bashrc
+RUN echo 'alias e2e="python3 /app/e2e.py"' >> ~/.bashrc
 
 ENTRYPOINT ["bash"]
 

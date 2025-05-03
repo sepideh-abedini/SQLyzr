@@ -33,6 +33,9 @@ def sqlite_timelimit(conn: Connection, ms):
 
 
 class SqliteFacade(DatabaseFacade):
+    def check_connection(self):
+        logger.info("Checking SQLite connection!")
+
     def get_schema_str(self, db_id):
         tables_str = []
         for table in self.get_tables(db_id):

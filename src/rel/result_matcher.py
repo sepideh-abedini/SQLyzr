@@ -24,6 +24,8 @@ class ExactMatcher(ResultMatcher):
         return "You should fix the query!"
 
     def check_res(self, pred: SqlExecResult, gold: SqlExecResult) -> bool:
+        if pred.res is None:
+            return False
         pred_wl = ListWrapper.wrap(pred.res)
         gold_wl = ListWrapper.wrap(gold.res)
         return pred_wl.match(gold_wl, self.match_conf)

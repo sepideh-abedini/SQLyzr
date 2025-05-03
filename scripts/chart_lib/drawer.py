@@ -119,7 +119,7 @@ class Drawer:
 
         df = df.rename(columns=COL_NAMES)
 
-        df.to_csv("charts/data.csv", index=False)
+        # df.to_csv("charts/data.csv", index=False)
         return df
 
     def metric_dir(self, metric):

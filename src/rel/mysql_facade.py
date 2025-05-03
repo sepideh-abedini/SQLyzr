@@ -1,3 +1,4 @@
+import os
 from typing import Optional, List, Tuple
 
 import mysql.connector
@@ -7,8 +8,30 @@ from src.rel.db_facade import DatabaseFacade, DB_TIMEOUT, DB_CACHE
 from src.util.db_cache import lookup_db_cache, save_db_cache
 from src.util.str_utils import shrink_whitespaces
 
+MYSQL_HOST = os.environ.get("MYSQL_HOST", "localhost")
+MYSQL_USER = os.environ.get("MYSQL_USER", "root")
+MYSQL_PASS = os.environ.get("MYSQL_PASS", "sheep")
+
 
 class MysqlFacade(DatabaseFacade):
+    def check_connection(self) -> bool:
+        logger.info("Checking MySQL connection!")
+        conn = None
+        cursor = None
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+            logger.info("MySQL connection OK.")
+        except Exception as e:
+            logger.error(f"MySQL connection failed: {e}")
+            raise
+        finally:
+            if cursor:
+                cursor.close()
+            if conn and conn.is_connected():
+                conn.close()
 
     def get_primary_key(self, db_id, table_name):
         query = f"SHOW KEYS FROM `{table_name}` WHERE Key_name = 'PRIMARY'"

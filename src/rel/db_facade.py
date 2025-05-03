@@ -17,6 +17,10 @@ class DatabaseFacade(ABC):
         self.conf = conf
 
     @abstractmethod
+    def check_connection(self):
+        pass
+
+    @abstractmethod
     def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
         pass
 
@@ -43,5 +47,3 @@ class DatabaseFacade(ABC):
     @abstractmethod
     def get_create_sql(self, db_id, table_name):
         pass
-
-

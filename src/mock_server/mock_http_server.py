@@ -1,14 +1,11 @@
-import json
 import argparse
+import json
+import logging
 import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from typing import Dict, List, Optional, Tuple, Any, Set
-import logging
+from typing import Dict, Optional, Tuple, Any, Set
 
-from src.configs.config_loader import load_config, ConfigData
-from src.configs.sqlyzr_config import SQLyzrConfig
-from src.sqlyzr.sqlyzr import Sqlyzr
-from src.util.file_utils import read_json
+from src.configs.config_loader import load_config
 from src.util.model_utils import read_jsonl
 
 # Configure logging
