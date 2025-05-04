@@ -1,11 +1,11 @@
 import os.path
-from typing import Literal, List, Tuple
+from typing import List
 
 from loguru import logger
 from pydantic import BaseModel
 
 from src.configs.datasets import DatasetName, DatasetSize, DATASETS
-from src.configs.metrics import SPIDER_METRICS, BIRD_METRICS, METRICS
+from src.configs.metrics import METRICS
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import ModelName
@@ -15,6 +15,7 @@ from src.sqlyzr.pipeline_config import PipelineConfig
 
 class ConfigData(BaseModel):
     data_dir: str = "data"
+    out_dir: str = "out"
     aug_per_sub_cat: int = 2
     error_threshold: float = 101
     dataset: DatasetName = "spider"
@@ -32,7 +33,7 @@ class ConfigData(BaseModel):
         return f"{'_'.join(self.models)}_{self.dataset}_{self.dataset_size}"
 
     def get_model_dataset_dir(self):
-        return os.path.join(self.data_dir, f"{'-'.join(self.models)}_{self.dataset}_{self.dataset_size}")
+        return os.path.join(self.out_dir, f"{'-'.join(self.models)}_{self.dataset}_{self.dataset_size}")
 
     def get_aug_dir(self):
         return os.path.join(self.get_model_dataset_dir(), "aug")
