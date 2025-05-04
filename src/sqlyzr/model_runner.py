@@ -23,6 +23,7 @@ class ModelRunner(ABC):
     async def run_single(self, run_conf: SingleRunConfig):
         logger.info(f"Running model for conf: {run_conf}")
         await self.run_single_internal(run_conf)
+        logger.info(f"Finished prediction: {run_conf.get_pred_path()}")
 
     @abstractmethod
     async def run_single_internal(self, run_conf: SingleRunConfig):
@@ -67,19 +68,11 @@ def merge_pred_files(config: SQLyzrConfig):
     for run_conf in config.eval_conf.get_run_confs():
         per_model_confs[run_conf.model].append(run_conf)
 
-    # For each model, merge files across dataset directories
     for model, run_confs in per_model_confs.items():
-        # Group configurations by dataset type
         per_dataset_confs = defaultdict(list)
         for run_conf in run_confs:
             per_dataset_confs[run_conf.dataset_config.dataset_type].append(run_conf)
 
-        # Skip if there's only one dataset type
-        if len(per_dataset_confs) <= 1:
-            logger.info(f"Skipping merge for model {model} as there's only one dataset type")
-            continue
-
-        # Get all dataset types for this model
         dataset_types = list(per_dataset_confs.keys())
         logger.info(f"Merging files for model {model} across dataset types: {dataset_types}")
 
@@ -91,7 +84,8 @@ def merge_pred_files(config: SQLyzrConfig):
         for dataset_type in dataset_types:
             dataset_dir = os.path.join(model_base_dir, dataset_type)
             if os.path.exists(dataset_dir):
-                all_files[dataset_type] = [f for f in os.listdir(dataset_dir) if os.path.isfile(os.path.join(dataset_dir, f))]
+                all_files[dataset_type] = [f for f in os.listdir(dataset_dir) if
+                                           os.path.isfile(os.path.join(dataset_dir, f))]
 
         # Find common file patterns across dataset directories
         file_groups = defaultdict(list)
@@ -126,7 +120,6 @@ def merge_pred_files(config: SQLyzrConfig):
 
 
 async def run_model(config: SQLyzrConfig):
-    # Run each model on each dataset
     for run_conf in config.eval_conf.get_run_confs():
         model_runner = MODELS[run_conf.model]
         await model_runner.run_single(run_conf)

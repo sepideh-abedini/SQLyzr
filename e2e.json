@@ -15,7 +15,8 @@
   "force": false,
   "itrs": 1,
   "models": [
-    "din"
+    "din",
+    "dail"
   ],
   "pipeline": {
     "eval": true,
