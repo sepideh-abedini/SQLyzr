@@ -34,3 +34,7 @@ jobs:
           COMPOSE_PROJECT_NAME: e2e
         run: |
           docker compose -f docker-compose.e2e.runner.yml up --build --exit-code-from sqlyzr
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose -f docker-compose.e2e.runner.yml down -v
