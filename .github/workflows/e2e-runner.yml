@@ -33,8 +33,10 @@ jobs:
           SQLYZR_IMAGE: ${{ steps.meta.outputs.tags }}
           COMPOSE_PROJECT_NAME: e2e
         run: |
-          docker compose -f docker-compose.e2e.runner.yml up --build --exit-code-from sqlyzr
+          docker compose -f docker-compose.e2e.runner.yml up --force-recreate --exit-code-from sqlyzr
       - name: Cleanup
+        env:
+          SQLYZR_IMAGE: ${{ steps.meta.outputs.tags }}
+          COMPOSE_PROJECT_NAME: e2e
         if: always()
-        run: |
-          docker compose -f docker-compose.e2e.runner.yml down -v
+        run: docker compose -f docker-compose.e2e.runner.yml rm -f -v
