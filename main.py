@@ -35,3 +35,5 @@ if __name__ == '__main__':
     asyncio.run(main(args.config))
     monitor.terminate()
     print("TOTAL TIME: ", timer.lap())
+
+

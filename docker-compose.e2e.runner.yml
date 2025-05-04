@@ -1,6 +1,6 @@
 services:
   sqlyzr:
-    build: .
+    image: "${SQLYZR_IMAGE}"
     restart: no
     environment:
       - "OPENAI_API_KEY=sk-proj"
