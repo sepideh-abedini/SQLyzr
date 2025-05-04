@@ -124,4 +124,4 @@ async def run_model(config: SQLyzrConfig):
         model_runner = MODELS[run_conf.model]
         await model_runner.run_single(run_conf)
 
-    merge_pred_files(config)
+    # merge_pred_files(config)
