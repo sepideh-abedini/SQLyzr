@@ -1,143 +1,94 @@
 <template>
   <div class="config">
-    <Toast/>
-
-    <h1>SQLyzr Configuration</h1>
-
-    <Message v-if="error" severity="error">{{ error }}</Message>
-
-    <ProgressSpinner v-if="loading" class="my-4"/>
-
-    <div v-else class="card">
-      <div class="mb-4 flex gap-2">
-        <Button label="Save Configuration" icon="pi pi-save" @click="saveConfig"/>
-        <Button label="Run SQLyzr" icon="pi pi-play" severity="success" @click="runSqlyzr"/>
-      </div>
-
-      <div class="grid">
-        <div class="col-12 md:col-6">
-          <div class="field">
-            <h3>Models</h3>
-            <div class="flex flex-column gap-2">
-              <div v-for="model in modelOptions" :key="model.value" class="flex align-items-center">
-                <Checkbox v-model="config.models" :value="model.value"
-                          :inputId="'model_' + model.value"/>
-                <label :for="'model_' + model.value" class="ml-2">{{ model.text }}</label>
+    <Card>
+      <template #header>
+      </template>
+      <template #title>SQLyzr Configuration</template>
+      <template #content>
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <FormField>
+              Dataset:
+              <Select v-model="config.dataset" :options="dataset_options" placeholder="Dataset"/>
+            </FormField>
+            <FormField name="Salam">
+              Dataset Size:
+              <Select v-model="config.dataset_size" :options="size_options" placeholder="Dataset Size"/>
+            </FormField>
+            <FormField name="Salam">
+              Models:
+              <div class="flex flex-wrap justify-center gap-4">
+                <div v-for="model in modelOptions" :key="model" class="flex items-center gap-2">
+                  <Checkbox v-model="config.models" :inputId="model" :value="model" :name="model"/>
+                  <label :for="model">{{ model }}</label>
+                </div>
               </div>
-            </div>
+            </FormField>
+            <FormField name="Salam">
+              Num Iterations:
+              <InputNumber v-model="config.itrs" showButtons buttonLayout="horizontal" :min="1"
+                           :max="5">
+                <template #incrementbuttonicon>
+                  <span class="pi pi-plus"/>
+                </template>
+                <template #decrementbuttonicon>
+                  <span class="pi pi-minus"/>
+                </template>
+              </InputNumber>
+            </FormField>
+            <FormField name="Salam">
+              Temperature:
+              <MultiSelect class="w-full" v-model="config.temps" display="chip" :options="suggested_temps"
+                           placeholder="Temperatures"
+                           :maxSelectedLabels="3"/>
+            </FormField>
+            <FormField name="Salam">
+              Batch Mode:
+              <span v-if="config.batch"> On</span>
+              <span v-else> Off</span>
+              <div class="flex">
+                <ToggleSwitch v-model="config.batch"/>
+              </div>
+            </FormField>
           </div>
 
-          <div class="field">
-            <label for="dataset">Dataset</label>
-            <InputText id="dataset" v-model="config.dataset" class="w-full"/>
-          </div>
 
-          <div class="field">
-            <label for="dataset_size">Dataset Size</label>
-            <InputText id="dataset_size" v-model="config.dataset_size" class="w-full"/>
-          </div>
+          <div class="col-12 md:col-6">
+            <FormField name="Salam">
+              Aug Per sub:
+              <InputText v-model.number="config.aug_per_sub_cat"/>
+              <Slider v-model="config.aug_per_sub_cat" min="1" max="10" class="w-full"/>
+            </FormField>
+            <FormField name="Salam">
+              Error Threshold:
+              <Knob value-color="red" v-model="config.error_threshold"/>
+            </FormField>
+            <FormField name="Salam">
+              Pipeline:
+              <div class="flex flex-wrap justify-center gap-4">
+                {{ config.pipeline }}
+                <div v-for="(active,step) in config.pipeline" :key="step" class="flex items-center gap-2">
+                  <ToggleButton v-model="config.pipeline[step]" :on-label="step" :off-label="step"/>
+                  <i class="pi pi-arrow-right"></i>
+                </div>
 
-          <div class="field">
-            <label for="itrs">Iterations</label>
-            <InputNumber id="itrs" v-model="config.itrs" :min="1" class="w-full"/>
-          </div>
-
-          <div class="field">
-            <label>Temperatures</label>
-            <Chip v-model="config.temps" separator=" " class="w-full"/>
-            <div class="mt-2">
-              <Button v-for="temp in [0.1, 0.2, 0.5, 0.7, 1.0]"
-                      :key="temp"
-                      :label="temp.toString()"
-                      size="small"
-                      outlined
-                      class="mr-2 mb-2"
-                      @click="addTemperature(temp)"/>
-            </div>
-          </div>
-
-          <div class="field">
-            <label>GPT Mode</label>
-            <div class="flex">
-              <RadioButton v-model="config.batch" :value="true" inputId="batch_true"/>
-              <label for="batch_true" class="ml-2 mr-4">Batch</label>
-
-              <RadioButton v-model="config.batch" :value="false" inputId="batch_false"/>
-              <label for="batch_false" class="ml-2">Single</label>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="aug_per_sub_cat">Augmentations Per Sub Category</label>
-            <InputNumber id="aug_per_sub_cat" v-model="config.aug_per_sub_cat" :min="1"
-                         class="w-full"/>
-          </div>
-
-          <div class="field">
-            <label for="error_threshold">Error Threshold</label>
-            <InputNumber id="error_threshold" v-model="config.error_threshold" :min="0"
-                         class="w-full"/>
-          </div>
-
-          <div class="field">
-            <Checkbox v-model="config.force" inputId="force" :binary="true"/>
-            <label for="force" class="ml-2">Force</label>
-          </div>
-        </div>
-
-        <div class="col-12 md:col-6">
-          <div class="config-section">
-            <h3>Pipeline</h3>
-            <div class="field">
-              <Checkbox v-model="config.pipeline.verify" inputId="pipeline_verify" :binary="true"/>
-              <label for="pipeline_verify" class="ml-2">Verify</label>
-            </div>
-
-            <div class="field">
-              <Checkbox v-model="config.pipeline.predict" inputId="pipeline_predict"
-                        :binary="true"/>
-              <label for="pipeline_predict" class="ml-2">Predict</label>
-            </div>
-
-            <div class="field">
-              <Checkbox v-model="config.pipeline.eval" inputId="pipeline_eval" :binary="true"/>
-              <label for="pipeline_eval" class="ml-2">Evaluate</label>
-            </div>
-
-            <div class="field">
-              <Checkbox v-model="config.pipeline.transformers" inputId="pipeline_transformers"
-                        :binary="true"/>
-              <label for="pipeline_transformers" class="ml-2">Transformers</label>
-            </div>
-
-            <div class="field">
-              <Checkbox v-model="config.pipeline.augment" inputId="pipeline_augment"
-                        :binary="true"/>
-              <label for="pipeline_augment" class="ml-2">Augment</label>
-            </div>
-
-            <div class="field">
-              <Checkbox v-model="config.pipeline.charts" inputId="pipeline_charts" :binary="true"/>
-              <label for="pipeline_charts" class="ml-2">Charts</label>
-            </div>
-          </div>
-
-          <div class="config-section">
-            <h3>Charts</h3>
-            <div v-for="chart in chartOptions" :key="chart.value" class="field">
-              <Checkbox v-model="config.charts" :value="chart.value"
-                        :inputId="'chart_' + chart.value.toLowerCase().replace(/ /g, '_')"/>
-              <label :for="'chart_' + chart.value.toLowerCase().replace(/ /g, '_')"
-                     class="ml-2">{{ chart.text }}</label>
-            </div>
+              </div>
+            </FormField>
+            <FormField name="Salam">
+              Charts:
+              <MultiSelect v-model="config.charts" display="chip" :options="chartOptions" filter
+                           placeholder="Selected Charts"
+                           class="w-full md:w-80"/>
+            </FormField>
           </div>
         </div>
-      </div>
-    </div>
+      </template>
+    </Card>
   </div>
 </template>
 
 <script>
+import Card from "primevue/card";
 import Button from "primevue/button";
 import Checkbox from 'primevue/checkbox';
 import InputText from 'primevue/inputtext';
@@ -147,14 +98,55 @@ import Chip from 'primevue/chip';
 import Message from 'primevue/message';
 import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
-import ToastService from 'primevue/toastservice';
+import FormField from '@primevue/forms/formfield'
+import FieldSet from 'primevue/fieldset'
+import Select from 'primevue/select'
+import AutoComplete from 'primevue/autocomplete'
+import MultiSelect from 'primevue/multiselect'
+import Slider from 'primevue/slider'
+import ToggleSwitch from 'primevue/toggleswitch'
+import Knob from 'primevue/knob'
+import Breadcrumb from 'primevue/breadcrumb'
+import {ToggleButton} from "primevue";
 
 export default {
 
+  components: {
+    Card,
+    Button,
+    Checkbox,
+    InputText,
+    InputNumber,
+    RadioButton,
+    Chip,
+    Message,
+    ProgressSpinner,
+    Toast,
+    FormField,
+    FieldSet,
+    Select,
+    AutoComplete,
+    MultiSelect,
+    Slider,
+    ToggleSwitch,
+    Knob,
+    Breadcrumb,
+    ToggleButton
+  },
   data() {
     return {
       loading: false,
       error: null,
+      dataset_options: [
+        'spider',
+        'bird',
+        'beaver',
+        'agg'
+      ],
+      size_options: [
+        'small',
+        'all'
+      ],
       config: {
         models: [],
         dataset: '',
@@ -176,19 +168,28 @@ export default {
         charts: []
       },
       modelOptions: [
-        {value: 'din', text: 'din'},
-        {value: 'dail', text: 'dail'}
+        'din',
+        'dail'
       ],
+      suggested_temps: [0.0, 0.2, 0.5, 0.7, 1.0],
       chartOptions: [
-        {value: 'Execution Accuracy', text: 'Execution Accuracy'},
-        {value: 'Relaxed Execution Accuracy', text: 'Relaxed Execution Accuracy'},
-        {value: 'Exact Match', text: 'Exact Match'},
-        {value: 'Execution Time', text: 'Execution Time'},
-        {value: 'Token Usage', text: 'Token Usage'},
-        {value: 'Execution Time Consistency', text: 'Execution Time Consistency'},
-        {value: 'Execution Time Inconsistency', text: 'Execution Time Inconsistency'},
-        {value: 'Complexity Consistency', text: 'Complexity Consistency'},
-        {value: 'Complexity Inconsistency', text: 'Complexity Inconsistency'}
+        'Execution Accuracy',
+        'Relaxed Execution Accuracy',
+        'Exact Match',
+        'Execution Time',
+        'Token Usage',
+        'Execution Time Consistency',
+        'Execution Time Inconsistency',
+        'Complexity Consistency',
+        'Complexity Inconsistency']
+    }
+  },
+  computed: {
+    pipeline_values() {
+      return [
+        {step: 'verify', active: this.config.pipeline.verify},
+        {step: 'predict', active: this.config.pipeline.verify},
+        {step: 'eval', active: this.config.pipeline.verify},
       ]
     }
   },
@@ -308,17 +309,6 @@ export default {
   },
   mounted() {
     this.fetchConfig();
-  },
-  components: {
-    Button,
-    Checkbox,
-    InputText,
-    InputNumber,
-    RadioButton,
-    Chip,
-    Message,
-    ProgressSpinner,
-    Toast
   }
 }
 </script>

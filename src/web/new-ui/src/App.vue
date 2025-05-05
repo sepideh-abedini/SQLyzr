@@ -3,27 +3,24 @@ import {RouterLink, RouterView} from 'vue-router'
 </script>
 
 <template>
-  <div>
-    <header>
-      <nav>
-        <RouterLink to="/">Configuration</RouterLink>
-        |
-        <RouterLink to="/logs">Logs</RouterLink>
-        |
-        <RouterLink to="/scores">Scores</RouterLink>
-        |
-        <RouterLink to="/charts">Charts</RouterLink>
-      </nav>
-    </header>
-    <main>
-      <RouterView/>
-    </main>
-  </div>
+  <nav>
+    <RouterLink to="/">Configuration</RouterLink>
+    |
+    <RouterLink to="/logs">Logs</RouterLink>
+    |
+    <RouterLink to="/scores">Scores</RouterLink>
+    |
+    <RouterLink to="/charts">Charts</RouterLink>
+  </nav>
+  <RouterView/>
 </template>
 
 <style scoped>
-nav {
+header {
   margin-top: 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 nav a.router-link-exact-active {
