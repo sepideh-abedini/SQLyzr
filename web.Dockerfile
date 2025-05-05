@@ -18,7 +18,7 @@ ENV PYTHONPATH=/app
 COPY ./src src
 COPY ./scripts scripts
 
-WORKDIR /app/src/web/vue-ui
+WORKDIR /app/src/web/ui
 RUN npm install
 RUN npm run build
 

@@ -237,12 +237,12 @@ def health_check():
 
 @app.route('/', methods=['GET'])
 def serve_ui():
-    return send_from_directory(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'new-ui/dist'), 'index.html')
+    return send_from_directory(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ui/dist'), 'index.html')
 
 
 @app.route('/<path:path>', methods=['GET'])
 def serve_static(path):
-    vue_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'new-ui/dist')
+    vue_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ui/dist')
     vue_file = os.path.join(vue_dir, path)
 
     if os.path.exists(vue_file) and os.path.isfile(vue_file):
