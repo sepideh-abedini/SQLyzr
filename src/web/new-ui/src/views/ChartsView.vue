@@ -9,51 +9,51 @@
     <ProgressSpinner v-if="loading" class="my-4"/>
 
     <div v-else class="card">
-      <div class="mb-4 flex gap-2">
-        <Button label="Refresh Charts" icon="pi pi-refresh" @click="fetchCharts"/>
-      </div>
-
-      <div class="grid">
-        <!-- Left side - Chart list -->
-        <div class="col-12 md:col-3">
+      <div class="flex gap-4 mt-1">
+        <div class="w-full mb-4 flex gap-2">
+          <Button label="Refresh Charts" icon="pi pi-refresh" @click="fetchCharts"/>
+        </div>
+        <div class="w-full mb-4 flex gap-2">
           <h3>Available Charts</h3>
-          <div class="chart-list">
-            <ul class="list-none p-0 m-0">
-              <li v-for="chart in charts" :key="chart"
-                  class="chart-item p-2 cursor-pointer"
-                  :class="{ 'selected': selectedChart === chart }"
-                  @click="selectChart(chart)">
-                {{ chart }}
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Right side - Selected chart display -->
-        <div class="col-12 md:col-9">
-          <div v-if="selectedChart" class="chart-display">
-            <h3>{{ selectedChart }}</h3>
-            <div v-if="chartLoading" class="flex justify-content-center">
-              <ProgressSpinner />
-            </div>
-            <div v-else-if="chartError" class="p-3">
-              <Message severity="error">{{ chartError }}</Message>
-            </div>
-            <div v-else class="chart-image">
-              <img :src="chartUrl" :alt="selectedChart" class="w-full" />
-            </div>
-          </div>
-          <div v-else class="flex justify-content-center align-items-center h-full">
-            <Message severity="info">Select a chart from the list to view</Message>
-          </div>
+          <Select v-model="selectedChart" :options="charts" filter placeholder="Select a chart"
+                  default-value="overall.png"
+                  @update:modelValue="selectChart"
+                  class="w-full md:w-56"/>
+          <!--          <div class="chart-list">-->
+          <!--            <ul class="list-none p-0 m-0">-->
+          <!--              <li v-for="chart in charts" :key="chart"-->
+          <!--                  class="chart-item p-2 cursor-pointer"-->
+          <!--                  :class="{ 'selected': selectedChart === chart }"-->
+          <!--                  @click="selectChart(chart)">-->
+          <!--                {{ chart }}-->
+          <!--              </li>-->
+          <!--            </ul>-->
+          <!--          </div>-->
         </div>
       </div>
+
+    </div>
+    <div v-if="selectedChart" class="chart-display">
+      <h3>{{ selectedChart }}</h3>
+      <div v-if="chartLoading" class="flex justify-content-center">
+        <ProgressSpinner/>
+      </div>
+      <div v-else-if="chartError" class="p-3">
+        <Message severity="error">{{ chartError }}</Message>
+      </div>
+      <div v-else class="chart-image">
+        <img :src="chartUrl" :alt="selectedChart" class="w-full"/>
+      </div>
+    </div>
+    <div v-else class="flex justify-content-center align-items-center h-full">
+      <Message severity="info">Select a chart from the list to view</Message>
     </div>
   </div>
 </template>
 
 <script>
 import Button from "primevue/button";
+import Select from "primevue/select";
 import Message from 'primevue/message';
 import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
@@ -84,13 +84,6 @@ export default {
 
         const data = await response.json();
         this.charts = data.charts || [];
-
-        if (this.charts.length === 0) {
-          this.error = 'No charts available';
-        } else if (this.selectedChart === null && this.charts.length > 0) {
-          // Auto-select the first chart if none is selected
-          this.selectChart(this.charts[0]);
-        }
       } catch (error) {
         this.error = `Error loading charts: ${error.message}`;
         console.error('Error loading charts:', error);
@@ -99,22 +92,19 @@ export default {
       }
     },
 
-    async selectChart(chartName) {
-      this.selectedChart = chartName;
+    async selectChart() {
       this.chartLoading = true;
       this.chartError = null;
-
+      console.log('selectChart', this.selectedChart);
       try {
-        // Create URL with timestamp to prevent caching
-        this.chartUrl = `http://localhost:7777/api/charts/${encodeURIComponent(chartName)}?t=${Date.now()}`;
+        this.chartUrl = `http://localhost:7777/api/charts/${encodeURIComponent(this.selectedChart)}`;
 
-        // Pre-load the image to check if it exists
         const img = new Image();
         img.onload = () => {
           this.chartLoading = false;
         };
         img.onerror = () => {
-          this.chartError = `Failed to load chart: ${chartName}`;
+          this.chartError = `Failed to load chart: ${this.selectedChart}`;
           this.chartLoading = false;
         };
         img.src = this.chartUrl;
@@ -131,7 +121,8 @@ export default {
     Button,
     Message,
     ProgressSpinner,
-    Toast
+    Toast,
+    Select
   }
 }
 </script>

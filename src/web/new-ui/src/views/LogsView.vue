@@ -2,17 +2,12 @@
   <div class="logs">
     <Toast/>
 
-    <h1>Live Logs</h1>
-
-    <Message v-if="error" severity="error">{{ error }}</Message>
+    <h1>SQLyr Logs</h1>
 
     <div class="card">
-      <div class="mb-4 flex gap-2">
-        <Button label="Refresh Logs" icon="pi pi-refresh" @click="fetchLogs"/>
-      </div>
-
+      <h2>Current Step: Verify</h2>
+      <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
       <ProgressSpinner v-if="loading" class="my-4"/>
-
       <div v-else class="log-container">
         <pre class="log-content">{{ logs }}</pre>
       </div>
@@ -25,6 +20,7 @@ import Button from "primevue/button";
 import Message from 'primevue/message';
 import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
+import {ProgressBar} from "primevue";
 
 export default {
   data() {
@@ -49,23 +45,40 @@ export default {
 
         const data = await response.json();
         this.logs = data.logs || 'No logs available';
+        this.$toast.add({
+          severity: 'info',
+          summary: 'Logs',
+          detail: 'Logs are updated every 10 seconds',
+          life: 5000
+        });
       } catch (error) {
         this.error = `Error loading logs: ${error.message}`;
         console.error('Error loading logs:', error);
       } finally {
         this.loading = false;
+        this.$nextTick(() => {
+          const logContainer = document.querySelector('.log-container');
+          if (logContainer) {
+            logContainer.scrollTop = logContainer.scrollHeight;
+          }
+        });
+      }
+    },
+
+    scrollToBottom() {
+      const logContainer = document.querySelector('.log-container');
+      if (logContainer) {
+        logContainer.scrollTop = logContainer.scrollHeight;
       }
     }
   },
   mounted() {
     this.fetchLogs();
-    // Auto-refresh logs every 10 seconds
     this.refreshInterval = setInterval(() => {
       this.fetchLogs();
     }, 10000);
   },
   beforeUnmount() {
-    // Clear the interval when component is destroyed
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
@@ -74,6 +87,7 @@ export default {
     Button,
     Message,
     ProgressSpinner,
+    ProgressBar,
     Toast
   }
 }

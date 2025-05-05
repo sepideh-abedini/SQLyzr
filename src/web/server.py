@@ -13,7 +13,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from src.sqlyzr.sqlyzr import Sqlyzr
-from src.configs.config_loader import ConfigData
+from src.configs.config_loader import ConfigData, load_config
 from src.util.file_utils import read_json, write_json
 from src.util.log_util import configure_logging
 
@@ -45,8 +45,14 @@ def get_config():
 
 @app.route('/api/config', methods=['POST'])
 def update_config():
+    old_config = read_json(CONFIG_FILE)
     config = request.json
     write_json(CONFIG_FILE, config)
+    try:
+        sqlyzr = Sqlyzr(CONFIG_FILE)
+    except Exception as e:
+        write_json(CONFIG_FILE, old_config)
+        return jsonify({"Invalid Config!": str(e)}), 400
     return jsonify({"message": "Configuration updated successfully"})
 
 
@@ -69,21 +75,12 @@ def get_results():
         results_path = sqlyzr.conf.eval_conf.get_scores_path()
 
         if os.path.exists(results_path):
-            # Read CSV file using pandas
             df = pd.read_csv(results_path)
-
-            # Convert to dictionary format for DataTables
             data = {
                 "headers": df.columns.tolist(),
                 "rows": df.values.tolist()
             }
-
-            # Also include the raw CSV for backward compatibility
-            with open(results_path, 'r') as f:
-                raw_results = f.read()
-
             return jsonify({
-                "results": raw_results,
                 "data": data
             })
         else:
@@ -91,6 +88,7 @@ def get_results():
                 "error": "No results file found"
             }), 404
     except Exception as e:
+        print("Error:", e)
         return jsonify({"error": str(e)}), 500
 
 

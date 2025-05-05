@@ -14,8 +14,11 @@
       <ProgressSpinner v-if="loading" class="my-4"/>
 
       <div v-else class="scores-container">
-        <DataTable v-if="tableData.rows.length > 0" :value="tableRows" stripedRows>
-          <Column v-for="col in tableData.headers" :key="col" :field="col" :header="col" sortable />
+        <DataTable :filters="filters" filter-display="row" :global-filter-fields="['model']"
+                   removable-sort size="small" sort-mode="multiple" show-headers
+                   v-if="tableData.rows.length > 0" :value="tableRows" stripedRows>
+          <Column v-for="col in tableData.headers" :key="col" :field="col" :header="col"
+                  sortable="true"/>
         </DataTable>
         <Message v-else severity="info">No scores data available</Message>
       </div>
@@ -30,10 +33,14 @@ import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import {FilterMatchMode} from '@primevue/core/api';
 
 export default {
   data() {
     return {
+      filters: {
+        global: {value: null, matchMode: FilterMatchMode.CONTAINS}
+      },
       loading: false,
       error: null,
       tableData: {
@@ -72,13 +79,13 @@ export default {
         if (data.data) {
           this.tableData = data.data;
         } else {
-          this.tableData = { headers: [], rows: [] };
+          this.tableData = {headers: [], rows: []};
           this.error = 'No scores data available';
         }
       } catch (error) {
         this.error = `Error loading scores: ${error.message}`;
         console.error('Error loading scores:', error);
-        this.tableData = { headers: [], rows: [] };
+        this.tableData = {headers: [], rows: []};
       } finally {
         this.loading = false;
       }

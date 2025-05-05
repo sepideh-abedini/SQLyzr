@@ -1,5 +1,6 @@
 <template>
   <div class="config">
+    <Toast/>
     <Card>
       <template #header>
       </template>
@@ -66,8 +67,7 @@
             <FormField name="Salam">
               Pipeline:
               <div class="flex flex-wrap justify-center gap-4">
-                {{ config.pipeline }}
-                <div v-for="(active,step) in config.pipeline" :key="step" class="flex items-center gap-2">
+                <div v-for="step in sorted_pipeline_steps" :key="step" class="flex items-center gap-2">
                   <ToggleButton v-model="config.pipeline[step]" :on-label="step" :off-label="step"/>
                   <i class="pi pi-arrow-right"></i>
                 </div>
@@ -81,6 +81,12 @@
                            class="w-full md:w-80"/>
             </FormField>
           </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex gap-4 mt-1">
+          <Button label="Save Configuration" @click="saveConfig" class="w-full"/>
+          <Button label="Run SQLyzr" severity="secondary" outlined class="w-full"/>
         </div>
       </template>
     </Card>
@@ -97,7 +103,6 @@ import RadioButton from 'primevue/radiobutton';
 import Chip from 'primevue/chip';
 import Message from 'primevue/message';
 import ProgressSpinner from 'primevue/progressspinner';
-import Toast from 'primevue/toast';
 import FormField from '@primevue/forms/formfield'
 import FieldSet from 'primevue/fieldset'
 import Select from 'primevue/select'
@@ -107,6 +112,7 @@ import Slider from 'primevue/slider'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Knob from 'primevue/knob'
 import Breadcrumb from 'primevue/breadcrumb'
+import Toast from 'primevue/toast';
 import {ToggleButton} from "primevue";
 
 export default {
@@ -131,7 +137,7 @@ export default {
     ToggleSwitch,
     Knob,
     Breadcrumb,
-    ToggleButton
+    ToggleButton,
   },
   data() {
     return {
@@ -185,11 +191,9 @@ export default {
     }
   },
   computed: {
-    pipeline_values() {
+    sorted_pipeline_steps() {
       return [
-        {step: 'verify', active: this.config.pipeline.verify},
-        {step: 'predict', active: this.config.pipeline.verify},
-        {step: 'eval', active: this.config.pipeline.verify},
+        "verify", "predict", "eval", "charts", "transformers", "augment",
       ]
     }
   },
@@ -229,8 +233,13 @@ export default {
           this.config.charts = [];
         }
       } catch (error) {
-        this.error = `Error loading configuration: ${error.message}`;
-        console.error('Error loading configuration:', error);
+        console.error('Error fetching configuration:', error);
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Fail to retrieve configuration.',
+          life: 3000
+        });
       } finally {
         this.loading = false;
       }
@@ -262,6 +271,12 @@ export default {
       } catch (error) {
         this.error = `Error saving configuration: ${error.message}`;
         console.error('Error saving configuration:', error);
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to save configuration.',
+          life: 3000
+        });
       } finally {
         this.loading = false;
       }
