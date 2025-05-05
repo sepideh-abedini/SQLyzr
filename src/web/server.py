@@ -57,14 +57,17 @@ def update_config():
 
 @app.route('/api/run', methods=['POST'])
 async def run_sqlyzr():
+    logging.info("Running SQlyzr")
     sqlyzr = Sqlyzr(CONFIG_FILE)
     try:
+        logging.info("Starting SQlyzr")
         await sqlyzr.run()
         return jsonify({
             "message": "SQLyzr executed successfully",
         })
     except Exception as e:
-        print("Error:", e)
+        logging.error("ERROR Running SQlyzr")
+        logging.error(e)
         return jsonify({"error": str(e)}), 500
 
 
@@ -249,6 +252,12 @@ def serve_static(path):
         return send_from_directory(vue_dir, path)
 
     return send_from_directory(vue_dir, 'index.html')
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    print(e)
+    return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
