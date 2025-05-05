@@ -2,91 +2,97 @@
   <div class="config">
     <Toast/>
     <Card>
-      <template #header>
+      <template #title>
+        <div class="text-center">
+          <h2 class="m-0">SQLyzr Configuration</h2>
+        </div>
       </template>
-      <template #title>SQLyzr Configuration</template>
       <template #content>
         <div class="grid">
-          <div class="col-12 md:col-6">
-            <FormField>
-              Dataset:
-              <Select v-model="config.dataset" :options="dataset_options" placeholder="Dataset"/>
-            </FormField>
-            <FormField name="Salam">
-              Dataset Size:
-              <Select v-model="config.dataset_size" :options="size_options" placeholder="Dataset Size"/>
-            </FormField>
-            <FormField name="Salam">
-              Models:
-              <div class="flex flex-wrap justify-center gap-4">
-                <div v-for="model in modelOptions" :key="model" class="flex items-center gap-2">
-                  <Checkbox v-model="config.models" :inputId="model" :value="model" :name="model"/>
-                  <label :for="model">{{ model }}</label>
+          <div class="col-12 md:col-6 p-2">
+            <div class="config-section">
+              <h3 class="section-title">Basic Settings</h3>
+              <FormField class="mb-3">
+                <label class="field-label">Dataset:</label>
+                <Select v-model="config.dataset" :options="dataset_options" placeholder="Select Dataset" class="w-full"/>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Dataset Size:</label>
+                <Select v-model="config.dataset_size" :options="size_options" placeholder="Select Size" class="w-full"/>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Models:</label>
+                <div class="flex flex-wrap gap-3 mt-2">
+                  <div v-for="model in modelOptions" :key="model" class="flex align-items-center">
+                    <Checkbox v-model="config.models" :inputId="model" :value="model" :name="model"/>
+                    <label :for="model" class="ml-2">{{ model }}</label>
+                  </div>
                 </div>
-              </div>
-            </FormField>
-            <FormField name="Salam">
-              Num Iterations:
-              <InputNumber v-model="config.itrs" showButtons buttonLayout="horizontal" :min="1"
-                           :max="5">
-                <template #incrementbuttonicon>
-                  <span class="pi pi-plus"/>
-                </template>
-                <template #decrementbuttonicon>
-                  <span class="pi pi-minus"/>
-                </template>
-              </InputNumber>
-            </FormField>
-            <FormField name="Salam">
-              Temperature:
-              <MultiSelect class="w-full" v-model="config.temps" display="chip" :options="suggested_temps"
-                           placeholder="Temperatures"
-                           :maxSelectedLabels="3"/>
-            </FormField>
-            <FormField name="Salam">
-              Batch Mode:
-              <span v-if="config.batch"> On</span>
-              <span v-else> Off</span>
-              <div class="flex">
-                <ToggleSwitch v-model="config.batch"/>
-              </div>
-            </FormField>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Num Iterations:</label>
+                <InputNumber v-model="config.itrs" showButtons buttonLayout="horizontal" :min="1" :max="5" class="w-full">
+                  <template #incrementbuttonicon>
+                    <span class="pi pi-plus"/>
+                  </template>
+                  <template #decrementbuttonicon>
+                    <span class="pi pi-minus"/>
+                  </template>
+                </InputNumber>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Temperature:</label>
+                <MultiSelect class="w-full" v-model="config.temps" display="chip" :options="suggested_temps"
+                           placeholder="Select Temperatures" :maxSelectedLabels="3"/>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Batch Mode:</label>
+                <div class="flex align-items-center">
+                  <ToggleSwitch v-model="config.batch"/>
+                  <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
+                </div>
+              </FormField>
+            </div>
           </div>
 
-
-          <div class="col-12 md:col-6">
-            <FormField name="Salam">
-              Aug Per sub:
-              <InputText v-model.number="config.aug_per_sub_cat"/>
-              <Slider v-model="config.aug_per_sub_cat" min="1" max="10" class="w-full"/>
-            </FormField>
-            <FormField name="Salam">
-              Error Threshold:
-              <Knob value-color="red" v-model="config.error_threshold"/>
-            </FormField>
-            <FormField name="Salam">
-              Pipeline:
-              <div class="flex flex-wrap justify-center gap-4">
-                <div v-for="step in sorted_pipeline_steps" :key="step" class="flex items-center gap-2">
-                  <ToggleButton v-model="config.pipeline[step]" :on-label="step" :off-label="step"/>
-                  <i class="pi pi-arrow-right"></i>
+          <div class="col-12 md:col-6 p-2">
+            <div class="config-section">
+              <h3 class="section-title">Advanced Settings</h3>
+              <FormField class="mb-3">
+                <label class="field-label">Aug Per Sub Category:</label>
+                <div class="flex align-items-center">
+                  <InputText v-model.number="config.aug_per_sub_cat" class="w-3 mr-2"/>
+                  <Slider v-model="config.aug_per_sub_cat" min="1" max="10" class="w-full"/>
                 </div>
-
-              </div>
-            </FormField>
-            <FormField name="Salam">
-              Charts:
-              <MultiSelect v-model="config.charts" display="chip" :options="chartOptions" filter
-                           placeholder="Selected Charts"
-                           class="w-full md:w-80"/>
-            </FormField>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Error Threshold:</label>
+                <div class="flex justify-content-center mt-2">
+                  <Knob value-color="red" v-model="config.error_threshold"/>
+                </div>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Pipeline Steps:</label>
+                <div class="pipeline-container mt-2">
+                  <div v-for="(step, index) in sorted_pipeline_steps" :key="step" class="pipeline-step">
+                    <ToggleButton v-model="config.pipeline[step]" :on-label="step" :off-label="step" class="text-capitalize"/>
+                    <i v-if="index < sorted_pipeline_steps.length - 1" class="pi pi-arrow-right pipeline-arrow"></i>
+                  </div>
+                </div>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Charts:</label>
+                <MultiSelect v-model="config.charts" display="chip" :options="chartOptions" filter
+                           placeholder="Select Charts" class="w-full"/>
+              </FormField>
+            </div>
           </div>
         </div>
       </template>
       <template #footer>
-        <div class="flex gap-4 mt-1">
-          <Button label="Save Configuration" @click="saveConfig" class="w-full"/>
-          <Button label="Run SQLyzr" @click="runSqlyzr" severity="secondary" outlined class="w-full"/>
+        <div class="flex justify-content-center gap-3 mt-3">
+          <Button label="Save Configuration" icon="pi pi-save" @click="saveConfig" class="p-button-primary"/>
+          <Button label="Reset Config" icon="pi pi-refresh" @click="resetConfig" severity="secondary" outlined/>
         </div>
       </template>
     </Card>
@@ -99,19 +105,12 @@ import Button from "primevue/button";
 import Checkbox from 'primevue/checkbox';
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
-import RadioButton from 'primevue/radiobutton';
-import Chip from 'primevue/chip';
-import Message from 'primevue/message';
-import ProgressSpinner from 'primevue/progressspinner';
 import FormField from '@primevue/forms/formfield'
-import FieldSet from 'primevue/fieldset'
 import Select from 'primevue/select'
-import AutoComplete from 'primevue/autocomplete'
 import MultiSelect from 'primevue/multiselect'
 import Slider from 'primevue/slider'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Knob from 'primevue/knob'
-import Breadcrumb from 'primevue/breadcrumb'
 import Toast from 'primevue/toast';
 import {ToggleButton} from "primevue";
 
@@ -123,26 +122,18 @@ export default {
     Checkbox,
     InputText,
     InputNumber,
-    RadioButton,
-    Chip,
-    Message,
-    ProgressSpinner,
     Toast,
     FormField,
-    FieldSet,
     Select,
-    AutoComplete,
     MultiSelect,
     Slider,
     ToggleSwitch,
     Knob,
-    Breadcrumb,
     ToggleButton,
   },
   data() {
     return {
       loading: false,
-      error: null,
       dataset_options: [
         'spider',
         'bird',
@@ -237,7 +228,7 @@ export default {
         this.$toast.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Fail to retrieve configuration.',
+          detail: `Error fetching configuration: ${error.message}`,
           life: 3000
         });
       } finally {
@@ -269,12 +260,11 @@ export default {
           life: 3000
         });
       } catch (error) {
-        this.error = `Error saving configuration: ${error.message}`;
         console.error('Error saving configuration:', error);
         this.$toast.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to save configuration.',
+          detail: `Error saving configuration: ${error.message}`,
           life: 3000
         });
       } finally {
@@ -282,45 +272,14 @@ export default {
       }
     },
 
-    async runSqlyzr() {
-      await this.saveConfig();
-
-
-      if (this.error) {
-        return;
-      }
-
-      this.loading = true;
-      this.error = null;
-
-      try {
-        const response = await fetch('http://localhost:7777/api/run', {
-          method: 'POST'
-        });
-
-        if (!response.ok) {
-          console.log(response);
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'SQLyzr started successfully',
-          life: 3000
-        });
-      } catch (error) {
-        this.error = `Error running SQLyzr: ${error.message}`;
-        console.error('Error running SQLyzr:', error);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    addTemperature(temp) {
-      if (!this.config.temps.includes(temp)) {
-        this.config.temps.push(temp);
-      }
+    resetConfig() {
+      this.fetchConfig();
+      this.$toast.add({
+        severity: 'info',
+        summary: 'Info',
+        detail: 'Configuration reset to saved values',
+        life: 3000
+      });
     }
   },
   mounted() {
@@ -331,5 +290,60 @@ export default {
 <style>
 .config {
   padding: 2rem;
+}
+
+.config-section {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #495057;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 0.5rem;
+}
+
+.field-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.pipeline-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.pipeline-step {
+  display: flex;
+  align-items: center;
+}
+
+.pipeline-arrow {
+  margin: 0 0.5rem;
+  color: #6c757d;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+@media (max-width: 768px) {
+  .config {
+    padding: 1rem;
+  }
+
+  .config-section {
+    padding: 1rem;
+  }
 }
 </style>

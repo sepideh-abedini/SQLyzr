@@ -8,6 +8,7 @@ import pytest
 
 from src.mock_server import MockHTTPServer
 from src.sqlyzr.sqlyzr import Sqlyzr
+from src.sqlyzr.sqlyzr_lock import SqlyzrLock
 from src.util.file_utils import read_json
 from src.util.log_util import configure_logging
 import multiprocessing as mp
@@ -60,6 +61,7 @@ async def e2e_test():
 
 
 def main():
+    SqlyzrLock.setup_signals()
     if platform.system() == "Linux":
         mp.set_start_method("spawn", force=True)
     asyncio.run(e2e_test())

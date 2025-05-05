@@ -2,6 +2,7 @@ import os.path
 from typing import List
 
 from loguru import logger
+from natsort import natsorted
 from pydantic import BaseModel
 
 from src.configs.datasets import DatasetName, DatasetSize, DATASETS
@@ -33,7 +34,7 @@ class ConfigData(BaseModel):
         return f"{'_'.join(self.models)}_{self.dataset}_{self.dataset_size}"
 
     def get_model_dataset_dir(self):
-        return os.path.join(self.out_dir, f"{'-'.join(self.models)}_{self.dataset}_{self.dataset_size}")
+        return os.path.join(self.out_dir, f"{'-'.join(natsorted(self.models))}_{self.dataset}_{self.dataset_size}")
 
     def get_aug_dir(self):
         return os.path.join(self.get_model_dataset_dir(), "aug")

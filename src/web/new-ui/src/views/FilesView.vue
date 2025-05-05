@@ -68,7 +68,6 @@ export default {
       currentPath: '',
       items: [],
       home: null,
-      error: null,
       selectedFile: null,
       fileDialogVisible: false,
       fileContent: null,
@@ -84,7 +83,6 @@ export default {
   methods: {
     async fetchDirectoryContents(path) {
       this.loading = true;
-      this.error = null;
 
       try {
         const response = await fetch(`http://localhost:7777/api/files?path=${encodeURIComponent(path)}`);
@@ -98,11 +96,10 @@ export default {
         this.items = data.items;
         this.currentPath = data.path;
       } catch (error) {
-        this.error = `Error loading directory contents: ${error.message}`;
         this.$toast.add({
           severity: 'error',
           summary: 'Error',
-          detail: this.error,
+          detail: `Error loading directory contents: ${error.message}`,
           life: 5000
         });
         console.error('Error loading directory contents:', error);

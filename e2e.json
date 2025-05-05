@@ -20,11 +20,7 @@
   ],
   "pipeline": {
     "eval": true,
-    "predict": true,
-    "verify": true,
-    "transformers": true,
-    "augment": false,
-    "charts": true
+    "predict": true
   },
   "temps": [
     0.2

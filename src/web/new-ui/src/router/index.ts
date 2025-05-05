@@ -5,6 +5,7 @@ import ScoresView from "@/views/ScoresView.vue";
 import ChartsView from "@/views/ChartsView.vue";
 import FilesView from "@/views/FilesView.vue";
 import TrsView from "@/views/TrsView.vue";
+import StatusView from "@/views/StatusView.vue";
 
 
 const router = createRouter({
@@ -34,6 +35,11 @@ const router = createRouter({
       path: '/files',
       name: 'files',
       component: FilesView,
+    },
+    {
+      path: '/status',
+      name: 'status',
+      component: StatusView,
     },
     {
       path: '/trs',

@@ -5,8 +5,6 @@
     <h1>SQLyr Logs</h1>
 
     <div class="card">
-      <h2>Current Step: Verify</h2>
-      <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
       <ProgressSpinner v-if="loading" class="my-4"/>
       <div v-else class="log-container">
         <pre class="log-content">{{ logs }}</pre>
@@ -16,17 +14,13 @@
 </template>
 
 <script>
-import Button from "primevue/button";
-import Message from 'primevue/message';
 import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
-import {ProgressBar} from "primevue";
 
 export default {
   data() {
     return {
       loading: false,
-      error: null,
       logs: '',
       refreshInterval: null
     }
@@ -34,7 +28,6 @@ export default {
   methods: {
     async fetchLogs() {
       this.loading = true;
-      this.error = null;
 
       try {
         const response = await fetch('http://localhost:7777/api/log');
@@ -45,15 +38,14 @@ export default {
 
         const data = await response.json();
         this.logs = data.logs || 'No logs available';
+      } catch (error) {
+        console.error('Error loading logs:', error);
         this.$toast.add({
-          severity: 'info',
-          summary: 'Logs',
-          detail: 'Logs are updated every 10 seconds',
+          severity: 'error',
+          summary: 'Error',
+          detail: `Error loading logs: ${error.message}`,
           life: 5000
         });
-      } catch (error) {
-        this.error = `Error loading logs: ${error.message}`;
-        console.error('Error loading logs:', error);
       } finally {
         this.loading = false;
         this.$nextTick(() => {
@@ -62,13 +54,6 @@ export default {
             logContainer.scrollTop = logContainer.scrollHeight;
           }
         });
-      }
-    },
-
-    scrollToBottom() {
-      const logContainer = document.querySelector('.log-container');
-      if (logContainer) {
-        logContainer.scrollTop = logContainer.scrollHeight;
       }
     }
   },
@@ -84,10 +69,7 @@ export default {
     }
   },
   components: {
-    Button,
-    Message,
     ProgressSpinner,
-    ProgressBar,
     Toast
   }
 }

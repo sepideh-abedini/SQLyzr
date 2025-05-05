@@ -24,7 +24,7 @@ def metric_agg(metric, agg_fun):
 
 
 METRICS = [
-    "em", "ea", "rea", "et", "get"
+    "em", "ea", "rea", "et", "get","count"
 ]
 
 SUMS = {
@@ -51,6 +51,7 @@ class ScoresPostProcessor:
         config = self.__config.eval_conf
         df = pd.read_csv(config.get_raw_scores_path(), index_col=0)
         df = df.drop(columns=['pcat', 'psub', 'dst', 'itr'])
+        df['count'] = 1
 
         sub_grouped = df.groupby(['model', 'tmp', 'cat', 'sub'])
         cc = sub_grouped.apply(metric_consistency('plc'))

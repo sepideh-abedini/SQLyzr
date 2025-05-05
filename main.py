@@ -8,10 +8,10 @@ from monitor import MonitorProcess
 from src.assets.print_logo import print_logo
 from src.eval.lib import Timer
 from src.sqlyzr.sqlyzr import Sqlyzr
+from src.sqlyzr.sqlyzr_lock import SqlyzrLock
 from src.util.log_util import configure_logging
 import asyncio
 import multiprocessing as mp
-
 
 
 async def main(config_path: str):
@@ -23,6 +23,7 @@ async def main(config_path: str):
 
 
 if __name__ == '__main__':
+    SqlyzrLock.setup_signals()
     if platform.system() == "Linux":
         mp.set_start_method("spawn", force=True)
     timer = Timer.start()
@@ -35,5 +36,3 @@ if __name__ == '__main__':
     asyncio.run(main(args.config))
     monitor.terminate()
     print("TOTAL TIME: ", timer.lap())
-
-

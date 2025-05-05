@@ -7,6 +7,9 @@ import pandas as pd
 from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
 
+from src.sqlyzr.pipeline_config import SQLYZR_PIPELINE_STATUS_PATH
+from src.sqlyzr.sqlyzr_lock import SQLYZR_LOCK_PATH, SqlyzrLock
+
 logging.basicConfig(level=logging.DEBUG)
 
 from src.sqlyzr.sqlyzr import Sqlyzr
@@ -61,7 +64,23 @@ async def run_sqlyzr():
             "message": "SQLyzr executed successfully",
         })
     except Exception as e:
+        print("Error:", e)
         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/run/status', methods=['GET'])
+def get_run_status():
+    is_running = os.path.exists(SQLYZR_LOCK_PATH)
+    return jsonify({"is_running": is_running})
+
+
+@app.route('/api/pipeline/status', methods=['GET'])
+def get_pipeline_status():
+    if os.path.exists(SQLYZR_PIPELINE_STATUS_PATH):
+        data = read_json(SQLYZR_PIPELINE_STATUS_PATH)
+    else:
+        data = {}
+    return jsonify(data)
 
 
 @app.route('/api/results', methods=['GET'])
@@ -268,6 +287,7 @@ def serve_static(path):
 
 if __name__ == '__main__':
     configure_logging()
+    SqlyzrLock.setup_signals()
     if platform.system() == "Linux":
         mp.set_start_method("spawn", force=True)
     app.run(debug=True, host='0.0.0.0', port=7777)

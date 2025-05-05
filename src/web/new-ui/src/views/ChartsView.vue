@@ -19,16 +19,6 @@
                   default-value="overall.png"
                   @update:modelValue="selectChart"
                   class="w-full md:w-56"/>
-          <!--          <div class="chart-list">-->
-          <!--            <ul class="list-none p-0 m-0">-->
-          <!--              <li v-for="chart in charts" :key="chart"-->
-          <!--                  class="chart-item p-2 cursor-pointer"-->
-          <!--                  :class="{ 'selected': selectedChart === chart }"-->
-          <!--                  @click="selectChart(chart)">-->
-          <!--                {{ chart }}-->
-          <!--              </li>-->
-          <!--            </ul>-->
-          <!--          </div>-->
         </div>
       </div>
 
@@ -95,7 +85,6 @@ export default {
     async selectChart() {
       this.chartLoading = true;
       this.chartError = null;
-      console.log('selectChart', this.selectedChart);
       try {
         this.chartUrl = `http://localhost:7777/api/charts/${encodeURIComponent(this.selectedChart)}`;
 
@@ -148,26 +137,6 @@ export default {
   box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 
-.chart-list {
-  border: 1px solid #e0e0e0;
-  border-radius: 0.5rem;
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.chart-item {
-  border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.2s;
-}
-
-.chart-item:hover {
-  background-color: #f5f5f5;
-}
-
-.chart-item.selected {
-  background-color: #e3f2fd;
-  font-weight: 600;
-}
 
 .chart-display {
   padding: 1rem;

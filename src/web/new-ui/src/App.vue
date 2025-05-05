@@ -6,6 +6,8 @@ import {RouterLink, RouterView} from 'vue-router'
   <nav>
     <RouterLink to="/">Configuration</RouterLink>
     |
+    <RouterLink to="/status">Status</RouterLink>
+    |
     <RouterLink to="/logs">Logs</RouterLink>
     |
     <RouterLink to="/scores">Scores</RouterLink>
