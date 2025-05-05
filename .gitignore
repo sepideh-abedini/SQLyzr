@@ -32,3 +32,4 @@ conf.
 experimental_local
 .ipynb_checkpoints
 out
+!gui.json

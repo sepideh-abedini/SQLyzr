@@ -1,0 +1,35 @@
+{
+    "aug_per_sub_cat": 6,
+    "batch": false,
+    "charts": [
+        "Execution Time",
+        "Token Usage",
+        "Execution Time Consistency",
+        "Execution Time Inconsistency",
+        "Complexity Consistency",
+        "Complexity Inconsistency",
+        "Execution Accuracy",
+        "Relaxed Execution Accuracy",
+        "Exact Match"
+    ],
+    "dataset": "agg",
+    "dataset_size": "small",
+    "error_threshold": 91,
+    "force": false,
+    "itrs": 1,
+    "models": [
+        "din",
+        "dail"
+    ],
+    "pipeline": {
+        "augment": false,
+        "charts": true,
+        "eval": true,
+        "predict": true,
+        "transformers": false,
+        "verify": true
+    },
+    "temps": [
+        0.2
+    ]
+}
