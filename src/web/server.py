@@ -10,8 +10,6 @@ from flask_cors import CORS
 from src.sqlyzr.pipeline_config import SQLYZR_PIPELINE_STATUS_PATH
 from src.sqlyzr.sqlyzr_lock import SQLYZR_LOCK_PATH, SqlyzrLock
 
-logging.basicConfig(level=logging.DEBUG)
-
 from src.sqlyzr.sqlyzr import Sqlyzr
 from src.util.file_utils import read_json, write_json
 from src.util.log_util import configure_logging

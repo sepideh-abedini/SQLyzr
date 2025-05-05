@@ -8,9 +8,8 @@ services:
       args:
         - "WEB_PORT=${WEB_PORT}"
         - "WEB_DOMAIN=${WEB_DOMAIN}"
+    env_file: .env
     volumes:
-      - ./data:/app/data
+      - /data:/app/data
       - ./gui.json:/app/gui.json
-    environment:
-      - "WEB_PORT=${WEB_PORT}"
     network_mode: host
