@@ -107,11 +107,6 @@ def get_results():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/', methods=['GET'])
-def serve_ui():
-    return send_from_directory(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/vue'), 'index.html')
-
-
 @app.route('/api/charts', methods=['GET'])
 def get_charts():
     try:
@@ -162,35 +157,7 @@ def get_datasets():
 
 @app.route('/api/trs', methods=['GET'])
 def get_trs_file():
-    try:
-        model = request.args.get('model', '')
-        dataset = request.args.get('dataset', '')
-
-        if not model or not dataset:
-            return jsonify({"error": "Model and dataset parameters are required"}), 400
-
-        sqlyzr = Sqlyzr(CONFIG_FILE)
-        trs_dir = sqlyzr.conf.eval_conf.trs_dir
-
-        trs_path = os.path.join(trs_dir, model, dataset)
-
-        if not os.path.exists(trs_path):
-            return jsonify({"error": f"TRS directory for model '{model}' and dataset '{dataset}' not found"}), 404
-
-        trs_files = [f for f in os.listdir(trs_path) if f.endswith('.json')]
-
-        if not trs_files:
-            return jsonify({"error": f"No TRS files found for model '{model}' and dataset '{dataset}'"}), 404
-
-        trs_file_path = os.path.join(trs_path, trs_files[0])
-
-        with open(trs_file_path, 'r') as f:
-            trs_data = json.load(f)
-
-        return jsonify({"trs_data": trs_data})
-    except Exception as e:
-        print("Error:", e)
-        return jsonify({"error": str(e)}), 500
+    pass
 
 
 def count_lines(filename):
@@ -268,19 +235,18 @@ def health_check():
     return jsonify({"status": "ok"}), 200
 
 
+@app.route('/', methods=['GET'])
+def serve_ui():
+    return send_from_directory(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'new-ui/dist'), 'index.html')
+
+
 @app.route('/<path:path>', methods=['GET'])
 def serve_static(path):
-    vue_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/vue')
+    vue_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'new-ui/dist')
     vue_file = os.path.join(vue_dir, path)
 
     if os.path.exists(vue_file) and os.path.isfile(vue_file):
         return send_from_directory(vue_dir, path)
-
-    static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
-    static_file = os.path.join(static_dir, path)
-
-    if os.path.exists(static_file) and os.path.isfile(static_file):
-        return send_from_directory(static_dir, path)
 
     return send_from_directory(vue_dir, 'index.html')
 

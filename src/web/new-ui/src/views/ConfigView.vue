@@ -11,7 +11,6 @@
         <div class="grid">
           <div class="col-12 md:col-6 p-2">
             <div class="config-section">
-              <h3 class="section-title">Basic Settings</h3>
               <FormField class="mb-3">
                 <label class="field-label">Dataset:</label>
                 <Select v-model="config.dataset" :options="dataset_options" placeholder="Select Dataset" class="w-full"/>
@@ -57,7 +56,6 @@
 
           <div class="col-12 md:col-6 p-2">
             <div class="config-section">
-              <h3 class="section-title">Advanced Settings</h3>
               <FormField class="mb-3">
                 <label class="field-label">Aug Per Sub Category:</label>
                 <div class="flex align-items-center">

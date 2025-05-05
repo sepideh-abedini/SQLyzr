@@ -4,7 +4,7 @@
 
     <h1>SQLyr Status</h1>
 
-    <div class="card">
+    <div class="card w-1/2">
       <div class="status-section">
         <h3 class="section-title">Control Panel</h3>
         <div class="flex justify-content-center gap-3 mb-4">
