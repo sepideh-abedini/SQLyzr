@@ -2,11 +2,15 @@ import os
 import json
 import asyncio
 import platform
+import glob
 
 import multiprocessing as mp
 import pandas as pd
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 from src.sqlyzr.sqlyzr import Sqlyzr
 from src.configs.config_loader import ConfigData
@@ -17,6 +21,20 @@ app = Flask(__name__)
 CORS(app)
 
 CONFIG_FILE = "gui.json"
+
+
+@app.route('/api/log', methods=['GET'])
+def get_logs():
+    try:
+        log_file_path = "info.log"
+        if os.path.exists(log_file_path):
+            with open(log_file_path, 'r') as f:
+                logs = f.read()
+            return jsonify({"logs": logs})
+        else:
+            return jsonify({"error": "Log file not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/api/config', methods=['GET'])
@@ -79,6 +97,34 @@ def get_results():
 @app.route('/', methods=['GET'])
 def serve_ui():
     return send_from_directory(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/vue'), 'index.html')
+
+
+@app.route('/api/charts', methods=['GET'])
+def get_charts():
+    try:
+        sqlyzr = Sqlyzr(CONFIG_FILE)
+        files = [os.path.basename(f) for f in os.listdir(sqlyzr.conf.eval_conf.charts_dir)]
+        return jsonify({
+            "charts": files,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/charts/<chart_name>', methods=['GET'])
+def get_chart(chart_name):
+    try:
+
+        sqlyzr = Sqlyzr(CONFIG_FILE)
+        full_path = os.path.join(sqlyzr.conf.eval_conf.charts_dir, chart_name)
+        if os.path.exists(full_path) and os.path.isfile(full_path):
+            full_path = "../../" + full_path
+            return send_file(full_path)
+        else:
+            return jsonify({"error": f"Chart '{chart_name}' not found"}), 404
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/health', methods=['GET'])
