@@ -27,11 +27,9 @@
           </div>
         </div>
 
-        <ProgressBar v-if="is_running" mode="indeterminate" style="height: 6px" class="mb-4"></ProgressBar>
-      </div>
+        <ProgressBar v-if="is_running" mode="indeterminate" style="height: 6px"
+                     class="mb-4"></ProgressBar>
 
-      <div class="status-section">
-        <h3 class="section-title">Pipeline Progress</h3>
         <div class="pipeline-container">
           <div v-for="(step, index) in sorted_pipeline_steps" :key="step" class="pipeline-step">
             <Button :outlined="!pipeline_config[step]"
@@ -39,7 +37,8 @@
                     :loading="is_current_step(step)"
                     :severity="pipeline_status[step] ? 'success' : 'info'"
                     class="text-capitalize"/>
-            <i v-if="index < sorted_pipeline_steps.length - 1" class="pi pi-arrow-right pipeline-arrow"></i>
+            <i v-if="index < sorted_pipeline_steps.length - 1"
+               class="pi pi-arrow-right pipeline-arrow"></i>
           </div>
         </div>
       </div>
@@ -52,6 +51,7 @@ import Button from "primevue/button";
 import Message from 'primevue/message';
 import Toast from 'primevue/toast';
 import {ProgressBar} from "primevue";
+import {API_BASE_URL} from '../config';
 
 export default {
   data() {
@@ -113,14 +113,15 @@ export default {
       return this.is_running && this.current_step === step;
     },
     async fetchStatus() {
-      const response = await fetch('http://localhost:7777/api/run/status');
+      const response = await fetch(`${API_BASE_URL}/api/run/status`);
       const data = await response.json();
       this.is_running = data.is_running;
     },
     async fetchPipelineStatus() {
-      const response = await fetch('http://localhost:7777/api/pipeline/status');
+      const response = await fetch(`${API_BASE_URL}/api/pipeline/status`);
+      const finished_before = this.finished;
       this.pipeline_status = await response.json()
-      if (this.finished) {
+      if (!finished_before && this.finished) {
         this.$toast.add({
           severity: 'success',
           summary: 'Success',
@@ -131,7 +132,7 @@ export default {
       }
     },
     async fetchPipelineConfig() {
-      const response = await fetch('http://localhost:7777/api/config');
+      const response = await fetch(`${API_BASE_URL}/api/config`);
       const data = await response.json();
       this.pipeline_config = data.pipeline;
     },
@@ -142,22 +143,15 @@ export default {
     },
     async runSqlyzr() {
       try {
-        this.setInterval();
-        const response = await fetch('http://localhost:7777/api/run', {
+        fetch(`${API_BASE_URL}/api/run`, {
           method: 'POST'
+        }).then(response => {
+          if (!response.ok) {
+            console.log(response);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+          }
         });
-
-        if (!response.ok) {
-          console.log(response);
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'SQLyzr started successfully',
-          life: 3000
-        });
+        this.setInterval();
       } catch (error) {
         console.error('Error running SQLyzr:', error);
         this.$toast.add({

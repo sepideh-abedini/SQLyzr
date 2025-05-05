@@ -5,8 +5,12 @@ services:
     build:
       context: .
       dockerfile: web.Dockerfile
-    ports:
-      - "${HOST_PORT}:7777"
+      args:
+        - "WEB_PORT=${WEB_PORT}"
+        - "WEB_DOMAIN=${WEB_DOMAIN}"
     volumes:
       - ./data:/app/data
       - ./gui.json:/app/gui.json
+    environment:
+      - "WEB_PORT=${WEB_PORT}"
+    network_mode: host

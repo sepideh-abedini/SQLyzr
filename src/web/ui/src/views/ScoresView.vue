@@ -32,6 +32,7 @@ import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import { API_BASE_URL } from '../config';
 
 export default {
   data() {
@@ -63,7 +64,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await fetch('http://localhost:7777/api/results');
+        const response = await fetch(`${API_BASE_URL}/api/results`);
 
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);

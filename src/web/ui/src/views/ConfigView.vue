@@ -111,6 +111,7 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import Knob from 'primevue/knob'
 import Toast from 'primevue/toast';
 import {ToggleButton} from "primevue";
+import { API_BASE_URL } from '../config';
 
 export default {
 
@@ -192,7 +193,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await fetch('http://localhost:7777/api/config');
+        const response = await fetch(`${API_BASE_URL}/api/config`);
 
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -239,7 +240,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await fetch('http://localhost:7777/api/config', {
+        const response = await fetch(`${API_BASE_URL}/api/config`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

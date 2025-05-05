@@ -61,6 +61,7 @@ import Message from 'primevue/message';
 import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
 import Dropdown from 'primevue/dropdown';
+import { API_BASE_URL } from '../config';
 
 export default {
   data() {
@@ -78,7 +79,7 @@ export default {
   methods: {
     async fetchModels() {
       try {
-        const response = await fetch('http://localhost:7777/api/models');
+        const response = await fetch(`${API_BASE_URL}/api/models`);
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
@@ -92,7 +93,7 @@ export default {
 
     async fetchDatasets() {
       try {
-        const response = await fetch('http://localhost:7777/api/datasets');
+        const response = await fetch(`${API_BASE_URL}/api/datasets`);
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
@@ -111,7 +112,7 @@ export default {
       this.fetchAttempted = true;
 
       try {
-        const response = await fetch(`http://localhost:7777/api/trs?model=${this.selectedModel}&dataset=${this.selectedDataset}`);
+        const response = await fetch(`${API_BASE_URL}/api/trs?model=${this.selectedModel}&dataset=${this.selectedDataset}`);
 
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);

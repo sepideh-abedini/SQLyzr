@@ -60,6 +60,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Dialog from 'primevue/dialog';
 import ProgressSpinner from 'primevue/progressspinner';
+import { API_BASE_URL } from '../config';
 
 export default {
   data() {
@@ -85,7 +86,7 @@ export default {
       this.loading = true;
 
       try {
-        const response = await fetch(`http://localhost:7777/api/files?path=${encodeURIComponent(path)}`);
+        const response = await fetch(`${API_BASE_URL}/api/files?path=${encodeURIComponent(path)}`);
 
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -113,7 +114,7 @@ export default {
       this.fileContent = null;
 
       try {
-        const response = await fetch(`http://localhost:7777/api/files/content?path=${encodeURIComponent(path)}`);
+        const response = await fetch(`${API_BASE_URL}/api/files/content?path=${encodeURIComponent(path)}`);
 
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);

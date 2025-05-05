@@ -47,6 +47,7 @@ import Select from "primevue/select";
 import Message from 'primevue/message';
 import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
+import { API_BASE_URL } from '../config';
 
 export default {
   data() {
@@ -66,7 +67,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await fetch('http://localhost:7777/api/charts');
+        const response = await fetch(`${API_BASE_URL}/api/charts`);
 
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -86,7 +87,7 @@ export default {
       this.chartLoading = true;
       this.chartError = null;
       try {
-        this.chartUrl = `http://localhost:7777/api/charts/${encodeURIComponent(this.selectedChart)}`;
+        this.chartUrl = `${API_BASE_URL}/api/charts/${encodeURIComponent(this.selectedChart)}`;
 
         const img = new Image();
         img.onload = () => {

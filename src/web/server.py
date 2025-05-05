@@ -256,4 +256,5 @@ if __name__ == '__main__':
     SqlyzrLock.setup_signals()
     if platform.system() == "Linux":
         mp.set_start_method("spawn", force=True)
-    app.run(debug=True, host='0.0.0.0', port=7777)
+    port = int(os.environ.get('WEB_PORT', 80))
+    app.run(debug=True, host='0.0.0.0', port=port)
