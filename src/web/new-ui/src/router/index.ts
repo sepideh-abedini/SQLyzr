@@ -3,6 +3,8 @@ import ConfigView from "@/views/ConfigView.vue";
 import LogsView from "@/views/LogsView.vue";
 import ScoresView from "@/views/ScoresView.vue";
 import ChartsView from "@/views/ChartsView.vue";
+import FilesView from "@/views/FilesView.vue";
+import TrsView from "@/views/TrsView.vue";
 
 
 const router = createRouter({
@@ -27,6 +29,16 @@ const router = createRouter({
       path: '/charts',
       name: 'charts',
       component: ChartsView,
+    },
+    {
+      path: '/files',
+      name: 'files',
+      component: FilesView,
+    },
+    {
+      path: '/trs',
+      name: 'trs',
+      component: TrsView,
     },
   ],
 })

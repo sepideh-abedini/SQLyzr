@@ -1,19 +1,15 @@
-import os
-import json
-import asyncio
-import platform
-import glob
-
+import logging
 import multiprocessing as mp
+import os
+import platform
+
 import pandas as pd
 from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
-import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
 from src.sqlyzr.sqlyzr import Sqlyzr
-from src.configs.config_loader import ConfigData, load_config
 from src.util.file_utils import read_json, write_json
 from src.util.log_util import configure_logging
 
@@ -122,6 +118,129 @@ def get_chart(chart_name):
             return jsonify({"error": f"Chart '{chart_name}' not found"}), 404
     except Exception as e:
         print("Error:", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/models', methods=['GET'])
+def get_models():
+    try:
+        from src.eval.single_run_config import ModelName
+        models = ["din", "dail", "dum"]
+        return jsonify({"models": models})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/datasets', methods=['GET'])
+def get_datasets():
+    try:
+        from src.configs.datasets import DatasetName
+        datasets = ["spider", "bird", "beaver", "agg"]
+        return jsonify({"datasets": datasets})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/trs', methods=['GET'])
+def get_trs_file():
+    try:
+        model = request.args.get('model', '')
+        dataset = request.args.get('dataset', '')
+
+        if not model or not dataset:
+            return jsonify({"error": "Model and dataset parameters are required"}), 400
+
+        sqlyzr = Sqlyzr(CONFIG_FILE)
+        trs_dir = sqlyzr.conf.eval_conf.trs_dir
+
+        trs_path = os.path.join(trs_dir, model, dataset)
+
+        if not os.path.exists(trs_path):
+            return jsonify({"error": f"TRS directory for model '{model}' and dataset '{dataset}' not found"}), 404
+
+        trs_files = [f for f in os.listdir(trs_path) if f.endswith('.json')]
+
+        if not trs_files:
+            return jsonify({"error": f"No TRS files found for model '{model}' and dataset '{dataset}'"}), 404
+
+        trs_file_path = os.path.join(trs_path, trs_files[0])
+
+        with open(trs_file_path, 'r') as f:
+            trs_data = json.load(f)
+
+        return jsonify({"trs_data": trs_data})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 500
+
+
+def count_lines(filename):
+    with open(filename, 'rb') as f:
+        return sum(1 for _ in f)
+
+
+@app.route('/api/files', methods=['GET'])
+def list_files():
+    try:
+        path = request.args.get('path', '')
+        sqlyzr = Sqlyzr(CONFIG_FILE)
+        base_dir = sqlyzr.conf.eval_conf.base_dir
+
+        target_path = os.path.normpath(os.path.join(base_dir, path))
+        if not target_path.startswith(base_dir):
+            return jsonify({"error": "Invalid path"}), 403
+
+        if not os.path.exists(target_path):
+            return jsonify({"error": "Path not found"}), 404
+
+        if os.path.isfile(target_path):
+            return jsonify({"error": "Path is a file, not a directory"}), 400
+
+        items = []
+        for item in os.listdir(target_path):
+            item_path = os.path.join(target_path, item)
+            items.append({
+                "name": item,
+                "path": os.path.relpath(item_path, base_dir),
+                "is_dir": os.path.isdir(item_path),
+                "size": os.path.getsize(item_path) if os.path.isfile(item_path) else 0,
+                "lines": count_lines(item_path) if os.path.isfile(item_path) else 0
+            })
+
+        return jsonify({
+            "home": sqlyzr.conf.eval_conf.base_dir,
+            "path": path,
+            "items": items
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/files/content', methods=['GET'])
+def get_file_content():
+    try:
+        path = request.args.get('path', '')
+        sqlyzr = Sqlyzr(CONFIG_FILE)
+        base_dir = sqlyzr.conf.eval_conf.base_dir
+
+        target_path = os.path.normpath(os.path.join(base_dir, path))
+        if not target_path.startswith(base_dir):
+            return jsonify({"error": "Invalid path"}), 403
+
+        if not os.path.exists(target_path):
+            return jsonify({"error": "File not found"}), 404
+
+        if not os.path.isfile(target_path):
+            return jsonify({"error": "Path is a directory, not a file"}), 400
+
+        with open(target_path, 'r') as f:
+            content = f.read()
+
+        return jsonify({
+            "path": path,
+            "content": content
+        })
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 

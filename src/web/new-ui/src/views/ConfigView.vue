@@ -86,7 +86,7 @@
       <template #footer>
         <div class="flex gap-4 mt-1">
           <Button label="Save Configuration" @click="saveConfig" class="w-full"/>
-          <Button label="Run SQLyzr" severity="secondary" outlined class="w-full"/>
+          <Button label="Run SQLyzr" @click="runSqlyzr" severity="secondary" outlined class="w-full"/>
         </div>
       </template>
     </Card>
@@ -283,22 +283,23 @@ export default {
     },
 
     async runSqlyzr() {
-      // First save the configuration
       await this.saveConfig();
 
+
       if (this.error) {
-        return; // Don't proceed if there was an error saving
+        return;
       }
 
       this.loading = true;
       this.error = null;
 
       try {
-        const response = await fetch('/api/run', {
+        const response = await fetch('http://localhost:7777/api/run', {
           method: 'POST'
         });
 
         if (!response.ok) {
+          console.log(response);
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 

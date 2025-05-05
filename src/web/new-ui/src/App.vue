@@ -11,6 +11,10 @@ import {RouterLink, RouterView} from 'vue-router'
     <RouterLink to="/scores">Scores</RouterLink>
     |
     <RouterLink to="/charts">Charts</RouterLink>
+    |
+    <RouterLink to="/files">Files</RouterLink>
+    |
+    <RouterLink to="/trs">Repair Suggestions</RouterLink>
   </nav>
   <RouterView/>
 </template>
