@@ -14,7 +14,7 @@
     ],
     "dataset": "agg",
     "dataset_size": "small",
-    "error_threshold": 91,
+    "error_threshold": 63,
     "force": false,
     "itrs": 1,
     "models": [
