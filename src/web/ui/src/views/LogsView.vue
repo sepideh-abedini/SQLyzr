@@ -31,22 +31,10 @@ export default {
       this.loading = true;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/log`);
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await this.call_api('api/log');
         this.logs = data.logs || 'No logs available';
       } catch (error) {
         console.error('Error loading logs:', error);
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `Error loading logs: ${error.message}`,
-          life: 5000
-        });
       } finally {
         this.loading = false;
         this.$nextTick(() => {

@@ -6,6 +6,7 @@ import ChartsView from "@/views/ChartsView.vue";
 import FilesView from "@/views/FilesView.vue";
 import TrsView from "@/views/TrsView.vue";
 import StatusView from "@/views/StatusView.vue";
+import EnvView from "@/views/EnvView.vue";
 
 
 const router = createRouter({
@@ -45,6 +46,11 @@ const router = createRouter({
       path: '/trs',
       name: 'trs',
       component: TrsView,
+    },
+    {
+      path: '/env',
+      name: 'env',
+      component: EnvView,
     },
   ],
 })

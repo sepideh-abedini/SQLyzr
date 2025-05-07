@@ -67,13 +67,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/charts`);
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await this.call_api('api/charts');
         this.charts = data.charts || [];
       } catch (error) {
         this.error = `Error loading charts: ${error.message}`;

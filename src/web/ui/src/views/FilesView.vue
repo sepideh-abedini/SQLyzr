@@ -8,6 +8,7 @@
       <h2>File Explorer</h2>
       <div class="path-navigation">
         <Button icon="pi pi-home" @click="navigateTo('')" class="p-button-sm"/>
+        <Button icon="pi pi-trash" @click="deleteAllFiles" class="p-button-sm p-button-danger ml-2" title="Delete all files"/>
         <span v-for="(segment, index) in pathSegments" :key="index" class="path-segment">
           <span class="separator" v-if="index > 0">/</span>
           <Button :label="segment" class="p-button-text p-button-sm"
@@ -86,23 +87,11 @@ export default {
       this.loading = true;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/files?path=${encodeURIComponent(path)}`);
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await this.call_api(`api/files?path=${encodeURIComponent(path)}`);
         this.home = data.home;
         this.items = data.items;
         this.currentPath = data.path;
       } catch (error) {
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `Error loading directory contents: ${error.message}`,
-          life: 5000
-        });
         console.error('Error loading directory contents:', error);
       } finally {
         this.loading = false;
@@ -114,21 +103,9 @@ export default {
       this.fileContent = null;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/files/content?path=${encodeURIComponent(path)}`);
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await this.call_api(`api/files/content?path=${encodeURIComponent(path)}`);
         this.fileContent = data.content;
       } catch (error) {
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `Error loading file content: ${error.message}`,
-          life: 5000
-        });
         console.error('Error loading file content:', error);
       } finally {
         this.fileLoading = false;

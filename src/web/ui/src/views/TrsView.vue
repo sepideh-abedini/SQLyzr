@@ -79,11 +79,7 @@ export default {
   methods: {
     async fetchModels() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/models`);
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        const data = await response.json();
+        const data = await this.call_api('api/models');
         this.models = data.models;
       } catch (error) {
         this.error = `Error loading models: ${error.message}`;
@@ -93,11 +89,7 @@ export default {
 
     async fetchDatasets() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/datasets`);
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        const data = await response.json();
+        const data = await this.call_api('api/datasets');
         this.datasets = data.datasets;
       } catch (error) {
         this.error = `Error loading datasets: ${error.message}`;
@@ -112,13 +104,7 @@ export default {
       this.fetchAttempted = true;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/trs?model=${this.selectedModel}&dataset=${this.selectedDataset}`);
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await this.call_api(`api/trs?model=${this.selectedModel}&dataset=${this.selectedDataset}`);
         this.trsData = data.trs_data;
 
         if (this.trsData && this.trsData.length > 0) {
@@ -139,12 +125,6 @@ export default {
       } catch (error) {
         this.error = `Error loading TRS data: ${error.message}`;
         console.error('Error loading TRS data:', error);
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: this.error,
-          life: 5000
-        });
       } finally {
         this.loading = false;
       }

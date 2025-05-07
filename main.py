@@ -1,21 +1,17 @@
 import argparse
+import asyncio
 import os
-import platform
 
 from loguru import logger
 
 from monitor import MonitorProcess
+from src.app_setup import setup_app
 from src.assets.print_logo import print_logo
 from src.eval.lib import Timer
 from src.sqlyzr.sqlyzr import Sqlyzr
-from src.sqlyzr.sqlyzr_lock import SqlyzrLock
-from src.util.log_util import configure_logging
-import asyncio
-import multiprocessing as mp
 
 
 async def main(config_path: str):
-    configure_logging()
     sqlyzr = Sqlyzr(config_path)
     logger.info("Starting SQLyzr")
     await sqlyzr.run()
@@ -23,9 +19,7 @@ async def main(config_path: str):
 
 
 if __name__ == '__main__':
-    SqlyzrLock.setup_signals()
-    if platform.system() == "Linux":
-        mp.set_start_method("spawn", force=True)
+    setup_app()
     timer = Timer.start()
     monitor = MonitorProcess(os.getpid())
     print_logo()

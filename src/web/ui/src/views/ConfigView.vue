@@ -13,24 +13,28 @@
             <div class="config-section">
               <FormField class="mb-3">
                 <label class="field-label">Dataset:</label>
-                <Select v-model="config.dataset" :options="dataset_options" placeholder="Select Dataset" class="w-full"/>
+                <Select v-model="config.dataset" :options="dataset_options"
+                        placeholder="Select Dataset" class="w-full"/>
               </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Dataset Size:</label>
-                <Select v-model="config.dataset_size" :options="size_options" placeholder="Select Size" class="w-full"/>
+                <Select v-model="config.dataset_size" :options="size_options"
+                        placeholder="Select Size" class="w-full"/>
               </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Models:</label>
                 <div class="flex flex-wrap gap-3 mt-2">
                   <div v-for="model in modelOptions" :key="model" class="flex align-items-center">
-                    <Checkbox v-model="config.models" :inputId="model" :value="model" :name="model"/>
+                    <Checkbox v-model="config.models" :inputId="model" :value="model"
+                              :name="model"/>
                     <label :for="model" class="ml-2">{{ model }}</label>
                   </div>
                 </div>
               </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Num Iterations:</label>
-                <InputNumber v-model="config.itrs" showButtons buttonLayout="horizontal" :min="1" :max="5" class="w-full">
+                <InputNumber v-model="config.itrs" showButtons buttonLayout="horizontal" :min="1"
+                             :max="5" class="w-full">
                   <template #incrementbuttonicon>
                     <span class="pi pi-plus"/>
                   </template>
@@ -41,8 +45,9 @@
               </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Temperature:</label>
-                <MultiSelect class="w-full" v-model="config.temps" display="chip" :options="suggested_temps"
-                           placeholder="Select Temperatures" :maxSelectedLabels="3"/>
+                <MultiSelect class="w-full" v-model="config.temps" display="chip"
+                             :options="suggested_temps"
+                             placeholder="Select Temperatures" :maxSelectedLabels="3"/>
               </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Batch Mode:</label>
@@ -72,16 +77,19 @@
               <FormField class="mb-3">
                 <label class="field-label">Pipeline Steps:</label>
                 <div class="pipeline-container mt-2">
-                  <div v-for="(step, index) in sorted_pipeline_steps" :key="step" class="pipeline-step">
-                    <ToggleButton v-model="config.pipeline[step]" :on-label="step" :off-label="step" class="text-capitalize"/>
-                    <i v-if="index < sorted_pipeline_steps.length - 1" class="pi pi-arrow-right pipeline-arrow"></i>
+                  <div v-for="(step, index) in sorted_pipeline_steps" :key="step"
+                       class="pipeline-step">
+                    <ToggleButton v-model="config.pipeline[step]" :on-label="step" :off-label="step"
+                                  class="text-capitalize"/>
+                    <i v-if="index < sorted_pipeline_steps.length - 1"
+                       class="pi pi-arrow-right pipeline-arrow"></i>
                   </div>
                 </div>
               </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Charts:</label>
                 <MultiSelect v-model="config.charts" display="chip" :options="chartOptions" filter
-                           placeholder="Select Charts" class="w-full"/>
+                             placeholder="Select Charts" class="w-full"/>
               </FormField>
             </div>
           </div>
@@ -89,8 +97,10 @@
       </template>
       <template #footer>
         <div class="flex justify-content-center gap-3 mt-3">
-          <Button label="Save Configuration" icon="pi pi-save" @click="saveConfig" class="p-button-primary"/>
-          <Button label="Reset Config" icon="pi pi-refresh" @click="resetConfig" severity="secondary" outlined/>
+          <Button label="Save Configuration" icon="pi pi-save" @click="saveConfig"
+                  class="p-button-primary"/>
+          <Button label="Reset Config" icon="pi pi-refresh" @click="resetConfig"
+                  severity="secondary" outlined/>
         </div>
       </template>
     </Card>
@@ -111,7 +121,7 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import Knob from 'primevue/knob'
 import Toast from 'primevue/toast';
 import {ToggleButton} from "primevue";
-import { API_BASE_URL } from '../config';
+import {API_BASE_URL} from '../config';
 
 export default {
 
@@ -191,94 +201,41 @@ export default {
     async fetchConfig() {
       this.loading = true;
       this.error = null;
+      const data = await this.call_api('api/config');
+      this.config = data;
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/config`);
+      if (this.config.temps && Array.isArray(this.config.temps)) {
+        this.config.temps = this.config.temps.map(temp => parseFloat(temp));
+      } else {
+        this.config.temps = [];
+      }
 
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        this.config = data;
-
-        if (this.config.temps && Array.isArray(this.config.temps)) {
-          this.config.temps = this.config.temps.map(temp => parseFloat(temp));
-        } else {
-          this.config.temps = [];
-        }
-
-        if (!this.config.pipeline) {
-          this.config.pipeline = {
-            verify: false,
-            predict: false,
-            eval: false,
-            transformers: false,
-            augment: false,
-            charts: false
-          };
-        }
-
-        if (!Array.isArray(this.config.charts)) {
-          this.config.charts = [];
-        }
-      } catch (error) {
-        console.error('Error fetching configuration:', error);
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `Error fetching configuration: ${error.message}`,
-          life: 3000
-        });
-      } finally {
-        this.loading = false;
+      if (!this.config.pipeline) {
+        this.config.pipeline = {
+          verify: false,
+          predict: false,
+          eval: false,
+          transformers: false,
+          augment: false,
+          charts: false
+        };
+      }
+      if (!Array.isArray(this.config.charts)) {
+        this.config.charts = [];
       }
     },
 
     async saveConfig() {
       this.loading = true;
-      this.error = null;
-
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/config`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.config)
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Configuration saved successfully',
-          life: 3000
-        });
-      } catch (error) {
-        console.error('Error saving configuration:', error);
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `Error saving configuration: ${error.message}`,
-          life: 3000
-        });
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    resetConfig() {
-      this.fetchConfig();
-      this.$toast.add({
-        severity: 'info',
-        summary: 'Info',
-        detail: 'Configuration reset to saved values',
-        life: 3000
+      await this.call_api('api/config', {
+        method: 'POST',
+        body: JSON.stringify(this.config)
       });
+      this.loading = false;
+    },
+    async resetConfig() {
+      const response = await this.call_api('api/error', {method: 'POST'});
+      console.log(response);
     }
   },
   mounted() {

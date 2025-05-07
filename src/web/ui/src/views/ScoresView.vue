@@ -64,13 +64,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/results`);
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await this.call_api('api/results');
 
         if (data.data) {
           this.tableData = data.data;
@@ -79,12 +73,6 @@ export default {
         }
       } catch (error) {
         console.error('Error loading scores:', error);
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `Error loading scores: ${error.message}`,
-          life: 5000
-        });
         this.tableData = {headers: [], rows: []};
         this.error = `Error loading scores: ${error.message}`;
       } finally {

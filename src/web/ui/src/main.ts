@@ -11,6 +11,7 @@ import 'primeicons/primeicons.css'
 import 'vuefinder/dist/style.css'
 // @ts-ignore
 import VueFinder from 'vuefinder/dist/vuefinder'
+import api_mixin from './api_mixin';
 
 
 const app = createApp(App)
@@ -26,5 +27,15 @@ app.use(PrimeVue, {
 });
 app.use(VueFinder);
 app.use(ToastService);
+app.config.errorHandler = function (err, vm, info) {
+  console.error("Error Handler:", err);
+  vm?.$toast.add({
+    severity: 'error',
+    summary: 'Error',
+    detail: `Error fetching configuration: ${err}`,
+    life: 5000
+  });
+}
+app.mixin(api_mixin);
 
 app.mount('#app')

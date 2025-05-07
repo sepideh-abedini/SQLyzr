@@ -9,11 +9,11 @@
         <h3 class="section-title">Control Panel</h3>
         <div class="flex justify-content-center gap-3 mb-4">
           <Button label="Run SQLyzr" icon="pi pi-play" @click="runSqlyzr" severity="primary"/>
-          <Button label="Kill SQLyzr" icon="pi pi-times" @click="" severity="danger"/>
+          <Button label="Kill SQLyzr" icon="pi pi-times" @click="killSqlyzr" severity="danger"/>
         </div>
 
         <div class="status-info mb-3">
-          <div v-if="is_running" class="status-badge running">
+          <div v-if="running" class="status-badge running">
             <i class="pi pi-spin pi-spinner mr-2"></i>
             <span>Running: {{ current_step }}</span>
           </div>
@@ -27,7 +27,7 @@
           </div>
         </div>
 
-        <ProgressBar v-if="is_running" mode="indeterminate" style="height: 6px"
+        <ProgressBar v-if="running" mode="indeterminate" style="height: 6px"
                      class="mb-4"></ProgressBar>
 
         <div class="pipeline-container">
@@ -56,7 +56,7 @@ import {API_BASE_URL} from '../config';
 export default {
   data() {
     return {
-      is_running: false,
+      running: false,
       loading: false,
       pipeline_status: {
         verify: false,
@@ -110,30 +110,27 @@ export default {
   },
   methods: {
     is_current_step(step) {
-      return this.is_running && this.current_step === step;
+      return this.running && this.current_step === step;
     },
     async fetchStatus() {
-      const response = await fetch(`${API_BASE_URL}/api/run/status`);
-      const data = await response.json();
-      this.is_running = data.is_running;
+      const data = await this.call_api('api/process/status');
+      this.running = data.running;
     },
     async fetchPipelineStatus() {
-      const response = await fetch(`${API_BASE_URL}/api/pipeline/status`);
       const finished_before = this.finished;
-      this.pipeline_status = await response.json()
+      this.pipeline_status = await this.call_api('api/pipeline/status');
       if (!finished_before && this.finished) {
         this.$toast.add({
           severity: 'success',
           summary: 'Success',
           detail: 'SQLyzr finished successfully',
-          life: 600000
+          life: 60000
         });
         this.clearInterval();
       }
     },
     async fetchPipelineConfig() {
-      const response = await fetch(`${API_BASE_URL}/api/config`);
-      const data = await response.json();
+      const data = await this.call_api('api/config');
       this.pipeline_config = data.pipeline;
     },
     async fetchData() {
@@ -142,27 +139,12 @@ export default {
       await this.fetchPipelineStatus();
     },
     async runSqlyzr() {
-      try {
-        fetch(`${API_BASE_URL}/api/run`, {
-          method: 'POST'
-        }).then(response => {
-          if (!response.ok) {
-            console.log(response);
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
-          }
-        });
-        this.setInterval();
-      } catch (error) {
-        console.error('Error running SQLyzr:', error);
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `Error running SQLyzr: ${error.message}`,
-          life: 3000
-        });
-      } finally {
-        this.loading = false;
-      }
+      await this.call_api(`/api/process/run`, {method: 'POST'});
+      this.setInterval();
+    },
+    async killSqlyzr() {
+      await this.call_api(`/api/process/kill`, {method: 'POST'});
+      this.setInterval();
     },
     clearInterval() {
       if (this.refreshInterval) {
