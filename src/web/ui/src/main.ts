@@ -13,7 +13,7 @@ import 'vuefinder/dist/style.css'
 // @ts-ignore
 import VueFinder from 'vuefinder/dist/vuefinder'
 import api_mixin from './api_mixin';
-
+import Userback from "@userback/widget";
 
 const app = createApp(App)
 const MyPreset = definePreset(Aura, {});
@@ -41,3 +41,4 @@ app.config.errorHandler = function (err, vm, info) {
 app.mixin(api_mixin);
 
 app.mount('#app')
+

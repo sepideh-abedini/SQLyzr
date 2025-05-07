@@ -3,22 +3,19 @@ from flask import jsonify, request
 from src.sqlyzr.sqlyzr import Sqlyzr
 from .base_api import BaseAPI
 
+
 class FilesAPI(BaseAPI):
-    """API for file-related endpoints"""
 
     def register_routes(self):
-        """Register file-related routes with the Flask application"""
         self.app.route('/api/files', methods=['GET'])(self.list_files)
         self.app.route('/api/files/content', methods=['GET'])(self.get_file_content)
         self.app.route('/api/files/delete_all', methods=['POST'])(self.delete_all_files)
 
     def count_lines(self, filename):
-        """Count the number of lines in a file"""
         with open(filename, 'rb') as f:
             return sum(1 for _ in f)
 
     def list_files(self):
-        """List files in a directory"""
         try:
             path = request.args.get('path', '')
             sqlyzr = Sqlyzr(self.config_file)
@@ -54,7 +51,6 @@ class FilesAPI(BaseAPI):
             return jsonify({"error": str(e)}), 500
 
     def get_file_content(self):
-        """Get the content of a file"""
         try:
             path = request.args.get('path', '')
             sqlyzr = Sqlyzr(self.config_file)
@@ -81,7 +77,6 @@ class FilesAPI(BaseAPI):
             return jsonify({"error": str(e)}), 500
 
     def delete_all_files(self):
-        """Delete all files in a directory"""
         try:
             path = request.args.get('path', '')
             sqlyzr = Sqlyzr(self.config_file)

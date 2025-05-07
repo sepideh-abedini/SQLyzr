@@ -4,3 +4,7 @@ vector_cache
 #src/third_party/dail/third_party
 .git
 __pycache__
+docker-compose*
+.env
+node_modules
+

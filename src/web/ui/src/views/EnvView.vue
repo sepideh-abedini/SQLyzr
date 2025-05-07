@@ -90,6 +90,12 @@ export default {
   },
   mounted() {
     this.fetchEnvVars();
+    this.$toast.add({
+      severity: 'warn',
+      summary: 'Warning',
+      detail: 'Current server uses HTTP and communication is not encrypted. ' +
+        'DO NOT enter your API keys here!'
+    });
   }
 }
 </script>

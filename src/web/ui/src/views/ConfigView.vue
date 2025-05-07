@@ -45,9 +45,10 @@
               </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Temperature:</label>
-                <MultiSelect class="w-full" v-model="config.temps" display="chip"
-                             :options="suggested_temps"
-                             placeholder="Select Temperatures" :maxSelectedLabels="3"/>
+                <AutoComplete :typeahead="false" multiple :suggestions="suggested_temps"
+                              v-model="config.temps"
+                              @complete="addTemp"
+                />
               </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Batch Mode:</label>
@@ -65,13 +66,14 @@
                 <label class="field-label">Aug Per Sub Category:</label>
                 <div class="flex align-items-center">
                   <InputText v-model.number="config.aug_per_sub_cat" class="w-3 mr-2"/>
-                  <Slider v-model="config.aug_per_sub_cat" min="1" max="10" class="w-full"/>
+                  <Slider v-model="config.aug_per_sub_cat" :min="10" :max="1000" class="w-full"/>
                 </div>
               </FormField>
               <FormField class="mb-3">
-                <label class="field-label">Error Threshold:</label>
+                <label class="field-label">Error Threshold (Min Acceptable REA):</label>
                 <div class="flex justify-content-center mt-2">
-                  <Knob value-color="red" v-model="config.error_threshold"/>
+                  <Knob value-color="red" valueTemplate="{value}%" :size="100" :min="0" :max="100"
+                        v-model="config.error_threshold"/>
                 </div>
               </FormField>
               <FormField class="mb-3">
@@ -120,7 +122,7 @@ import Slider from 'primevue/slider'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Knob from 'primevue/knob'
 import Toast from 'primevue/toast';
-import {ToggleButton} from "primevue";
+import {ToggleButton, AutoComplete} from "primevue";
 import {API_BASE_URL} from '../config';
 
 export default {
@@ -139,6 +141,7 @@ export default {
     ToggleSwitch,
     Knob,
     ToggleButton,
+    AutoComplete
   },
   data() {
     return {
@@ -198,6 +201,10 @@ export default {
     }
   },
   methods: {
+    addTemp(event) {
+      let newTemp = event.query;
+      this.config.temps.push(newTemp);
+    },
     async fetchConfig() {
       this.loading = true;
       this.error = null;
@@ -291,6 +298,13 @@ export default {
 
 .text-capitalize {
   text-transform: capitalize;
+}
+
+.p-togglebutton.p-button.p-highlight,
+.p-togglebutton.p-button:not(.p-disabled):hover {
+  background: #007bff; /* blue */
+  border-color: #007bff; /* blue */
+  color: #fff; /* white text */
 }
 
 @media (max-width: 768px) {

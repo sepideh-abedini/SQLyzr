@@ -16,19 +16,25 @@ RUN rm /tmp/stanford-corenlp.zip
 
 ENV PYTHONPATH=/app
 
-COPY ./src src
-COPY ./scripts scripts
 
 ARG WEB_PORT
 ARG WEB_DOMAIN
 ENV VITE_API_BASE_URL="http://${WEB_DOMAIN}:${WEB_PORT}"
 
+
+COPY ./src src
+COPY ./scripts scripts
+
 WORKDIR /app/src/web/ui
+
 RUN npm install
 RUN npm run build
 
 WORKDIR /app
+COPY ./temp.py .
 
 EXPOSE ${WEB_PORT}
 
-CMD flask --app src/web/server.py run -h 0.0.0.0 -p ${WEB_PORT}
+ENV PYTHONUNBUFFERED=1
+
+CMD flask --debug --app src/web/server.py run -h 0.0.0.0 -p ${WEB_PORT}

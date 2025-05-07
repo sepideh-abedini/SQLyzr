@@ -30,6 +30,29 @@
         <ProgressBar v-if="running" mode="indeterminate" style="height: 6px"
                      class="mb-4"></ProgressBar>
 
+        <div v-if="running" class="resource-usage mb-4">
+          <div class="resource-item">
+            <div class="resource-label">Memory Usage</div>
+            <div class="flex justify-content-center">
+              <Knob v-model="memory_mb" :size="100" :readonly="true" valueColor="#2196F3"/>
+            </div>
+            <div class="resource-value">{{ Math.round(memory_mb) }} MB</div>
+          </div>
+
+          <div class="resource-item">
+            <div class="resource-label">CPU Usage</div>
+            <div class="flex justify-content-center">
+              <Knob v-model="cpu_percent" :size="100" :readonly="true" valueColor="#4CAF50"/>
+            </div>
+            <div class="resource-value">{{ Math.round(cpu_percent) }}%</div>
+          </div>
+
+          <div class="resource-item">
+            <div class="resource-label">Elapsed Time</div>
+            <div class="resource-value">{{ Math.round(elapsed_time) }} seconds</div>
+          </div>
+        </div>
+
         <div class="pipeline-container">
           <div v-for="(step, index) in sorted_pipeline_steps" :key="step" class="pipeline-step">
             <Button :outlined="!pipeline_config[step]"
@@ -51,6 +74,7 @@ import Button from "primevue/button";
 import Message from 'primevue/message';
 import Toast from 'primevue/toast';
 import {ProgressBar} from "primevue";
+import Knob from 'primevue/knob';
 import {API_BASE_URL} from '../config';
 
 export default {
@@ -58,6 +82,9 @@ export default {
     return {
       running: false,
       loading: false,
+      memory_mb: 0,
+      cpu_percent: 0,
+      elapsed_time: 0,
       pipeline_status: {
         verify: false,
         predict: false,
@@ -113,12 +140,17 @@ export default {
       return this.running && this.current_step === step;
     },
     async fetchStatus() {
-      const data = await this.call_api('api/process/status');
+      const data = await this.call_api('api/process/status', {}, false);
       this.running = data.running;
+      if (data.running) {
+        this.memory_mb = data.memory_mb || 0;
+        this.cpu_percent = data.cpu_percent || 0;
+        this.elapsed_time = data.elapsed_time || 0;
+      }
     },
     async fetchPipelineStatus() {
       const finished_before = this.finished;
-      this.pipeline_status = await this.call_api('api/pipeline/status');
+      this.pipeline_status = await this.call_api('api/pipeline/status', {}, false);
       if (!finished_before && this.finished) {
         this.$toast.add({
           severity: 'success',
@@ -130,7 +162,7 @@ export default {
       }
     },
     async fetchPipelineConfig() {
-      const data = await this.call_api('api/config');
+      const data = await this.call_api('api/config', {}, false);
       this.pipeline_config = data.pipeline;
     },
     async fetchData() {
@@ -169,7 +201,8 @@ export default {
     Button,
     Message,
     ProgressBar,
-    Toast
+    Toast,
+    Knob
   }
 }
 </script>
@@ -258,6 +291,32 @@ export default {
 
 .text-capitalize {
   text-transform: capitalize;
+}
+
+.resource-usage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+.resource-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.resource-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.resource-value {
+  text-align: right;
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 
 @media (max-width: 768px) {

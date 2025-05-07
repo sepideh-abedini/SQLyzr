@@ -9,7 +9,8 @@
       <h2>File Explorer</h2>
       <div class="path-navigation">
         <Button icon="pi pi-home" @click="navigateTo('')" class="p-button-sm"/>
-        <Button icon="pi pi-trash" @click="deleteAllFiles" class="p-button-sm p-button-danger ml-2" title="Delete all files"/>
+        <Button icon="pi pi-trash" @click="deleteAllFiles" class="p-button-sm p-button-danger ml-2"
+                title="Delete all files"/>
         <span v-for="(segment, index) in pathSegments" :key="index" class="path-segment">
           <span class="separator" v-if="index > 0">/</span>
           <Button :label="segment" class="p-button-text p-button-sm"
@@ -63,7 +64,7 @@ import Column from 'primevue/column';
 import Dialog from 'primevue/dialog';
 import ProgressSpinner from 'primevue/progressspinner';
 import ConfirmDialog from 'primevue/confirmdialog';
-import { API_BASE_URL } from '../config';
+import {API_BASE_URL} from '../config';
 
 export default {
   data() {
@@ -156,11 +157,21 @@ export default {
             await this.call_api(`api/files/delete_all?path=${encodeURIComponent(this.currentPath)}`, {
               method: 'POST'
             });
-            this.$toast.add({severity: 'success', summary: 'Success', detail: 'All files deleted successfully', life: 3000});
+            this.$toast.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'All files deleted successfully',
+              life: 3000
+            });
             this.fetchDirectoryContents(this.currentPath);
           } catch (error) {
             console.error('Error deleting files:', error);
-            this.$toast.add({severity: 'error', summary: 'Error', detail: 'Failed to delete files', life: 3000});
+            this.$toast.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to delete files',
+              life: 3000
+            });
           }
         }
       });

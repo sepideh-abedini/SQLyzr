@@ -17,6 +17,7 @@ from src.web.api.models_api import ModelsAPI
 from src.web.api.process_api import ProcessAPI
 from src.web.api.results_api import ResultsAPI
 from src.web.api.run_api import RunAPI
+from src.web.api.trs_api import TrsAPI
 from src.web.api.ui_api import UIServeAPI
 from asgiref.wsgi import WsgiToAsgi
 
@@ -37,6 +38,7 @@ def register_api_routes(app, config_file):
     files_api = FilesAPI(app, config_file)
     models_api = ModelsAPI(app, config_file)
     process_api = ProcessAPI(app, config_file)
+    trs_api = TrsAPI(app, config_file)
     ui_api = UIServeAPI(app, config_file)
 
     config_api.register_routes()
@@ -46,6 +48,7 @@ def register_api_routes(app, config_file):
     files_api.register_routes()
     models_api.register_routes()
     process_api.register_routes()
+    trs_api.register_routes()
     ui_api.register_routes()
 
 
@@ -64,9 +67,6 @@ async def bar():
     return jsonify({"msg": "salam"}), 200
 
 
-@app.route('/api/trs', methods=['GET'])
-async def get_trs_file():
-    pass
 
 
 async def bar():

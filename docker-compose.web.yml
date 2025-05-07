@@ -1,15 +1,23 @@
-version: '3'
+version: '3.8'
 
 services:
   web:
+    image: "ghcr.io/parser:web"
     build:
       context: .
       dockerfile: web.Dockerfile
       args:
         - "WEB_PORT=${WEB_PORT}"
         - "WEB_DOMAIN=${WEB_DOMAIN}"
+      tags:
+        - "ghcr.io/parser:web"
+      cache_from:
+        - type=local,src=./.build-cache
+      cache_to:
+        - type=local,dest=./.build-cache
     env_file: .env
     volumes:
-      - /data:/app/data
-      - ./gui.json:/app/gui.json
+      - "/data:/app/data"
+      - "./gui.json:/app/gui.json"
+      - "./.env:/app/.env"
     network_mode: host

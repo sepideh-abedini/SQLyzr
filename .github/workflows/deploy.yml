@@ -5,6 +5,9 @@ on:
     branches: [ 'ref' ]
   workflow_dispatch:
 
+env:
+  WEB_PORT: 80
+  WEB_DOMAIN: ui.sqlyzr.xyz
 jobs:
   deploy:
     runs-on: self-hosted
@@ -15,23 +18,28 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Build web image
+        env:
+        run: |
+          docker compose -f docker-compose.web.yml build
 
-      #
-#      - name: Deploy Web GUI
-#        env:
-#          HOST_PORT: 80
-#        run: |
-#          docker compose -f docker-compose.web.yml up --build -d
-#
-#      - name: Health check
-#        run: |
-#          for i in {1..10}; do
-#            if curl -fs http://localhost/health; then
-#              echo "Server is up"
-#              exit 0
-#            fi
-#            echo "Waiting for server..."
-#            sleep 3
-#          done
-#          echo "Health check failed"
-#          exit 1
+      - name: Deploy
+        run: |
+          docker compose -f docker-compose.web.yml build
+
+      - name: Deploy
+        run: |
+          docker compose -f docker-compose.web.yml up --force-recreate
+
+      - name: Health check
+        run: |
+          for i in {1..10}; do
+            if curl -fs http://localhost/health; then
+              echo "Server is up"
+              exit 0
+            fi
+            echo "Waiting for server..."
+            sleep 1
+          done
+          echo "Health check failed"
+          exit 1

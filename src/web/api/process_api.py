@@ -1,16 +1,16 @@
 import os
 import subprocess
-import psutil
 import time
 from typing import Dict, Optional
-from dotenv import dotenv_values
 
-from flask import jsonify, request
+import psutil
+from dotenv import dotenv_values
+from flask import jsonify
+
 from .base_api import BaseAPI
 
 
 class ProcessAPI(BaseAPI):
-    """API for managing external processes"""
     process: Optional[subprocess.Popen]
 
     def __init__(self, app, config_file):
@@ -18,7 +18,6 @@ class ProcessAPI(BaseAPI):
         self.process = None
 
     def register_routes(self):
-        """Register routes with the Flask application"""
         self.app.route('/api/process/run', methods=['POST'])(self.run_process)
         self.app.route('/api/process/kill', methods=['POST'])(self.kill_process)
         self.app.route('/api/process/status', methods=['GET'])(self.get_process_status)
@@ -31,16 +30,16 @@ class ProcessAPI(BaseAPI):
         process_id = str(hash(script_path + str(os.urandom(4))))
 
         try:
-
             env = os.environ.copy()
             env.update(dotenv_values(".env"))
-            process = subprocess.Popen(
-                ['python', script_path],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=env
-            )
+            with open("std.log",'w') as std_file:
+                process = subprocess.Popen(
+                    ['python', script_path],
+                    stdout=std_file,
+                    stderr=std_file,
+                    text=True,
+                    env=env
+                )
             self.process = process
             return jsonify({
                 "message": "Process started",
@@ -68,7 +67,7 @@ class ProcessAPI(BaseAPI):
 
     def get_process_status(self):
         if not self.process:
-            return jsonify({"error": f"Process not found: {print}"}), 404
+            return jsonify({"Message": f"Process not found: {print}"}), 200
 
         status = self._get_single_process_status(self.process)
         return jsonify(status)
@@ -89,4 +88,5 @@ class ProcessAPI(BaseAPI):
                 status["elapsed_time"] = time.time() - proc.create_time()
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 status["running"] = False
+        print(status)
         return status
