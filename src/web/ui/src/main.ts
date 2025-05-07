@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice';
 import Aura from '@primeuix/themes/aura';
 import {definePreset} from '@primeuix/themes';
 import 'primeflex/primeflex.css';
@@ -27,6 +28,7 @@ app.use(PrimeVue, {
 });
 app.use(VueFinder);
 app.use(ToastService);
+app.use(ConfirmationService);
 app.config.errorHandler = function (err, vm, info) {
   console.error("Error Handler:", err);
   vm?.$toast.add({

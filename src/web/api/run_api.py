@@ -1,33 +1,13 @@
 import asyncio
-import logging
 import os
-from typing import Optional
 
 import dramatiq
-from dramatiq.brokers.redis import RedisBroker
-from dramatiq.results import Results
-from dramatiq.results.backends.redis import RedisBackend
 from flask import jsonify
 
 from src.sqlyzr.pipeline_config import SQLYZR_PIPELINE_STATUS_PATH
 from src.sqlyzr.sqlyzr_lock import SQLYZR_LOCK_PATH
 from src.util.file_utils import read_json
 from .base_api import BaseAPI
-
-redis_broker = RedisBroker()
-result_backend = RedisBackend()
-redis_broker.add_middleware(Results(backend=result_backend))
-dramatiq.set_broker(redis_broker)
-
-
-@dramatiq.actor
-async def bar(self):
-    try:
-        print("STARTING SQLYZR")
-        await asyncio.sleep(20)
-        print("FINISHED SQLYZR")
-    except asyncio.CancelledError:
-        print("CANCELLED SQLYZR")
 
 
 class RunAPI(BaseAPI):

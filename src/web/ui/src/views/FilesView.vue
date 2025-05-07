@@ -1,6 +1,7 @@
 <template>
   <div class="files">
     <Toast/>
+    <ConfirmDialog/>
 
     <h1>SQLyr Output Files</h1>
 
@@ -61,6 +62,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Dialog from 'primevue/dialog';
 import ProgressSpinner from 'primevue/progressspinner';
+import ConfirmDialog from 'primevue/confirmdialog';
 import { API_BASE_URL } from '../config';
 
 export default {
@@ -141,6 +143,27 @@ export default {
       const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+
+    deleteAllFiles() {
+      this.$confirm.require({
+        message: 'Are you sure you want to delete all files in this directory?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        acceptClass: 'p-button-danger',
+        accept: async () => {
+          try {
+            await this.call_api(`api/files/delete_all?path=${encodeURIComponent(this.currentPath)}`, {
+              method: 'POST'
+            });
+            this.$toast.add({severity: 'success', summary: 'Success', detail: 'All files deleted successfully', life: 3000});
+            this.fetchDirectoryContents(this.currentPath);
+          } catch (error) {
+            console.error('Error deleting files:', error);
+            this.$toast.add({severity: 'error', summary: 'Error', detail: 'Failed to delete files', life: 3000});
+          }
+        }
+      });
     }
   },
   mounted() {
@@ -152,7 +175,8 @@ export default {
     DataTable,
     Column,
     Dialog,
-    ProgressSpinner
+    ProgressSpinner,
+    ConfirmDialog
   }
 }
 </script>
