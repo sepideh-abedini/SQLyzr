@@ -17,9 +17,13 @@
             <i class="pi pi-spin pi-spinner mr-2"></i>
             <span>Running: {{ current_step }}</span>
           </div>
-          <div v-else-if="finished" class="status-badge completed">
+          <div v-else-if="success" class="status-badge completed">
             <i class="pi pi-check-circle mr-2"></i>
             <span>Completed</span>
+          </div>
+          <div v-else-if="fail" class="status-badge completed">
+            <i class="pi pi-times-circle mr-2"></i>
+            <span>Failed</span>
           </div>
           <div v-else class="status-badge idle">
             <i class="pi pi-pause mr-2"></i>
@@ -30,27 +34,39 @@
         <ProgressBar v-if="running" mode="indeterminate" style="height: 6px"
                      class="mb-4"></ProgressBar>
 
-        <div v-if="running" class="resource-usage mb-4">
-          <div class="resource-item">
-            <div class="resource-label">Memory Usage</div>
-            <div class="flex justify-content-center">
-              <Knob v-model="memory_mb" :size="100" :readonly="true" valueColor="#2196F3"/>
+        <div class="resource-usage mb-4">
+          <div class="grid">
+            <div class="col-12 md:col-3 p-2">
+              <div class="resource-label">CPU Percentage</div>
+              <div class="flex justify-content-center">
+                <Knob v-model="cpu_percent" valueTemplate="{value}%" :size="100" :readonly="true"
+                      valueColor="#4CAF50" :max="max_cpu"/>
+              </div>
+              <div class="resource-value">{{ cpu_percent }}%</div>
             </div>
-            <div class="resource-value">{{ Math.round(memory_mb) }} MB</div>
+            <div class="col-12 md:col-3 p-2">
+              <div class="resource-label">Memory Percentage</div>
+              <div class="flex justify-content-center">
+                <Knob v-model="memory_percent" valueTemplate="{value}%" :size="100" :readonly="true"
+                      valueColor="#2196F3"/>
+              </div>
+              <div class="resource-value">{{ memory_percent }}%</div>
+            </div>
+            <div class="col-12 md:col-3 p-2">
+              <div class="resource-label">Memory Usage</div>
+              <div class="flex justify-content-center">
+                <Knob v-model="memory_gb" valueTemplate="{value} GB" :size="100" :readonly="true"
+                      valueColor="#4CAF50"/>
+              </div>
+              <div class="resource-value">{{ memory_gb }} MB</div>
+            </div>
+
+            <div class="col-12 md:col-3 p-2">
+              <div class="resource-label">Elapsed Time</div>
+              <div class="resource-value">{{ elapsed_time }} seconds</div>
+            </div>
           </div>
 
-          <div class="resource-item">
-            <div class="resource-label">CPU Usage</div>
-            <div class="flex justify-content-center">
-              <Knob v-model="cpu_percent" :size="100" :readonly="true" valueColor="#4CAF50"/>
-            </div>
-            <div class="resource-value">{{ Math.round(cpu_percent) }}%</div>
-          </div>
-
-          <div class="resource-item">
-            <div class="resource-label">Elapsed Time</div>
-            <div class="resource-value">{{ Math.round(elapsed_time) }} seconds</div>
-          </div>
         </div>
 
         <div class="pipeline-container">
@@ -73,7 +89,7 @@
 import Button from "primevue/button";
 import Message from 'primevue/message';
 import Toast from 'primevue/toast';
-import {ProgressBar} from "primevue";
+import {ProgressBar, Timeline} from "primevue";
 import Knob from 'primevue/knob';
 import {API_BASE_URL} from '../config';
 
@@ -82,9 +98,13 @@ export default {
     return {
       running: false,
       loading: false,
-      memory_mb: 0,
+      memory_percent: 0,
+      memory_gb: 0,
       cpu_percent: 0,
       elapsed_time: 0,
+      max_cpu: 0,
+      success: false,
+      fail: false,
       pipeline_status: {
         verify: false,
         predict: false,
@@ -143,23 +163,39 @@ export default {
       const data = await this.call_api('api/process/status', {}, false);
       this.running = data.running;
       if (data.running) {
-        this.memory_mb = data.memory_mb || 0;
+        this.memory_gb = data.memory_gb || 0;
         this.cpu_percent = data.cpu_percent || 0;
         this.elapsed_time = data.elapsed_time || 0;
+        this.memory_percent = data.memory_percent || 0;
+        this.max_cpu = data.cpu_percent_max || 0;
       }
-    },
-    async fetchPipelineStatus() {
-      const finished_before = this.finished;
-      this.pipeline_status = await this.call_api('api/pipeline/status', {}, false);
-      if (!finished_before && this.finished) {
+      if (data.return_code === 0) {
+        this.success = true;
         this.$toast.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'SQLyzr finished successfully',
-          life: 60000
+          detail: 'SQLyzr completed successfully',
+          life: 3000
         });
+      }
+      if (data.return_code > 0) {
+        this.fail = true;
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Failure',
+          detail: 'SQLyzr failed!',
+          life: 3000
+        });
+      }
+
+      if (this.success || this.fail) {
+        this.finished = true;
         this.clearInterval();
       }
+
+    },
+    async fetchPipelineStatus() {
+      this.pipeline_status = await this.call_api('api/pipeline/status', {}, false);
     },
     async fetchPipelineConfig() {
       const data = await this.call_api('api/config', {}, false);
@@ -172,13 +208,20 @@ export default {
     },
     async runSqlyzr() {
       await this.call_api(`/api/process/run`, {method: 'POST'});
+      this.clear();
       this.setInterval();
     },
     async killSqlyzr() {
       await this.call_api(`/api/process/kill`, {method: 'POST'});
       this.setInterval();
     },
+    clear() {
+      this.running = false;
+      this.success = false;
+      this.fail = false;
+    },
     clearInterval() {
+      console.log('clearing interval');
       if (this.refreshInterval) {
         clearInterval(this.refreshInterval);
       }
@@ -202,7 +245,8 @@ export default {
     Message,
     ProgressBar,
     Toast,
-    Knob
+    Knob,
+    Timeline
   }
 }
 </script>

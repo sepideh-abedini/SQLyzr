@@ -17,7 +17,11 @@ services:
         - type=local,dest=./.build-cache
     env_file: .env
     volumes:
+      - "web_out:/app/out"
       - "/data:/app/data"
       - "./gui.json:/app/gui.json"
       - "./.env:/app/.env"
     network_mode: host
+
+volumes:
+  web_out:

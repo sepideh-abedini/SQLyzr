@@ -9,10 +9,8 @@ import pytest
 from src.app_setup import setup_app
 from src.mock_server import MockHTTPServer
 from src.sqlyzr.sqlyzr import Sqlyzr
-from src.sqlyzr.sqlyzr_lock import SqlyzrLock
 from src.util.file_utils import read_json
 from src.util.log_util import configure_logging
-import multiprocessing as mp
 
 
 def get_overall_score(df, model, metric):

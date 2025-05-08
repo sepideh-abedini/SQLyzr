@@ -12,8 +12,7 @@ from src.eval.exact_match import ExactMatchParser
 from src.eval.single_run_config import SingleRunConfig
 from src.rel.db_facade import DatabaseFacade
 from src.rel.db_factory import DatabaseFactory
-from src.rel.result_matcher import ExtraColumnsMatcher
-from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
+from src.rel.result_matcher import ExtraColumnsMatcher, IgnoreListOrderMatcher
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_transformer import LetterCasingTransformer
 from src.rel.transformer_detector import TransformerDetector
@@ -101,8 +100,8 @@ class RelaxedExecAcc(Metric):
         super().__init__(name, conf)
         self.detector = TransformerDetector(conf, [
             LetterCasingTransformer(),
-            IgnoreListOrderTransformer(),
-            IgnoreColOrderTransformer(),
+            IgnoreListOrderMatcher(),
+            IgnoreListOrderMatcher(),
             ExtraColumnsMatcher()
         ])
 

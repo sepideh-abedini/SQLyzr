@@ -1,15 +1,11 @@
 import asyncio
 import logging
 import os
-import time
 
-from asgiref.wsgi import WsgiToAsgi
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_cors import CORS
 
 from src.app_setup import setup_app
-from src.sqlyzr.sqlyzr_lock import SqlyzrLock
-from src.util.log_util import configure_logging
 from src.web.api.config_api import ConfigAPI
 from src.web.api.env_api import EnvAPI
 from src.web.api.files_api import FilesAPI
@@ -19,7 +15,6 @@ from src.web.api.results_api import ResultsAPI
 from src.web.api.run_api import RunAPI
 from src.web.api.trs_api import TrsAPI
 from src.web.api.ui_api import UIServeAPI
-from asgiref.wsgi import WsgiToAsgi
 
 app = Flask(__name__)
 CORS(app)
@@ -84,6 +79,7 @@ async def post_error():
 
 @app.errorhandler(Exception)
 def handle_exception(e):
+    print("SAAAAAAAAAAAAAAAAAAAAAAAAAAAALAAAAAAAAAAAAAAAAAAAAM")
     logging.error(e)
     return jsonify({"error": str(e)}), 500
 

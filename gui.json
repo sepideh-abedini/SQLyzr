@@ -23,9 +23,9 @@
     ],
     "pipeline": {
         "augment": false,
-        "charts": true,
-        "eval": true,
-        "predict": true,
+        "charts": false,
+        "eval": false,
+        "predict": false,
         "transformers": false,
         "verify": true
     },

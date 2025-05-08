@@ -10,8 +10,8 @@ from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.dataset_config import DatasetConfig
 from src.eval.metrics import RelaxedExecAcc, ExecAcc, GoldNotEmpty
 from src.eval.single_run_config import SingleRunConfig
-from src.rel.result_matcher import ExtraColumnsMatcher, ExtraTupleMatcher
-from src.rel.result_transformer import IgnoreListOrderTransformer, IgnoreColOrderTransformer
+from src.rel.result_matcher import ExtraColumnsMatcher, ExtraTupleMatcher, IgnoreListOrderMatcher, \
+    IgnoreColOrderMatcher, MissingColumnsMatcher
 from src.rel.sql_data import SqlInputData
 from src.rel.sql_processor import SqlMatchingProcessor
 from src.rel.sql_transformer import LetterCasingTransformer, FixPredLimitTransformer
@@ -46,7 +46,7 @@ def merge_trs_files(config: SQLyzrConfig):
                 all_files[dataset_type] = []
                 for f in os.listdir(dataset_dir):
                     p = os.path.join(dataset_dir, f)
-                    if os.path.isfile(p) and p.endswith('.txt'):
+                    if os.path.isfile(p) and p.endswith('.json'):
                         all_files[dataset_type].append(f)
 
         file_groups = defaultdict(list)
@@ -97,18 +97,23 @@ class TransformerFinder:
             return
 
         detector = TransformerDetector(conf.dataset_config, [
-            FixPredLimitTransformer(),
             LetterCasingTransformer(),
-            IgnoreListOrderTransformer(),
-            IgnoreColOrderTransformer(),
+            IgnoreListOrderMatcher(),
+            IgnoreColOrderMatcher(),
             ExtraColumnsMatcher(),
             ExtraTupleMatcher(),
+            MissingColumnsMatcher()
         ])
         ea = ExecAcc("ea", conf.dataset_config)
         gne = GoldNotEmpty("gne", conf.dataset_config)
         reader = PredGoldReader(conf)
         data = reader.get_pred_gold_db_id()
-        results = []
+        repairs = []
+        stats = {
+            "count": 0,
+            "ea": 0,
+            "repaired": 0
+        }
         for idx, (pred_str, gold_str, db_id) in tqdm(enumerate(data), desc=f"Finding transformer for {conf}",
                                                      leave=False, position=1, total=len(data)):
             pred = SqlInputData(db_id, pred_str)
@@ -116,25 +121,27 @@ class TransformerFinder:
             working_sub = detector.find_working_sub_sync(pred, gold)
 
             ea_score = ea.calc(gold_str, pred_str, db_id)
-            if ea_score > 0:
-                rea_score = 1
-            else:
-                rea_score = self.__calc_rea_score(conf.dataset_config, working_sub)
             gold_is_empty = 1 - gne.calc(gold_str, pred_str, db_id)
+            stats["count"] += 1
+
+            if ea_score == 1:
+                stats["ea"] += 1
+
             if ea_score == 0 and working_sub is not None:
+                stats["repaired"] += 1
                 messages = list(map(lambda e: e.msg(), working_sub))
-                results.append({
+                repairs.append({
                     "db_id": db_id,
                     "pred": pred.sql,
                     "gold": gold.sql,
                     "messages": messages,
                     "ea": ea_score,
-                    "rea": rea_score,
                     "GOLD_IS_EMPTY": gold_is_empty
                 })
-        df = pd.DataFrame(results)
+        df = pd.DataFrame(repairs)
         df.to_csv(conf.get_trs_path())
-        write_json(f"{conf.get_trs_path()}.json", results)
+        write_json(f"{conf.get_trs_path()}.json", repairs)
+        write_json(f"{conf.get_trs_path()}.stats.json", stats)
 
     @log("Finding repairs")
     def run(self):
@@ -142,7 +149,7 @@ class TransformerFinder:
         exec_multi_process(self.run_for_conf, run_confs, desc="Finding transformers")
 
     def post_process(self):
-        pass
+        merge_trs_files(self.__config)
         # dfs = []
         # for conf in self.__config.eval_conf.get_run_confs():
         #     df = pd.read_csv(conf.get_trs_path(), index_col=0)

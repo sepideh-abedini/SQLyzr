@@ -10,134 +10,153 @@
         <div class="p-field">
           <label for="model">Model</label>
           <Dropdown id="model" v-model="selectedModel" :options="models"
-                    placeholder="Select a Model" class="w-full"/>
+                    placeholder="Select a Model" class="w-full"
+                    @value-change="fetchTrsData"
+          />
         </div>
         <div class="p-field">
           <label for="dataset">Dataset</label>
           <Dropdown id="dataset" v-model="selectedDataset" :options="datasets"
-                    placeholder="Select a Dataset" class="w-full"/>
+                    placeholder="Select a Dataset" class="w-full"
+                    @value-change="fetchTrsData"
+          />
         </div>
-        <Button label="Fetch Suggestions" icon="pi pi-search" @click="fetchTrsData"
-                :disabled="!selectedModel || !selectedDataset"/>
       </div>
+      <Tabs v-if="trsData" v-model="selectedTrs">
+        <TabList>
+          <Tab v-for="(item,i) in trsData" :value="i">
+            {{ item.name }}
+          </Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel v-for="(item,i) in trsData" :value="i">
+            <h1>Repairs Summary</h1>
+            <div class="grid">
+              <div class="col-12 md:col-6 p-2">
+                <h3> Execution Accuracy:</h3>
+                <Knob :model-value="item.stats.ea" :max="item.stats.count"/>
+              </div>
+              <div class="col-12 md:col-6 p-2">
+                <h3> Repaired:</h3>
+                <Knob :model-value="item.stats.repaired" :max="item.stats.count - item.stats.ea"/>
+              </div>
+            </div>
 
-      <ProgressSpinner v-if="loading" class="my-4"/>
-
-      <div v-else-if="trsData && trsData.length > 0" class="trs-container">
-        <TabView>
-          <!-- Summary Tab -->
-          <TabPanel header="Summary">
-            <h3>Summary of Repair Suggestions ({{ trsData.length }} items)</h3>
-            <div v-for="(group, index) in groupedByMessages" :key="index" class="message-group">
-              <div class="message-group-header">
-                <div class="flex align-items-center justify-content-between">
-                  <h4>Group {{ index + 1 }}</h4>
-                  <div class="flex align-items-center">
-                    <Knob v-model="group.count" :size="75" :readonly="true" valueColor="#2196F3" />
-                    <span class="ml-2">items</span>
+            <div v-if="repairs.length > 0" class="trs-container">
+              <TabView>
+                <TabPanel header="Grouped View">
+                  <div v-for="(group, index) in groupedByMessages" :key="index"
+                       class="message-group">
+                    <div class="message-group-header">
+                      <div class="flex align-items-center justify-content-between">
+                        <Tag severity="info" value="">Group {{ index + 1 }}</Tag>
+                        <div class="flex align-items-center">
+                          <Badge size="xlarge"> {{ group.count }}/{{ repairs.length }} Repairs
+                          </Badge>
+                        </div>
+                      </div>
+                      <div class="message-list">
+                        <ul>
+                          <li v-for="(message, msgIndex) in group.messages" :key="msgIndex">{{
+                              message
+                            }}
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <Button label="View Repairs" icon="pi pi-list" @click="showGroupDetails(group)"
+                            class="mt-2"/>
                   </div>
-                </div>
-                <div class="message-list">
-                  <ul>
-                    <li v-for="(message, msgIndex) in group.messages" :key="msgIndex">{{
-                        message
-                      }}
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <Button label="View Items" icon="pi pi-list" @click="showGroupDetails(group)"
-                      class="mt-2"/>
-            </div>
-          </TabPanel>
+                </TabPanel>
 
-          <!-- Details Tab -->
-          <TabPanel header="Details">
-            <h3>All Repair Suggestions ({{ trsData.length }} items)</h3>
-            <div class="p-grid">
-              <div class="p-col-4 element-list">
-                <div v-for="(item, index) in trsData" :key="index"
-                     class="element-item"
-                     :class="{ 'selected': selectedElement === item }"
-                     @click="selectElement(item)">
-                  <span class="element-number">{{ index + 1 }}</span>
-                  <span class="element-db">{{ item.db_id }}</span>
-                </div>
-              </div>
-              <div class="p-col-8 element-details" v-if="selectedElement">
-                <h4>Element Details</h4>
-                <div class="diff-toggle">
-                  <Button :label="showDiff ? 'Hide Diff' : 'Show Diff'"
-                          :icon="showDiff ? 'pi pi-eye-slash' : 'pi pi-eye'"
-                          @click="showDiff = !showDiff"
-                          class="p-button-sm mb-2"/>
-                </div>
-                <div class="trs-sql">
-                  <h5>Predicted SQL (Wrong)</h5>
-                  <pre v-html="showDiff ? calculateDiff(selectedElement.gold, selectedElement.pred) : highlightSQL(selectedElement.pred)"></pre>
-                </div>
-                <div class="trs-sql">
-                  <h5>Gold SQL (Correct)</h5>
-                  <pre v-html="highlightSQL(selectedElement.gold)"></pre>
-                </div>
-                <div class="trs-messages">
-                  <h5>Repair Messages</h5>
-                  <ul>
-                    <li v-for="(message, msgIndex) in selectedElement.messages" :key="msgIndex">
-                      {{ message }}
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="p-col-8 element-details" v-else>
-                <Message severity="info" text="Select an element from the list to view details."/>
-              </div>
+                <TabPanel header="List View">
+                  <div class="p-grid">
+                    <div class="p-col-4 element-list">
+                      <div v-for="(item, index) in repairs" :key="index"
+                           class="element-item"
+                           :class="{ 'selected': selectedElement === item }"
+                           @click="selectElement(item)">
+                        <Badge class="element-number" severity="info">{{ index + 1 }}</Badge>
+                        <Tag severity="secondary" class="element-db">Database: {{
+                            item.db_id
+                          }}
+                        </Tag>
+                      </div>
+                    </div>
+                    <div class="p-col-8 element-details" v-if="selectedElement">
+                      <h4>Element Details</h4>
+                      <div class="diff-toggle">
+                        <Button :label="showDiff ? 'Hide Diff' : 'Show Diff'"
+                                :icon="showDiff ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                                @click="showDiff = !showDiff"
+                                class="p-button-sm mb-2"/>
+                      </div>
+                      <div class="trs-sql">
+                        <h5>Predicted SQL (Wrong)</h5>
+                        <pre
+                          v-html="showDiff ? calculateDiff(selectedElement.gold, selectedElement.pred) : highlightSQL(selectedElement.pred)"></pre>
+                      </div>
+                      <div class="trs-sql">
+                        <h5>Gold SQL (Correct)</h5>
+                        <pre v-html="highlightSQL(selectedElement.gold)"></pre>
+                      </div>
+                      <div class="trs-messages">
+                        <h5>Repair Messages</h5>
+                        <ul>
+                          <li v-for="(message, msgIndex) in selectedElement.messages"
+                              :key="msgIndex">
+                            {{ message }}
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="p-col-8 element-details" v-else>
+                      <Message severity="info"
+                               text="Select an element from the list to view details."/>
+                    </div>
+                  </div>
+                </TabPanel>
+              </TabView>
             </div>
+
           </TabPanel>
-        </TabView>
-      </div>
-      <div v-else-if="error" class="error-message">
-        <Message severity="error" :text="error"/>
-      </div>
-      <div v-else-if="fetchAttempted" class="no-data-message">
-        <Message severity="info"
-                 text="No repair suggestions found for the selected model and dataset."/>
-      </div>
+        </TabPanels>
+      </Tabs>
     </div>
 
-    <!-- Dialog for showing group details -->
+
     <Dialog v-model:visible="groupDetailsVisible"
-            :header="'Group Details (' + (selectedGroup ? selectedGroup.count : 0) + ' items)'"
+            header="Repair Suggestions"
             :style="{width: '80vw'}" :modal="true">
       <div v-if="selectedGroup" class="group-details">
-        <div class="diff-toggle">
-          <Button :label="showDiff ? 'Hide Diff' : 'Show Diff'"
-                  :icon="showDiff ? 'pi pi-eye-slash' : 'pi pi-eye'"
-                  @click="showDiff = !showDiff"
-                  class="p-button-sm mb-2"/>
+        <div>
+          <div class="diff-toggle">
+            <Button :label="showDiff ? 'Hide Diff' : 'Show Diff'"
+                    :icon="showDiff ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                    @click="showDiff = !showDiff"
+                    class="p-button-sm mb-2"/>
+          </div>
+          <ul class="mb-3">
+            <li v-for="(message, msgIndex) in selectedGroup.messages" :key="msgIndex">{{
+                message
+              }}
+            </li>
+          </ul>
         </div>
 
-        <h4>Messages:</h4>
-        <ul class="mb-3">
-          <li v-for="(message, msgIndex) in selectedGroup.messages" :key="msgIndex">{{
-              message
-            }}
-          </li>
-        </ul>
-
-        <h4>Elements:</h4>
         <div v-for="(item, index) in selectedGroup.items" :key="index" class="trs-item">
           <div class="trs-item-header">
-            <span class="trs-item-number">{{ index + 1 }}</span>
-            <span class="trs-item-db">Database: {{ item.db_id }}</span>
+            <Badge class="trs-item-number" severity="info">{{ index + 1 }}</Badge>
+            <Tag severity="info" class="trs-item-db">Database: {{ item.db_id }}</Tag>
           </div>
           <div class="trs-item-content">
             <div class="trs-sql">
-              <h5>Predicted SQL (Wrong)</h5>
-              <pre v-html="showDiff ? calculateDiff(item.gold, item.pred) : highlightSQL(item.pred)"></pre>
+              <Tag severity="warn">Predicted SQL</Tag>
+              <pre
+                v-html="showDiff ? calculateDiff(item.gold, item.pred) : highlightSQL(item.pred)"></pre>
             </div>
             <div class="trs-sql">
-              <h5>Gold SQL (Correct)</h5>
+              <Tag>Gold SQL</Tag>
               <pre v-html="highlightSQL(item.gold)"></pre>
             </div>
           </div>
@@ -154,19 +173,34 @@ import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
 import Dropdown from 'primevue/dropdown';
 import TabView from 'primevue/tabview';
-import TabPanel from 'primevue/tabpanel';
 import Dialog from 'primevue/dialog';
 import Knob from 'primevue/knob';
+import {Badge, Tag, Tab, TabList, TabPanel, Tabs, TabPanels} from 'primevue';
 import {API_BASE_URL} from '../config';
 
-// Import diff-match-patch for diff calculation
 import * as DiffMatchPatch from 'diff-match-patch';
-// Import Prism for syntax highlighting
 import 'prismjs';
 import 'prismjs/components/prism-sql';
 import 'prismjs/themes/prism.css';
 
 export default {
+  components: {
+    Badge,
+    Button,
+    Message,
+    ProgressSpinner,
+    Toast,
+    Dropdown,
+    TabView,
+    TabPanel,
+    Dialog,
+    Knob,
+    Tab,
+    Tag,
+    Tabs,
+    TabPanels,
+    TabList
+  },
   data() {
     return {
       loading: false,
@@ -181,18 +215,22 @@ export default {
       groupDetailsVisible: false,
       selectedGroup: null,
       dmp: new DiffMatchPatch.diff_match_patch(),
-      showDiff: true
+      showDiff: true,
+      selectedTrs: 0,
     }
   },
   computed: {
-    // Group elements by their messages
+    stats() {
+      return this.trsData[this.selectedTrs].stats
+    },
+    repairs() {
+      return this.trsData[this.selectedTrs].repairs
+    },
     groupedByMessages() {
-      if (!this.trsData) return [];
+      if (!this.repairs) return [];
 
       const groups = {};
-
-      // Group items by their messages (as a string)
-      this.trsData.forEach(item => {
+      this.repairs.forEach(item => {
         const messagesKey = JSON.stringify(item.messages.sort());
         if (!groups[messagesKey]) {
           groups[messagesKey] = {
@@ -205,28 +243,24 @@ export default {
         groups[messagesKey].count++;
       });
 
-      // Convert to array for v-for
       return Object.values(groups).sort((a, b) => b.count - a.count);
     }
   },
   methods: {
-    // Highlight SQL syntax
     highlightSQL(sql) {
       return Prism.highlight(sql, Prism.languages.sql, 'sql');
     },
-
-    // Calculate and display diff between two SQL strings
     calculateDiff(base, target) {
       const diffs = this.dmp.diff_main(base, target);
       this.dmp.diff_cleanupSemantic(diffs);
 
       let html = '';
       for (const [op, text] of diffs) {
-        if (op === 1) { // Insertion (in target but not in base)
+        if (op === 1) {
           html += `<span class="diff-added">${this.highlightSQL(text)}</span>`;
-        } else if (op === -1) { // Deletion (in base but not in target)
+        } else if (op === -1) {
           html += `<span class="diff-removed">${this.highlightSQL(text)}</span>`;
-        } else { // Equal
+        } else {
           html += this.highlightSQL(text);
         }
       }
@@ -263,7 +297,8 @@ export default {
 
       try {
         const data = await this.call_api(`api/trs?model=${this.selectedModel}&dataset=${this.selectedDataset}`);
-        this.trsData = data.trs_data;
+        console.log('TRS data:', data);
+        this.trsData = data;
 
         if (this.trsData && this.trsData.length > 0) {
           this.$toast.add({
@@ -297,26 +332,14 @@ export default {
       this.groupDetailsVisible = true;
     }
   },
-  mounted() {
-    this.fetchModels();
-    this.fetchDatasets();
-
-    // Ensure Prism is loaded
-    if (typeof Prism === 'undefined') {
-      console.error('Prism is not loaded');
-    }
+  async mounted() {
+    await this.fetchModels();
+    await this.fetchDatasets();
+    this.selectedModel = this.models[0];
+    this.selectedDataset = this.datasets[0];
+    await this.fetchTrsData();
+    this.selectedTrs = 0;
   },
-  components: {
-    Button,
-    Message,
-    ProgressSpinner,
-    Toast,
-    Dropdown,
-    TabView,
-    TabPanel,
-    Dialog,
-    Knob
-  }
 }
 </script>
 
@@ -572,5 +595,6 @@ export default {
     max-height: 300px;
     margin-bottom: 1rem;
   }
+
 }
 </style>

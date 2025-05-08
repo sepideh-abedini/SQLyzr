@@ -5,7 +5,6 @@ from loguru import logger
 from src.eval.exact_match import ExactMatchParser
 from src.rel.db_facade import DatabaseFacade
 from src.rel.result_matcher import ExactMatcher, ResultMatcher
-from src.rel.result_transformer import ResultTransformer
 from src.rel.sql_data import SqlInputData, SqlParsedData, SqlExecResult
 from src.rel.sql_processor import SqlMatchingProcessor
 from src.rel.sql_transformer import SqlTransformer
@@ -15,7 +14,6 @@ class Matcher:
     db_facade: DatabaseFacade
     parser: ExactMatchParser
     pre_exec_transformers: List[SqlTransformer]
-    post_exec_transformers: List[ResultTransformer]
     result_matchers: List[ResultMatcher]
 
     def __init__(self, db_facade: DatabaseFacade, parser: ExactMatchParser, processors: List[SqlMatchingProcessor]):

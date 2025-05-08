@@ -8,6 +8,7 @@ from dotenv import dotenv_values
 from flask import jsonify
 
 from .base_api import BaseAPI
+from ...sqlyzr.sqlyzr import Sqlyzr
 
 
 class ProcessAPI(BaseAPI):
@@ -24,15 +25,15 @@ class ProcessAPI(BaseAPI):
 
     def run_process(self):
         script_path = "temp.py"
+
         if not os.path.exists(script_path):
             return jsonify({"error": f"Script not found: {script_path}"}), 404
-
         process_id = str(hash(script_path + str(os.urandom(4))))
 
         try:
             env = os.environ.copy()
             env.update(dotenv_values(".env"))
-            with open("std.log",'w') as std_file:
+            with open("std.log", 'w') as std_file:
                 process = subprocess.Popen(
                     ['python', script_path],
                     stdout=std_file,
@@ -82,10 +83,12 @@ class ProcessAPI(BaseAPI):
         if status["running"]:
             try:
                 proc = psutil.Process(process.pid)
-                status["cpu_percent"] = proc.cpu_percent(interval=0.1)
-                status["memory_mb"] = proc.memory_info().rss / (1024 * 1024)  # Convert to MB
+                status["cpu_percent"] = round(proc.cpu_percent(interval=0.1), 2)
+                status["cpu_percent_max"] = 100 * psutil.cpu_count(logical=True)
+                status["memory_percent"] = round(proc.memory_percent(), 2)
+                status["memory_gb"] = round(proc.memory_info().rss / (1024 * 1024 * 1024), 2)
                 status["create_time"] = proc.create_time()
-                status["elapsed_time"] = time.time() - proc.create_time()
+                status["elapsed_time"] = round(time.time() - proc.create_time(), 2)
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 status["running"] = False
         print(status)
