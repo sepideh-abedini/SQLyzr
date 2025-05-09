@@ -10,6 +10,7 @@ class FilesAPI(BaseAPI):
         self.app.route('/api/files', methods=['GET'])(self.list_files)
         self.app.route('/api/files/content', methods=['GET'])(self.get_file_content)
         self.app.route('/api/files/delete_all', methods=['POST'])(self.delete_all_files)
+        self.app.route('/api/files/delete', methods=['POST'])(self.delete_file)
 
     def count_lines(self, filename):
         with open(filename, 'rb') as f:
@@ -103,5 +104,36 @@ class FilesAPI(BaseAPI):
                 "success": True,
                 "deleted_count": deleted_count
             })
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    def delete_file(self):
+        try:
+            path = request.args.get('path', '')
+            sqlyzr = Sqlyzr(self.config_file)
+            base_dir = sqlyzr.conf.eval_conf.base_dir
+
+            target_path = os.path.normpath(os.path.join(base_dir, path))
+            if not target_path.startswith(base_dir):
+                return jsonify({"error": "Invalid path"}), 403
+
+            if not os.path.exists(target_path):
+                return jsonify({"error": "Path not found"}), 404
+
+            if os.path.isfile(target_path):
+                os.remove(target_path)
+                return jsonify({
+                    "success": True,
+                    "message": "File deleted successfully"
+                })
+            elif os.path.isdir(target_path):
+                import shutil
+                shutil.rmtree(target_path)
+                return jsonify({
+                    "success": True,
+                    "message": "Directory deleted successfully"
+                })
+            else:
+                return jsonify({"error": "Unknown file type"}), 400
         except Exception as e:
             return jsonify({"error": str(e)}), 500

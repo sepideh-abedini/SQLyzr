@@ -9,13 +9,16 @@
       <h2>File Explorer</h2>
       <div class="path-navigation">
         <Button icon="pi pi-home" @click="navigateTo('')" class="p-button-sm"/>
-        <Button icon="pi pi-trash" @click="deleteAllFiles" class="p-button-sm p-button-danger ml-2"
-                title="Delete all files"/>
+        <Button icon="pi pi-trash" @click="deleteTopLevelContents" class="p-button-sm p-button-danger ml-2"
+                title="Delete all files in top-level directory"/>
         <span v-for="(segment, index) in pathSegments" :key="index" class="path-segment">
           <span class="separator" v-if="index > 0">/</span>
           <Button :label="segment" class="p-button-text p-button-sm"
                   @click="navigateToSegment(index)"/>
         </span>
+        <Button v-if="currentPath" icon="pi pi-trash" @click="deleteAllFiles"
+                class="p-button-sm p-button-danger ml-auto"
+                title="Delete all files in current directory"/>
       </div>
 
       <ProgressSpinner v-if="loading" class="my-4"/>
@@ -38,6 +41,13 @@
           <Column field="size" header="Size">
             <template #body="slotProps">
               {{ slotProps.data.is_dir ? '-' : formatSize(slotProps.data.size) }}
+            </template>
+          </Column>
+          <Column header="Actions" style="width: 100px">
+            <template #body="slotProps">
+              <Button icon="pi pi-trash" class="p-button-sm p-button-danger"
+                      @click.stop="deleteFile(slotProps.data)"
+                      title="Delete file/directory"/>
             </template>
           </Column>
         </DataTable>
@@ -170,6 +180,72 @@ export default {
               severity: 'error',
               summary: 'Error',
               detail: 'Failed to delete files',
+              life: 3000
+            });
+          }
+        }
+      });
+    },
+
+    deleteFile(item) {
+      const isDirectory = item.is_dir;
+      const itemType = isDirectory ? 'directory' : 'file';
+
+      this.$confirm.require({
+        message: `Are you sure you want to delete this ${itemType}?`,
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        acceptClass: 'p-button-danger',
+        accept: async () => {
+          try {
+            await this.call_api(`api/files/delete?path=${encodeURIComponent(item.path)}`, {
+              method: 'POST'
+            });
+            this.$toast.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} deleted successfully`,
+              life: 3000
+            });
+            this.fetchDirectoryContents(this.currentPath);
+          } catch (error) {
+            console.error(`Error deleting ${itemType}:`, error);
+            this.$toast.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `Failed to delete ${itemType}`,
+              life: 3000
+            });
+          }
+        }
+      });
+    },
+
+    deleteTopLevelContents() {
+      this.$confirm.require({
+        message: 'Are you sure you want to delete all files in the top-level directory?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        acceptClass: 'p-button-danger',
+        accept: async () => {
+          try {
+            await this.call_api(`api/files/delete_all?path=`, {
+              method: 'POST'
+            });
+            this.$toast.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'All files in top-level directory deleted successfully',
+              life: 3000
+            });
+            // Refresh the current directory view
+            this.fetchDirectoryContents(this.currentPath);
+          } catch (error) {
+            console.error('Error deleting top-level files:', error);
+            this.$toast.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to delete top-level files',
               life: 3000
             });
           }

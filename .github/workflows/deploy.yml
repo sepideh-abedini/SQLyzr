@@ -1,16 +1,24 @@
-name: Deploy GUI
+name: Deploy to Staging
 
 on:
-  push:
-    branches: [ 'ref' ]
+  workflow_run:
+    workflows:
+      - BuildWeb
+    types:
+      - completed
   workflow_dispatch:
 
 env:
-  WEB_PORT: 80
-  WEB_DOMAIN: ui.sqlyzr.xyz
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  COMPOSE_PROJECT_NAME: web
+
 jobs:
   deploy:
     runs-on: self-hosted
+    environment:
+      name: staging
+      url: http://ui.sqlyzr.xyz
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -18,18 +26,52 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build web image
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          tags: type=raw,value=web-${{ github.ref_name }}
+
+      - name: Deploy
+        run: echo "IMAGE_TAG=${{ steps.meta.outputs.tags }}" >> $GITHUB_ENV
+
+      - name: R
+        run: echo $IMAGE_TAG
+
+      - name: Next
         env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_GROUP_ID: ${{ vars.OPENAI_GROUP_ID }}
+          OPENAI_PROJ_ID: ${{ vars.OPENAI_PROJ_ID }}
+          OPENAI_USAGE_TIER: ${{ vars.OPENAI_USAGE_TIER }}
+          DAIL_CACHE_DIR: ${{ vars.DAIL_CACHE_DIR }}
+          SQLYZR_DEVICE: ${{ vars.SQLYZR_DEVICE }}
+          DB_TIMEOUT: ${{ vars.DB_TIMEOUT }}
+          DB_CACHE: ${{ vars.DB_CACHE }}
+          GPT_CACHE: ${{ vars.GPT_CACHE }}
+          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+          NUM_PROC_CHUNKS: ${{ vars.NUM_PROC_CHUNKS }}
+          NUM_PROCS: ${{ vars.NUM_PROCS }}
+          ENC_PROG: ${{ vars.ENC_PROG }}
+          ASYNC_BATCH: ${{ vars.ASYNC_BATCH }}
+          PYTHONUNBUFFERED: ${{ vars.PYTHONUNBUFFERED }}
+          FORCE: ${{ vars.FORCE }}
+          WEB_PORT: ${{ vars.WEB_PORT }}
+          WEB_DOMAIN: ${{ vars.WEB_DOMAIN }}
+          REGISTRY: ${{ vars.REGISTRY }}
+          IMAGE_NAME: ${{ vars.IMAGE_NAME }}
         run: |
-          docker compose -f docker-compose.web.yml build
-
-      - name: Deploy
-        run: |
-          docker compose -f docker-compose.web.yml build
-
-      - name: Deploy
-        run: |
-          docker compose -f docker-compose.web.yml up --force-recreate
+          docker compose -f docker-compose.web.yml down -v
+          docker compose -f docker-compose.web.yml pull
+          docker compose -f docker-compose.web.yml up --force-recreate -d
 
       - name: Health check
         run: |

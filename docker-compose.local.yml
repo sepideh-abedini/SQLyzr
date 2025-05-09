@@ -15,8 +15,7 @@ services:
     entrypoint: tail -f /dev/null
     volumes:
       - "./out:/app/out"
-      - "/data:/app/data"
+      - "./data:/app/data"
       - "./gui.json:/app/gui.json"
       - "./.env:/app/.env"
     network_mode: host
-    shm_size: '8gb'

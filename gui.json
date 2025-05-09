@@ -12,13 +12,12 @@
         "Relaxed Execution Accuracy",
         "Exact Match"
     ],
-    "dataset": "agg",
+    "dataset": "spider",
     "dataset_size": "small",
     "error_threshold": 63,
     "force": false,
     "itrs": 1,
     "models": [
-        "din",
         "dail"
     ],
     "pipeline": {

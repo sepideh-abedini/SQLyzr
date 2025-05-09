@@ -1,15 +1,22 @@
-name: Build
+name: BuildWeb
 
-#on:
-#  - push
+on:
+  push:
+    branches:
+      - synth
+    paths:
+      - 'src/**'
+      - web.Dockerfile
+      - temp.py
+      - .github/workflows/build_web.yaml
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
-
 jobs:
-  build-and-push-image:
+  build-web:
     runs-on: self-hosted
     permissions:
       contents: read
@@ -37,24 +44,35 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          tags: type=raw,value=web-${{ github.ref_name }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Test
+        run: echo ${{vars.WEB_PORT}}
+
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
+          file: ./web.Dockerfile
           context: .
-          cache-from: type=gha
-          cache-to: type=gha,mode=max`
-          #          platforms: linux/amd64,linux/arm64
+          cache-from: type=local,src=/.buildx-cache
+          cache-to: type=local,dest=/.buildx-cache,mode=max
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            WEB_PORT=${{vars.WEB_PORT}}
+            WEB_DOMAIN=${{vars.WEB_DOMAIN}}

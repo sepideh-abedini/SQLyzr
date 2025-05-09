@@ -37,4 +37,12 @@ EXPOSE ${WEB_PORT}
 
 ENV PYTHONUNBUFFERED=1
 
-CMD flask --debug --app src/web/server.py run -h 0.0.0.0 -p ${WEB_PORT}
+RUN echo WEB_DOMAIN=${WEB_DOMAIN}
+ENV WEB_DOMAIN=${WEB_PORT}
+
+RUN echo WEB_PORT=${WEB_PORT}
+ENV WEB_PORT=${WEB_PORT}
+
+CMD echo ${WEB_PORT}
+
+CMD flask --debug --app src/web/server.py run -h 0.0.0.0 -p $WEB_PORT
