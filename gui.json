@@ -12,7 +12,7 @@
         "Relaxed Execution Accuracy",
         "Exact Match"
     ],
-    "dataset": "beaver",
+    "dataset": "spider",
     "dataset_size": "small",
     "error_threshold": 63,
     "force": false,

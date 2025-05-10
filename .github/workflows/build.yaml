@@ -1,14 +1,15 @@
-name: BuildWeb
+name: Build
 
 on:
   push:
     branches:
-      - synthsss
+      - synth
     paths:
       - 'src/**'
-      - web.Dockerfile
+      - Dockerfile
+      - requirements.txt
       - temp.py
-      - .github/workflows/build_web.yaml
+      - .github/workflows/build.yaml
   workflow_dispatch:
 
 env:
@@ -50,7 +51,6 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          tags: type=raw,value=web-${{ github.ref_name }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -65,14 +65,13 @@ jobs:
         id: push
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
-          file: ./web.Dockerfile
           context: .
-          cache-from: type=local,src=/.buildx-cache
-          cache-to: type=local,dest=/.buildx-cache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             SQLYZR_WEB_PORT=${{vars.SQLYZR_WEB_PORT}}
-            SQLYZR_DOMAIN=${{vars.SQLYZR_DOMAIN}}
+            SQLYZR_API_URL=https://ui.${{vars.SQLYZR_DOMAIN}}

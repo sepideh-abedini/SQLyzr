@@ -7,8 +7,8 @@ class UIServeAPI(BaseAPI):
 
     def register_routes(self):
         self.app.route('/', methods=['GET'])(self.serve_ui)
+        self.app.route('/api/health', methods=['GET'])(self.health_check)
         self.app.route('/<path:path>', methods=['GET'])(self.serve_static)
-        self.app.route('/health', methods=['GET'])(self.health_check)
 
     def serve_ui(self):
         return send_from_directory(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../ui/dist'), 'index.html')

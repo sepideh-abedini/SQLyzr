@@ -45,7 +45,7 @@ executing==2.2.0
 Faker==25.9.2
 fastjsonschema==2.21.1
 filelock==3.16.1
-Flask==3.1.0
+flask==3.1.0
 flask-cors==5.0.1
 fonttools==4.53.1
 fqdn==1.5.1

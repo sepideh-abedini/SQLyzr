@@ -1,11 +1,11 @@
 name: e2e
 
-#on:
-#  workflow_run:
-#    workflows:
-#      - Build
-#    types:
-#      - completed
+on:
+  workflow_run:
+    workflows:
+      - Buildssss
+    types:
+      - completed
 
 env:
   REGISTRY: ghcr.io

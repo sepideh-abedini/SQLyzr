@@ -64,8 +64,6 @@ async def bar():
     return jsonify({"msg": "salam"}), 200
 
 
-
-
 async def bar():
     print("STARTING BAR")
     await asyncio.sleep(5)

@@ -59,4 +59,8 @@ RUN echo SQLYZR_WEB_PORT=$SQLYZR_WEB_PORT
 RUN chmod +x /usr/local/bin/*.sh
 RUN echo 'alias sqlyzr="python3 /app/main.py"' >> ~/.bashrc
 
-CMD flask --debug --app src/web/server.py run -h 0.0.0.0 -p $SQLYZR_WEB_PORT
+ENV PATH="/opt/venv/bin:$PATH"
+
+ENTRYPOINT ["/opt/venv/bin/python"]
+
+CMD ["src/web/server.py"]
