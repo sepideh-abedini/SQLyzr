@@ -10,12 +10,16 @@ services:
       - "web_out:/app/out"
       - "/data:/app/data"
       - "./gui.json:/app/gui.json"
-    env_file: ".env.docker.local"
+    env_file: ".env"
     ports:
       - "${WEB_PORT}:${WEB_PORT}"
     networks:
       - sqlyzr
     shm_size: '8gb'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.rule=Host(`ui.sqlyzr.xyz`)"
 
   mysql:
     image: mysql:8.0
@@ -32,6 +36,27 @@ services:
       - "/data/beaver_data:/var/lib/mysql"
     networks:
       - sqlyzr
+  traefik:
+    image: traefik:v2.11
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.tls.yml:/etc/traefik/dynamic/tls.yml
+      - /certs:/certs
+    networks:
+      - sqlyzr
+  whoami:
+    image: traefik/whoami
+    networks:
+      - sqlyzr
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.sqlyzr.xyz`)"
 
 volumes:
   web_out:
