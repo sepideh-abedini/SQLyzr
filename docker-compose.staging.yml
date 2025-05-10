@@ -1,10 +1,16 @@
 services:
   web:
-    image: "${IMAGE_TAG}"
+    build:
+      tags:
+        - "${IMAGE_TAG}"
+      args:
+        WEB_PORT: "${WEB_PORT}"
+        WEB_DOMAIN: "${WEB_DOMAIN}"
     volumes:
       - "web_out:/app/out"
       - "/data:/app/data"
       - "./gui.json:/app/gui.json"
+    env_file: ".env.docker.local"
     ports:
       - "${WEB_PORT}:${WEB_PORT}"
     networks:
