@@ -85,8 +85,9 @@ class MysqlFacade(DatabaseFacade):
                 conn.close()
 
     def get_connection(self):
+        logger.info(f"MYSQL HOST: {MYSQL_HOST}")
         connection = mysql.connector.connect(
-            host="localhost",
+            host=MYSQL_HOST,
             user="root",
             password="sheep",
             connect_timeout=DB_TIMEOUT

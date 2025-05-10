@@ -32,6 +32,7 @@ class ProcessAPI(BaseAPI):
 
         try:
             env = os.environ.copy()
+            print("MYSQL_HOST===============", env.get("MYSQL_HOST"))
             env.update(dotenv_values(".env"))
             with open("std.log", 'w') as std_file:
                 process = subprocess.Popen(

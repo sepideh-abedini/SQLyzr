@@ -3,7 +3,7 @@ name: BuildWeb
 on:
   push:
     branches:
-      - synth
+      - synthsss
     paths:
       - 'src/**'
       - web.Dockerfile

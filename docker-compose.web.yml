@@ -7,8 +7,16 @@ services:
       - "web_out:/app/out"
       - "/data:/app/data"
       - "./gui.json:/app/gui.json"
-      - "./.env:/app/.env"
-    network_mode: host
+    environment:
+      - "MYSQL_HOST=mysql"
+    ports:
+      - "${WEB_PORT}:${WEB_PORT}"
+    networks:
+      - sqlyzr
 
 volumes:
   web_out:
+
+networks:
+  sqlyzr:
+    external: true

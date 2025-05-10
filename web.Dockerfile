@@ -6,7 +6,7 @@ RUN curl -L -o /tmp/stanford-corenlp.zip http://nlp.stanford.edu/software/stanfo
 WORKDIR /app
 
 COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=/tmp/.cache/pip pip install --no-cache-dir -r requirements.txt
 
 RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt_tab')"
 

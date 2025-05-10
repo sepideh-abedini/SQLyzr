@@ -9,6 +9,7 @@ from src.app_setup import setup_app
 from src.web.api.config_api import ConfigAPI
 from src.web.api.env_api import EnvAPI
 from src.web.api.files_api import FilesAPI
+from src.web.api.data_api import DataAPI
 from src.web.api.models_api import ModelsAPI
 from src.web.api.process_api import ProcessAPI
 from src.web.api.results_api import ResultsAPI
@@ -21,7 +22,6 @@ CORS(app)
 
 CONFIG_FILE = "gui.json"
 
-# Dictionary to store background task statuses
 background_tasks = {}
 
 
@@ -31,6 +31,7 @@ def register_api_routes(app, config_file):
     run_api = RunAPI(app, config_file)
     results_api = ResultsAPI(app, config_file)
     files_api = FilesAPI(app, config_file)
+    data_api = DataAPI(app, config_file)
     models_api = ModelsAPI(app, config_file)
     process_api = ProcessAPI(app, config_file)
     trs_api = TrsAPI(app, config_file)
@@ -41,6 +42,7 @@ def register_api_routes(app, config_file):
     run_api.register_routes()
     results_api.register_routes()
     files_api.register_routes()
+    data_api.register_routes()
     models_api.register_routes()
     process_api.register_routes()
     trs_api.register_routes()

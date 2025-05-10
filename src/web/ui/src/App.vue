@@ -16,6 +16,8 @@ import {RouterLink, RouterView} from 'vue-router'
     |
     <RouterLink to="/files">Files</RouterLink>
     |
+    <RouterLink to="/data">Data</RouterLink>
+    |
     <RouterLink to="/trs">Repair Suggestions</RouterLink>
     |
     <RouterLink to="/env">Environment Variables</RouterLink>
