@@ -4,15 +4,15 @@ services:
       tags:
         - "${IMAGE_TAG}"
       args:
-        WEB_PORT: "${WEB_PORT}"
-        WEB_DOMAIN: "${WEB_DOMAIN}"
+        SQLYZR_WEB_PORT: "${SQLYZR_WEB_PORT}"
+        SQLYZR_API_URL: "https://ui.${SQLYZR_DOMAIN}"
     volumes:
       - "web_out:/app/out"
       - "./data:/app/data"
       - "./gui.json:/app/gui.json"
     env_file: ".env.docker.local"
     ports:
-      - "${WEB_PORT}:${WEB_PORT}"
+      - "${SQLYZR_WEB_PORT}:${SQLYZR_WEB_PORT}"
     networks:
       - sqlyzr
     shm_size: '8gb'

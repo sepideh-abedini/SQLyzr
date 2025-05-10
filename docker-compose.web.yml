@@ -10,7 +10,7 @@ services:
     environment:
       - "MYSQL_HOST=mysql"
     ports:
-      - "${WEB_PORT}:${WEB_PORT}"
+      - "${SQLYZR_WEB_PORT}:${SQLYZR_WEB_PORT}"
     networks:
       - sqlyzr
 

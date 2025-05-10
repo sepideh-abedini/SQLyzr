@@ -4,22 +4,22 @@ services:
       tags:
         - "${IMAGE_TAG}"
       args:
-        WEB_PORT: "${WEB_PORT}"
-        WEB_DOMAIN: "${WEB_DOMAIN}"
+        SQLYZR_WEB_PORT: "${SQLYZR_WEB_PORT}"
+        SQLYZR_API_URL: "https://ui.${SQLYZR_DOMAIN}"
     volumes:
       - "web_out:/app/out"
       - "/data:/app/data"
       - "./gui.json:/app/gui.json"
     env_file: ".env"
-    ports:
-      - "${WEB_PORT}:${WEB_PORT}"
+    expose:
+      - "${SQLYZR_WEB_PORT}"
     networks:
       - sqlyzr
     shm_size: '8gb'
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.tls=true"
-      - "traefik.http.routers.whoami.rule=Host(`ui.sqlyzr.xyz`)"
+      - "traefik.http.routers.ui.tls=true"
+      - "traefik.http.routers.ui.rule=Host(`ui.${SQLYZR_DOMAIN}`)"
 
   mysql:
     image: mysql:8.0
@@ -56,7 +56,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.tls=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.sqlyzr.xyz`)"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${SQLYZR_DOMAIN}`)"
 
 volumes:
   web_out:

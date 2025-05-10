@@ -24,9 +24,9 @@ COPY src/web/ui/ ./
 
 RUN ls
 
-ARG WEB_PORT
-ARG WEB_DOMAIN
-ENV VITE_API_BASE_URL="http://${WEB_DOMAIN}:${WEB_PORT}"
+ARG SQLYZR_WEB_PORT
+ARG SQLYZR_API_URL
+ENV VITE_API_BASE_URL="${SQLYZR_API_URL}"
 
 RUN npm run build
 
@@ -51,12 +51,12 @@ COPY ./temp.py .
 COPY ./scripts/ /usr/local/bin
 COPY --from=node /app/dist /app/src/web/ui/dist
 
-ARG WEB_PORT
-ENV WEB_PORT=${WEB_PORT}
+ARG SQLYZR_WEB_PORT
+ENV SQLYZR_WEB_PORT=${SQLUZR_WEB_PORT}
 
-RUN echo WEB_PORT=$WEB_PORT
+RUN echo SQLYZR_WEB_PORT=$SQLYZR_WEB_PORT
 
 RUN chmod +x /usr/local/bin/*.sh
 RUN echo 'alias sqlyzr="python3 /app/main.py"' >> ~/.bashrc
 
-CMD flask --debug --app src/web/server.py run -h 0.0.0.0 -p $WEB_PORT
+CMD flask --debug --app src/web/server.py run -h 0.0.0.0 -p $SQLYZR_WEB_PORT

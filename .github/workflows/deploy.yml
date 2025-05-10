@@ -64,7 +64,7 @@ jobs:
           ASYNC_BATCH: ${{ vars.ASYNC_BATCH }}
           PYTHONUNBUFFERED: ${{ vars.PYTHONUNBUFFERED }}
           FORCE: ${{ vars.FORCE }}
-          WEB_PORT: ${{ vars.WEB_PORT }}
+          SQLYZR_WEB_PORT: ${{ vars.SQLYZR_WEB_PORT }}
           WEB_DOMAIN: ${{ vars.WEB_DOMAIN }}
           REGISTRY: ${{ vars.REGISTRY }}
           IMAGE_NAME: ${{ vars.IMAGE_NAME }}

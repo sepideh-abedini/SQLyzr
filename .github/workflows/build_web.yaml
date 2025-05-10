@@ -59,7 +59,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Test
-        run: echo ${{vars.WEB_PORT}}
+        run: echo ${{vars.SQLYZR_WEB_PORT}}
 
       - name: Build and push Docker image
         id: push
@@ -74,5 +74,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            WEB_PORT=${{vars.WEB_PORT}}
-            WEB_DOMAIN=${{vars.WEB_DOMAIN}}
+            SQLYZR_WEB_PORT=${{vars.SQLYZR_WEB_PORT}}
+            SQLYZR_DOMAIN=${{vars.SQLYZR_DOMAIN}}

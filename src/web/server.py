@@ -92,5 +92,5 @@ register_api_routes(app, CONFIG_FILE)
 if __name__ == '__main__':
     setup_app()
 
-    port = int(os.environ.get('WEB_PORT', 80))
+    port = int(os.environ.get('SQLYZR_WEB_PORT', 80))
     app.run(debug=True, host='0.0.0.0', port=port)
