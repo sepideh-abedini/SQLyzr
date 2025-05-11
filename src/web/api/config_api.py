@@ -13,7 +13,6 @@ class ConfigAPI(BaseAPI):
         self.app.route('/api/config', methods=['POST'])(self.update_config)
 
     def get_config(self):
-        print(os.environ.get("MYSQL_HOST"))
         data = read_json(self.config_file)
         return jsonify(data)
 
@@ -24,6 +23,7 @@ class ConfigAPI(BaseAPI):
         try:
             sqlyzr = Sqlyzr(self.config_file)
         except Exception as e:
+            print(e)
             write_json(self.config_file, old_config)
-            return jsonify({"Invalid Config!": str(e)}), 400
+            return str(e), 400
         return jsonify({"message": "Configuration updated successfully"})

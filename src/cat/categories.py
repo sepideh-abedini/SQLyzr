@@ -32,6 +32,7 @@ CAT_2 = StatementCategory(
     SubCategory("s8", frozenset([ExtraKeywords.Distinct]), "Having Distinct Keyword"),
     SubCategory("s9", frozenset([GroupType.UnconditionalGroup]), "Having GROUP BY clause without HAVING clause"),
     SubCategory("s10", frozenset([JoinTables.SingleJoin, JoinType.EquiJoin]), "Having equi-join"),
+    SubCategory("s10", frozenset([JoinTables.SingleJoin, JoinType.NaturalJoin]), "Having natural join"),
 )
 
 CAT_3 = StatementCategory(
@@ -69,16 +70,16 @@ CAT_4_NEW = StatementCategory(
     SubCategory("s21", frozenset([StructureType.Compound]), "Having a composition keyword such as INTERSECT or UNION"),
     SubCategory("s22", frozenset([NestLevel.One, ExtraKeywords.IN]),
                 "Having nested subqueries with IN expressions"),
-    SubCategory("s23", frozenset([JoinType.NonSimpleJoin, JoinSub.INNER]),
-                "Having nested subqueries with IN expressions"),
-    SubCategory("s24", frozenset([JoinType.NonSimpleJoin, JoinType.EquiJoin]),
-                "Having nested subqueries with IN expressions"),
+    SubCategory("s23", frozenset([JoinType.NonSimpleJoin, JoinType.NaturalJoin]),
+                "Having a non-simple join with equality condition"),
+    SubCategory("s24", frozenset([JoinType.NonSimpleJoin, JoinSub.INNER]),
+                "Having Inner Join"),
     SubCategory("s25", frozenset([JoinType.NonSimpleJoin, ExtraKeywords.OrderBy]),
-                "Having nested subqueries with IN expressions"),
+                "Having a non-simple join with Order By"),
     SubCategory("s26", frozenset([JoinType.NonSimpleJoin, GroupType.UnconditionalGroup]),
-                "Having nested subqueries with IN expressions"),
+                "Having a non-simple join with unconditional group by"),
     SubCategory("s27", frozenset([JoinType.NonSimpleJoin, ExtraKeywords.AGGREGATE]),
-                "Having nested subqueries with IN expressions"),
+                "Having a non-simple join with aggregation keyword"),
     SubCategory("s28", frozenset([JoinTables.MultiJoin]), "Having more than two joins"),
 )
 

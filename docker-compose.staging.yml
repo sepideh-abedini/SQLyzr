@@ -2,7 +2,7 @@ services:
   web:
     image: "${IMAGE_TAG}"
     volumes:
-      - "web_out:/app/out"
+      - "/data/web_out:/app/out"
       - "/data:/app/data"
       - "./gui.json:/app/gui.json"
       - "./.env:/app/.env"
@@ -58,7 +58,6 @@ services:
 
 volumes:
   web_out:
-  beaver_data:
 
 networks:
   sqlyzr:

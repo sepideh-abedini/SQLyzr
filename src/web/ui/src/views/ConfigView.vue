@@ -150,6 +150,7 @@ export default {
         'spider',
         'bird',
         'beaver',
+        'custom',
         'agg'
       ],
       size_options: [

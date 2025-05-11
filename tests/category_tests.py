@@ -16,6 +16,8 @@ from src.parse.parser import SqlParser
     ("SELECT Publisher FROM publication GROUP BY Publisher", "s9"),
     ("SELECT T1.engineer_id, T1.first_name, T1.last_name FROM Maintenance_Engineers AS T1 JOIN Engineer_Visits AS T2",
      "s10"),
+    ("SELECT e.employee_name, d.department_name FROM employees AS e JOIN departments AS d ON e.department_id = d.department_id;",
+     "s10"),
     (
             "SELECT e.employee_name, p.position_title FROM employees AS e JOIN positions AS p ON e.salary > p.min_salary AND e.salary < p.max_salary",
             "s11"),
@@ -32,40 +34,55 @@ from src.parse.parser import SqlParser
     ("SELECT name FROM employees WHERE department = 'Sales' UNION SELECT name FROM freelancers WHERE project = 'Sales'",
      "s21"),
     (
-            "SELECT e.name, d.department_name, p.project_name, c.client_name FROM employees AS e JOIN departments AS d ON e.department_id = d.department_id JOIN projects AS p ON e.project_id = p.project_id JOIN clients AS c ON p.client_id = c.client_id",
+            "SELECT name FROM employees WHERE department IN (SELECT department FROM managers WHERE location = 'Toronto')",
             "s22"),
     (
-            "SELECT name FROM students WHERE EXISTS (SELECT 1 FROM enrollments WHERE enrollments.student_id = students.id AND enrollments.course = 'Math')",
+            "SELECT name FROM students LEFT OUTER JOIN employees",
             "s23"),
-    ("SELECT name FROM employees WHERE department IN (SELECT department FROM managers WHERE location = 'Toronto')",
-     "s24"),
     (
-            "SELECT e.employee_name, d.department_name FROM employees AS e LEFT JOIN departments AS d ON e.department_id = d.department_id;",
-            "s25"),
+            "SELECT name FROM students INNER JOIN employees",
+            "s24"
+    ),
+    (
+            "SELECT name FROM students INNER JOIN employees ORDER BY age",
+            "s25"
+    ),
+    (
+            "SELECT name FROM students LEFT JOIN employees GROUP BY age",
+            "s26"
+    ),
+    (
+            "SELECT AVG(name) FROM students LEFT JOIN employees",
+            "s27"
+    ),
+    (
+            "SELECT name FROM students JOIN employees JOIN class JOIN university",
+            "s28"
+    ),
     (
             "SELECT department, salary FROM employees WHERE department IN (SELECT department FROM managers) GROUP BY department",
-            "s26"),
+            "s29"),
     ("SELECT grade FROM Highschooler WHERE id IN (SELECT T1.student_id FROM Friend AS T1 JOIN Highschooler AS T2)",
-     "s27"),
+     "s30"),
     (
             "SELECT AVG(salary) FROM employees WHERE department_id IN (SELECT department_id FROM departments WHERE location = 'NY')",
-            "s28"),
+            "s31"),
     (
             "SELECT name FROM students WHERE id IN (SELECT student_id FROM courses WHERE course_id IN (SELECT id FROM courses WHERE course_name = 'Math'))",
-            "s29"),
+            "s32"),
     (
             "SELECT employee_name FROM employees WHERE employee_id IN (SELECT manager_id  FROM departments WHERE department_id IN (SELECT department_id FROM projects WHERE client_id IN (SELECT client_id FROM clients WHERE client_name = 'ABC Corporation')))",
-            "s30"),
+            "s33"),
     ("SELECT name FROM scientists EXCEPT SELECT name FROM scientists WHERE hours = (SELECT max(hours) FROM projects)",
-     "s31"),
+     "s34"),
     (
-    "SELECT name, salary, CASE WHEN salary >= 70000 THEN 'High Salary' WHEN salary >= 50000 THEN 'Medium Salary' ELSE 'Low Salary' END AS salary_category FROM Employees",
-    "s32"),
+            "SELECT name, salary, CASE WHEN salary >= 70000 THEN 'High Salary' WHEN salary >= 50000 THEN 'Medium Salary' ELSE 'Low Salary' END AS salary_category FROM Employees",
+            "s35"),
     (
             "WITH RECURSIVE DeptHierarchy AS (SELECT id, name, parent_dept FROM departments WHERE parent_dept IS NULL ) SELECT * FROM DeptHierarchy",
-            "s33"),
+            "s36"),
     ("SELECT name, salary, RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank FROM employees",
-     "s34")
+     "s37")
 ])
 def test_exprs(sql, expected_sub_cat):
     parser = SqlParser()

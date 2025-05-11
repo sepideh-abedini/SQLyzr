@@ -4,6 +4,7 @@ import pytest
 from assertpy import assert_that
 
 from src.configs.datasets import SPIDER_SMALL
+from src.eval.dataset_config import DatasetConfig
 from src.parse.parser import SqlParser
 from src.rel.result_matcher import IgnoreListOrderMatcher, IgnoreColOrderMatcher, ExtraColumnsMatcher, \
     ExtraTupleMatcher, MissingColumnsMatcher
@@ -171,7 +172,14 @@ def test_transformer_detector(processors: List[SqlTransformer], pred_sql: str, g
     assert_sql_parsable(pred_sql)
     assert_sql_parsable(gold_sql)
 
-    ds_conf = SPIDER_SMALL
+    ds_conf = DatasetConfig(
+        dataset_dir="tests/test_data",
+        test_file="data.test.json",
+        gold_file="data.test.gold.txt",
+        train_file="data.train.json",
+        tables_file="tables.json",
+        db_dir="database"
+    )
     detector = TransformerDetector(ds_conf, processors)
 
     pred = SqlInputData(db_id, pred_sql)
@@ -186,6 +194,3 @@ def test_transformer_detector(processors: List[SqlTransformer], pred_sql: str, g
     actual_trs = [type(t).__name__ for t in trs]
     expected_trs = [t.__name__ for t in expected_trs]
     assert_that(actual_trs).is_equal_to(expected_trs)
-
-    # for cls in expected_trs:
-    #     assert any(isinstance(o, cls) for o in trs), f'missing {cls.__name__}'

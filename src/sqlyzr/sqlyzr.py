@@ -22,7 +22,7 @@ class Sqlyzr:
         run_status = PipelineConfig.init()
 
         if self.conf.pipeline.verify:
-            await validate_dataset(self.conf)
+            await validate_dataset(self.conf.eval_conf.dataset_configs)
             run_status.verify = True
 
         if self.conf.pipeline.predict:

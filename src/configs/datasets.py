@@ -69,13 +69,19 @@ BEAVER_SMALL = DatasetConfig(
     dataset_type="beaver"
 )
 
-AGG_SMALL = [
-    SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL
-]
+CUSTOM_SQLITE_DATASET = DatasetConfig(
+    dataset_dir="data/custom",
+    test_file="data.test.json",
+    gold_file="data.test.gold.txt",
+    train_file="data.train.json",
+    tables_file="tables.json",
+    db_dir="database",
+    dataset_type="spider"
+)
 
 DATASETS = {
     "agg": {
-        "small": AGG_SMALL
+        "small": [SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL]
     },
     "bird": {
         "small": [BIRD_SMALL],
@@ -94,8 +100,11 @@ DATASETS = {
     "beaver": {
         "all": [BEAVER_ALL],
         "small": [BEAVER_SMALL]
+    },
+    "custom": {
+        "all": [CUSTOM_SQLITE_DATASET]
     }
 }
 
-DatasetName = Literal["spider", "bird", "beaver", "agg"]
+DatasetName = Literal["spider", "bird", "beaver", "agg", "custom"]
 DatasetSize = Literal["small", "dev", "train", "test", "all", "500"]

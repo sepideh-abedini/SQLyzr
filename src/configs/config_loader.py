@@ -75,7 +75,8 @@ Charts: {self.charts}
 def load_config(path) -> SQLyzrConfig:
     conf_data = ConfigData.load(path)
     logger.debug(conf_data)
-    dataset_confs = DATASETS[conf_data.dataset][conf_data.dataset_size]
+    dataset_confs = DATASETS[conf_data.dataset]
+    dataset_confs = dataset_confs[conf_data.dataset_size]
     dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir(),
             conf_data.get_charts_dir()]
     for d in dirs:

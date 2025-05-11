@@ -27,13 +27,15 @@ export default {
           });
         }
       } else {
+        let msg = await response.text();
         // @ts-ignore
         this.$toast.add({
           severity: 'error',
           summary: 'Error',
-          detail: `Request failed with status code ${response.status}, ${response.statusText}`,
+          detail: `Request failed with status code ${response.status}, ${msg}`,
           life: 5000
         });
+        return null;
       }
 
       const contentType = response.headers.get('content-type');

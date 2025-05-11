@@ -3,21 +3,49 @@ name: Build
 on:
   push:
     branches:
-      - synth
+      - main
     paths:
       - 'src/**'
+      - 'tests/**'
       - Dockerfile
       - requirements.txt
+      - requirements.test.txt
       - temp.py
       - .github/workflows/build.yaml
+      - e2e.Dockerfile
+      - docker-compose.e2e.yml
+      - e2e.py
+      - e2e.json
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  COMPOSE_PROJECT_NAME: e2e
 
 jobs:
+  test:
+    env:
+      PYTHONPATH: .
+    runs-on: self-hosted
+
+    container:
+      image: python:3.11-slim
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.test.txt
+
+      - name: Run script
+        run: |
+          pytest
+
+
   build-web:
+    needs: test
     runs-on: self-hosted
     permissions:
       contents: read
@@ -75,3 +103,4 @@ jobs:
           build-args: |
             SQLYZR_WEB_PORT=${{vars.SQLYZR_WEB_PORT}}
             SQLYZR_API_URL=https://ui.${{vars.SQLYZR_DOMAIN}}
+

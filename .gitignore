@@ -30,6 +30,8 @@ conf.
 *.pdf
 *.csv
 *.txt
+.test-venv
+!requirements.test.txt
 experimental_local
 .ipynb_checkpoints
 out

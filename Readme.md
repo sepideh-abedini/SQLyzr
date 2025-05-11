@@ -1,48 +1,15 @@
-#### Login to Github Container Registry
+## Git Rewrite
 
-- Go to [Github Access Tokens](https://github.com/settings/tokens) settings
-- Grant `read:package`, `write:package`, and `delete:package` accesses to the token
-- Login into ghcr.io using your username and token as the password:
+## CI/CD Setup
 
-```shell
-docker login ghcr.io -u $GH_USERNAME
-```
-
-#### Pull Image
-
-```shell
-docker pull $IMAGE_TAG
-```
-
-#### Create config and env files
-You need to create the `conf.json` and `.env` files.
-
-`conf.json`: Contains the SQLyzr configurations
-`.env`: Contains the API tokens and some other runtime configs
-
-#### Run a SQLyzr container
-
-```shell
-docker run --rm -it --env-file .env \
--v ./conf.json:/app/conf.json \
--v ./data:/app/data \
-$IMAGE_TAG
-```
-
-#### Run SQLyzr
-
-After starting the container, you get shell access to it.
-Here is an example of how to download a dataset and run
-SQLyzr on it:
-##### Spider Example
-- First, download the [Spider dataset](https://yale-lily.github.io/spider) and extract it
-to the `data/spider` directory (do it on host machine).
-- Validate and fix the spider dataset:
-```shell
-unify_spider.sh data/spider
-```
-- Run sqlyzr
-- 
-```shell
-sqlyzr
-```
+1. Create a VPS
+   2. Open ports 443, 8080
+1. Setup DNS
+   1. Register a domain
+   1. Setup DNS 
+   2. Obtain certificates
+1. Setup server
+   1. Install Docker
+   3. Setup Github Runner
+   4. Setup data directory
+2. Setup Github Variables

@@ -1,7 +1,5 @@
 import asyncio
-import time
 from threading import Thread
-import platform
 
 import pandas as pd
 import pytest

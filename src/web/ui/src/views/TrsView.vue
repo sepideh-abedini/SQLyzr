@@ -34,11 +34,11 @@
             <div class="grid">
               <div class="col-12 md:col-6 p-2">
                 <h3> Execution Accuracy:</h3>
-                <Knob :model-value="item.stats.ea" :max="item.stats.count"/>
+                <Knob disabled :model-value="item.stats.ea" :max="item.stats.count"/>
               </div>
               <div class="col-12 md:col-6 p-2">
                 <h3> Repaired:</h3>
-                <Knob :model-value="item.stats.repaired" :max="item.stats.count - item.stats.ea"/>
+                <Knob disabled :model-value="item.stats.repaired" :max="item.stats.count - item.stats.ea"/>
               </div>
             </div>
 

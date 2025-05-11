@@ -1,15 +1,24 @@
 name: e2e
 
 on:
-  workflow_run:
-    workflows:
-      - Buildssss
-    types:
-      - completed
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - e2e.Dockerfile
+      - requirements.txt
+      - docker-compose.e2e.yml
+      - e2e.py
+      - e2e.json
+      - .github/workflows/e2e-runner.yml
+  workflow_dispatch:
+
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  COMPOSE_PROJECT_NAME: e2e
 
 jobs:
   e2e-test:
@@ -17,27 +26,35 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: Run E2E tests
+      - name: Create .env
         env:
-          SQLYZR_IMAGE: ${{ steps.meta.outputs.tags }}
-          COMPOSE_PROJECT_NAME: e2e
+          OPENAI_API_KEY: sk-proj
+          OPENAI_GROUP_ID: org
+          OPENAI_PROJ_ID: proj
+          OPENAI_USAGE_TIER: tier5
+          OPENAI_BASE_URL: http://localhost:8888
+          DAIL_CACHE_DIR: data
+          OPENAI_TIMEOUT: 120
+          SQLYZR_DEVICE: cpu
+          DB_TIMEOUT: 6000
+          DB_CACHE: 1
+          GPT_CACHE: 0
+          LOG_LEVEL: DEBUG
+          NUM_PROC_CHUNKS: 4
+          NUM_PROCS: 4
+          ENC_PROG: 1
+          ASYNC_BATCH: 5
+          PYTHONUNBUFFERED: 1
+          FORCE: 0
+          MYSQL_HOST: mysql
         run: |
-          docker compose -f docker-compose.e2e.runner.yml pull
-          docker compose -f docker-compose.e2e.runner.yml up --force-recreate --exit-code-from sqlyzr
+          env > .env.e2e
+      - name: Print env
+        run: cat .env.e2e
+      - name: Run E2E tests
+        run: |
+          docker compose -f docker-compose.e2e.yml up --force-recreate --exit-code-from sqlyzr
       - name: Cleanup
-        env:
-          SQLYZR_IMAGE: ${{ steps.meta.outputs.tags }}
-          COMPOSE_PROJECT_NAME: e2e
         if: always()
         run: docker compose -f docker-compose.e2e.runner.yml rm -f -v
+

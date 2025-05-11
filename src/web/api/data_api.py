@@ -1,8 +1,11 @@
+import logging
 import os
 import zipfile
 import shutil
 from flask import jsonify, request
 from .base_api import BaseAPI
+from ...configs.datasets import CUSTOM_SQLITE_DATASET
+from ...sqlyzr.validate import validate_dataset
 
 
 class DataAPI(BaseAPI):
@@ -23,7 +26,6 @@ class DataAPI(BaseAPI):
             return 0
 
     def get_data_dir(self):
-        # Use the project's data directory
         return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'data')
 
     def list_data_files(self):
@@ -153,51 +155,45 @@ class DataAPI(BaseAPI):
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
-    def upload_zip(self):
+    async def upload_zip(self):
         try:
             base_dir = self.get_data_dir()
-            
+
             if 'file' not in request.files:
                 return jsonify({"error": "No file part"}), 400
-                
+
+            if os.path.exists(CUSTOM_SQLITE_DATASET.dataset_dir):
+                return jsonify({
+                    "error": f"Directory exists: {CUSTOM_SQLITE_DATASET.dataset_dir}, it should be removed before uploading new dataset"}), 400
+
             file = request.files['file']
             if file.filename == '':
                 return jsonify({"error": "No selected file"}), 400
-                
+
             if not file.filename.endswith('.zip'):
                 return jsonify({"error": "File must be a zip archive"}), 400
-                
-            # Get the zip file name without extension
+
             zip_name = os.path.splitext(file.filename)[0]
-            
-            # Create a directory with the zip name
-            target_dir = os.path.join(base_dir, zip_name)
-            
-            # If directory already exists, add a number to make it unique
-            original_target_dir = target_dir
-            counter = 1
-            while os.path.exists(target_dir):
-                target_dir = f"{original_target_dir}_{counter}"
-                counter += 1
-                
-            os.makedirs(target_dir)
-            
-            # Save the zip file temporarily
             temp_zip_path = os.path.join(base_dir, file.filename)
             file.save(temp_zip_path)
-            
-            # Extract the zip file
-            with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
-                zip_ref.extractall(target_dir)
-                
-            # Remove the temporary zip file
-            os.remove(temp_zip_path)
-            
-            return jsonify({
-                "success": True,
-                "message": f"Zip file extracted to {zip_name}",
-                "path": os.path.relpath(target_dir, base_dir)
-            })
+            target_dir = CUSTOM_SQLITE_DATASET.dataset_dir
+            try:
+                with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(target_dir)
+                os.remove(temp_zip_path)
+                await validate_dataset([CUSTOM_SQLITE_DATASET])
+                return jsonify({
+                    "success": True,
+                    "message": f"Zip file extracted to {zip_name}",
+                    "path": os.path.relpath(target_dir, base_dir)
+                })
+            except Exception as e:
+                print(f"Dataset validation failed: {e}")
+                if os.path.exists(target_dir):
+                    os.rmdir(target_dir)
+                return jsonify({"error": "Invalid Dataset!"}), 400
+
+
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
@@ -206,37 +202,37 @@ class DataAPI(BaseAPI):
             data = request.get_json()
             if not data or 'path' not in data or 'new_name' not in data:
                 return jsonify({"error": "Missing required parameters"}), 400
-                
+
             path = data['path']
             new_name = data['new_name']
-            
+
             base_dir = self.get_data_dir()
-            
+
             # Validate the new name
             if not new_name or '/' in new_name or '\\' in new_name:
                 return jsonify({"error": "Invalid new name"}), 400
-                
+
             # Get the source path
             source_path = os.path.normpath(os.path.join(base_dir, path))
             if not source_path.startswith(base_dir):
                 return jsonify({"error": "Invalid path"}), 403
-                
+
             if not os.path.exists(source_path):
                 return jsonify({"error": "Path not found"}), 404
-                
+
             # Get the parent directory
             parent_dir = os.path.dirname(source_path)
-            
+
             # Create the destination path
             dest_path = os.path.join(parent_dir, new_name)
-            
+
             # Check if destination already exists
             if os.path.exists(dest_path):
                 return jsonify({"error": "A file or directory with that name already exists"}), 400
-                
+
             # Rename the file or directory
             os.rename(source_path, dest_path)
-            
+
             return jsonify({
                 "success": True,
                 "message": "Item renamed successfully",

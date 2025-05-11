@@ -1,5 +1,6 @@
 import json
 from functools import partial
+from typing import List
 
 from loguru import logger
 from tqdm import tqdm
@@ -8,6 +9,7 @@ from tqdm.asyncio import tqdm
 from src.cat.catter import Catter
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.dataset.models import SpiderExample
+from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.eval.model_eval_config import ModelEvalConfig
 from src.rel.db_factory import DatabaseFactory
@@ -19,13 +21,13 @@ def exec_example(db_facade, e: SpiderExample):
     return db_facade.exec_query_sync(e.db_id, e.query)
 
 
-async def validate_dataset(conf: SQLyzrConfig):
+async def validate_dataset(dataset_configs: List[DatasetConfig]):
     catter = Catter()
     errors = []
     total = 0
     valid_examples = []
 
-    for ds_conf in conf.eval_conf.dataset_configs:
+    for ds_conf in dataset_configs:
         test_data = read_json(ds_conf.get_test_path())
         train_data = read_json(ds_conf.get_test_path())
 

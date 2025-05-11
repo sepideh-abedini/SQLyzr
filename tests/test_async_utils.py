@@ -1,22 +1,11 @@
-"""
-Unit tests for the async_utils module.
-
-This module contains tests for the utility functions in src.util.async_utils:
-- partition_list: Tests for splitting lists into chunks
-- apply_async: Tests for applying an async function to a list of items with concurrency control
-
-To run these tests:
-    pytest tests/test_async_utils.py -v
-"""
-
 import asyncio
-import os
+
 import pytest
 
 from src.util.async_utils import apply_async
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="session")
 async def test_apply_async_basic():
     """Test apply_async with a simple async function."""
 
@@ -29,7 +18,7 @@ async def test_apply_async_basic():
     assert result == [2, 4, 6, 8, 10]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="session")
 async def test_apply_async_empty_list():
     """Test apply_async with an empty list."""
 
@@ -42,7 +31,7 @@ async def test_apply_async_empty_list():
     assert result == []
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="session")
 async def test_apply_async_error_handling():
     """Test apply_async with a function that raises an exception."""
 
@@ -58,7 +47,7 @@ async def test_apply_async_error_handling():
         await apply_async(maybe_raise, test_list)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="session")
 async def test_apply_async_timeout_handling():
     """Test apply_async with a function that raises TimeoutError."""
 

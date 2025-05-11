@@ -1,0 +1,37 @@
+services:
+  sqlyzr:
+    build:
+      context: .
+      dockerfile: e2e.Dockerfile
+      cache_from:
+        - type=local,src=/.buildx-cache
+      cache_to:
+        - type=local,dest=/.buildx-cache,mode=max
+    restart: no
+    env_file: .env.e2e
+    volumes:
+      - "/data:/app/data"
+      - "./e2e.py:/app/e2e.py"
+      - "./e2e.json:/app/e2e.json"
+    entrypoint: "python e2e.py"
+    shm_size: '16gb'
+    networks:
+      - sqlyzr
+  mysql:
+    image: mysql:8.0
+    restart: on-failure
+    expose:
+      - "3306"
+    environment:
+      - MYSQL_ROOT_HOSTS=%
+      - MYSQL_ROOT_PASSWORD=sheep
+    volumes:
+      - "./confs/mysql.cnf:/etc/mysql/conf.d/mysql.cnf"
+      - "/data/beaver/dumps:/docker-entrypoint-initdb.d"
+      - "/data/beaver:/beaver"
+      - "/data/e2e_mysql_data:/var/lib/mysql"
+    networks:
+      - sqlyzr
+
+networks:
+  sqlyzr:
