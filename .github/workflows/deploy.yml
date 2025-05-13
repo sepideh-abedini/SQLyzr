@@ -73,7 +73,7 @@ jobs:
               exit 0
             fi
             echo "Waiting for server..."
-            sleep 1
+            sleep 6
           done
           echo "Health check failed"
           exit 1

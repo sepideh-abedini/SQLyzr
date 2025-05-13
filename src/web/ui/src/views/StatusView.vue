@@ -1,6 +1,6 @@
 <template>
   <div class="status">
-    <Toast/>
+    <Toast />
 
     <h1>SQLyr Status</h1>
 
@@ -8,8 +8,8 @@
       <div class="status-section">
         <h3 class="section-title">Control Panel</h3>
         <div class="flex justify-content-center gap-3 mb-4">
-          <Button label="Run SQLyzr" icon="pi pi-play" @click="runSqlyzr" severity="primary"/>
-          <Button label="Kill SQLyzr" icon="pi pi-times" @click="killSqlyzr" severity="danger"/>
+          <Button label="Run SQLyzr" icon="pi pi-play" @click="runSqlyzr" severity="primary" />
+          <Button label="Kill SQLyzr" icon="pi pi-times" @click="killSqlyzr" severity="danger" />
         </div>
 
         <div class="status-info mb-3">
@@ -31,32 +31,52 @@
           </div>
         </div>
 
-        <ProgressBar v-if="running" mode="indeterminate" style="height: 6px"
-                     class="mb-4"></ProgressBar>
+        <ProgressBar
+          v-if="running"
+          mode="indeterminate"
+          style="height: 6px"
+          class="mb-4"
+        ></ProgressBar>
 
         <div class="resource-usage mb-4">
           <div class="grid">
             <div class="col-12 md:col-3 p-2">
               <div class="resource-label">CPU Percentage</div>
               <div class="flex justify-content-center">
-                <Knob v-model="cpu_percent" valueTemplate="{value}%" :size="100" :readonly="true"
-                      valueColor="#4CAF50" :max="max_cpu"/>
+                <Knob
+                  v-model="cpu_percent"
+                  valueTemplate="{value}%"
+                  :size="100"
+                  :readonly="true"
+                  valueColor="#4CAF50"
+                  :max="max_cpu"
+                />
               </div>
               <div class="resource-value">{{ cpu_percent }}%</div>
             </div>
             <div class="col-12 md:col-3 p-2">
               <div class="resource-label">Memory Percentage</div>
               <div class="flex justify-content-center">
-                <Knob v-model="memory_percent" valueTemplate="{value}%" :size="100" :readonly="true"
-                      valueColor="#2196F3"/>
+                <Knob
+                  v-model="memory_percent"
+                  valueTemplate="{value}%"
+                  :size="100"
+                  :readonly="true"
+                  valueColor="#2196F3"
+                />
               </div>
               <div class="resource-value">{{ memory_percent }}%</div>
             </div>
             <div class="col-12 md:col-3 p-2">
               <div class="resource-label">Memory Usage</div>
               <div class="flex justify-content-center">
-                <Knob v-model="memory_gb" valueTemplate="{value} GB" :size="100" :readonly="true"
-                      valueColor="#4CAF50"/>
+                <Knob
+                  v-model="memory_gb"
+                  valueTemplate="{value} GB"
+                  :size="100"
+                  :readonly="true"
+                  valueColor="#4CAF50"
+                />
               </div>
               <div class="resource-value">{{ memory_gb }} MB</div>
             </div>
@@ -66,18 +86,21 @@
               <div class="resource-value">{{ elapsed_time }} seconds</div>
             </div>
           </div>
-
         </div>
 
         <div class="pipeline-container">
           <div v-for="(step, index) in sorted_pipeline_steps" :key="step" class="pipeline-step">
-            <Button :outlined="!pipeline_config[step]"
-                    :label="step"
-                    :loading="is_current_step(step)"
-                    :severity="pipeline_status[step] ? 'success' : 'info'"
-                    class="text-capitalize"/>
-            <i v-if="index < sorted_pipeline_steps.length - 1"
-               class="pi pi-arrow-right pipeline-arrow"></i>
+            <Button
+              :outlined="!pipeline_config[step]"
+              :label="step"
+              :loading="is_current_step(step)"
+              :severity="pipeline_status[step] ? 'success' : 'info'"
+              class="text-capitalize"
+            />
+            <i
+              v-if="index < sorted_pipeline_steps.length - 1"
+              class="pi pi-arrow-right pipeline-arrow"
+            ></i>
           </div>
         </div>
       </div>
@@ -86,12 +109,12 @@
 </template>
 
 <script>
-import Button from "primevue/button";
-import Message from 'primevue/message';
-import Toast from 'primevue/toast';
-import {ProgressBar, Timeline} from "primevue";
-import Knob from 'primevue/knob';
-import {API_BASE_URL} from '../config';
+import Button from 'primevue/button'
+import Message from 'primevue/message'
+import Toast from 'primevue/toast'
+import { ProgressBar, Timeline } from 'primevue'
+import Knob from 'primevue/knob'
+import { API_BASE_URL } from '../config'
 
 export default {
   data() {
@@ -120,125 +143,124 @@ export default {
         charts: false,
         transformers: false,
         augment: false,
-      }
+      },
     }
   },
   computed: {
     sorted_pipeline_steps() {
-      return [
-        "verify", "predict", "eval", "charts", "transformers", "augment",
-      ]
+      return ['verify', 'predict', 'eval', 'charts', 'transformers', 'augment']
     },
     finished() {
       for (let step of this.sorted_pipeline_steps) {
         if (this.pipeline_config[step]) {
           if (!this.pipeline_status[step]) {
-            return false;
+            return false
           }
         }
       }
-      return true;
+      return true
     },
     current_step() {
-      let max_i = -1;
+      let max_i = -1
       for (let i = 0; i < this.sorted_pipeline_steps.length; i++) {
-        let step = this.sorted_pipeline_steps[i];
-        if (this.pipeline_status[step])
-          max_i = i > max_i ? i : max_i;
+        let step = this.sorted_pipeline_steps[i]
+        if (this.pipeline_status[step]) max_i = i > max_i ? i : max_i
       }
       for (let i = max_i + 1; i < this.sorted_pipeline_steps.length; i++) {
-        let step = this.sorted_pipeline_steps[i];
+        let step = this.sorted_pipeline_steps[i]
         if (this.pipeline_config[step]) {
-          return step;
+          return step
         }
       }
-      return null;
+      return null
     },
   },
   methods: {
     is_current_step(step) {
-      return this.running && this.current_step === step;
+      return this.running && this.current_step === step
     },
     async fetchStatus() {
-      const data = await this.call_api('api/process/status', {}, false);
-      this.running = data.running;
+      const data = await this.call_api('api/process/status', {}, false)
+      const old_running = this.running
+      this.running = data.running
       if (data.running) {
-        this.memory_gb = data.memory_gb || 0;
-        this.cpu_percent = data.cpu_percent || 0;
-        this.elapsed_time = data.elapsed_time || 0;
-        this.memory_percent = data.memory_percent || 0;
-        this.max_cpu = data.cpu_percent_max || 0;
+        this.memory_gb = data.memory_gb || 0
+        this.cpu_percent = data.cpu_percent || 0
+        this.elapsed_time = data.elapsed_time || 0
+        this.memory_percent = data.memory_percent || 0
+        this.max_cpu = data.cpu_percent_max || 0
       }
-      if (data.return_code === 0) {
-        this.success = true;
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'SQLyzr completed successfully',
-          life: 3000
-        });
-      }
-      if (data.return_code > 0) {
-        this.fail = true;
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Failure',
-          detail: 'SQLyzr failed!',
-          life: 3000
-        });
+      if (old_running !== this.running) {
+        if (data.return_code === 0) {
+          this.success = true
+          this.$toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'SQLyzr completed successfully',
+            life: 3000,
+          })
+        }
+        if (data.return_code > 0) {
+          this.fail = true
+          this.$toast.add({
+            severity: 'error',
+            summary: 'Failure',
+            detail: 'SQLyzr failed!',
+            life: 3000,
+          })
+        }
       }
 
       if (this.success || this.fail) {
-        this.finished = true;
-        this.clearInterval();
+        this.finished = true
+        this.clearInterval()
       }
-
     },
     async fetchPipelineStatus() {
-      this.pipeline_status = await this.call_api('api/pipeline/status', {}, false);
+      this.pipeline_status = await this.call_api('api/pipeline/status', {}, false)
     },
     async fetchPipelineConfig() {
-      const data = await this.call_api('api/config', {}, false);
-      this.pipeline_config = data.pipeline;
+      const data = await this.call_api('api/config', {}, false)
+      this.pipeline_config = data.pipeline
     },
     async fetchData() {
-      await this.fetchPipelineConfig();
-      await this.fetchStatus();
-      await this.fetchPipelineStatus();
+      await this.fetchPipelineConfig()
+      await this.fetchStatus()
+      await this.fetchPipelineStatus()
     },
     async runSqlyzr() {
-      await this.call_api(`/api/process/run`, {method: 'POST'});
-      this.clear();
-      this.setInterval();
+      await this.call_api(`/api/process/run`, { method: 'POST' })
+      this.clear()
+      this.setInterval()
     },
     async killSqlyzr() {
-      await this.call_api(`/api/process/kill`, {method: 'POST'});
-      this.setInterval();
+      await this.call_api(`/api/process/kill`, { method: 'POST' })
+      this.setInterval()
     },
     clear() {
-      this.running = false;
-      this.success = false;
-      this.fail = false;
+      this.running = false
+      this.success = false
+      this.fail = false
     },
     clearInterval() {
-      console.log('clearing interval');
+      console.log('clearing interval')
       if (this.refreshInterval) {
-        clearInterval(this.refreshInterval);
+        clearInterval(this.refreshInterval)
       }
     },
     setInterval() {
-      this.fetchData();
+      this.fetchData()
       this.refreshInterval = setInterval(() => {
-        this.fetchData();
-      }, 3000);
-    }
+        this.fetchData()
+      }, 1000)
+    },
   },
   mounted() {
-    this.fetchData();
-    this.setInterval();
+    this.fetchData()
   },
   beforeUnmount() {
-    this.clearInterval();
+    console.log('Unmount')
+    this.clearInterval()
   },
   components: {
     Button,
@@ -246,8 +268,8 @@ export default {
     ProgressBar,
     Toast,
     Knob,
-    Timeline
-  }
+    Timeline,
+  },
 }
 </script>
 
@@ -264,7 +286,10 @@ export default {
 .card {
   padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 
 .status-section {

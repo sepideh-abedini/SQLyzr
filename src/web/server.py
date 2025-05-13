@@ -4,6 +4,7 @@ import os
 
 from flask import Flask, jsonify
 from flask_cors import CORS
+from werkzeug.exceptions import NotFound, HTTPException
 
 from src.app_setup import setup_app
 from src.web.api.config_api import ConfigAPI
@@ -77,11 +78,11 @@ async def post_error():
     return jsonify({'error': 'Something went wrong'}), 200
 
 
-@app.errorhandler(Exception)
+@app.errorhandler(HTTPException)
 def handle_exception(e):
     print("SAAAAAAAAAAAAAAAAAAAAAAAAAAAALAAAAAAAAAAAAAAAAAAAAM")
     logging.error(e)
-    return jsonify({"error": str(e)}), 500
+    return jsonify({"error": e.description}), e.code
 
 
 register_api_routes(app, CONFIG_FILE)

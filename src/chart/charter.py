@@ -22,11 +22,16 @@ from src.sqlyzr.chart_config import ChartName
 
 
 def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartName]):
+    if os.path.exists(out_dir):
+        shutil.rmtree(out_dir)
+        os.mkdir(out_dir)
     drawer = Drawer(scores_path, show=False, out_dir=out_dir)
-    drawer.draw_cats()
-    drawer.draw_overall()
+    if "Category Distribution" in included_charts:
+        drawer.draw_cats()
+    if "Overall" in included_charts:
+        drawer.draw_overall()
 
-    drawer = Drawer(scores_path, include_all=True,show=False, out_dir=out_dir)
+    drawer = Drawer(scores_path, include_all=True, show=False, out_dir=out_dir)
     metrics = [
         "Execution Accuracy",
         "Relaxed Execution Accuracy",
@@ -38,7 +43,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         if metric in included_charts:
             drawer.draw(metric)
 
-    drawer = Drawer(scores_path, include_all=True,show=False, only_correct=True, out_dir=out_dir)
+    drawer = Drawer(scores_path, include_all=True, show=False, only_correct=True, out_dir=out_dir)
     metrics = [
         "Execution Time Consistency",
         "Execution Time Inconsistency",
@@ -47,7 +52,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         if metric in included_charts:
             drawer.draw(metric)
 
-    drawer = Drawer(scores_path, include_all=True, only_correct=True,show=False, exclude_c6=True, out_dir=out_dir)
+    drawer = Drawer(scores_path, include_all=True, only_correct=True, show=False, exclude_c6=True, out_dir=out_dir)
     metrics = [
         "Complexity Consistency",
         "Complexity Inconsistency"

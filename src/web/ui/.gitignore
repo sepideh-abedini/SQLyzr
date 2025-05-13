@@ -34,3 +34,4 @@ coverage
 !tsconfig.app.json
 !tsconfig.json
 !tsconfig.node.json
+!.env.txt

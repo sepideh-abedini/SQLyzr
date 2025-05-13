@@ -2,7 +2,7 @@ import {API_BASE_URL} from './config';
 
 export default {
   methods: {
-    async call_api(endpoint: string, options = {}, notify: boolean = true) {
+    async call_api(endpoint: string, options = {}, notify: boolean = false) {
       const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
       console.log(`Calling API: ${url}`);

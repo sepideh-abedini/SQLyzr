@@ -1,6 +1,6 @@
 <template>
   <div class="env">
-    <Toast/>
+    <Toast />
     <Card>
       <template #title>
         <div class="text-center">
@@ -17,7 +17,7 @@
                     <span class="font-bold">{{ item.key }}:</span>
                   </div>
                   <div class="flex-grow-1 mr-2">
-                    <InputText v-model="envVars[item.key]" class="w-full"/>
+                    <InputText v-model="envVars[item.key]" class="w-full" />
                   </div>
                 </div>
               </div>
@@ -27,10 +27,19 @@
       </template>
       <template #footer>
         <div class="flex justify-content-center gap-3 mt-3">
-          <Button label="Save Changes" icon="pi pi-save" @click="saveEnvVars"
-                  class="p-button-primary"/>
-          <Button label="Reset" icon="pi pi-refresh" @click="fetchEnvVars"
-                  severity="secondary" outlined/>
+          <Button
+            label="Save Changes"
+            icon="pi pi-save"
+            @click="saveEnvVars"
+            class="p-button-primary"
+          />
+          <Button
+            label="Reset"
+            icon="pi pi-refresh"
+            @click="fetchEnvVars"
+            severity="secondary"
+            outlined
+          />
         </div>
       </template>
     </Card>
@@ -38,65 +47,56 @@
 </template>
 
 <script>
-import Card from "primevue/card";
-import Button from "primevue/button";
-import InputText from 'primevue/inputtext';
-import Toast from 'primevue/toast';
-import {API_BASE_URL} from '../config';
+import Card from 'primevue/card'
+import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
+import Toast from 'primevue/toast'
+import { API_BASE_URL } from '../config'
 
 export default {
   components: {
     Card,
     Button,
     InputText,
-    Toast
+    Toast,
   },
   data() {
     return {
       loading: false,
       envVars: {},
       newEnvKey: '',
-      newEnvValue: ''
+      newEnvValue: '',
     }
   },
   computed: {
     envVarsArray() {
-      return Object.keys(this.envVars).map(key => ({
+      return Object.keys(this.envVars).map((key) => ({
         key,
-        value: this.envVars[key]
-      }));
+        value: this.envVars[key],
+      }))
     },
     chunkedEnvVars() {
-      const array = this.envVarsArray;
-      const middle = Math.ceil(array.length / 2);
-      return [
-        array.slice(0, middle),
-        array.slice(middle)
-      ];
-    }
+      const array = this.envVarsArray
+      const middle = Math.ceil(array.length / 2)
+      return [array.slice(0, middle), array.slice(middle)]
+    },
   },
   methods: {
     async fetchEnvVars() {
-      const data = await this.call_api('api/env');
-      this.envVars = data;
+      const data = await this.call_api('api/env')
+      this.envVars = data
     },
 
     async saveEnvVars() {
       await this.call_api('api/env', {
         method: 'POST',
-        body: JSON.stringify(this.envVars)
-      });
+        body: JSON.stringify(this.envVars),
+      })
     },
   },
   mounted() {
-    this.fetchEnvVars();
-    this.$toast.add({
-      severity: 'warn',
-      summary: 'Warning',
-      detail: 'Current server uses HTTP and communication is not encrypted. ' +
-        'DO NOT enter your API keys here!'
-    });
-  }
+    this.fetchEnvVars()
+  },
 }
 </script>
 
