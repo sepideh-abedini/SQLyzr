@@ -1,5 +1,7 @@
 FROM python:3.11-slim AS builder
-RUN apt update && apt install -y --no-install-recommends vim jq default-jre curl unzip
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt update && apt-get --no-install-recommends install -y vim jq default-jre curl unzip
 
 WORKDIR /app
 
@@ -30,7 +32,12 @@ ENV VITE_API_BASE_URL="${SQLYZR_API_URL}"
 
 RUN npm run build
 
-FROM python:3.11-slim 
+FROM python:3.11-slim
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt update && apt-get --no-install-recommends install -y default-jre \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
