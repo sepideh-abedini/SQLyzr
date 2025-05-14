@@ -30,7 +30,8 @@ ARG SQLYZR_WEB_PORT
 ARG SQLYZR_API_URL
 ENV VITE_API_BASE_URL="${SQLYZR_API_URL}"
 
-RUN npm run build
+RUN npm run build-only
+
 
 FROM python:3.11-slim
 

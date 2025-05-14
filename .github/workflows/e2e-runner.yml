@@ -34,7 +34,7 @@ jobs:
           OPENAI_USAGE_TIER: tier5
           OPENAI_BASE_URL: http://localhost:8888
           DAIL_CACHE_DIR: data
-          OPENAI_TIMEOUT: 120
+          OPENAI_TIMEOUT: 5
           SQLYZR_DEVICE: cpu
           DB_TIMEOUT: 6000
           DB_CACHE: 1

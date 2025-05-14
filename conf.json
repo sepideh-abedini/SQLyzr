@@ -17,16 +17,15 @@
   "force": false,
   "itrs": 1,
   "models": [
-    "dail",
-    "din"
+    "dail"
   ],
   "pipeline": {
-    "eval": true,
+    "eval": false,
     "predict": false,
-    "verify": false,
+    "verify": true,
     "transformers": false,
     "augment": false,
-    "charts": true
+    "charts": false
   },
   "temps": [
     0.2

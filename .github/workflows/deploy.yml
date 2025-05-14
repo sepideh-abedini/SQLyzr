@@ -43,9 +43,24 @@ jobs:
         run: echo "IMAGE_TAG=${{ steps.meta.outputs.tags }}" >> $GITHUB_ENV
 
       - name: Create .env
-        env: ${{ vars }}
         run: |
-          env > .env
+          echo "ASYNC_BATCH=${{ vars.ASYNC_BATCH }}" >> .env
+          echo "DAIL_CACHE_DIR=${{ vars.DAIL_CACHE_DIR }}" >> .env
+          echo "DB_CACHE=${{ vars.DB_CACHE }}" >> .env
+          echo "DB_TIMEOUT=${{ vars.DB_TIMEOUT }}" >> .env
+          echo "ENC_PROG=${{ vars.ENC_PROG }}" >> .env
+          echo "GPT_CACHE=${{ vars.GPT_CACHE }}" >> .env
+          echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
+          echo "MYSQL_HOST=${{ vars.MYSQL_HOST }}" >> .env
+          echo "NUM_PROCS=${{ vars.NUM_PROCS }}" >> .env
+          echo "NUM_PROC_CHUNKS=${{ vars.NUM_PROC_CHUNKS }}" >> .env
+          echo "OPENAI_GROUP_ID=${{ vars.OPENAI_GROUP_ID }}" >> .env
+          echo "OPENAI_PROJ_ID=${{ vars.OPENAI_PROJ_ID }}" >> .env
+          echo "OPENAI_USAGE_TIER=${{ vars.OPENAI_USAGE_TIER }}" >> .env
+          echo "PYTHONUNBUFFERED=${{ vars.PYTHONUNBUFFERED }}" >> .env
+          echo "SQLYZR_DEVICE=${{ vars.SQLYZR_DEVICE }}" >> .env
+          echo "SQLYZR_DOMAIN=${{ vars.SQLYZR_DOMAIN }}" >> .env
+          echo "SQLYZR_WEB_PORT=${{ vars.SQLYZR_WEB_PORT }}" >> .env
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
 
       - name: Print env
