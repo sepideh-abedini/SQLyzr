@@ -40,8 +40,8 @@ jobs:
           DB_CACHE: 1
           GPT_CACHE: 0
           LOG_LEVEL: DEBUG
-          NUM_PROC_CHUNKS: 4
-          NUM_PROCS: 4
+          NUM_PROC_CHUNKS: 1
+          NUM_PROCS: 1
           ENC_PROG: 1
           ASYNC_BATCH: 5
           PYTHONUNBUFFERED: 1

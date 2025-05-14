@@ -8,7 +8,6 @@ from src.sqlyzr.sqlyzr import Sqlyzr
 from src.util.log_util import configure_logging
 
 
-@pytest.mark.asyncio
 async def test_sqlyzr():
     server = MockHTTPServer(config_file="src/mock_server/config.json", host="localhost", port=8888)
     t = Thread(target=server.start)
