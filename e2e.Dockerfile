@@ -16,6 +16,11 @@ RUN unzip /tmp/stanford-corenlp.zip -d /app/src/third_party/dail/third_party
 RUN rm /tmp/stanford-corenlp.zip
 
 ENV PYTHONPATH=/app
+ENV TIKTOKEN_CACHE_DIR=/app/tiktoken_cache
+
+RUN python -c "import tiktoken; tiktoken.encoding_for_model('gpt-4o');"
+RUN python -c "import tiktoken; tiktoken.encoding_for_model('gpt-4o-mini');"
+RUN python -c "import tiktoken; tiktoken.encoding_for_model('gpt-3.5-turbo');"
 
 COPY ./src src
 COPY ./scripts scripts

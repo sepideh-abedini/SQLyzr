@@ -3,7 +3,7 @@ name: e2e
 on:
   push:
     branches:
-      - none
+      - main
     paths:
       - 'src/**'
       - e2e.Dockerfile
@@ -32,18 +32,18 @@ jobs:
           OPENAI_GROUP_ID: org
           OPENAI_PROJ_ID: proj
           OPENAI_USAGE_TIER: tier5
-          OPENAI_BASE_URL: http://localhost:8888
+          OPENAI_BASE_URL: http://mockserver:8888
           DAIL_CACHE_DIR: data
-          OPENAI_TIMEOUT: 5
+          OPENAI_TIMEOUT: 10
           SQLYZR_DEVICE: cpu
           DB_TIMEOUT: 6000
-          DB_CACHE: 1
+          DB_CACHE: 0
           GPT_CACHE: 0
           LOG_LEVEL: DEBUG
-          NUM_PROC_CHUNKS: 1
-          NUM_PROCS: 1
+          NUM_PROC_CHUNKS: 4
+          NUM_PROCS: 4
           ENC_PROG: 1
-          ASYNC_BATCH: 5
+          ASYNC_BATCH: 10
           PYTHONUNBUFFERED: 1
           FORCE: 0
           MYSQL_HOST: mysql
@@ -53,7 +53,7 @@ jobs:
         run: cat .env.e2e
       - name: Run E2E tests
         run: |
-          docker compose -f docker-compose.e2e.yml up --force-recreate --exit-code-from sqlyzr
+          docker compose -f docker-compose.e2e.yml up --build --force-recreate --exit-code-from sqlyzr
       - name: Cleanup
         if: always()
         run: docker compose -f docker-compose.e2e.runner.yml rm -f -v

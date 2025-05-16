@@ -4,12 +4,26 @@ services:
       context: .
       dockerfile: e2e.Dockerfile
     restart: no
-    env_file: .env.e2e.local
+    env_file: .env.e2e.docker.local
     volumes:
       - "./data:/app/data"
       - "./e2e.py:/app/e2e.py"
       - "./e2e.json:/app/e2e.json"
     entrypoint: "python e2e.py"
+    shm_size: '16gb'
+    networks:
+      - sqlyzr
+  mockserver:
+    build:
+      context: .
+      dockerfile: e2e.Dockerfile
+    restart: no
+    env_file: .env.e2e.docker.local
+    volumes:
+      - "./data:/app/data"
+      - "./e2e.py:/app/e2e.py"
+      - "./e2e.json:/app/e2e.json"
+    entrypoint: "python src/mock_server/mock_http_server.py"
     shm_size: '16gb'
     networks:
       - sqlyzr

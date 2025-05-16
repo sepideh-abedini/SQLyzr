@@ -30,21 +30,20 @@ class GptGateway:
     @backoff.on_exception(backoff.constant, interval=10, max_tries=100, exception=GptRateLimitException)
     async def track_and_send(self, request: BatchInputRequest) -> ChatCompletion:
         s = str(request)
-        if GPT_CACHE:
-            if s in cache:
-                return cache[s]
         logger.debug(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()
         can_send = await self.__tracker.check_limit(tokens)
+        logger.debug(f"Checked tokens [{request.custom_id}]")
         if can_send:
             usage = await self.__tracker.add_usage(tokens)
+            logger.debug(f"Usage added [{request.custom_id}]")
             result = await self.send_without_tracking(request)
+            logger.debug(f"Request sent [{request.custom_id}]")
             logger.debug(f"TOKENS DIFF: {tokens}@{result.usage.total_tokens}")
             # usage.expire()
-            if GPT_CACHE:
-                cache[s] = result
             return result
         else:
+            logger.debug(f"Tokens exceed [{request.custom_id}]")
             raise GptRateLimitException()
 
     async def send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:

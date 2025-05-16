@@ -8,7 +8,6 @@ from typing import Dict, Optional, Tuple, Any, Set
 from src.configs.config_loader import load_config
 from src.util.model_utils import read_jsonl
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -70,15 +69,14 @@ class MockHTTPRequestHandler(BaseHTTPRequestHandler):
 
 
 class MockHTTPServer:
-    def __init__(self, mock_data_dir: str, conf: str, host: str = 'localhost', port: int = 8888):
+    def __init__(self, mock_data_dir: str, conf: str, port: int = 8888):
         self.mock_data_dir = mock_data_dir
         self.conf = load_config(conf)
-        self.host = host
         self.port = port
         self.request_map = {}
         handler = lambda *args, **kwargs: MockHTTPRequestHandler(*args, request_map=self.request_map, **kwargs)
-        self.server = HTTPServer((self.host, self.port), handler)
-        logger.info(f"Starting mock HTTP server on {self.host}:{self.port}")
+        self.server = HTTPServer(("0.0.0.0", self.port), handler)
+        logger.info(f"Starting mock HTTP server on 0.0.0.0:{self.port}")
 
     def load_data(self) -> None:
         logger.info("Loading data from data dir")
@@ -139,15 +137,8 @@ class MockHTTPServer:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Start a mock HTTP server')
-    parser.add_argument('--config', help='Path to the config file containing input/output file pairs')
-    parser.add_argument('--host', default='localhost', help='Host to bind the server to')
-    parser.add_argument('--port', type=int, default=8888, help='Port to bind the server to')
-
-    args = parser.parse_args()
-
-    server = MockHTTPServer(conf=args.config, host=args.host, port=args.port)
-
+    conf_file = "e2e.json"
+    server = MockHTTPServer(mock_data_dir="data/mock_data", conf=conf_file, port=8888)
     server.start()
 
 
