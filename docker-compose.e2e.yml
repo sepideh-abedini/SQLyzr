@@ -4,9 +4,9 @@ services:
       context: .
       dockerfile: e2e.Dockerfile
       cache_from:
-        - type=local,src=/.buildx-cache
+        - type=local,src=/tmp/.buildx-cache
       cache_to:
-        - type=local,dest=/.buildx-cache,mode=max
+        - type=local,dest=/tmp/.buildx-cache,mode=max
     restart: no
     env_file: .env.e2e
     volumes:
