@@ -1,5 +1,6 @@
 from difflib import SequenceMatcher
-from typing import Dict, List, Set, Tuple, FrozenSet
+from typing import Dict, List, Set, Tuple
+
 from loguru import logger
 
 
@@ -7,12 +8,23 @@ def str_similarity(s1, s2):
     return SequenceMatcher(None, s1.lower(), s2.lower()).ratio()
 
 
-class DatabaseSchema:
-    tables: Dict[str, Dict[str, str]]  # {table_name -> {col_name -> col_type}}
-    foreign_keys: Set[FrozenSet[Tuple[str, str]]]
+class TableSchema:
+    columns: Dict[str, str]
+    primary_keys: Set[str]
 
     def __init__(self):
-        self.tables = {}
+        self.columns = {}
+        self.primary_keys = set()
+
+
+class DatabaseSchema:
+    db_id: str
+    tables: Dict[str, TableSchema]
+    foreign_keys: Set[Tuple[Tuple[str, str], Tuple[str, str]]]
+
+    def __init__(self, db_id):
+        self.db_id = db_id
+        self.tables = dict()
         self.foreign_keys = set()
 
     def find_most_similar_column(self, table_name, col_name, cand_cols: Set[str]):
@@ -76,10 +88,17 @@ class DatabaseSchema:
             return matched_tables[0]
 
     def __str__(self):
-        res = "\nTables: \n"
-        for table, columns in self.tables.items():
-            res += f"\tTable Name: {table}\n"
+        res = f"DB_ID: {self.db_id}\nTables: \n"
+        for table_name, table_schema in self.tables.items():
+            res += f"\tTableName: {table_name}\n"
             res += f"\t\tColumns:\n"
-            for col, col_type in columns.items():
-                res += f"\t\t\tColumn Name: {col}, Column type: {col_type}\n"
+            for col, col_type in table_schema.columns.items():
+                res += f"\t\t\tColumnName: {col}, ColumnType: {col_type}\n"
+            res += f"\t\tPrimaryKeys:\n"
+            for pk in table_schema.primary_keys:
+                res += f"\t\t\t- {pk}\n"
+        res += "ForeignKeys: \n"
+        for fk in self.foreign_keys:
+            res += f"\t\t- {fk[0][0]}.{fk[0][1]} == {fk[1][0]}.{fk[1][1]}\n"
+
         return res
