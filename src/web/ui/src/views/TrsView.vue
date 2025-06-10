@@ -93,12 +93,11 @@
                       </div>
                       <div class="trs-sql">
                         <h5>Predicted SQL (Wrong)</h5>
-                        <pre
-                          v-html="showDiff ? calculateDiff(selectedElement.gold, selectedElement.pred) : highlightSQL(selectedElement.pred)"></pre>
+                        <pre v-html="highlightSQL(selectedElement.pred)"></pre>
                       </div>
                       <div class="trs-sql">
                         <h5>Gold SQL (Correct)</h5>
-                        <pre v-html="highlightSQL(selectedElement.gold)"></pre>
+                        <pre v-html="showDiff ? calculateDiff(selectedElement.pred, selectedElement.gold) : highlightSQL(selectedElement.gold)"></pre>
                       </div>
                       <div class="trs-messages">
                         <h5>Repair Messages</h5>
@@ -176,7 +175,6 @@ import TabView from 'primevue/tabview';
 import Dialog from 'primevue/dialog';
 import Knob from 'primevue/knob';
 import {Badge, Tag, Tab, TabList, TabPanel, Tabs, TabPanels} from 'primevue';
-import {API_BASE_URL} from '../config';
 
 import * as DiffMatchPatch from 'diff-match-patch';
 import 'prismjs';
