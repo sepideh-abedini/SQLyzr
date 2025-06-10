@@ -24,7 +24,7 @@ def metric_agg(metric, agg_fun):
 
 
 METRICS = [
-    "em", "ea", "rea", "et", "get","count"
+    "em", "ea", "rea", "et", "get", "count"
 ]
 
 SUMS = {
@@ -77,10 +77,14 @@ class ScoresPostProcessor:
         tmp_cat_grouped = df.drop(columns=['sub']).groupby(['model', 'tmp', 'cat'])
         cc = tmp_cat_grouped.apply(metric_consistency('plc'))
         etc = tmp_cat_grouped.apply(metric_consistency('plt'))
-        tmp_cat_grouped = tmp_cat_grouped.mean()
+        # tmp_cat_grouped = tmp_cat_grouped.mean()
+        tmp_cat_grouped_means = tmp_cat_grouped.mean()
+        tmp_cat_grouped_means["count"] = tmp_cat_grouped["count"].sum()
+        tmp_cat_grouped = tmp_cat_grouped_means
         tmp_cat_grouped['cc'] = cc
         tmp_cat_grouped['etc'] = etc
         tmp_cat_grouped = tmp_cat_grouped.reset_index()
+
         all_cats = tmp_cat_grouped.drop(columns=['cat']).groupby(['model', 'tmp'])
         all_cats = all_cats.agg(**SUMS, **MEANS, **CIS, cc=pd.NamedAgg(column="cc", aggfunc="mean"),
                                 etc=pd.NamedAgg(column="etc", aggfunc="mean"))
