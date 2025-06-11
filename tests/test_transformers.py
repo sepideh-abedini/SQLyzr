@@ -14,14 +14,6 @@ from src.rel.transformer_detector import TransformerDetector
 from src.util.log_util import configure_logging
 
 
-def main():
-    print("Hello")
-
-
-if __name__ == '__main__':
-    main()
-
-
 def assert_sql_parsable(sql: str):
     parser = SqlParser()
     ast = parser.parse(sql)

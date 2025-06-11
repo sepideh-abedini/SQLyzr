@@ -29,7 +29,6 @@ class TransformerDetector:
     def find_sub(self, pred: SqlInputData, gold: SqlInputData):
         pows = powerset(self.processors)
         for sub in tqdm.tqdm(pows, desc="Evaluating with transformers", total=len(pows)):
-        # for sub in pows:
             res = self.run_with(pred, gold, list(sub))
             if res is not None:
                 return res
