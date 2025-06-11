@@ -152,7 +152,7 @@
             <div class="trs-sql">
               <Tag severity="warn">Predicted SQL</Tag>
               <pre
-                v-html="showDiff ? calculateDiff(item.gold, item.pred) : highlightSQL(item.pred)"></pre>
+                v-html="showDiff ? calculateDiff(item.pred, item.gold) : highlightSQL(item.pred)"></pre>
             </div>
             <div class="trs-sql">
               <Tag>Gold SQL</Tag>
