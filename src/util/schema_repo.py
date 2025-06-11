@@ -1,9 +1,10 @@
 import json
+from os.path import split
 from typing import Dict
 
 from loguru import logger
 
-from src.util.database_schema import DatabaseSchema, TableSchema
+from src.util.database_schema import DatabaseSchema
 from src.util.str_utils import split_to_snake
 
 
@@ -15,41 +16,26 @@ class DatabaseSchemaRepo:
         with open(tables_json_path) as file:
             data = json.load(file)
             for db in data:
-                schema = DatabaseSchema(db['db_id'])
+                schema = DatabaseSchema()
                 for table in db['table_names_original']:
                     table = split_to_snake(table)
-                    schema.tables[table.lower()] = TableSchema()
+                    schema.tables[table.lower()] = {}
                 for i, col in enumerate(db['column_names_original']):
                     table_idx = col[0]
                     if table_idx >= 0:
                         table_name = split_to_snake(
                             db['table_names_original'][table_idx])
                         col_name = col[1].lower()
-                        schema.tables[table_name].columns[col_name] = \
+                        schema.tables[table_name][col_name] = \
                             db['column_types'][i]
                 for foreign_keys in db['foreign_keys']:
-                    src_col_idx = foreign_keys[0]
-                    dst_col_idx = foreign_keys[1]
-                    src_table_idx, src_col_name = db['column_names_original'][src_col_idx]
-                    dst_table_idx, dst_col_name = db['column_names_original'][dst_col_idx]
-                    src_table_name = split_to_snake(db['table_names_original'][src_table_idx])
-                    dst_table_name = split_to_snake(db['table_names_original'][dst_table_idx])
-                    fk = ((src_table_name, src_col_name), (dst_table_name, dst_col_name))
-                    schema.foreign_keys.add(fk)
-
-                for table_idx, primary_keys in enumerate(db['primary_keys']):
-                    table_name_original = db['table_names_original'][table_idx]
-                    table_name = split_to_snake(table_name_original)
-                    pks = set()
-                    if isinstance(primary_keys, int):
-                        col_idx = primary_keys
-                        col_name = db['column_names_original'][col_idx][1]
-                        pks.add(col_name.lower())
-                    if isinstance(primary_keys, list):
-                        for pk in primary_keys:
-                            col_name = db['column_names_original'][pk][1]
-                            pks.add(col_name.lower())
-                    schema.tables[table_name].primary_keys = pks
+                    foreign_keys_set = set()
+                    for column_index in foreign_keys:
+                        table_idx, col_name = db['column_names_original'][column_index]
+                        col_name = col_name.lower()
+                        table_name = split_to_snake(db['table_names_original'][table_idx])
+                        foreign_keys_set.add((table_name, col_name))
+                    schema.foreign_keys.add(frozenset(foreign_keys_set))
 
                 self.dbs[db['db_id']] = schema
 
