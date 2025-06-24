@@ -3,7 +3,7 @@
     <Toast />
     <ConfirmDialog />
 
-    <h1>SQLyr Output Files</h1>
+    <h1>Output Files</h1>
 
     <div class="card">
       <h2>File Explorer</h2>

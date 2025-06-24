@@ -2,13 +2,16 @@
   <div class="charts">
     <Toast />
 
-    <h1>Charts</h1>
-
     <Message v-if="error" severity="error">{{ error }}</Message>
 
     <ProgressSpinner v-if="loading" class="my-4" />
 
-    <div v-else class="card">
+    <Card v-else>
+      <template #title>
+        <div class="text-center">
+          <h1>Charts</h1>
+        </div>
+      </template>
       <div class="flex gap-4 mt-1">
         <div class="w-full mb-4 flex gap-2">
           <Button label="Refresh Charts" icon="pi pi-refresh" @click="fetchCharts" />
@@ -26,7 +29,7 @@
           />
         </div>
       </div>
-    </div>
+    </Card>
     <div v-if="selectedChart" class="chart-display">
       <h3>{{ selectedChart }}</h3>
       <div v-if="chartLoading" class="flex justify-content-center">
@@ -51,6 +54,7 @@ import Select from 'primevue/select'
 import Message from 'primevue/message'
 import ProgressSpinner from 'primevue/progressspinner'
 import Toast from 'primevue/toast'
+import Card from 'primevue/card'
 import { API_BASE_URL } from '../config'
 
 export default {
@@ -111,6 +115,7 @@ export default {
     ProgressSpinner,
     Toast,
     Select,
+    Card
   },
 }
 </script>

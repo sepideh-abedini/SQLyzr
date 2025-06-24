@@ -1,30 +1,51 @@
 <template>
   <div class="data">
-    <Toast/>
-    <ConfirmDialog/>
+    <Toast />
+    <ConfirmDialog />
 
-    <h1>Data Files</h1>
-
-    <div class="card">
+    <Card>
+      <template #title>
+        <div class="text-center">
+          <h1>Data Files</h1>
+        </div>
+      </template>
       <h2>Data Explorer</h2>
       <div class="path-navigation">
-        <Button icon="pi pi-home" @click="navigateTo('')" class="p-button-sm"/>
-        <Button icon="pi pi-trash" @click="deleteTopLevelContents" class="p-button-sm p-button-danger ml-2"
-                title="Delete all files in top-level directory"/>
+        <Button icon="pi pi-home" @click="navigateTo('')" class="p-button-sm" />
+        <Button
+          icon="pi pi-trash"
+          @click="deleteTopLevelContents"
+          class="p-button-sm p-button-danger ml-2"
+          title="Delete all files in top-level directory"
+        />
         <span v-for="(segment, index) in pathSegments" :key="index" class="path-segment">
           <span class="separator" v-if="index > 0">/</span>
-          <Button :label="segment" class="p-button-text p-button-sm"
-                  @click="navigateToSegment(index)"/>
+          <Button
+            :label="segment"
+            class="p-button-text p-button-sm"
+            @click="navigateToSegment(index)"
+          />
         </span>
-        <Button v-if="currentPath" icon="pi pi-trash" @click="deleteAllFiles"
-                class="p-button-sm p-button-danger ml-auto"
-                title="Delete all files in current directory"/>
-        <FileUpload mode="basic" accept=".zip" :maxFileSize="50000000"
-                    customUpload @uploader="uploadZip" :auto="true"
-                    chooseLabel="Upload ZIP" class="ml-2"/>
+        <Button
+          v-if="currentPath"
+          icon="pi pi-trash"
+          @click="deleteAllFiles"
+          class="p-button-sm p-button-danger ml-auto"
+          title="Delete all files in current directory"
+        />
+        <FileUpload
+          mode="basic"
+          accept=".zip"
+          :maxFileSize="50000000"
+          customUpload
+          @uploader="uploadZip"
+          :auto="true"
+          chooseLabel="Upload ZIP"
+          class="ml-2"
+        />
       </div>
 
-      <ProgressSpinner v-if="loading" class="my-4"/>
+      <ProgressSpinner v-if="loading" class="my-4" />
 
       <div v-else class="file-list">
         <DataTable :value="items" class="p-datatable-sm" stripedRows>
@@ -48,29 +69,43 @@
           </Column>
           <Column header="Actions" style="width: 150px">
             <template #body="slotProps">
-              <Button icon="pi pi-pencil" class="p-button-sm p-button-secondary mr-2"
-                      @click.stop="promptRename(slotProps.data)"
-                      title="Rename file/directory"/>
-              <Button icon="pi pi-trash" class="p-button-sm p-button-danger"
-                      @click.stop="deleteFile(slotProps.data)"
-                      title="Delete file/directory"/>
+              <Button
+                icon="pi pi-pencil"
+                class="p-button-sm p-button-secondary mr-2"
+                @click.stop="promptRename(slotProps.data)"
+                title="Rename file/directory"
+              />
+              <Button
+                icon="pi pi-trash"
+                class="p-button-sm p-button-danger"
+                @click.stop="deleteFile(slotProps.data)"
+                title="Delete file/directory"
+              />
             </template>
           </Column>
         </DataTable>
       </div>
 
-      <Dialog v-model:visible="fileDialogVisible" :header="selectedFile?.name"
-              :style="{width: '80vw'}" :modal="true">
+      <Dialog
+        v-model:visible="fileDialogVisible"
+        :header="selectedFile?.name"
+        :style="{ width: '80vw' }"
+        :modal="true"
+      >
         <div v-if="fileContent" class="file-content">
           <pre>{{ fileContent }}</pre>
         </div>
         <div v-else-if="fileLoading" class="text-center">
-          <ProgressSpinner/>
+          <ProgressSpinner />
         </div>
       </Dialog>
 
-      <Dialog v-model:visible="renameDialogVisible" header="Rename Item"
-              :style="{width: '30vw'}" :modal="true">
+      <Dialog
+        v-model:visible="renameDialogVisible"
+        header="Rename Item"
+        :style="{ width: '30vw' }"
+        :modal="true"
+      >
         <div class="p-fluid">
           <div class="p-field">
             <label for="newName">New Name</label>
@@ -78,25 +113,31 @@
           </div>
         </div>
         <template #footer>
-          <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="renameDialogVisible = false"/>
-          <Button label="Rename" icon="pi pi-check" class="p-button-text" @click="renameItem"/>
+          <Button
+            label="Cancel"
+            icon="pi pi-times"
+            class="p-button-text"
+            @click="renameDialogVisible = false"
+          />
+          <Button label="Rename" icon="pi pi-check" class="p-button-text" @click="renameItem" />
         </template>
       </Dialog>
-    </div>
+    </Card>
   </div>
 </template>
 
 <script>
-import Toast from 'primevue/toast';
-import Button from 'primevue/button';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Dialog from 'primevue/dialog';
-import ProgressSpinner from 'primevue/progressspinner';
-import ConfirmDialog from 'primevue/confirmdialog';
-import FileUpload from 'primevue/fileupload';
-import InputText from 'primevue/inputtext';
-import {API_BASE_URL} from '../config';
+import Toast from 'primevue/toast'
+import Button from 'primevue/button'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Dialog from 'primevue/dialog'
+import ProgressSpinner from 'primevue/progressspinner'
+import ConfirmDialog from 'primevue/confirmdialog'
+import FileUpload from 'primevue/fileupload'
+import InputText from 'primevue/inputtext'
+import Card from 'primevue/card'
+import { API_BASE_URL } from '../config'
 
 export default {
   data() {
@@ -111,74 +152,74 @@ export default {
       fileLoading: false,
       renameDialogVisible: false,
       itemToRename: null,
-      newName: ''
+      newName: '',
     }
   },
   computed: {
     pathSegments() {
-      if (!this.currentPath) return [this.home];
-      return [this.home, ...this.currentPath.split('/')];
-    }
+      if (!this.currentPath) return [this.home]
+      return [this.home, ...this.currentPath.split('/')]
+    },
   },
   methods: {
     async fetchDirectoryContents(path) {
-      this.loading = true;
+      this.loading = true
 
       try {
-        const data = await this.call_api(`api/data?path=${encodeURIComponent(path)}`);
-        this.home = data.home;
-        this.items = data.items;
-        this.currentPath = data.path;
+        const data = await this.call_api(`api/data?path=${encodeURIComponent(path)}`)
+        this.home = data.home
+        this.items = data.items
+        this.currentPath = data.path
       } catch (error) {
-        console.error('Error loading directory contents:', error);
+        console.error('Error loading directory contents:', error)
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
     async fetchFileContent(path) {
-      this.fileLoading = true;
-      this.fileContent = null;
+      this.fileLoading = true
+      this.fileContent = null
 
       try {
-        const data = await this.call_api(`api/data/content?path=${encodeURIComponent(path)}`);
-        this.fileContent = data.content;
+        const data = await this.call_api(`api/data/content?path=${encodeURIComponent(path)}`)
+        this.fileContent = data.content
       } catch (error) {
-        console.error('Error loading file content:', error);
+        console.error('Error loading file content:', error)
       } finally {
-        this.fileLoading = false;
+        this.fileLoading = false
       }
     },
 
     handleItemClick(item) {
       if (item.is_dir) {
-        this.navigateTo(item.path);
+        this.navigateTo(item.path)
       } else {
-        this.selectedFile = item;
-        this.fileDialogVisible = true;
-        this.fetchFileContent(item.path);
+        this.selectedFile = item
+        this.fileDialogVisible = true
+        this.fetchFileContent(item.path)
       }
     },
 
     navigateTo(path) {
-      this.fetchDirectoryContents(path);
+      this.fetchDirectoryContents(path)
     },
 
     navigateToSegment(index) {
       if (index === 0) {
-        this.navigateTo('');
+        this.navigateTo('')
       } else {
-        const segments = this.pathSegments.slice(1, index + 1);
-        this.navigateTo(segments.join('/'));
+        const segments = this.pathSegments.slice(1, index + 1)
+        this.navigateTo(segments.join('/'))
       }
     },
 
     formatSize(bytes) {
-      if (bytes === 0) return '0 Bytes';
-      const k = 1024;
-      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      if (bytes === 0) return '0 Bytes'
+      const k = 1024
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+      const i = Math.floor(Math.log(bytes) / Math.log(k))
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
 
     deleteAllFiles() {
@@ -189,32 +230,35 @@ export default {
         acceptClass: 'p-button-danger',
         accept: async () => {
           try {
-            await this.call_api(`api/data/delete_all?path=${encodeURIComponent(this.currentPath)}`, {
-              method: 'POST'
-            });
+            await this.call_api(
+              `api/data/delete_all?path=${encodeURIComponent(this.currentPath)}`,
+              {
+                method: 'POST',
+              },
+            )
             this.$toast.add({
               severity: 'success',
               summary: 'Success',
               detail: 'All files deleted successfully',
-              life: 3000
-            });
-            this.fetchDirectoryContents(this.currentPath);
+              life: 3000,
+            })
+            this.fetchDirectoryContents(this.currentPath)
           } catch (error) {
-            console.error('Error deleting files:', error);
+            console.error('Error deleting files:', error)
             this.$toast.add({
               severity: 'error',
               summary: 'Error',
               detail: 'Failed to delete files',
-              life: 3000
-            });
+              life: 3000,
+            })
           }
-        }
-      });
+        },
+      })
     },
 
     deleteFile(item) {
-      const isDirectory = item.is_dir;
-      const itemType = isDirectory ? 'directory' : 'file';
+      const isDirectory = item.is_dir
+      const itemType = isDirectory ? 'directory' : 'file'
 
       this.$confirm.require({
         message: `Are you sure you want to delete this ${itemType}?`,
@@ -224,26 +268,26 @@ export default {
         accept: async () => {
           try {
             await this.call_api(`api/data/delete?path=${encodeURIComponent(item.path)}`, {
-              method: 'POST'
-            });
+              method: 'POST',
+            })
             this.$toast.add({
               severity: 'success',
               summary: 'Success',
               detail: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} deleted successfully`,
-              life: 3000
-            });
-            this.fetchDirectoryContents(this.currentPath);
+              life: 3000,
+            })
+            this.fetchDirectoryContents(this.currentPath)
           } catch (error) {
-            console.error(`Error deleting ${itemType}:`, error);
+            console.error(`Error deleting ${itemType}:`, error)
             this.$toast.add({
               severity: 'error',
               summary: 'Error',
               detail: `Failed to delete ${itemType}`,
-              life: 3000
-            });
+              life: 3000,
+            })
           }
-        }
-      });
+        },
+      })
     },
 
     deleteTopLevelContents() {
@@ -255,40 +299,40 @@ export default {
         accept: async () => {
           try {
             await this.call_api(`api/data/delete_all?path=`, {
-              method: 'POST'
-            });
+              method: 'POST',
+            })
             this.$toast.add({
               severity: 'success',
               summary: 'Success',
               detail: 'All files in top-level directory deleted successfully',
-              life: 3000
-            });
+              life: 3000,
+            })
             // Refresh the current directory view
-            this.fetchDirectoryContents(this.currentPath);
+            this.fetchDirectoryContents(this.currentPath)
           } catch (error) {
-            console.error('Error deleting top-level files:', error);
+            console.error('Error deleting top-level files:', error)
             this.$toast.add({
               severity: 'error',
               summary: 'Error',
               detail: 'Failed to delete top-level files',
-              life: 3000
-            });
+              life: 3000,
+            })
           }
-        }
-      });
+        },
+      })
     },
 
     uploadZip(event) {
-      const file = event.files[0];
+      const file = event.files[0]
 
       if (!file) {
         this.$toast.add({
           severity: 'error',
           summary: 'Error',
           detail: 'No file selected',
-          life: 3000
-        });
-        return;
+          life: 3000,
+        })
+        return
       }
 
       if (!file.name.endsWith('.zip')) {
@@ -296,102 +340,102 @@ export default {
           severity: 'error',
           summary: 'Error',
           detail: 'File must be a zip archive',
-          life: 3000
-        });
-        return;
+          life: 3000,
+        })
+        return
       }
 
-      const formData = new FormData();
-      formData.append('file', file);
+      const formData = new FormData()
+      formData.append('file', file)
 
-      this.loading = true;
+      this.loading = true
 
       fetch(`${API_BASE_URL}/api/data/upload`, {
         method: 'POST',
-        body: formData
+        body: formData,
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          throw new Error(data.error);
-        }
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            throw new Error(data.error)
+          }
 
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: data.message,
-          life: 3000
-        });
+          this.$toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: data.message,
+            life: 3000,
+          })
 
-        // Refresh the current directory view
-        this.fetchDirectoryContents(this.currentPath);
-      })
-      .catch(error => {
-        console.error('Error uploading zip file:', error);
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.message || 'Failed to upload zip file',
-          life: 3000
-        });
-      })
-      .finally(() => {
-        this.loading = false;
-      });
+          // Refresh the current directory view
+          this.fetchDirectoryContents(this.currentPath)
+        })
+        .catch((error) => {
+          console.error('Error uploading zip file:', error)
+          this.$toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.message || 'Failed to upload zip file',
+            life: 3000,
+          })
+        })
+        .finally(() => {
+          this.loading = false
+        })
     },
 
     promptRename(item) {
-      this.itemToRename = item;
-      this.newName = item.name;
-      this.renameDialogVisible = true;
+      this.itemToRename = item
+      this.newName = item.name
+      this.renameDialogVisible = true
     },
 
     async renameItem() {
       if (!this.itemToRename || !this.newName) {
-        return;
+        return
       }
 
       if (this.newName === this.itemToRename.name) {
-        this.renameDialogVisible = false;
-        return;
+        this.renameDialogVisible = false
+        return
       }
 
       try {
         const response = await this.call_api('api/data/rename', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             path: this.itemToRename.path,
-            new_name: this.newName
-          })
-        });
+            new_name: this.newName,
+          }),
+        })
 
         this.$toast.add({
           severity: 'success',
           summary: 'Success',
           detail: 'Item renamed successfully',
-          life: 3000
-        });
+          life: 3000,
+        })
 
         // Refresh the current directory view
-        this.fetchDirectoryContents(this.currentPath);
+        this.fetchDirectoryContents(this.currentPath)
       } catch (error) {
-        console.error('Error renaming item:', error);
+        console.error('Error renaming item:', error)
         this.$toast.add({
           severity: 'error',
           summary: 'Error',
           detail: error.message || 'Failed to rename item',
-          life: 3000
-        });
+          life: 3000,
+        })
       } finally {
-        this.renameDialogVisible = false;
+        this.renameDialogVisible = false
       }
-    }
+    },
   },
   mounted() {
-    this.fetchDirectoryContents('');
+    this.fetchDirectoryContents('')
   },
   components: {
     Toast,
@@ -402,8 +446,9 @@ export default {
     ProgressSpinner,
     ConfirmDialog,
     FileUpload,
-    InputText
-  }
+    InputText,
+    Card,
+  },
 }
 </script>
 
@@ -420,7 +465,10 @@ export default {
 .card {
   padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 
 .path-navigation {
@@ -454,7 +502,7 @@ export default {
 }
 
 .file-item:hover {
-  color: #2196F3;
+  color: #2196f3;
 }
 
 .file-content {

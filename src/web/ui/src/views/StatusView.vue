@@ -2,9 +2,12 @@
   <div class="status">
     <Toast />
 
-    <h1>SQLyr Status</h1>
-
-    <div class="card w-1/2">
+    <Card class="w-1/2">
+      <template #title>
+        <div class="text-center">
+          <h1>Execution Status</h1>
+        </div>
+      </template>
       <div class="status-section">
         <h3 class="section-title">Control Panel</h3>
         <div class="flex justify-content-center gap-3 mb-4">
@@ -104,7 +107,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   </div>
 </template>
 
@@ -112,6 +115,7 @@
 import Button from 'primevue/button'
 import Message from 'primevue/message'
 import Toast from 'primevue/toast'
+import Card from 'primevue/card'
 import { ProgressBar, Timeline } from 'primevue'
 import Knob from 'primevue/knob'
 import { API_BASE_URL } from '../config'
@@ -269,6 +273,7 @@ export default {
     Toast,
     Knob,
     Timeline,
+    Card
   },
 }
 </script>

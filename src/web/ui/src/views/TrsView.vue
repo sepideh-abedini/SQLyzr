@@ -2,7 +2,7 @@
   <div class="trs">
     <Toast/>
 
-    <h1>SQL Repair Suggestions</h1>
+    <h1>Error Fixing Suggestions</h1>
 
     <div class="card">
       <h2>Select Model and Dataset</h2>
@@ -125,7 +125,7 @@
 
 
     <Dialog v-model:visible="groupDetailsVisible"
-            header="Repair Suggestions"
+            header="Error Fixing Suggestions"
             :style="{width: '80vw'}" :modal="true">
       <div v-if="selectedGroup" class="group-details">
         <div>

@@ -51,12 +51,6 @@ class DummyRunner(ModelRunner):
         return result
 
 
-MODELS = {
-    "din": DinRunner(),
-    "dail": DailRunner(),
-    "dum": DummyRunner()
-}
-
 
 def merge_pred_files(config: SQLyzrConfig):
     logger.info("Merging pred files")

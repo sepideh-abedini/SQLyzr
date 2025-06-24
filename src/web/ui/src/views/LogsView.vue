@@ -1,9 +1,7 @@
 <template>
   <div class="logs">
     <Toast/>
-
-    <h1>SQLyr Logs</h1>
-
+    <h1>Logs</h1>
     <div class="card">
       <Button icon="pi pi-trash" @click="clearLogs" class="p-button-sm p-button-danger ml-2"
               label="Clear Logs"/>
@@ -18,7 +16,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
 import Button from 'primevue/button';

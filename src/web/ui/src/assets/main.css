@@ -3,7 +3,21 @@
 #app {
   margin: 0 auto;
   padding: 2rem;
-  font-weight: normal;
+  /*font-weight: normal;*/
+}
+
+h1 {
+  font-weight: bold;
+}
+
+:root {
+  --p-togglebutton-content-checked-background: green
+}
+.p-togglebutton {
+  --p-togglebutton-content-checked-background: #2196f3 !important;
+}
+.p-togglebutton-checked {
+  color: white !important;
 }
 
 a, .green {
@@ -13,3 +27,6 @@ a, .green {
   padding: 3px;
 }
 
+.p-togglebutton-checked .p-togglebutton-content {
+  background: green;
+}

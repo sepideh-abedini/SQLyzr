@@ -81,7 +81,7 @@ CUSTOM_SQLITE_DATASET = DatasetConfig(
 
 DATASETS = {
     "agg": {
-        "small": [SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL]
+        "small": [SPIDER_SMALL, BEAVER_SMALL]
     },
     "bird": {
         "small": [BIRD_SMALL],

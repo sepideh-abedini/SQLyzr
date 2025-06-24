@@ -4,14 +4,14 @@
     <Card>
       <template #title>
         <div class="text-center">
-          <h2 class="m-0">SQLyzr Configuration</h2>
+          <h1>Configuration</h1>
         </div>
       </template>
       <template #content>
         <div class="grid">
-          <div class="col-12 md:col-6 p-2">
-            <div class="config-section">
-              <FormField class="mb-3">
+          <div class="col-12 md:col-6 p-2 config-section">
+            <div class="grid">
+              <FormField class="md:col-6">
                 <label class="field-label">Dataset:</label>
                 <Select
                   v-model="config.dataset"
@@ -20,7 +20,7 @@
                   class="w-full"
                 />
               </FormField>
-              <FormField class="mb-3">
+              <FormField class="md:col-6">
                 <label class="field-label">Dataset Size:</label>
                 <Select
                   v-model="config.dataset_size"
@@ -29,21 +29,20 @@
                   class="w-full"
                 />
               </FormField>
-              <FormField class="mb-3">
+              <FormField class="md:col-12">
                 <label class="field-label">Models:</label>
                 <div class="flex flex-wrap gap-3 mt-2">
-                  <div v-for="model in modelOptions" :key="model" class="flex align-items-center">
-                    <Checkbox
-                      v-model="config.models"
-                      :inputId="model"
-                      :value="model"
-                      :name="model"
-                    />
-                    <label :for="model" class="ml-2">{{ model }}</label>
-                  </div>
+                  <MultiSelect
+                    v-model="config.models"
+                    display="chip"
+                    :options="modelOptions"
+                    filter
+                    placeholder="Select Models"
+                    class="w-full"
+                  />
                 </div>
               </FormField>
-              <FormField class="mb-3">
+              <FormField class="md:col-12">
                 <label class="field-label">Num Iterations:</label>
                 <InputNumber
                   v-model="config.itrs"
@@ -51,7 +50,7 @@
                   buttonLayout="horizontal"
                   :min="1"
                   :max="5"
-                  class="w-full"
+                  w-full
                 >
                   <template #incrementbuttonicon>
                     <span class="pi pi-plus" />
@@ -61,7 +60,7 @@
                   </template>
                 </InputNumber>
               </FormField>
-              <FormField class="mb-3">
+              <FormField class="md:col-6">
                 <label class="field-label">Temperature:</label>
                 <AutoComplete
                   :typeahead="false"
@@ -71,11 +70,18 @@
                   @complete="addTemp"
                 />
               </FormField>
-              <FormField class="mb-3">
+              <FormField class="md:col-6">
                 <label class="field-label">Batch Mode:</label>
                 <div class="flex align-items-center">
                   <ToggleSwitch v-model="config.batch" />
                   <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
+                </div>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Number of Synthetic Examples Per Sub-Category:</label>
+                <div class="flex align-items-center">
+                  <InputText v-model.number="config.aug_per_sub_cat" class="w-3 mr-2" />
+                  <Slider v-model="config.aug_per_sub_cat" :min="10" :max="1000" class="w-full" />
                 </div>
               </FormField>
             </div>
@@ -83,13 +89,6 @@
 
           <div class="col-12 md:col-6 p-2">
             <div class="config-section">
-              <FormField class="mb-3">
-                <label class="field-label">Aug Per Sub Category:</label>
-                <div class="flex align-items-center">
-                  <InputText v-model.number="config.aug_per_sub_cat" class="w-3 mr-2" />
-                  <Slider v-model="config.aug_per_sub_cat" :min="10" :max="1000" class="w-full" />
-                </div>
-              </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Error Threshold (Min Acceptable REA):</label>
                 <div class="flex justify-content-center mt-2">
@@ -230,8 +229,8 @@ export default {
         'Execution Time Inconsistency',
         'Complexity Consistency',
         'Complexity Inconsistency',
-        "Category Distribution",
-        "Overall"
+        'Category Distribution',
+        'Overall',
       ],
     }
   },
@@ -304,15 +303,6 @@ export default {
   border-radius: 8px;
   padding: 1.5rem;
   height: 100%;
-}
-
-.section-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #495057;
-  border-bottom: 1px solid #e9ecef;
-  padding-bottom: 0.5rem;
 }
 
 .field-label {
