@@ -11,7 +11,7 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt_tab')"
 
 RUN mkdir -p /app/src/third_party/dail/third_party
-RUN curl -L -o /tmp/stanford-corenlp.zip https://storage.googleapis.com/sepid/cdn/stanford-corenlp-full-2018-10-05.zip
+RUN curl -L -k -o /tmp/stanford-corenlp.zip https://storage.googleapis.com/sepid/cdn/stanford-corenlp-full-2018-10-05.zip
 RUN unzip /tmp/stanford-corenlp.zip -d /app/src/third_party/dail/third_party
 RUN rm /tmp/stanford-corenlp.zip
 
