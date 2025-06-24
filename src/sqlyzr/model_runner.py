@@ -6,6 +6,7 @@ from loguru import logger
 
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.single_run_config import SingleRunConfig
+from src.model.models import MODELS
 from src.sqlyzr.dummy_predictor import DummyPredictor
 from src.third_party.dail.dail_pred import DailPredictor
 from src.third_party.din.din_bird_pred import DinBirdPredictor
@@ -49,7 +50,6 @@ class DummyRunner(ModelRunner):
         predictor = DummyPredictor(run_conf)
         result = await predictor.run()
         return result
-
 
 
 def merge_pred_files(config: SQLyzrConfig):

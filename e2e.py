@@ -1,14 +1,11 @@
 import asyncio
-from threading import Thread
 
 import pandas as pd
 import pytest
 
 from src.app_setup import setup_app
-from src.mock_server import MockHTTPServer
 from src.sqlyzr.sqlyzr import Sqlyzr
 from src.util.file_utils import read_json
-from src.util.log_util import configure_logging
 
 
 def get_overall_score(df, model, metric):
