@@ -4,7 +4,7 @@
     <Card>
       <template #title>
         <div class="text-center">
-          <h1>Database Scaling Tool</h1>
+          <h1>Database Scaling</h1>
         </div>
       </template>
       <template #content>

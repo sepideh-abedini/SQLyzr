@@ -217,7 +217,7 @@ export default {
         },
         charts: [],
       },
-      modelOptions: ['din', 'dail'],
+      modelOptions: ['din', 'dail', 'custom'],
       suggested_temps: [0.0, 0.2, 0.5, 0.7, 1.0],
       chartOptions: [
         'Execution Accuracy',

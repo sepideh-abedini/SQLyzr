@@ -8,105 +8,107 @@
           <h1>Execution Status</h1>
         </div>
       </template>
-      <div class="status-section">
-        <h3 class="section-title">Control Panel</h3>
-        <div class="flex justify-content-center gap-3 mb-4">
-          <Button label="Run SQLyzr" icon="pi pi-play" @click="runSqlyzr" severity="primary" />
-          <Button label="Kill SQLyzr" icon="pi pi-times" @click="killSqlyzr" severity="danger" />
-        </div>
+      <template #content>
+        <div class="status-section">
+          <h3 class="section-title">Control Panel</h3>
+          <div class="flex justify-content-center gap-3 mb-4">
+            <Button label="Run SQLyzr" icon="pi pi-play" @click="runSqlyzr" severity="primary" />
+            <Button label="Kill SQLyzr" icon="pi pi-times" @click="killSqlyzr" severity="danger" />
+          </div>
 
-        <div class="status-info mb-3">
-          <div v-if="running" class="status-badge running">
-            <i class="pi pi-spin pi-spinner mr-2"></i>
-            <span>Running: {{ current_step }}</span>
+          <div class="status-info mb-3">
+            <div v-if="running" class="status-badge running">
+              <i class="pi pi-spin pi-spinner mr-2"></i>
+              <span>Running: {{ current_step }}</span>
+            </div>
+            <div v-else-if="success" class="status-badge completed">
+              <i class="pi pi-check-circle mr-2"></i>
+              <span>Completed</span>
+            </div>
+            <div v-else-if="fail" class="status-badge completed">
+              <i class="pi pi-times-circle mr-2"></i>
+              <span>Failed</span>
+            </div>
+            <div v-else class="status-badge idle">
+              <i class="pi pi-pause mr-2"></i>
+              <span>Not Running</span>
+            </div>
           </div>
-          <div v-else-if="success" class="status-badge completed">
-            <i class="pi pi-check-circle mr-2"></i>
-            <span>Completed</span>
-          </div>
-          <div v-else-if="fail" class="status-badge completed">
-            <i class="pi pi-times-circle mr-2"></i>
-            <span>Failed</span>
-          </div>
-          <div v-else class="status-badge idle">
-            <i class="pi pi-pause mr-2"></i>
-            <span>Not Running</span>
-          </div>
-        </div>
 
-        <ProgressBar
-          v-if="running"
-          mode="indeterminate"
-          style="height: 6px"
-          class="mb-4"
-        ></ProgressBar>
+          <ProgressBar
+            v-if="running"
+            mode="indeterminate"
+            style="height: 6px"
+            class="mb-4"
+          ></ProgressBar>
 
-        <div class="resource-usage mb-4">
-          <div class="grid">
-            <div class="col-12 md:col-3 p-2">
-              <div class="resource-label">CPU Percentage</div>
-              <div class="flex justify-content-center">
-                <Knob
-                  v-model="cpu_percent"
-                  valueTemplate="{value}%"
-                  :size="100"
-                  :readonly="true"
-                  valueColor="#4CAF50"
-                  :max="max_cpu"
-                />
+          <div class="resource-usage mb-4">
+            <div class="grid">
+              <div class="col-12 md:col-3 p-2">
+                <div class="resource-label">CPU Percentage</div>
+                <div class="flex justify-content-center">
+                  <Knob
+                    v-model="cpu_percent"
+                    valueTemplate="{value}%"
+                    :size="100"
+                    :readonly="true"
+                    valueColor="#4CAF50"
+                    :max="max_cpu"
+                  />
+                </div>
+                <div class="resource-value">{{ cpu_percent }}%</div>
               </div>
-              <div class="resource-value">{{ cpu_percent }}%</div>
-            </div>
-            <div class="col-12 md:col-3 p-2">
-              <div class="resource-label">Memory Percentage</div>
-              <div class="flex justify-content-center">
-                <Knob
-                  v-model="memory_percent"
-                  valueTemplate="{value}%"
-                  :size="100"
-                  :readonly="true"
-                  valueColor="#2196F3"
-                />
+              <div class="col-12 md:col-3 p-2">
+                <div class="resource-label">Memory Percentage</div>
+                <div class="flex justify-content-center">
+                  <Knob
+                    v-model="memory_percent"
+                    valueTemplate="{value}%"
+                    :size="100"
+                    :readonly="true"
+                    valueColor="#2196F3"
+                  />
+                </div>
+                <div class="resource-value">{{ memory_percent }}%</div>
               </div>
-              <div class="resource-value">{{ memory_percent }}%</div>
-            </div>
-            <div class="col-12 md:col-3 p-2">
-              <div class="resource-label">Memory Usage</div>
-              <div class="flex justify-content-center">
-                <Knob
-                  v-model="memory_gb"
-                  valueTemplate="{value} GB"
-                  :size="100"
-                  :readonly="true"
-                  valueColor="#4CAF50"
-                />
+              <div class="col-12 md:col-3 p-2">
+                <div class="resource-label">Memory Usage</div>
+                <div class="flex justify-content-center">
+                  <Knob
+                    v-model="memory_gb"
+                    valueTemplate="{value} GB"
+                    :size="100"
+                    :readonly="true"
+                    valueColor="#4CAF50"
+                  />
+                </div>
+                <div class="resource-value">{{ memory_gb }} MB</div>
               </div>
-              <div class="resource-value">{{ memory_gb }} MB</div>
-            </div>
 
-            <div class="col-12 md:col-3 p-2">
-              <div class="resource-label">Elapsed Time</div>
-              <div class="resource-value">{{ elapsed_time }} seconds</div>
+              <div class="col-12 md:col-3 p-2">
+                <div class="resource-label">Elapsed Time</div>
+                <div class="resource-value">{{ elapsed_time }} seconds</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pipeline-container">
+            <div v-for="(step, index) in sorted_pipeline_steps" :key="step" class="pipeline-step">
+              <Button
+                :outlined="!pipeline_config[step]"
+                :label="step"
+                :loading="is_current_step(step)"
+                :severity="pipeline_status[step] ? 'success' : 'info'"
+                class="text-capitalize"
+              />
+              <i
+                v-if="index < sorted_pipeline_steps.length - 1"
+                class="pi pi-arrow-right pipeline-arrow"
+              ></i>
             </div>
           </div>
         </div>
-
-        <div class="pipeline-container">
-          <div v-for="(step, index) in sorted_pipeline_steps" :key="step" class="pipeline-step">
-            <Button
-              :outlined="!pipeline_config[step]"
-              :label="step"
-              :loading="is_current_step(step)"
-              :severity="pipeline_status[step] ? 'success' : 'info'"
-              class="text-capitalize"
-            />
-            <i
-              v-if="index < sorted_pipeline_steps.length - 1"
-              class="pi pi-arrow-right pipeline-arrow"
-            ></i>
-          </div>
-        </div>
-      </div>
+      </template>
     </Card>
   </div>
 </template>
@@ -273,7 +275,7 @@ export default {
     Toast,
     Knob,
     Timeline,
-    Card
+    Card,
   },
 }
 </script>

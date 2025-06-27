@@ -4,47 +4,44 @@
 
     <Message v-if="error" severity="error">{{ error }}</Message>
 
-    <ProgressSpinner v-if="loading" class="my-4" />
-
-    <Card v-else>
+    <Card >
       <template #title>
         <div class="text-center">
           <h1>Charts</h1>
         </div>
       </template>
-      <div class="flex gap-4 mt-1">
-        <div class="w-full mb-4 flex gap-2">
-          <Button label="Refresh Charts" icon="pi pi-refresh" @click="fetchCharts" />
+      <template #content>
+        <div class="flex gap-4 mt-1">
+          <div class="w-full mb-4 flex gap-2">
+            <Button label="Refresh Charts" icon="pi pi-refresh" @click="fetchCharts" />
+          </div>
+          <div class="w-full mb-4 flex gap-2">
+            <h3>Available Charts</h3>
+            <Select
+              v-model="selectedChart"
+              :options="charts"
+              filter
+              placeholder="Select a chart"
+              default-value="overall.png"
+              @update:modelValue="selectChart"
+              class="w-full md:w-56"
+            />
+          </div>
         </div>
-        <div class="w-full mb-4 flex gap-2">
-          <h3>Available Charts</h3>
-          <Select
-            v-model="selectedChart"
-            :options="charts"
-            filter
-            placeholder="Select a chart"
-            default-value="overall.png"
-            @update:modelValue="selectChart"
-            class="w-full md:w-56"
-          />
+        <div v-if="selectedChart" class="chart-display">
+          <h3>{{ selectedChart }}</h3>
+          <div v-if="chartLoading" class="flex justify-content-center">
+            <ProgressSpinner />
+          </div>
+          <div v-else-if="chartError" class="p-3">
+            <Message severity="error">{{ chartError }}</Message>
+          </div>
+          <div v-else class="chart-image">
+            <img :src="chartUrl" :alt="selectedChart" class="w-full" />
+          </div>
         </div>
-      </div>
+      </template>
     </Card>
-    <div v-if="selectedChart" class="chart-display">
-      <h3>{{ selectedChart }}</h3>
-      <div v-if="chartLoading" class="flex justify-content-center">
-        <ProgressSpinner />
-      </div>
-      <div v-else-if="chartError" class="p-3">
-        <Message severity="error">{{ chartError }}</Message>
-      </div>
-      <div v-else class="chart-image">
-        <img :src="chartUrl" :alt="selectedChart" class="w-full" />
-      </div>
-    </div>
-    <div v-else class="flex justify-content-center align-items-center h-full">
-      <Message severity="info">Select a chart from the list to view</Message>
-    </div>
   </div>
 </template>
 
