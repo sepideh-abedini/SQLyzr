@@ -11,6 +11,7 @@ import Menubar from 'primevue/menubar'
     <template #end>
       <div class="flex items-center gap-2">
         <RouterLink to="/">Configuration</RouterLink>
+        <RouterLink to="/database">Scale</RouterLink>
         <RouterLink to="/status">Execution</RouterLink>
         <RouterLink to="/logs">Logs</RouterLink>
         <RouterLink to="/scores">Scores</RouterLink>
@@ -19,7 +20,6 @@ import Menubar from 'primevue/menubar'
         <RouterLink to="/data">Data</RouterLink>
         <RouterLink to="/trs">Repair Suggestions</RouterLink>
         <RouterLink to="/env">Environment Variables</RouterLink>
-        <RouterLink to="/database">Scale</RouterLink>
       </div>
     </template>
   </Menubar>
