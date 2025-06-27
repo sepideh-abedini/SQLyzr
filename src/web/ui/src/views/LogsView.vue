@@ -5,7 +5,7 @@
     <div class="card">
       <Button icon="pi pi-trash" @click="clearLogs" class="p-button-sm p-button-danger ml-2"
               label="Clear Logs"/>
-      <ToggleButton @value-change="" v-model="autoRefresh" class="w-48" on-label="Auto Refresh"
+      <ToggleButton v-model="autoRefresh" class="w-48" on-label="Auto Refresh"
                     off-label="Auto Refresh"/>
       <ProgressSpinner v-if="loading" class="my-4"/>
       <div v-else class="log-container">

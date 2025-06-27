@@ -6,19 +6,20 @@
     <Card>
       <template #title>
         <div class="text-center">
-          <h1>Data Files</h1>
+          <h1>Input Data Files</h1>
         </div>
       </template>
-      <h2>Data Explorer</h2>
-      <div class="path-navigation">
-        <Button icon="pi pi-home" @click="navigateTo('')" class="p-button-sm" />
-        <Button
-          icon="pi pi-trash"
-          @click="deleteTopLevelContents"
-          class="p-button-sm p-button-danger ml-2"
-          title="Delete all files in top-level directory"
-        />
-        <span v-for="(segment, index) in pathSegments" :key="index" class="path-segment">
+      <template #content>
+
+        <div class="path-navigation">
+          <Button icon="pi pi-home" @click="navigateTo('')" class="p-button-sm" />
+          <Button
+            icon="pi pi-trash"
+            @click="deleteTopLevelContents"
+            class="p-button-sm p-button-danger ml-2"
+            title="Delete all files in top-level directory"
+          />
+          <span v-for="(segment, index) in pathSegments" :key="index" class="path-segment">
           <span class="separator" v-if="index > 0">/</span>
           <Button
             :label="segment"
@@ -26,106 +27,106 @@
             @click="navigateToSegment(index)"
           />
         </span>
-        <Button
-          v-if="currentPath"
-          icon="pi pi-trash"
-          @click="deleteAllFiles"
-          class="p-button-sm p-button-danger ml-auto"
-          title="Delete all files in current directory"
-        />
-        <FileUpload
-          mode="basic"
-          accept=".zip"
-          :maxFileSize="50000000"
-          customUpload
-          @uploader="uploadZip"
-          :auto="true"
-          chooseLabel="Upload ZIP"
-          class="ml-2"
-        />
-      </div>
-
-      <ProgressSpinner v-if="loading" class="my-4" />
-
-      <div v-else class="file-list">
-        <DataTable :value="items" class="p-datatable-sm" stripedRows>
-          <Column field="name" header="Name">
-            <template #body="slotProps">
-              <div class="file-item" @click="handleItemClick(slotProps.data)">
-                <i :class="slotProps.data.is_dir ? 'pi pi-folder' : 'pi pi-file'" class="mr-2"></i>
-                {{ slotProps.data.name }}
-              </div>
-            </template>
-          </Column>
-          <Column field="lines" header="Lines">
-            <template #body="slotProps">
-              {{ slotProps.data.is_dir ? '-' : slotProps.data.lines }}
-            </template>
-          </Column>
-          <Column field="size" header="Size">
-            <template #body="slotProps">
-              {{ slotProps.data.is_dir ? '-' : formatSize(slotProps.data.size) }}
-            </template>
-          </Column>
-          <Column header="Actions" style="width: 150px">
-            <template #body="slotProps">
-              <Button
-                icon="pi pi-pencil"
-                class="p-button-sm p-button-secondary mr-2"
-                @click.stop="promptRename(slotProps.data)"
-                title="Rename file/directory"
-              />
-              <Button
-                icon="pi pi-trash"
-                class="p-button-sm p-button-danger"
-                @click.stop="deleteFile(slotProps.data)"
-                title="Delete file/directory"
-              />
-            </template>
-          </Column>
-        </DataTable>
-      </div>
-
-      <Dialog
-        v-model:visible="fileDialogVisible"
-        :header="selectedFile?.name"
-        :style="{ width: '80vw' }"
-        :modal="true"
-      >
-        <div v-if="fileContent" class="file-content">
-          <pre>{{ fileContent }}</pre>
-        </div>
-        <div v-else-if="fileLoading" class="text-center">
-          <ProgressSpinner />
-        </div>
-      </Dialog>
-
-      <Dialog
-        v-model:visible="renameDialogVisible"
-        header="Rename Item"
-        :style="{ width: '30vw' }"
-        :modal="true"
-      >
-        <div class="p-fluid">
-          <div class="p-field">
-            <label for="newName">New Name</label>
-            <InputText id="newName" v-model="newName" autofocus />
-          </div>
-        </div>
-        <template #footer>
           <Button
-            label="Cancel"
-            icon="pi pi-times"
-            class="p-button-text"
-            @click="renameDialogVisible = false"
+            v-if="currentPath"
+            icon="pi pi-trash"
+            @click="deleteAllFiles"
+            class="p-button-sm p-button-danger ml-auto"
+            title="Delete all files in current directory"
           />
-          <Button label="Rename" icon="pi pi-check" class="p-button-text" @click="renameItem" />
-        </template>
-      </Dialog>
+          <FileUpload
+            mode="basic"
+            accept=".zip"
+            :maxFileSize="50000000"
+            customUpload
+            @uploader="uploadZip"
+            :auto="true"
+            chooseLabel="Upload ZIP"
+            class="ml-2"
+          />
+        </div>
+
+        <ProgressSpinner v-if="loading" class="my-4" />
+
+        <div v-else class="file-list">
+          <DataTable :value="items" class="p-datatable-sm" stripedRows>
+            <Column field="name" header="Name">
+              <template #body="slotProps">
+                <div class="file-item" @click="handleItemClick(slotProps.data)">
+                  <i :class="slotProps.data.is_dir ? 'pi pi-folder' : 'pi pi-file'" class="mr-2"></i>
+                  {{ slotProps.data.name }}
+                </div>
+              </template>
+            </Column>
+            <Column field="lines" header="Lines">
+              <template #body="slotProps">
+                {{ slotProps.data.is_dir ? '-' : slotProps.data.lines }}
+              </template>
+            </Column>
+            <Column field="size" header="Size">
+              <template #body="slotProps">
+                {{ slotProps.data.is_dir ? '-' : formatSize(slotProps.data.size) }}
+              </template>
+            </Column>
+            <Column header="Actions" style="width: 150px">
+              <template #body="slotProps">
+                <Button
+                  icon="pi pi-pencil"
+                  class="p-button-sm p-button-secondary mr-2"
+                  @click.stop="promptRename(slotProps.data)"
+                  title="Rename file/directory"
+                />
+                <Button
+                  icon="pi pi-trash"
+                  class="p-button-sm p-button-danger"
+                  @click.stop="deleteFile(slotProps.data)"
+                  title="Delete file/directory"
+                />
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+
+        <Dialog
+          v-model:visible="fileDialogVisible"
+          :header="selectedFile?.name"
+          :style="{ width: '80vw' }"
+          :modal="true"
+        >
+          <div v-if="fileContent" class="file-content">
+            <pre>{{ fileContent }}</pre>
+          </div>
+          <div v-else-if="fileLoading" class="text-center">
+            <ProgressSpinner />
+          </div>
+        </Dialog>
+
+        <Dialog
+          v-model:visible="renameDialogVisible"
+          header="Rename Item"
+          :style="{ width: '30vw' }"
+          :modal="true"
+        >
+          <div class="p-fluid">
+            <div class="p-field">
+              <label for="newName">New Name</label>
+              <InputText id="newName" v-model="newName" autofocus />
+            </div>
+          </div>
+          <template #footer>
+            <Button
+              label="Cancel"
+              icon="pi pi-times"
+              class="p-button-text"
+              @click="renameDialogVisible = false"
+            />
+            <Button label="Rename" icon="pi pi-check" class="p-button-text" @click="renameItem" />
+          </template>
+        </Dialog>
+      </template>
     </Card>
   </div>
 </template>
-
 <script>
 import Toast from 'primevue/toast'
 import Button from 'primevue/button'

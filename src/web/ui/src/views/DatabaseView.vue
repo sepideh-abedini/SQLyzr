@@ -8,7 +8,6 @@
         </div>
       </template>
       <template #content>
-        <!-- Database selection section -->
         <div class="p-fluid mb-4">
           <div class="p-field">
             <label for="db-select" class="font-bold">Select Database</label>
@@ -25,7 +24,6 @@
           </div>
         </div>
 
-        <!-- Action buttons section -->
         <div class="button-container mb-4">
           <div class="action-buttons">
             <Button

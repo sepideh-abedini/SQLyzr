@@ -12,13 +12,13 @@
         "Relaxed Execution Accuracy",
         "Exact Match"
     ],
-    "dataset": "custom",
-    "dataset_size": "all",
+    "dataset": "spider",
+    "dataset_size": "small",
     "error_threshold": 63,
     "force": false,
     "itrs": 1,
     "models": [
-        "din"
+        "custom"
     ],
     "pipeline": {
         "augment": false,
