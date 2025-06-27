@@ -8,6 +8,7 @@ import DataView from "@/views/DataView.vue";
 import TrsView from "@/views/TrsView.vue";
 import StatusView from "@/views/StatusView.vue";
 import EnvView from "@/views/EnvView.vue";
+import DatabaseView from "@/views/DatabaseView.vue";
 
 
 const router = createRouter({
@@ -58,6 +59,11 @@ const router = createRouter({
       name: 'env',
       component: EnvView,
     },
+    {
+      path: '/database',
+      name: 'database',
+      component: DatabaseView,
+    }
   ],
 })
 

@@ -1,6 +1,7 @@
 services:
   web:
     image: "${IMAGE_TAG}"
+    restart: always
     volumes:
       - "/data/web_out:/app/out"
       - "/data:/app/data"
@@ -36,6 +37,7 @@ services:
       - sqlyzr
   traefik:
     image: traefik:v2.11
+    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -49,6 +51,7 @@ services:
       - sqlyzr
   whoami:
     image: traefik/whoami
+    restart: always
     networks:
       - sqlyzr
     labels:

@@ -3,8 +3,8 @@ from loguru import logger
 from src.chart.charter import draw_all_charts
 from src.configs.config_loader import load_config
 from src.configs.sqlyzr_config import SQLyzrConfig
+from src.model.models import run_model
 from src.sqlyzr.augment_data import DatasetAugmentor
-from src.sqlyzr.model_runner import run_model
 from src.sqlyzr.pipeline_config import PipelineConfig
 from src.sqlyzr.score_calculator import ScoreCalculator
 from src.sqlyzr.scores_post_processor import ScoresPostProcessor

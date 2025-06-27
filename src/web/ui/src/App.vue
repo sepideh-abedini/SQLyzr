@@ -19,6 +19,7 @@ import Menubar from 'primevue/menubar'
         <RouterLink to="/data">Data</RouterLink>
         <RouterLink to="/trs">Repair Suggestions</RouterLink>
         <RouterLink to="/env">Environment Variables</RouterLink>
+        <RouterLink to="/database">Scale</RouterLink>
       </div>
     </template>
   </Menubar>
