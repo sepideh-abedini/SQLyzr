@@ -8,7 +8,6 @@ from dataclasses_json.stringcase import snakecase
 from natsort import natsorted
 
 from scripts.chart_lib.drawer import Drawer
-from src.configs.sqlyzr_config import SQLyzrConfig
 from src.sqlyzr.chart_config import ChartName
 
 
@@ -25,6 +24,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
         os.mkdir(out_dir)
+
     drawer = Drawer(scores_path, show=False, out_dir=out_dir)
     if "Category Distribution" in included_charts:
         drawer.draw_cats()

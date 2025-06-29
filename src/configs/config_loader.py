@@ -28,6 +28,7 @@ class ConfigData(BaseModel):
     force: bool = False
     pipeline: PipelineConfig = PipelineConfig()
     charts: List[ChartName] = []
+    etcr: float = 1.1
 
     @property
     def idx(self):
@@ -103,7 +104,8 @@ def load_config(path) -> SQLyzrConfig:
         aug_dir=conf_data.get_aug_dir(),
         error_threshold=conf_data.error_threshold,
         aug_per_sub_cat=conf_data.aug_per_sub_cat,
-        pipeline=conf_data.pipeline
+        pipeline=conf_data.pipeline,
+        etc_ratio=conf_data.etcr,
     )
 
     return conf

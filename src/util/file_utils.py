@@ -16,6 +16,11 @@ def read_json(path: str):
         return json.load(f)
 
 
+def read_json_to_dict(path, key_field):
+    data = read_json(path)
+    return {item[key_field]: item for item in data}
+
+
 def write_json(path: str, data):
     with open(path, "w") as f:
         f.write(json.dumps(data, indent=4))

@@ -4,14 +4,13 @@ from typing import Callable, List, TypeVar, Type
 
 import pandas as pd
 from loguru import logger
-from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
 from src.eval.lib import TimeLogger
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.file_sender.batch_sender import GptBatchFileSender
 from src.gpt.file_sender.single_sender import GptSingleSender
-from src.gpt.models import BatchInputRequest
+from src.gpt.models import BatchInputRequest, BatchInputResponse, SqlyzrChatCompletion
 from src.parse.parser import SqlParser
 from src.util.file_utils import file_exists_not_forced
 from src.util.log_util import alog
@@ -41,6 +40,7 @@ class Predictor(ABC):
     async def run(self):
         if file_exists_not_forced(self._run_conf.get_pred_path()):
             logger.info(f"Pred file exists: {self._run_conf.get_pred_path()}, skipping")
+            self.save_tokens()
             return
         await self._run_internal()
         self.save_tokens()
@@ -53,16 +53,22 @@ class Predictor(ABC):
     def get_out_batch_files(self) -> List[str]:
         pass
 
-    def save_tokens(self):
-        all_toks = []
+    def save_extra_numeric_metric(self, save_path, metric_extractor):
+        all = []
         for file in self.get_out_batch_files():
             p = f"{self._run_conf.get_pred_path()}.{file}"
-            data = read_jsonl(p, ChatCompletion)
-            toks = list(map(lambda r: r.usage.total_tokens, data))
-            all_toks.append(toks)
-        sum_toks = list(map(lambda s: sum(s), zip(*all_toks)))
-        with open(self._run_conf.get_tokens_path(), "w") as tok_file:
-            tok_file.write("\n".join(map(str, sum_toks)))
+            data = read_jsonl(p)
+            per_row_metrics = list(map(metric_extractor, data))
+            all.append(per_row_metrics)
+        sum_per_row = list(map(lambda s: sum(s), zip(*all)))
+        with open(save_path, "w") as metric_file:
+            metric_file.write("\n".join(map(str, sum_per_row)))
+
+    def save_tokens(self):
+        self.save_extra_numeric_metric(self._run_conf.get_tokens_path(),
+                                       lambda r: r['usage']['total_tokens'] if 'usage' in r else 0)
+        self.save_extra_numeric_metric(self._run_conf.get_time_path(),
+                                       lambda r: r['finished'] - r['created'])
 
     @alog("Asking GPT")
     async def _ask_file(self, in_path: str, out_path: str):
@@ -97,7 +103,7 @@ def identity_processor(i: int, content: T) -> T:
 
 def process_responses(file_path: str, response_processor: ResponseProcessor = identity_processor) -> List[str]:
     time_logger = TimeLogger.start(f"ResponseProcessor:{file_path}")
-    responses = read_jsonl(file_path, ChatCompletion)
+    responses = read_jsonl(file_path, SqlyzrChatCompletion)
     results = []
     for i, response in enumerate(responses):
         content = response.choices[0].message.content
@@ -112,7 +118,7 @@ U = TypeVar('U')
 
 def process_formatted_responses(file_path: str, response_format: Type[T],
                                 response_processor: Callable[[int, T], U] = identity_processor) -> List[U]:
-    responses = read_jsonl(file_path, ChatCompletion)
+    responses = read_jsonl(file_path, SqlyzrChatCompletion)
     results = []
     for i, response in enumerate(responses):
         content = response_format.model_validate(response.choices[0].message.parsed)

@@ -2,10 +2,10 @@ import re
 from typing import List, Tuple
 
 from diskcache import Cache
-from openai.types.chat import ChatCompletion
 import tqdm
 
 from src.eval.single_run_config import SingleRunConfig
+from src.gpt.models import SqlyzrChatCompletion
 from src.rel.db_facade import DB_CACHE
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
@@ -23,7 +23,7 @@ class DailSqlPostProcessorWorker:
         self._run_conf = run_conf
         self.cache = Cache(CACHE_DIR)
 
-    def post_proc_single(self, pair: Tuple[str, ChatCompletion]):
+    def post_proc_single(self, pair: Tuple[str, SqlyzrChatCompletion]):
         result = ""
         db_id = pair[0]
         response = pair[1]
@@ -65,7 +65,7 @@ class DailSqlPostProcessorWorker:
         self.cache[response.id] = result
         return result
 
-    def post_process_response(self, pairs: List[Tuple[str, ChatCompletion]]):
+    def post_process_response(self, pairs: List[Tuple[str, SqlyzrChatCompletion]]):
         results = []
         for i, pair in tqdm.tqdm(enumerate(pairs), total=len(pairs),
                                  desc=f"Processing SQLs {self._run_conf}"):

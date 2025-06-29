@@ -1,6 +1,7 @@
 import collections
 import json
 import os
+import time
 
 import attr
 import tqdm
@@ -153,6 +154,7 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
     def preprocess_item(self, proc_data):
         item = proc_data['item']
         schema = proc_data['schema']
+        created = proc_data['created']
         question, question_for_copying = self._tokenize_for_copying(item['question_toks'], item['question'])
         # preproc_schema = self.preprocess_schema(schema)
         preproc_schema = self.preprocessed_schemas[schema.db_id]
@@ -167,7 +169,11 @@ class SpiderEncoderV2Preproc(abstract_preproc.AbstractPreproc):
             cv_link = compute_cell_value_linking(question, schema)
         else:
             cv_link = {"num_date_match": {}, "cell_match": {}}
+
+        finished = int(time.time())
         return {
+            'created': created,
+            'finished': finished,
             'raw_question': item['question'],
             'db_id': schema.db_id,
             'question': question,

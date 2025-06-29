@@ -4,6 +4,18 @@
 
     <h1>Error Fixing Suggestions</h1>
 
+    <div class="trs-item-content">
+      <div class="trs-sql">
+        <Tag severity="warn">Predicted SQL</Tag>
+        <pre
+          v-html="showDiff ? calculateDiff(pred, gold) : highlightSQL(pred)"></pre>
+      </div>
+      <div class="trs-sql">
+        <Tag>Gold SQL</Tag>
+        <pre v-html="highlightSQL(gold)"></pre>
+      </div>
+    </div>
+
     <div class="card">
       <h2>Select Model and Dataset</h2>
       <div class="selection-container">
@@ -215,6 +227,8 @@ export default {
       dmp: new DiffMatchPatch.diff_match_patch(),
       showDiff: true,
       selectedTrs: 0,
+      pred: "SELECT t1.a, t2.b, t2.c FROM t1 JOIN t2",
+      gold: "SELECT a, b FROM t1 JOIN t2"
     }
   },
   computed: {
@@ -253,12 +267,28 @@ export default {
       this.dmp.diff_cleanupSemantic(diffs);
 
       let html = '';
-      for (const [op, text] of diffs) {
-        if (op === 1) {
+      for (let i = 0; i < diffs.length; i++) {
+        const [op, text] = diffs[i];
+
+        // Check if this is a change (modified text)
+        const isChange = i < diffs.length - 1 &&
+                        op === -1 &&
+                        diffs[i+1][0] === 1 &&
+                        text.length === diffs[i+1][1].length;
+
+        if (isChange) {
+          // This is a change (modified text), highlight in blue
+          html += `<span class="diff-changed">${this.highlightSQL(text)}</span>`;
+          // Skip the next diff since we've already processed it as part of this change
+          i++;
+        } else if (op === 1) {
+          // This is an addition, highlight in green
           html += `<span class="diff-added">${this.highlightSQL(text)}</span>`;
         } else if (op === -1) {
+          // This is a deletion, highlight in red
           html += `<span class="diff-removed">${this.highlightSQL(text)}</span>`;
         } else {
+          // This is unchanged text
           html += this.highlightSQL(text);
         }
       }
@@ -563,6 +593,14 @@ export default {
   background-color: #ffeef0;
   color: #cb2431;
   text-decoration: line-through;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.diff-changed {
+  background-color: #e6f7ff;
+  color: #0366d6;
+  text-decoration: none;
   border-radius: 2px;
   padding: 0 1px;
 }

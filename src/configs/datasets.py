@@ -29,12 +29,42 @@ SPIDER_ALL = DatasetConfig(
     db_dir="database"
 )
 
+SPIDER_MASK = DatasetConfig(
+    dataset_dir="data/mask/spider",
+    test_file="test.json",
+    gold_file="test.gold.txt",
+    train_file="train.json",
+    tables_file="tables.all.json",
+    db_dir="databases"
+)
+
+BIRD_MASK = DatasetConfig(
+    dataset_dir="data/mask/bird",
+    test_file="test.json",
+    gold_file="test.gold.txt",
+    train_file="train.json",
+    tables_file="tables.all.json",
+    db_dir="databases",
+    dataset_type="bird"
+)
+
+
 BIRD_SMALL = DatasetConfig(
     dataset_dir="data/bird",
     test_file="data.test.small.json",
     gold_file="data.test.small.gold.txt",
     train_file="data.train.small.json",
     tables_file="tables.small.json",
+    db_dir="database",
+    dataset_type="bird"
+)
+
+BIRD_BAD = DatasetConfig(
+    dataset_dir="data/bird",
+    test_file="data.test.small.bad.json",
+    gold_file="data.test.small.bad.gold.txt",
+    train_file="data.train.small.json",
+    tables_file="tables.small.bad.json",
     db_dir="database",
     dataset_type="bird"
 )
@@ -85,7 +115,9 @@ DATASETS = {
     },
     "bird": {
         "small": [BIRD_SMALL],
-        "all": [BIRD_ALL]
+        "all": [BIRD_ALL],
+        "bad": [BIRD_BAD],
+        "mask": [BIRD_MASK],
         #     "dev": BIRD_DEV,
         #     "train": BIRD_TRAIN
     },
@@ -95,6 +127,7 @@ DATASETS = {
         # "dev": SPIDER_DEV,
         # "test": SPIDER_TEST,
         # "train": SPIDER_TRAIN,
+        "mask": [SPIDER_MASK],
         "all": [SPIDER_ALL]
     },
     "beaver": {
@@ -107,4 +140,4 @@ DATASETS = {
 }
 
 DatasetName = Literal["spider", "bird", "beaver", "agg", "custom"]
-DatasetSize = Literal["small", "dev", "train", "test", "all", "500"]
+DatasetSize = Literal["small", "dev", "train", "test", "all", "500", "bad", "mask"]

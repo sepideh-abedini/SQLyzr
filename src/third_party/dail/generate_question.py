@@ -3,6 +3,7 @@ Generate questions for LLMs and save it as a task
 """
 import json
 import os
+import time
 from dataclasses import dataclass
 from functools import partial
 
@@ -17,6 +18,7 @@ from src.third_party.dail.utils.data_builder import load_data
 from src.third_party.dail.utils.enums import LLM
 from src.third_party.dail.utils.utils import cost_estimate
 from src.util.log_util import log
+from src.util.model_utils import write_jsonl
 from src.util.multi_thread_utils import exec_multi_process_chunked, exec_multi_process
 
 SQLYZR_DEVICE = os.environ.get("SQLYZR_DEVICE", "cpu")
@@ -29,11 +31,14 @@ class PromptWorker:
         self.cross_domain = cross_doamin
 
     def format(self, question_json):
+        created = int(time.time())
         question_format = self.prompt.format(target=question_json,
                                              max_seq_len=self.params.max_seq_len,
                                              max_ans_len=self.params.max_ans_len,
                                              scope_factor=self.params.scope_factor,
                                              cross_domain=self.cross_domain)
+        question_format['created'] = created
+        question_format['finished'] = int(time.time())
         return question_format
 
     def format_list(self, data):
@@ -79,7 +84,7 @@ class DailQuestionGenerator(FileGenerator):
         if SQLYZR_DEVICE == "cpu":
             formats = exec_multi_process(worker.format, test_data, desc="Creating prompt")
         else:
-            formats = list(tqdm.tqdm(map(worker.format, test_data), total=len(test_data),desc="Creating prompt"))
+            formats = list(tqdm.tqdm(map(worker.format, test_data), total=len(test_data), desc="Creating prompt"))
 
         # for question_json in tqdm.tqdm(test_data):
         for question_format in formats:
@@ -91,32 +96,33 @@ class DailQuestionGenerator(FileGenerator):
             # question_format = worker.format(question_json)
             questions.append(question_format)
 
-            token_cnt += question_format["prompt_tokens"]
+            # token_cnt += question_format["prompt_tokens"]
 
             # cost estimated
-            token_cnt = float(token_cnt) / len(questions)
-            logger.debug(
-                f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
+            # token_cnt = float(token_cnt) / len(questions)
+            # logger.debug(
+            #     f"Total {len(questions)} questions, {token_cnt} tokens per prompt, {token_cnt / len(questions)} tokens per question")
 
-            n_total_tokens = int(len(questions) * params.max_ans_len + token_cnt)
-            cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)
-            cost_text_davinci_003 = cost_estimate(n_total_tokens, LLM.TEXT_DAVINCI_003)
+            # n_total_tokens = int(len(questions) * params.max_ans_len + token_cnt)
+            # cost_gpt_35_turbo = cost_estimate(n_total_tokens, LLM.GPT_35_TURBO)
+            # cost_text_davinci_003 = cost_estimate(n_total_tokens, LLM.TEXT_DAVINCI_003)
             example_quality = prompt.get_example_quality()
             pattern_similarity = prompt.get_pattern_similarity()
 
-            task = {
-                "args": "",
-                "costs": {
-                    "prompt_tokens_per_prompt": token_cnt,
-                    "gpt-4": cost_gpt_35_turbo * 20,
-                    "gpt-3.5-turbo": cost_gpt_35_turbo,
-                    "text-davinci-003": cost_text_davinci_003,
-                    "example_quality": example_quality,
-                    "pattern_similarity": pattern_similarity,
-                    # "example_quality_for_each": example_quality_each
-                },
-                "questions": questions
-            }
+            # task = {
+            #     "args": "",
+            #     "costs": {
+            #         "prompt_tokens_per_prompt": token_cnt,
+            #         "gpt-4": cost_gpt_35_turbo * 20,
+            #         "gpt-3.5-turbo": cost_gpt_35_turbo,
+            #         "text-davinci-003": cost_text_davinci_003,
+            #         "example_quality": example_quality,
+            #         "pattern_similarity": pattern_similarity,
+            # "example_quality_for_each": example_quality_each
+            # },
+            # "questions": questions
+            # }
+            task = questions
 
         if not self.second_stage:
             save_path = dail_conf.questions_path()
@@ -124,4 +130,5 @@ class DailQuestionGenerator(FileGenerator):
             save_path = dail_conf.second_questions_path()
 
         with open(save_path, "w") as out_file:
-            json.dump(task, out_file, indent=4)
+            for row in task:
+                out_file.write(f"{json.dumps(row)}\n")

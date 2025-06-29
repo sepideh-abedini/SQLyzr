@@ -78,7 +78,7 @@ METRIC_LABELS = {
 
 def draw_model_util_charts(model: str):
     df = proc_df(f"data/{model}_bird_logs/util.jsonl")
-    model_dir = os.path.join("charts", "util", model)
+    model_dir = os.path.join("out/dec31/charts", "util", model)
     os.makedirs(model_dir, exist_ok=True)
     starts = find_starts(df)
     for metric in ["ct", "cp", "ctd", "cc", "mem"]:

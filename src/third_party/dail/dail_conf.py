@@ -8,7 +8,7 @@ from src.eval.single_run_config import SingleRunConfig
 class DailParams:
     max_seq_len: int = 4096
     max_ans_len: int = 200
-    tokenizer: str = 'gpt-3.5-turbo'
+    tokenizer: str = 'gpt-4.1-mini'
     prompt_repr: str = 'SQL'
     k_shot: int = 9
     example_type: str = 'QA'
@@ -25,7 +25,7 @@ class DailConfig:
     compute_cv_link: bool = True
     params: DailParams = field(default_factory=DailParams)
     gpt_params = {
-        'model': "gpt-4o-mini",
+        'model': "gpt-4.1-mini",
         'max_tokens': 600,
         'n': 5
     }
@@ -40,10 +40,10 @@ class DailConfig:
         return f"{self.pred_path}.pre_test_result.txt"
 
     def questions_path(self):
-        return f"{self.pred_path}.questions.json"
+        return f"{self.pred_path}.questions.jsonl"
 
     def second_questions_path(self):
-        return f"{self.pred_path}.second.questions.json"
+        return f"{self.pred_path}.second.questions.jsonl"
 
     def get_path(self, file_type: Literal["in", "out", "in.second", "out.second"]):
         return f"{self.pred_path}.sql.{file_type}.jsonl"

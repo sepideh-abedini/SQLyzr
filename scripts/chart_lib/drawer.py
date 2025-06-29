@@ -9,6 +9,12 @@ from matplotlib.transforms import Bbox
 from natsort import natsorted
 from pandas import DataFrame
 
+plt.rcParams["font.size"] = 24
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["lines.linewidth"] = 3
+plt.rcParams["legend.fontsize"] = 8
+plt.rcParams['legend.title_fontsize'] = 16
+
 ET_TRESH = 0.1
 TOP_TEMP = 0.2
 INCLUDE_ALL = True
@@ -80,6 +86,8 @@ class Drawer:
 
     def proc_df(self, scores_path: str):
         df = pd.read_csv(scores_path)
+        df["cat"] = df["cat"].str.upper()
+        df["sub"] = df["sub"].str.upper()
         df = df.dropna(subset=["cat"])
         cats = natsorted(df['cat'].unique())
         sub_cats = natsorted(df['sub'].unique())
@@ -89,13 +97,13 @@ class Drawer:
         if self.only_correct:
             df = df[df['rea'] == 1]
         df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
+        df['plt'] = df.apply(lambda e: int((e['et'] / e['get']) > 1 + ET_TRESH), axis=1)
         df['etc'] = df['plt']
         df["cconst"] = df["plc"]
         df["cdiff"] = 1 - df["plc"]
         df["etcdiff"] = 1 - df["plt"]
-        df['diff'] = df['rea'] - df['ea']
         df = df.drop(columns=[col for col in df.columns if "Unnamed" in col])
-        df = df.drop(columns=['pcat', 'psub'])
+        df = df.drop(columns=['pcat', 'psub','id'], errors='ignore')
         if self.exclude_c6:
             df = df[df['cat'] != 'c6']
 

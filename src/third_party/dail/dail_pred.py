@@ -3,10 +3,9 @@ import os
 from typing import List
 
 from loguru import logger
-from openai.types.chat import ChatCompletion
 
 from src.eval.single_run_config import SingleRunConfig
-from src.gpt.models import BatchInputRequest
+from src.gpt.models import BatchInputRequest, SqlyzrChatCompletion
 from src.pred.predictor import Predictor
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
@@ -26,7 +25,11 @@ class DailPredictor(Predictor):
         self.__conf = DailConfig(run_conf.get_pred_path())
 
     def get_out_batch_files(self) -> List[str]:
-        return ["sql.out.jsonl", "sql.out.second.jsonl"]
+        return ["test.schema.jsonl",
+                "questions.jsonl",
+                "sql.out.jsonl",
+                "second.questions.jsonl",
+                "sql.out.second.jsonl"]
 
     async def _run_internal(self):
         logger.info("Starting DAIL Predictor")
@@ -68,8 +71,8 @@ class DailPredictor(Predictor):
         return request
 
     def __load_questions(self, path: str):
-        questions_json = json.load(open(path, "r"))
-        self.__questions = [_["prompt"] for _ in questions_json["questions"]]
+        questions_json = read_jsonl(path)
+        self.__questions = [_["prompt"] for _ in questions_json]
 
     @log("Dail response processing")
     def __process_responses(self, in_path, out_path) -> List[str]:
@@ -81,7 +84,7 @@ class DailPredictor(Predictor):
         with open(self._run_conf.dataset_config.get_test_path()) as data_file:
             data = json.load(data_file)
             db_ids = [example['db_id'] for example in data]
-        responses = read_jsonl(in_path, ChatCompletion)
+        responses = read_jsonl(in_path, SqlyzrChatCompletion)
         pairs = list(zip(db_ids, responses))
         post_process_worker = DailSqlPostProcessorWorker(self.__conf, self._run_conf)
         results = exec_multi_process(post_process_worker.post_proc_single, pairs, desc="Post processing SQLs")

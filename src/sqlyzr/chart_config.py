@@ -1,8 +1,7 @@
-from typing import List, Literal
-
-from openai import BaseModel
+from typing import Literal
 
 ChartName = Literal[
+    "Overall",
     "Execution Accuracy",
     "Relaxed Execution Accuracy",
     "Exact Match",
@@ -11,7 +10,7 @@ ChartName = Literal[
     "Execution Time Consistency",
     "Execution Time Inconsistency",
     "Complexity Consistency",
-    "Complexity Inconsistency"
+    "Complexity Inconsistency",
+    "Category Distribution",
+    "Overall"
 ]
-
-

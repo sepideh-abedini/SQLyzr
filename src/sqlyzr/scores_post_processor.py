@@ -23,21 +23,9 @@ def metric_agg(metric, agg_fun):
     return pd.NamedAgg(column=metric, aggfunc=agg_fun)
 
 
-METRICS = [
-    "em", "ea", "rea", "et", "get", "count"
-]
-
-SUMS = {
-    f"{m}_sum": pd.NamedAgg(column=m, aggfunc="sum") for m in METRICS
-}
-
-MEANS = {
-    f"{m}_mean": pd.NamedAgg(column=m, aggfunc="mean") for m in METRICS
-}
-
-CIS = {
-    f"{m}_ci": pd.NamedAgg(column=m, aggfunc=confidence_interval) for m in METRICS
-}
+# METRICS = [
+#     "em", "ea", "rea", "et", "get", "count"
+# ]
 
 
 class ScoresPostProcessor:
@@ -45,6 +33,16 @@ class ScoresPostProcessor:
 
     def __init__(self, config: SQLyzrConfig):
         self.__config = config
+        METRICS = self.__config.eval_conf.metrics.keys()
+        self.SUMS = {
+            f"{m}_sum": pd.NamedAgg(column=m, aggfunc="sum") for m in METRICS
+        }
+        self.MEANS = {
+            f"{m}_mean": pd.NamedAgg(column=m, aggfunc="mean") for m in METRICS
+        }
+        self.CIS = {
+            f"{m}_ci": pd.NamedAgg(column=m, aggfunc=confidence_interval) for m in METRICS
+        }
 
     @log("Score post-processing")
     def run(self):
@@ -56,7 +54,7 @@ class ScoresPostProcessor:
         sub_grouped = df.groupby(['model', 'tmp', 'cat', 'sub'])
         cc = sub_grouped.apply(metric_consistency('plc'))
         etc = sub_grouped.apply(metric_consistency('plt'))
-        sub_grouped = sub_grouped.agg(**SUMS, **MEANS, **CIS)
+        sub_grouped = sub_grouped.agg(**self.SUMS, **self.MEANS, **self.CIS)
         sub_grouped['cc'] = cc
         sub_grouped['etc'] = etc
         sub_grouped = sub_grouped.reset_index()
@@ -66,7 +64,7 @@ class ScoresPostProcessor:
         cat_grouped = df.drop(columns=['sub']).groupby(['model', 'tmp', 'cat'])
         cc = cat_grouped.apply(metric_consistency('plc'))
         etc = cat_grouped.apply(metric_consistency('plt'))
-        cat_grouped = cat_grouped.agg(**MEANS, **SUMS, **CIS)
+        cat_grouped = cat_grouped.agg(**self.MEANS, **self.SUMS, **self.CIS)
         cat_grouped['cc'] = cc
         cat_grouped['etc'] = etc
         cat_grouped['sub'] = 'all'
@@ -86,7 +84,7 @@ class ScoresPostProcessor:
         tmp_cat_grouped = tmp_cat_grouped.reset_index()
 
         all_cats = tmp_cat_grouped.drop(columns=['cat']).groupby(['model', 'tmp'])
-        all_cats = all_cats.agg(**SUMS, **MEANS, **CIS, cc=pd.NamedAgg(column="cc", aggfunc="mean"),
+        all_cats = all_cats.agg(**self.SUMS, **self.MEANS, **self.CIS, cc=pd.NamedAgg(column="cc", aggfunc="mean"),
                                 etc=pd.NamedAgg(column="etc", aggfunc="mean"))
         all_cats['cat'] = 'all'
         all_cats['sub'] = 'all'

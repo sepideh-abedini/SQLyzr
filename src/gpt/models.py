@@ -3,6 +3,11 @@ from typing import Literal, Optional, TypedDict, List
 import tiktoken
 from openai import BaseModel
 from openai.types.chat import ChatCompletion
+from openai.types.chat.chat_completion import Choice
+
+
+class SQLyzrChoice(Choice):
+    finish_reason: Optional[str]
 
 
 class GptMessage(BaseModel):
@@ -11,7 +16,7 @@ class GptMessage(BaseModel):
 
 
 class RequestBody(BaseModel):
-    model: Literal["gpt-4o-mini", "gpt-3.5-turbo"]
+    model: str
     messages: list[GptMessage]
     max_completion_tokens: Optional[int] = None
     stop: list[str] = []
@@ -23,6 +28,19 @@ class RequestBody(BaseModel):
 
 class ExtraParams(TypedDict):
     model: Literal['gpt-4o-min', 'gpt-3.5-turbo']
+
+
+class SqlyzrChatCompletion(ChatCompletion):
+    choices: List[SQLyzrChoice]
+
+
+class BatchInputResponse(ChatCompletion):
+    finished: int
+    choices: List[SQLyzrChoice]
+
+    @classmethod
+    def from_obj(cls, c: SqlyzrChatCompletion, **kwargs):
+        return cls(**c.model_dump(), **kwargs)
 
 
 class BatchInputRequest(BaseModel):
@@ -48,7 +66,10 @@ class BatchInputRequest(BaseModel):
         )
 
     def get_token_usage(self):
-        encoding = tiktoken.encoding_for_model(self.body.model)
+        try:
+            encoding = tiktoken.encoding_for_model(self.body.model)
+        except KeyError:
+            encoding = tiktoken.get_encoding("cl100k_base")
         total_tokens = 0
         for msg in self.body.messages:
             total_tokens = len(encoding.encode(msg.content))
@@ -58,7 +79,7 @@ class BatchInputRequest(BaseModel):
 
 
 class BatchResponse(BaseModel):
-    body: ChatCompletion
+    body: SqlyzrChatCompletion
 
 
 class BatchRequestOutput(BaseModel):

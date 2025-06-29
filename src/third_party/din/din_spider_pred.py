@@ -1,6 +1,8 @@
 import re
 from typing import List
 
+from loguru import logger
+
 from src.eval.lib import TimeLogger
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.file_sender.file_sender import GptFileSender
@@ -9,7 +11,7 @@ from src.parse.parser import SqlParser
 from src.pred.predictor import Predictor, process_responses
 from src.third_party.din.config import DinConfig
 from src.third_party.din.spider.prompt_maker import PromptMaker
-from src.util.str_utils import shrink_whitespaces
+from src.util.str_utils import shrink_whitespaces, extract_sql
 
 
 class DinPredictor(Predictor):
@@ -161,7 +163,12 @@ class DinPredictor(Predictor):
             case "gpt-4o-mini":
                 return self.__process_gpt_4o_mini_sql(i, content)
             case _:
-                raise RuntimeError(f"Unknown model: {self.__conf.default_params['model']}")
+                result = self.__process_gpt_4o_mini_sql(i, content)
+                if result.strip() == "":
+                    result = extract_sql(content)
+                if result.strip() == "":
+                    logger.error(f"No SQL found in the debug response: {content}")
+                return result
 
     def __process_sql_debug_response(self, i: int, content: str) -> str:
         match self.__conf.default_params['model']:
@@ -172,7 +179,14 @@ class DinPredictor(Predictor):
                 sql = self.__process_gpt_4o_mini_debug(i, content)
                 return sql
             case _:
-                raise RuntimeError(f"Unknown model: {self.__conf.default_params['model']}")
+                result = self.__process_gpt_4o_mini_sql(i, content)
+                if result.strip() == "":
+                    result = extract_sql(content)
+                if result.strip() == "":
+                    logger.error(f"No SQL found in the debug response: {content}")
+                return result
+            # case _:
+            #     raise RuntimeError(f"Unknown model: {self.__conf.default_params['model']}")
         # sql = "SELECT " + content
         # pattern = r'SELECT\s*```sql ([^`]*).*'
         # sql = re.sub(pattern, r'\1', sql)

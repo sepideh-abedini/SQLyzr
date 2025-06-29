@@ -1,21 +1,27 @@
 {
-    "aug_per_sub_cat": 5,
+    "aug_per_sub_cat": 250,
     "batch": false,
-    "charts": [],
-    "dataset": "bird",
+    "charts": [
+        "Execution Accuracy",
+        "Relaxed Execution Accuracy",
+        "Overall"
+    ],
+    "dataset": "spider",
     "dataset_size": "small",
     "error_threshold": 90,
     "etcr": 2.35,
     "force": false,
     "itrs": 1,
-    "models": [],
+    "models": [
+        "dail"
+    ],
     "pipeline": {
         "augment": false,
-        "charts": false,
-        "eval": false,
-        "predict": false,
+        "charts": true,
+        "eval": true,
+        "predict": true,
         "transformers": false,
-        "verify": false
+        "verify": true
     },
     "temps": []
 }

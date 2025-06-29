@@ -6,7 +6,7 @@ from typing import Literal
 from src.eval.dataset_config import DatasetConfig
 from src.util.file_utils import get_num_lines
 
-ModelName = Literal["din", "dail", "dum", "custom"]
+ModelName = Literal["din", "dail", "dum", "custom", "simple"]
 
 
 @dataclass(frozen=True)
@@ -40,6 +40,9 @@ class SingleRunConfig:
 
     def get_tokens_path(self):
         return f"{self.get_pred_path()}.tokens.txt"
+
+    def get_time_path(self):
+        return f"{self.get_pred_path()}.time.txt"
 
     def get_usage_path(self):
         return f"{self.get_pred_path()}.usage.json"

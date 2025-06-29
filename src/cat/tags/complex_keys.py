@@ -26,6 +26,8 @@ class ComplexKeywords(SqlTag):
 
         def visit_function_expression(self, node: FunctionExpressionNode):
             tags = super().visit_function_expression(node)
+            if not isinstance(node, FunctionExpressionNode):
+                print("BAD NODE:", node)
             if node.fun_name.value.lower() == "case":
                 tags += TagCollectorResult(ComplexKeywords.CaseExpr)
             return tags

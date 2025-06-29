@@ -6,12 +6,12 @@ from typing import Literal
 class DinConfig:
     pred_path: str
     default_params = {
-        'model': "gpt-4o-mini",
+        'model': "gpt-4.1-mini",
         'max_completion_tokens': 600,
         'stop': ["Q:"]
     }
     debug_params = {
-        'model': "gpt-3.5-turbo",
+        'model': "gpt-4.1-mini",
         "max_completion_tokens": 350,
         "stop": ["#", ";", "\n\n"]
     }

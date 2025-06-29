@@ -1,8 +1,8 @@
 from flask import jsonify, request
 
-from experimental.query_runner import calculate_R
-from .base_api import BaseAPI
-from ...configs.config_loader import load_config
+from src.util.query_runner import calculate_R
+from src.web.api.base_api import BaseAPI
+from src.configs.config_loader import load_config
 
 
 class UtilsAPI(BaseAPI):

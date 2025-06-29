@@ -1,6 +1,7 @@
 import json
 from typing import List, TypeVar, Type
 
+from loguru import logger
 from pydantic import BaseModel
 
 

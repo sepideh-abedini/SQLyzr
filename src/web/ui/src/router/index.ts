@@ -1,15 +1,14 @@
-import {createRouter, createWebHistory} from 'vue-router'
-import ConfigView from "@/views/ConfigView.vue";
-import LogsView from "@/views/LogsView.vue";
-import ScoresView from "@/views/ScoresView.vue";
-import ChartsView from "@/views/ChartsView.vue";
-import FilesView from "@/views/FilesView.vue";
-import DataView from "@/views/DataView.vue";
-import TrsView from "@/views/TrsView.vue";
-import StatusView from "@/views/StatusView.vue";
-import EnvView from "@/views/EnvView.vue";
-import DatabaseView from "@/views/DatabaseView.vue";
-
+import { createRouter, createWebHistory } from 'vue-router'
+import ConfigView from '@/views/ConfigView.vue'
+import LogsView from '@/views/LogsView.vue'
+import ScoresView from '@/views/ScoresView.vue'
+import ChartsView from '@/views/ChartsView.vue'
+import FilesView from '@/views/FilesView.vue'
+import DataView from '@/views/DataView.vue'
+import TrsView from '@/views/TrsView.vue'
+import StatusView from '@/views/StatusView.vue'
+import EnvView from '@/views/EnvView.vue'
+import DatabaseView from '@/views/DatabaseView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,7 +62,7 @@ const router = createRouter({
       path: '/database',
       name: 'database',
       component: DatabaseView,
-    }
+    },
   ],
 })
 

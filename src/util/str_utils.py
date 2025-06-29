@@ -3,6 +3,8 @@ from enum import Enum
 from difflib import SequenceMatcher
 from typing import Optional
 
+from loguru import logger
+
 
 def delete_whitespace(content):
     content = content.replace('\n', '').replace('\r', '')
@@ -72,3 +74,30 @@ def get_colored_diff(a: str, b: str) -> str:
         if tag == 'replace':
             result += colored(b[j1:j2], Color.BLUE)
     return result
+
+def extract_sql(output):
+    # output = re.sub(r"<think>.*?</think>", "", output, flags=re.DOTALL)
+    output = output.strip()
+    output = output.strip("\"")
+    sql = "SELECT"
+    if output.startswith("SELECT"):
+        sql = output
+    elif "```sql" in output:
+        res = re.findall(r"```sql([\s\S]*?)```", output)
+        if len(res) > 0:
+            sql = res[0]
+    elif "```" in output:
+        res = re.findall(r"```([\s\S]*?)```", output)
+        if len(res) > 0:
+            sql = res[0]
+    elif "`" in output:
+        res = re.findall(r"`([\s\S]*?)`", output)
+        if len(res) > 0:
+            sql = res[0]
+    else:
+        logger.error(f"Failed to extract sql from output: {output}")
+    sql = sql.strip()
+    sql = sql.replace("\n", " ")
+    return sql
+
+

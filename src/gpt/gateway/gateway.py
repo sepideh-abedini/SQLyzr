@@ -1,13 +1,13 @@
 import os
+import time
 
 import backoff
 from diskcache import Cache
 from openai import AsyncClient, RateLimitError
-from openai.types.chat import ChatCompletion
 
 from src.gpt.gateway.gateway_exceptions import GptRateLimitException
 from src.gpt.gateway.single.token_tracker import GptTokenTracker
-from src.gpt.models import BatchInputRequest
+from src.gpt.models import BatchInputRequest, BatchInputResponse
 from loguru import logger
 
 cache = Cache("/tmp/gpt_cache")
@@ -28,7 +28,7 @@ class GptGateway:
         self.__tracker = GptTokenTracker.get_instance()
 
     @backoff.on_exception(backoff.constant, interval=10, max_tries=100, exception=GptRateLimitException)
-    async def track_and_send(self, request: BatchInputRequest) -> ChatCompletion:
+    async def track_and_send(self, request: BatchInputRequest) -> BatchInputResponse:
         s = str(request)
         logger.debug(f"Sending [{request.custom_id}]")
         tokens = request.get_token_usage()
@@ -39,21 +39,23 @@ class GptGateway:
             logger.debug(f"Usage added [{request.custom_id}]")
             result = await self.send_without_tracking(request)
             logger.debug(f"Request sent [{request.custom_id}]")
-            logger.debug(f"TOKENS DIFF: {tokens}@{result.usage.total_tokens}")
+            # logger.debug(f"TOKENS DIFF: {tokens}@{result.usage.total_tokens}")
             # usage.expire()
             return result
         else:
             logger.debug(f"Tokens exceed [{request.custom_id}]")
             raise GptRateLimitException()
 
-    async def send_without_tracking(self, request: BatchInputRequest) -> ChatCompletion:
+    async def send_without_tracking(self, request: BatchInputRequest) -> BatchInputResponse:
         logger.debug("Sending GPT Request")
         try:
             result = await self._client.chat.completions.create(
                 **request.body.dict(), extra_headers={'custom_id': request.custom_id},
             )
+            fin_timestamp = int(time.time())
+            result_with_fin = BatchInputResponse.from_obj(result, finished=fin_timestamp)
             logger.debug("Received GPT Response")
         except RateLimitError as e:
             logger.warning(f"Rate Limit error: {e}")
             raise GptRateLimitException()
-        return result
+        return result_with_fin

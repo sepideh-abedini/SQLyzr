@@ -17,13 +17,13 @@ from src.cat.tags.where_exprs import WhereType
 CAT_1 = StatementCategory(
     1,
     SubCategory("s0", frozenset([SelectColumns.SingleColumn]), "Having single column in SELECT clause"),
-    SubCategory("s1", frozenset([SelectColumns.MultiColumn]), "Having single column in SELECT clause"),
+    SubCategory("s1", frozenset([SelectColumns.MultiColumn]), "Having multiple column in SELECT clause"),
     SubCategory("s2", frozenset([SelectColumns.StarColumn]), "Having single star column in the SELECT clause"),
-    SubCategory("s3", frozenset([ExtraKeywords.OrderBy]), "Having ORDER_BY keyword"),
 )
 
 CAT_2 = StatementCategory(
     2,
+    SubCategory("s3", frozenset([ExtraKeywords.OrderBy]), "Having ORDER_BY keyword"),
     SubCategory("s4", frozenset([WhereType.SingleWhereExpr, ExprType.SingleBinExpr]),
                 "Having a single binary expression in the where clause"),
     SubCategory("s5", frozenset([ExprType.ArithExpr]), "Only having arithmetic expressions"),
@@ -70,40 +70,37 @@ CAT_4_NEW = StatementCategory(
     SubCategory("s21", frozenset([StructureType.Compound]), "Having a composition keyword such as INTERSECT or UNION"),
     SubCategory("s22", frozenset([NestLevel.One, ExtraKeywords.IN]),
                 "Having nested subqueries with IN expressions"),
-    SubCategory("s23", frozenset([JoinType.NonSimpleJoin, JoinType.NaturalJoin]),
-                "Having a non-simple join with equality condition"),
-    SubCategory("s24", frozenset([JoinType.NonSimpleJoin, JoinSub.INNER]),
+    SubCategory("s23", frozenset([JoinType.NonSimpleJoin, JoinSub.INNER]),
                 "Having Inner Join"),
-    SubCategory("s25", frozenset([JoinType.NonSimpleJoin, ExtraKeywords.OrderBy]),
+    SubCategory("s24", frozenset([JoinType.NonSimpleJoin, ExtraKeywords.OrderBy]),
                 "Having a non-simple join with Order By"),
-    SubCategory("s26", frozenset([JoinType.NonSimpleJoin, GroupType.UnconditionalGroup]),
+    SubCategory("s25", frozenset([JoinType.NonSimpleJoin, GroupType.UnconditionalGroup]),
                 "Having a non-simple join with unconditional group by"),
-    SubCategory("s27", frozenset([JoinType.NonSimpleJoin, ExtraKeywords.AGGREGATE]),
+    SubCategory("s26", frozenset([JoinType.NonSimpleJoin, ExtraKeywords.AGGREGATE]),
                 "Having a non-simple join with aggregation keyword"),
-    SubCategory("s28", frozenset([JoinTables.MultiJoin]), "Having more than two joins"),
+    SubCategory("s27", frozenset([JoinTables.MultiJoin]), "Having more than two joins"),
 )
 
 CAT_5 = StatementCategory(
     5,
-    SubCategory("s29", frozenset([StructureType.Nested, GroupType.UnconditionalGroup]),
+    SubCategory("s28", frozenset([StructureType.Nested, GroupType.UnconditionalGroup]),
                 "Having nested sub-queries plus having GROUP BY clause without condition"),
-    SubCategory("s30", frozenset([StructureType.Nested, JoinConditions.UnconditionalJoin]),
+    SubCategory("s29", frozenset([StructureType.Nested, JoinConditions.UnconditionalJoin]),
                 "Having nested sub-queries plus with a join clause without a condition"),
-    SubCategory("s31", frozenset([StructureType.Nested, ExtraKeywords.AGGREGATE]),
+    SubCategory("s30", frozenset([StructureType.Nested, ExtraKeywords.AGGREGATE]),
                 "Having nested sub-queries plus with aggregate functions"),
-    SubCategory("s32", frozenset([NestLevel.Two]), "Having exactly two level of nested sub-queries")
+    SubCategory("s31", frozenset([NestLevel.Two]), "Having exactly two level of nested sub-queries"),
+    SubCategory("s32", frozenset([ComplexKeywords.CaseExpr]), "Having case expressions"),
 )
 
 CAT_6 = StatementCategory(
     6,
-    SubCategory("s33", frozenset([NestLevel.Many]), "Having more than two level of nested sub-queries"),
-    SubCategory("s34", frozenset([StructureType.Compound, StructureType.Nested]),
+    SubCategory("s33", frozenset([StructureType.Compound, StructureType.Nested]),
                 "Having a composition keyword such as (INTERSECT or UNION) and having nested sub-queries"),
-    SubCategory("s35", frozenset([ComplexKeywords.CaseExpr]),
-                "Having case expressions"),
-    SubCategory("s36", frozenset([ComplexKeywords.CTE]),
+    SubCategory("s34", frozenset([NestLevel.Many]), "Having more than two level of nested sub-queries"),
+    SubCategory("s35", frozenset([ComplexKeywords.CTE]),
                 "Having a cte"),
-    SubCategory("s37", frozenset([ComplexKeywords.WindowFunction]),
+    SubCategory("s36", frozenset([ComplexKeywords.WindowFunction]),
                 "Having a window function"),
 )
 

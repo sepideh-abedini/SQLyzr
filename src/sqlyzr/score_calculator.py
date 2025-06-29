@@ -7,7 +7,6 @@ from tqdm import tqdm
 from src.cat.categories import find_cat
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.metrics import *
-from src.eval.model_eval_config import ModelEvalConfig
 from src.sqlyzr.pred_gold_reader import PredGoldReader
 from src.util.file_utils import file_exists_not_forced
 from src.util.log_util import log
@@ -62,7 +61,11 @@ def calc_for_conf(conf: SQLyzrConfig, run_conf: SingleRunConfig):
     df = pd.DataFrame(all_scores)
     with open(run_conf.get_tokens_path(), "r") as f:
         tokens = [int(line.strip()) for line in f if line.strip()]
+
+    with open(run_conf.get_time_path(), "r") as f:
+        times = [int(line.strip()) for line in f if line.strip()]
     df["tokens"] = tokens
+    df["time_seconds"] = times
     df['count'] = 1
     df['plc'] = df.apply(lambda e: int(find_cat(e['pcat']) <= find_cat(e['cat'])), axis=1)
     df['plt'] = df.apply(lambda e: int((e['et'] / e['get']) > conf.etc_ratio), axis=1)

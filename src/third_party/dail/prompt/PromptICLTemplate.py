@@ -62,7 +62,6 @@ class BasicICLPrompt(object):
                **kwargs):
         # target question
         prompt_target = self.target_formatter.format_target(target)
-        sum_tokens = count_tokens(prompt_target, tokenizer=self.tokenizer)
 
         if self.NUM_EXAMPLE != 0:
             # example questions
@@ -84,7 +83,6 @@ class BasicICLPrompt(object):
 
                 if forward_tokens + max_ans_len <= max_seq_len:
                     prompt_example.append(example_format)
-                    sum_tokens = forward_tokens
                     selected_examples.append(example)
 
                     if len(prompt_example) >= self.NUM_EXAMPLE:
@@ -104,7 +102,6 @@ class BasicICLPrompt(object):
 
         response_clean = " ".join(target["query"].split())[len("SELECT "):]
         return {
-            "prompt_tokens": sum_tokens,
             "prompt": prompt,
             "response": response_clean,
             "n_examples": n_valid_example,

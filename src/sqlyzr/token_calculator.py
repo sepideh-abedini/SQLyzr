@@ -1,7 +1,6 @@
 from typing import List
 
 import tqdm
-from openai.types.chat import ChatCompletion
 
 from src.eval.model_eval_config import ModelEvalConfig
 from src.util.model_utils import read_jsonl

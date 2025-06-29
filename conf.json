@@ -1,33 +1,28 @@
 {
-  "aug_per_sub_cat": 5,
-  "batch": false,
-  "charts": [
-    "Execution Time",
-    "Token Usage",
-    "Execution Accuracy",
-    "Relaxed Execution Accuracy",
-    "Execution Time Consistency",
-    "Execution Time Inconsistency",
-    "Complexity Consistency",
-    "Complexity Inconsistency"
-  ],
-  "dataset": "agg",
-  "dataset_size": "small",
-  "error_threshold": 90,
-  "force": false,
-  "itrs": 1,
-  "models": [
-    "dail"
-  ],
-  "pipeline": {
-    "eval": false,
-    "predict": false,
-    "verify": true,
-    "transformers": false,
-    "augment": false,
-    "charts": false
-  },
-  "temps": [
-    0.2
-  ]
+    "aug_per_sub_cat": 5,
+    "batch": false,
+    "charts": [
+        "Execution Accuracy",
+        "Relaxed Execution Accuracy",
+        "Overall"
+    ],
+    "dataset": "spider",
+    "dataset_size": "mask",
+    "error_threshold": 90,
+    "force": false,
+    "itrs": 1,
+    "models": [
+        "dail"
+    ],
+    "pipeline": {
+        "eval": true,
+        "predict": true,
+        "verify": false,
+        "transformers": false,
+        "augment": false,
+        "charts": true
+    },
+    "temps": [
+        0.1
+    ]
 }

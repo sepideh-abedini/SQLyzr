@@ -77,7 +77,9 @@ class MysqlFacade(DatabaseFacade):
             res = cursor.fetchall()
             return res
         except Exception as e:
-            logger.debug(f"MySQL Error: {e}")
+            logger.error(f"MySQL Error: {e}")
+            if "connect" in str(e):
+                raise
         finally:
             if cursor:
                 cursor.close()

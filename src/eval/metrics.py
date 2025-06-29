@@ -1,9 +1,10 @@
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List
+from typing import List, Tuple
 
 from loguru import logger
+from natsort import natsorted
 
 from src.cat.catter import Catter
 from src.eval import lib
@@ -12,8 +13,8 @@ from src.eval.exact_match import ExactMatchParser
 from src.eval.single_run_config import SingleRunConfig
 from src.rel.db_facade import DatabaseFacade
 from src.rel.db_factory import DatabaseFactory
-from src.rel.result_matcher import ExtraColumnsMatcher, IgnoreListOrderMatcher
-from src.rel.sql_data import SqlInputData
+from src.rel.result_matcher import ExtraColumnsMatcher, IgnoreListOrderMatcher, IgnoreColOrderMatcher
+from src.rel.sql_data import SqlInputData, SqlParsedData
 from src.rel.sql_transformer import LetterCasingTransformer
 from src.rel.transformer_detector import TransformerDetector
 from src.third_party.dail.utils.utils import DB_LONG_TIMEOUT
@@ -44,9 +45,9 @@ class ExactMatch(Metric):
     def calc(self, gold: str, pred: str, db_id: str) -> int:
         parser = self.parser
         try:
-            gold_parser = parser.parse(gold, db_id)
-            pred_parser = parser.parse(pred, db_id)
-            if (gold_parser == pred_parser) or (pred_parser == gold_parser):
+            gold_ast = parser.parse(gold, db_id)
+            pred_ast = parser.parse(pred, db_id)
+            if (gold_ast == pred_ast) or (pred_ast == gold_ast):
                 return 1
         except Exception as e:
             logger.debug(e)
@@ -101,7 +102,8 @@ class RelaxedExecAcc(Metric):
         self.detector = TransformerDetector(conf, [
             LetterCasingTransformer(),
             IgnoreListOrderMatcher(),
-            IgnoreListOrderMatcher(),
+            IgnoreColOrderMatcher(),
+            # IgnoreListOrderMatcher(),
             ExtraColumnsMatcher()
         ])
 
@@ -109,8 +111,64 @@ class RelaxedExecAcc(Metric):
         try:
             pd = SqlInputData(db_id, pred)
             gd = SqlInputData(db_id, gold)
-            working_sub = self.detector.find_working_sub_sync(pd, gd)
+            # working_sub = self.detector.find_working_sub_sync(pd, gd)
+            working_sub = self.detector.apply_all(pd, gd)
             if working_sub is not None:
+                return 1
+            else:
+                return 0
+        except Exception as e:
+            logger.debug(e)
+        return 0
+
+
+class NewRelaxedExecAcc(Metric):
+
+    def __init__(self, name: str, conf: DatasetConfig):
+        super().__init__(name, conf)
+        self.parser = ExactMatchParser(self.conf.get_tables_path())
+
+    def sorted_rs_str(self, rs: List[Tuple]):
+        row_strs = []
+        for r in rs:
+            vals = list(map(str, r))
+            sorted_vals = natsorted(vals)
+            row_str = "-".join(sorted_vals)
+            row_strs.append(row_str)
+
+        row_strs_sorted = natsorted(row_strs)
+        rs_str = "#".join(row_strs_sorted)
+        return rs_str
+
+    def check_equi(self, rs1: List[Tuple], rs2: List[Tuple]):
+        rs1_str = self.sorted_rs_str(rs1)
+        rs2_str = self.sorted_rs_str(rs2)
+        return rs1_str == rs2_str
+
+    def parse(self, data: SqlInputData) -> SqlParsedData:
+        try:
+            ast = self.parser.parse(data.sql, data.db_id)
+            return data.to_parsed(ast)
+        except Exception as e:
+            logger.debug(e)
+        return None
+
+    def calc(self, gold: str, pred: str, db_id: str) -> int:
+        transformer = LetterCasingTransformer()
+
+        try:
+            pred_data = SqlInputData(db_id, pred)
+            gold_data = SqlInputData(db_id, gold)
+            pred_parsed, gold_parsed = self.parse(pred_data), self.parse(gold_data)
+            pred_data, gold_data = transformer.transform_sql(pred_parsed, gold_parsed)
+            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold_data.sql, timeout=DB_LONG_TIMEOUT)
+            pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred_data.sql, timeout=DB_LONG_TIMEOUT)
+            self.check_equi(gold_sql_exec_res, pred_sql_exec_res)
+            if gold_sql_exec_res is None:
+                raise RuntimeError("Gold result is None!")
+            if pred_sql_exec_res is None:
+                return 0
+            if self.check_equi(gold_sql_exec_res, pred_sql_exec_res):
                 return 1
             else:
                 return 0
@@ -141,9 +199,9 @@ class GoldExecTime(Metric):
     def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
             timer = lib.Timer.start()
-            self.dbc.exec_query_uncached(db_id, gold)
+            res = self.dbc.exec_query_uncached(db_id, gold)
             pred_sql_exec_time = timer.lap()
             return pred_sql_exec_time * 1_000_000
         except Exception as e:
-            logger.debug(e)
+            logger.error(e)
             return 0

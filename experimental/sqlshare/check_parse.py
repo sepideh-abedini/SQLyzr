@@ -1,8 +1,5 @@
-import re
-
 import tqdm
 
-from src.cat.tag_extractor import TagExtractor
 from src.parse.parser import SqlParser
 from src.util.log_util import configure_logging
 

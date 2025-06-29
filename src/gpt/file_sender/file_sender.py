@@ -1,13 +1,10 @@
-import json
 import os
 from abc import ABC, abstractmethod
-from typing import Optional
-
-from openai.types.chat import ChatCompletion
-
-from src.util.model_utils import write_jsonl
 
 from loguru import logger
+
+from src.gpt.models import SqlyzrChatCompletion
+from src.util.model_utils import write_jsonl
 
 
 class GptFileSender(ABC):
@@ -21,5 +18,5 @@ class GptFileSender(ABC):
         write_jsonl(responses, out_path)
 
     @abstractmethod
-    async def _send_file(self, in_path: str) -> list[ChatCompletion]:
+    async def _send_file(self, in_path: str) -> list[SqlyzrChatCompletion]:
         pass

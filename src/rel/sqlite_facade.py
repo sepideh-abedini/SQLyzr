@@ -94,8 +94,16 @@ class SqliteFacade(DatabaseFacade):
         super().__init__(conf)
 
     def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+
         db_file = self.conf.get_db_file_path(db_id)
-        conn = sqlite3.connect(f"file:{db_file}?mode=ro")
+        try:
+            conn = sqlite3.connect(f"file:{db_file}?mode=ro")
+        except sqlite3.OperationalError as e:
+            if "unable to open database file" in str(e):
+                logger.error(f"SQLite Error: {db_id} {db_file}")
+            else:
+                logger.error(f"SQLite Error: {db_id} {sql}")
+            raise
         logger.debug(f"Connection created")
 
         with sqlite_timelimit(conn, DB_TIMEOUT):
@@ -110,9 +118,9 @@ class SqliteFacade(DatabaseFacade):
                 if e.args == ('interrupted',):
                     if DB_CACHE:
                         save_db_cache(db_id, sql, None)
-                    logger.debug(f"SQLite Timed out: {db_id} {sql}")
+                    logger.warning(f"SQLite Timed out: {db_id} {sql}")
                 else:
-                    logger.debug(f"SQLite Error: {e}")
+                    logger.error(f"SQLite Error: {e}")
                 rows = None
             finally:
                 cursor.close()

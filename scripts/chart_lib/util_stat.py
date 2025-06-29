@@ -52,4 +52,4 @@ din_stats = get_util_stats("din")
 dail_stats = get_util_stats("dail")
 
 df = pd.DataFrame([din_stats, dail_stats])
-df.to_csv("charts/util_stats.csv")
+df.to_csv("out/dec31/charts/util_stats.csv")

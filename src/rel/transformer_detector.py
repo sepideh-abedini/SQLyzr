@@ -28,7 +28,8 @@ class TransformerDetector:
 
     def find_sub(self, pred: SqlInputData, gold: SqlInputData):
         pows = powerset(self.processors)
-        for sub in tqdm.tqdm(pows, desc="Evaluating with transformers", total=len(pows)):
+        # for sub in tqdm.tqdm(pows, desc="Evaluating with transformers", total=len(pows)):
+        for sub in pows:
             res = self.run_with(pred, gold, list(sub))
             if res is not None:
                 return res
@@ -36,3 +37,9 @@ class TransformerDetector:
 
     def find_working_sub_sync(self, pred: SqlInputData, gold: SqlInputData):
         return self.find_sub(pred, gold)
+
+    def apply_all(self, pred: SqlInputData, gold: SqlInputData):
+        res = self.run_with(pred, gold, list(self.processors))
+        if res is not None:
+            return res
+        return None

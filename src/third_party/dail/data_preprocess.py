@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 
 from loguru import logger
 from tqdm import tqdm
@@ -60,6 +61,7 @@ class DailSchemaLinksGenerator(FileGenerator):
                 proc_data = dict()
                 proc_data['item'] = item
                 proc_data['schema'] = schema
+                proc_data['created'] = int(time.time())
                 linking_processor.preprocess_schema(schema)
                 proc_data_list.append(proc_data)
 
