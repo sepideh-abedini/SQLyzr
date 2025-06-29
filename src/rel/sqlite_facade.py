@@ -94,7 +94,8 @@ class SqliteFacade(DatabaseFacade):
         super().__init__(conf)
 
     def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
-        conn = sqlite3.connect(f"file:{self.conf.get_db_file_path(db_id)}?mode=ro")
+        db_file = self.conf.get_db_file_path(db_id)
+        conn = sqlite3.connect(f"file:{db_file}?mode=ro")
         logger.debug(f"Connection created")
 
         with sqlite_timelimit(conn, DB_TIMEOUT):

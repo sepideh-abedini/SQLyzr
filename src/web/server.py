@@ -18,6 +18,7 @@ from src.web.api.results_api import ResultsAPI
 from src.web.api.run_api import RunAPI
 from src.web.api.trs_api import TrsAPI
 from src.web.api.ui_api import UIServeAPI
+from src.web.api.utils_api import UtilsAPI
 
 app = Flask(__name__)
 CORS(app)
@@ -39,6 +40,7 @@ def register_api_routes(app, config_file):
     process_api = ProcessAPI(app, config_file)
     trs_api = TrsAPI(app, config_file)
     ui_api = UIServeAPI(app, config_file)
+    utils_api = UtilsAPI(app, config_file)
 
     config_api.register_routes()
     env_api.register_routes()
@@ -51,39 +53,10 @@ def register_api_routes(app, config_file):
     process_api.register_routes()
     trs_api.register_routes()
     ui_api.register_routes()
-
-
-async def foo():
-    for i in range(10):
-        await asyncio.sleep(1)
-        print(i)
-    return 10
-
-
-@app.route('/api/bar', methods=['POST'])
-async def bar():
-    print("Foo started")
-    task = asyncio.create_task(foo())
-    task.add_done_callback(lambda t: print(f"Foo done: {t.result()}"))
-    return jsonify({"msg": "salam"}), 200
-
-
-async def bar():
-    print("STARTING BAR")
-    await asyncio.sleep(5)
-    print("FINISHING BAR")
-
-
-@app.route('/api/error', methods=['POST'])
-async def post_error():
-    task = asyncio.create_task(bar())
-    task.add_done_callback(lambda t: print(f"Bar done: {t.result()}"))
-    return jsonify({'error': 'Something went wrong'}), 200
-
+    utils_api.register_routes()
 
 @app.errorhandler(HTTPException)
 def handle_exception(e):
-    print("SAAAAAAAAAAAAAAAAAAAAAAAAAAAALAAAAAAAAAAAAAAAAAAAAM")
     logging.error(e)
     return jsonify({"error": e.description}), e.code
 

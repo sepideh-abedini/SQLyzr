@@ -1,34 +1,21 @@
 {
-    "aug_per_sub_cat": 6,
+    "aug_per_sub_cat": 5,
     "batch": false,
-    "charts": [
-        "Execution Time",
-        "Token Usage",
-        "Execution Time Consistency",
-        "Execution Time Inconsistency",
-        "Complexity Consistency",
-        "Complexity Inconsistency",
-        "Execution Accuracy",
-        "Relaxed Execution Accuracy",
-        "Exact Match"
-    ],
-    "dataset": "spider",
+    "charts": [],
+    "dataset": "bird",
     "dataset_size": "small",
-    "error_threshold": 63,
+    "error_threshold": 90,
+    "etcr": 2.35,
     "force": false,
     "itrs": 1,
-    "models": [
-        "custom"
-    ],
+    "models": [],
     "pipeline": {
         "augment": false,
-        "charts": true,
-        "eval": true,
-        "predict": true,
-        "transformers": true,
-        "verify": true
+        "charts": false,
+        "eval": false,
+        "predict": false,
+        "transformers": false,
+        "verify": false
     },
-    "temps": [
-        0.2
-    ]
+    "temps": []
 }

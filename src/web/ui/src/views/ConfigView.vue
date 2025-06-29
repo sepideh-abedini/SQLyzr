@@ -77,12 +77,34 @@
                   <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
                 </div>
               </FormField>
-              <FormField class="mb-3">
+              <FormField class="md:col-12">
                 <label class="field-label">Number of Synthetic Examples Per Sub-Category:</label>
                 <div class="flex align-items-center">
                   <InputText v-model.number="config.aug_per_sub_cat" class="w-3 mr-2" />
                   <Slider v-model="config.aug_per_sub_cat" :min="10" :max="1000" class="w-full" />
                 </div>
+              </FormField>
+              <FormField class="md:col-4">
+                <label class="field-label">ETC Ratio (R):</label>
+                <div class="flex align-items-center">
+                  <InputText v-model.number="config.etcr" class="w-12" />
+                </div>
+              </FormField>
+              <FormField class="md:col-2">
+                <label class="field-label">Percentile:</label>
+                <div class="flex align-items-center">
+                  <InputText v-model.number="p" class="w-12" />
+                </div>
+              </FormField>
+              <FormField class="md:col-3">
+                <label class="field-label">Num Executions:</label>
+                <div class="flex align-items-center">
+                  <InputText v-model.number="k" class="w-12" />
+                </div>
+              </FormField>
+              <FormField class="md:col-2">
+                <label class="field-label" style="visibility: hidden"> button </label>
+                <Button :loading="calculating" label="Calculate" @click="calculate" class="p-button-primary" />
               </FormField>
             </div>
           </div>
@@ -194,7 +216,10 @@ export default {
   },
   data() {
     return {
+      p: 95,
+      k: 10,
       loading: false,
+      calculating: false,
       dataset_options: ['spider', 'bird', 'beaver', 'custom', 'agg'],
       size_options: ['small', 'all'],
       config: {
@@ -207,6 +232,7 @@ export default {
         force: false,
         aug_per_sub_cat: 5,
         error_threshold: 90,
+        etcr: 1.0,
         pipeline: {
           verify: false,
           predict: false,
@@ -286,6 +312,44 @@ export default {
     async resetConfig() {
       const response = await this.call_api('api/error', { method: 'POST' })
       console.log(response)
+    },
+
+    async calculate() {
+      this.calculating = true;
+      this.error = null
+
+      try {
+        const response = await this.call_api('api/utils/calcr', {
+          method: 'POST',
+          body: JSON.stringify({
+            p: this.p,
+            k: this.k,
+          }),
+        })
+
+        if (response) {
+          this.config.etcr = response.result
+
+          this.$toast.add({
+            severity: 'success',
+            summary: 'Calculation Complete',
+            detail: `R calculation is done`,
+            life: 3000,
+          })
+        }
+      } catch (error) {
+        console.error('Error calculating:', error)
+        this.error = error.message || 'An error occurred during calculation'
+
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Calculation Error',
+          detail: this.error,
+          life: 5000,
+        })
+      } finally {
+        this.calculating = false
+      }
     },
   },
   mounted() {
