@@ -23,5 +23,7 @@
         "transformers": false,
         "verify": true
     },
-    "temps": []
+    "temps": [
+        0.2
+    ]
 }

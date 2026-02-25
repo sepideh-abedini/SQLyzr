@@ -153,28 +153,45 @@ class NewRelaxedExecAcc(Metric):
             logger.debug(e)
         return None
 
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str) -> Tuple[int, int, int, int]:
         transformer = LetterCasingTransformer()
 
+        gold_sql_exec_time = 0
+        pred_sql_exec_time = 0
         try:
             pred_data = SqlInputData(db_id, pred)
             gold_data = SqlInputData(db_id, gold)
             pred_parsed, gold_parsed = self.parse(pred_data), self.parse(gold_data)
             pred_data, gold_data = transformer.transform_sql(pred_parsed, gold_parsed)
-            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold_data.sql, timeout=DB_LONG_TIMEOUT)
-            pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred_data.sql, timeout=DB_LONG_TIMEOUT)
-            self.check_equi(gold_sql_exec_res, pred_sql_exec_res)
+
+            timer = lib.Timer.start()
+            pred_sql_exec_res = self.dbc.exec_query_uncached(db_id, pred_data.sql, timeout=DB_LONG_TIMEOUT)
+            pred_sql_exec_time = timer.lap()
+            pred_sql_exec_time *= 1_000_000
+
+            timer = lib.Timer.start()
+            gold_sql_exec_res = self.dbc.exec_query_uncached(db_id, gold_data.sql, timeout=DB_LONG_TIMEOUT)
+            gold_sql_exec_time = timer.lap()
+            gold_sql_exec_time *= 1_000_000
+
             if gold_sql_exec_res is None:
                 raise RuntimeError("Gold result is None!")
             if pred_sql_exec_res is None:
-                return 0
+                return 0, 0, gold_sql_exec_time, pred_sql_exec_time
             if self.check_equi(gold_sql_exec_res, pred_sql_exec_res):
-                return 1
+                ea = int(pred_sql_exec_res == gold_sql_exec_res)
+                return 1, ea, gold_sql_exec_time, pred_sql_exec_time
             else:
-                return 0
+                return 0, 0, gold_sql_exec_time, pred_sql_exec_time
         except Exception as e:
-            logger.debug(e)
-        return 0
+            logger.error(e)
+            if gold_sql_exec_time == 0:
+                gold_data = SqlInputData(db_id, gold)
+                timer = lib.Timer.start()
+                gold_sql_exec_res = self.dbc.exec_query_uncached(db_id, gold_data.sql, timeout=DB_LONG_TIMEOUT)
+                gold_sql_exec_time = timer.lap()
+                gold_sql_exec_time *= 1_000_000
+        return 0, 0, gold_sql_exec_time, pred_sql_exec_time
 
 
 class Count(Metric):
@@ -199,7 +216,7 @@ class GoldExecTime(Metric):
     def calc(self, gold: str, pred: str, db_id: str) -> int:
         try:
             timer = lib.Timer.start()
-            res = self.dbc.exec_query_uncached(db_id, gold)
+            res = self.dbc.exec_query_uncached(db_id, gold, timeout=1000)
             pred_sql_exec_time = timer.lap()
             return pred_sql_exec_time * 1_000_000
         except Exception as e:

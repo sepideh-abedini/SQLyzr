@@ -5,7 +5,7 @@ from dataclasses import dataclass
 @dataclass
 class AugerConf:
     aug_dir: str
-    num_examples: int = 1
+    num_examples: int = 5
     gen_in: str = "gen.in.jsonl"
     gen_out: str = "gen.out.jsonl"
     gen_res: str = "gen.jsonl"

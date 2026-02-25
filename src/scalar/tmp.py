@@ -10,7 +10,7 @@ from src.util.file_utils import read_json
 
 
 def main():
-    db_id = "aircraft"
+    db_id = "art_1"
     scale = 1
     scale_db(db_id, scale)
 
@@ -60,6 +60,7 @@ def scale_db(db_id, scale):
     except Exception as e:
         print(f"Scaling failed: {e}")
         revert_backup(conf.get_db_path(), db_id)
+        raise
 
 
 if __name__ == '__main__':

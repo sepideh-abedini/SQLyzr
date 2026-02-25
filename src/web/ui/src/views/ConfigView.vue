@@ -195,7 +195,6 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import Knob from 'primevue/knob'
 import Toast from 'primevue/toast'
 import { ToggleButton, AutoComplete } from 'primevue'
-import { API_BASE_URL } from '../config'
 
 export default {
   components: {

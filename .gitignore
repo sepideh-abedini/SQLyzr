@@ -31,8 +31,11 @@ conf.
 *.csv
 *.txt
 .test-venv
-!requirements.test.txt
 experimental_local
 .ipynb_checkpoints
 out
 !gui.json
+*.pyc
+logs
+.python-version
+!requirements.txt

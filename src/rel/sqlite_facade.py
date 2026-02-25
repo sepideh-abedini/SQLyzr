@@ -96,14 +96,9 @@ class SqliteFacade(DatabaseFacade):
     def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
 
         db_file = self.conf.get_db_file_path(db_id)
-        try:
-            conn = sqlite3.connect(f"file:{db_file}?mode=ro")
-        except sqlite3.OperationalError as e:
-            if "unable to open database file" in str(e):
-                logger.error(f"SQLite Error: {db_id} {db_file}")
-            else:
-                logger.error(f"SQLite Error: {db_id} {sql}")
-            raise
+        conn = sqlite3.connect(f"file:{db_file}?mode=ro")
+
+        # print("Opened connection: ", db_file)
         logger.debug(f"Connection created")
 
         with sqlite_timelimit(conn, DB_TIMEOUT):
@@ -120,11 +115,11 @@ class SqliteFacade(DatabaseFacade):
                         save_db_cache(db_id, sql, None)
                     logger.warning(f"SQLite Timed out: {db_id} {sql}")
                 else:
-                    logger.error(f"SQLite Error: {e}")
+                    logger.debug(f"SQLite Error: {e}")
                 rows = None
             finally:
                 cursor.close()
-            return rows
+        return rows
 
     def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
         if DB_CACHE:

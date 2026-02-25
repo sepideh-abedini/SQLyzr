@@ -4,6 +4,7 @@ from flask import jsonify, request
 from src.util.file_utils import read_json, write_json
 from src.sqlyzr.sqlyzr import Sqlyzr
 from .base_api import BaseAPI
+from loguru import logger
 
 
 class ConfigAPI(BaseAPI):
@@ -19,6 +20,7 @@ class ConfigAPI(BaseAPI):
     def update_config(self):
         old_config = read_json(self.config_file)
         config = request.json
+        logger.info(f"New config: {config}")
         write_json(self.config_file, config)
         try:
             sqlyzr = Sqlyzr(self.config_file)

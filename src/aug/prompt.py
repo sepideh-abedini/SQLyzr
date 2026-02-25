@@ -18,15 +18,13 @@ Constraints are defined as follows:
 The SQL query should be generated for a database with the following schema:
 {schema_str}
 
-The SQL query should satisfy at least on of the following constraints:
+The SQL query should satisfy the following constraint:
 {sub_cats}
 
 The SQL query should not satisfy any of the following constraints:
 {exclude_sub_cats}
 
-I will show you multiple examples generated for the other database and its table schemas.
-Examples:
-
+Example of the Generated Output:
 {examples_str}
 """
 

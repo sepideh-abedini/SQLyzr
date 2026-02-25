@@ -58,7 +58,7 @@ class Auger:
 
     async def run(self):
         conf = self.__conf
-        self.__gen_batch_file(conf.get_aug_in())
+        self.gen_batch_file(conf.get_aug_in())
         await self.__ask_file(conf.get_aug_in(), conf.get_aug_out())
 
         resps = process_formatted_responses(conf.get_aug_out(), TextSqlPair, self.__process_response)
@@ -69,6 +69,7 @@ class Auger:
         examples = {}
         with open(ds_conf.get_test_path()) as dataset_file:
             dataset_data = json.load(dataset_file)
+            i = 1
             for entry in tqdm.tqdm(dataset_data, desc="Extracting examples", total=len(dataset_data)):
                 db_id = entry["db_id"]
                 sql = entry["query"]
@@ -78,7 +79,7 @@ class Auger:
                 examples.setdefault(sub, []).append(ex)
         return examples
 
-    def __get_prompt_for_sub_cat(self, cat: SubCategory) -> GptPromptSubCat:
+    def get_prompt_for_sub_cat(self, cat: SubCategory) -> GptPromptSubCat:
         sub_cat_examples = []
         if cat in self.__examples:
             all_examples = self.__examples[cat]
@@ -89,11 +90,11 @@ class Auger:
     def __create_batch_req(self, idx: str, prompt: str, extra_params):
         return
 
-    def __gen_batch_file(self, file_path: str):
+    def gen_batch_file(self, file_path: str):
         file = open(file_path, "w")
         for sub_cat in self.__sub_cats:
             for i in range(self.__sqlyzr_conf.aug_per_sub_cat):
-                prompt = self.__get_prompt_for_sub_cat(sub_cat)
+                prompt = self.get_prompt_for_sub_cat(sub_cat)
                 request = BatchInputRequest.create_prompt_req(f"{self.__sqlyzr_conf.idx}_aug_{sub_cat}_{i}",
                                                               str(prompt),
                                                               self.__conf.gpt_params)

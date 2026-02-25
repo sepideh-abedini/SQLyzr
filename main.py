@@ -4,11 +4,11 @@ import os
 
 from loguru import logger
 
-from monitor import MonitorProcess
 from src.app_setup import setup_app
 from src.assets.print_logo import print_logo
 from src.eval.lib import Timer
 from src.sqlyzr.sqlyzr import Sqlyzr
+from src.util.monitor import MonitorProcess
 
 
 async def main(config_path: str):

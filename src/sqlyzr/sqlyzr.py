@@ -1,12 +1,9 @@
 import pandas as pd
-from loguru import logger
 
 from src.chart.charter import draw_all_charts
 from src.configs.config_loader import load_config
 from src.configs.sqlyzr_config import SQLyzrConfig
-from src.eval.lib import Timer
 from src.model.models import run_model
-from src.monitor.mem import track_memory_async
 from src.sqlyzr.augment_data import DatasetAugmentor
 from src.sqlyzr.pipeline_config import PipelineConfig
 from src.sqlyzr.score_calculator import ScoreCalculator
@@ -55,8 +52,3 @@ class Sqlyzr:
             augmentor = DatasetAugmentor(self.conf)
             await augmentor.augment_data()
             run_status.augment = True
-
-        df = pd.read_csv(self.conf.eval_conf.get_raw_scores_path())
-        df = df[['ea', 'tokens', 'rea', 'time_seconds']]
-        print(df.mean())
-        # print(df.groupby(['cat']).mean())

@@ -3,12 +3,11 @@ from dataclasses import dataclass
 from src.util.database_schema import DatabaseSchema
 
 EXAMPLE_STR_FORMAT = """
-**********
+********** Example **********
+{schema}
 SQL: {sql}
 Question: {question}
-Schema: 
-\t{schema}
-**********
+*****************************
 """
 
 

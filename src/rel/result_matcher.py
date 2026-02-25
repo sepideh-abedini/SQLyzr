@@ -36,7 +36,7 @@ class ExtraTupleMatcher(ExactMatcher):
         super().__init__(TupleMatchConf(ignore_extra_tuple=True))
 
     def msg(self) -> str:
-        return "The predicted SQL has extra rows in the result set."
+        return "The predicted SQL should be modified to remove extra rows in the result set."
 
 
 class ExtraColumnsMatcher(ExactMatcher):
@@ -44,7 +44,7 @@ class ExtraColumnsMatcher(ExactMatcher):
         super().__init__(TupleMatchConf(ignore_extra_col=True))
 
     def msg(self) -> str:
-        return "The predicted SQL used extra columns that should be removed."
+        return "The predicted SQL query should be modified to remove the extra columns in the output."
 
 
 class IgnoreListOrderMatcher(ExactMatcher):
@@ -52,7 +52,7 @@ class IgnoreListOrderMatcher(ExactMatcher):
         super().__init__(TupleMatchConf(ignore_tuples_order=True))
 
     def msg(self) -> str:
-        return "The order of rows in the result set should be fixed."
+        return "The predicted SQL query should be modified to fix the order of rows in the result set."
 
 
 class IgnoreColOrderMatcher(ExactMatcher):
@@ -60,7 +60,7 @@ class IgnoreColOrderMatcher(ExactMatcher):
         super().__init__(TupleMatchConf(ignore_col_order=True))
 
     def msg(self) -> str:
-        return "The order of columns in the result set should be fixed."
+        return "The predicted SQL query should be modified to fix the order of columns in the result set."
 
 
 class MissingColumnsMatcher(ExactMatcher):
@@ -68,4 +68,4 @@ class MissingColumnsMatcher(ExactMatcher):
         super().__init__(TupleMatchConf(ignore_missing_col=True))
 
     def msg(self) -> str:
-        return "There are missing columns in the predicted SQL query that should be fixed."
+        return "The predicted SQL query should be modified to include missing columns."

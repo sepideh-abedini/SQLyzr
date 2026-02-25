@@ -46,7 +46,7 @@ CAT_3 = StatementCategory(
     SubCategory("s15",
                 frozenset([GroupType.UnconditionalGroup, JoinConditions.UnconditionalJoin]),
                 "Having GROUP BY clause without condition plus having JOIN clause without join condition"),
-    SubCategory("s16", frozenset([GroupType.ConditionalGroup]), "Having GROUP BY clause without condition"),
+    SubCategory("s16", frozenset([GroupType.ConditionalGroup]), "Having GROUP BY clause with condition"),
     SubCategory("s17", frozenset([ExtraKeywords.LIKE]), "Having like expressions"),
     SubCategory("s18", frozenset([ExtraKeywords.IS_NULL]), "Having is null expressions"),
     SubCategory("s19", frozenset([WhereType.MultipleWhereExpr]), "Having multiple expressions in WHERE clause"),

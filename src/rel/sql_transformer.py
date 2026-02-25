@@ -19,7 +19,7 @@ class SqlTransformer(SqlMatchingProcessor, ABC):
 
 class LimitRemoverTransformer(SqlTransformer):
     def msg(self) -> str:
-        return "A limit clause with a value of .. should be added to the SQL query"
+        return "Limit clause in the predicted SQL query should be fixed."
 
     def delete_limit(self, sql: str) -> str:
         return re.sub(r'(.*)limit\s*([^\s]*)(.*)', r"\1\3", sql, flags=re.IGNORECASE)

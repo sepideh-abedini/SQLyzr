@@ -122,7 +122,7 @@ export default {
   data() {
     return {
       dbIds: [],           // List of all available database IDs
-      selectedDb: null,    // Currently selected database
+      selectedDb: "book_1",    // Currently selected database
       filteredDbs: [],     // Filtered database IDs for autocomplete
       tableRows: [],       // Table row count data
       loading: false,      // Loading state indicator
@@ -215,6 +215,7 @@ export default {
           `api/db/scale?db_id=${encodeURIComponent(this.selectedDb)}&scale=${this.scale}`,
           { method: 'POST' },
         )
+        console.log('API Response:', response)
 
         // Show success message
         this.$toast.add({

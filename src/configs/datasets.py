@@ -29,6 +29,15 @@ SPIDER_ALL = DatasetConfig(
     db_dir="database"
 )
 
+SPIDER_ALL_CAT = DatasetConfig(
+    dataset_dir="data/spider",
+    test_file="data.test.cat.json",
+    gold_file="data.test.gold.txt",
+    train_file="data.train.cat.json",
+    tables_file="tables.json",
+    db_dir="database"
+)
+
 SPIDER_MASK = DatasetConfig(
     dataset_dir="data/mask/spider",
     test_file="test.json",
@@ -47,7 +56,6 @@ BIRD_MASK = DatasetConfig(
     db_dir="databases",
     dataset_type="bird"
 )
-
 
 BIRD_SMALL = DatasetConfig(
     dataset_dir="data/bird",
