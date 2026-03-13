@@ -55,7 +55,6 @@ ENV PYTHONUNBUFFERED=1
 COPY ./src src
 COPY ./scripts scripts
 COPY ./main.py .
-COPY ./temp.py .
 COPY ./scripts/ /usr/local/bin
 COPY --from=node /app/dist /app/src/web/ui/dist
 
