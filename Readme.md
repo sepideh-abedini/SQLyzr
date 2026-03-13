@@ -1,4 +1,4 @@
-# SQLyzr
+# SQLyzr: Comprehensive Text-to-SQL Benchmarking Framework
 
 ## Native Installation
 
@@ -9,40 +9,28 @@ pip3 install -r requirements.txt
 ```
 ### Getting started
 
-1. Clone the repository:
-
-```bash
-git clone <SQLYZR:REPO_URL>
-```
-
-2. Change directory:
-
-```shell
-cd <SQLYZR:REPO_NAME>
-```
-
-3. Setup env variables:
+1. Setup env variables:
 
 ```shell
 cp .env.txt .env
 ```
 
-3. Setup experiment data:
+2. Setup experiment data:
 ```shell
 cp -r sample_data data
 ```
 
-4. Fill in the empty env variables.
+3. Fill in the empty env variables.
 
-5. Setup config file:
+3. Setup config file:
 
 ```shell
-cp configs/conf.json .
+cp confs/conf.json .
 ```
 
 > Refer to [configuration](#configuration) for the description of configration options.
 
-7. Cleanup output directory:
+5. Cleanup output directory:
 
 ```shell
 rm -rf out
@@ -50,15 +38,15 @@ rm -rf out
 
 > ‼️⚠️ Only if you don't need any data inside the `out` directory ⚠️‼️
 
-8. Run SQLyzr:
+6. Run SQLyzr:
 
 ```shell
-run main.py
+python3 main.py
 ```
 
-9. Check the output files generated in the `out` directory.
+7. Check the output files generated in the `out` directory.
    For instance, a plot for overall comparison of the models is
-   generated in `out/dail-din_agg_small/charts/overall.png`.
+   generated in `out/din_spider_small/charts/overall.png`.
 
 ### Configuration
 
