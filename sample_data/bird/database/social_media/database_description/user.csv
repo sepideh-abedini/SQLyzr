@@ -1,0 +1,3 @@
+original_column_name,column_name,column_description,data_format,value_description
+UserID,user id,the unique id of the user,text,
+Gender,,user's gender,text,Male / Female / Unknown

@@ -4,7 +4,7 @@ services:
     restart: always
     volumes:
       - "/data/web_out:/app/out"
-      - "/data:/app/data"
+      - "./data:/app/data"
       - "./gui.json:/app/gui.json"
       - "./.env:/app/.env"
     environment:
@@ -31,7 +31,7 @@ services:
     volumes:
       - "./confs/mysql.cnf:/etc/mysql/conf.d/mysql.cnf"
       - "/data/beaver/dumps:/docker-entrypoint-initdb.d"
-      - "/data/beaver:/beaver"
+      - "./data/beaver:/beaver"
       - "/data/beaver_data:/var/lib/mysql"
     networks:
       - sqlyzr

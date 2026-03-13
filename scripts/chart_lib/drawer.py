@@ -9,12 +9,12 @@ from matplotlib.transforms import Bbox
 from natsort import natsorted
 from pandas import DataFrame
 
-plt.rcParams["font.size"] = 24
-plt.rcParams["font.weight"] = "bold"
-plt.rcParams["lines.linewidth"] = 3
-plt.rcParams["legend.fontsize"] = 8
-plt.rcParams['legend.title_fontsize'] = 16
-
+# plt.rcParams["font.size"] = 24
+# plt.rcParams["font.weight"] = "bold"
+# plt.rcParams["lines.linewidth"] = 3
+# plt.rcParams["legend.fontsize"] = 8
+# plt.rcParams['legend.title_fontsize'] = 16
+#
 ET_TRESH = 0.1
 TOP_TEMP = 0.2
 INCLUDE_ALL = True

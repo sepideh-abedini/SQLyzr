@@ -7,22 +7,23 @@
         "Overall"
     ],
     "dataset": "spider",
-    "dataset_size": "mask",
+    "dataset_size": "small",
     "error_threshold": 90,
     "force": false,
     "itrs": 1,
     "models": [
-        "dail"
+        "dail",
+        "din"
     ],
     "pipeline": {
-        "eval": true,
+        "verify": true,
         "predict": true,
-        "verify": false,
+        "eval": true,
+        "charts": true,
         "transformers": false,
-        "augment": false,
-        "charts": true
+        "augment": false
     },
     "temps": [
-        0.1
+        0.2
     ]
 }

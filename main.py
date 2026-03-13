@@ -2,6 +2,10 @@ import argparse
 import asyncio
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from loguru import logger
 
 from src.app_setup import setup_app

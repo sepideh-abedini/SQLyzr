@@ -24,7 +24,7 @@ class ProcessAPI(BaseAPI):
         self.app.route('/api/process/status', methods=['GET'])(self.get_process_status)
 
     def run_process(self):
-        script_path = "temp.py"
+        script_path = "src/run_gui.py"
 
         if not os.path.exists(script_path):
             return jsonify({"error": f"Script not found: {script_path}"}), 404

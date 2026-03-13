@@ -8,6 +8,7 @@ from src.sqlyzr.pipeline_config import SQLYZR_PIPELINE_STATUS_PATH
 from src.sqlyzr.sqlyzr_lock import SQLYZR_LOCK_PATH
 from src.util.file_utils import read_json
 from .base_api import BaseAPI
+from src.run_gui import run_gui
 
 
 class RunAPI(BaseAPI):
@@ -23,7 +24,7 @@ class RunAPI(BaseAPI):
         pass
 
     def run_sqlyzr(self):
-        self.msg = bar.send()
+        run_gui()
         return jsonify({"message": "Started"})
 
     def get_run_status(self):
