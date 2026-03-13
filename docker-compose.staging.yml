@@ -43,9 +43,9 @@ services:
       - "443:443"
       - "8080:8080"
     volumes:
-      - ./configs/traefik.yml:/etc/traefik/traefik.yml
+      - ./confs/traefik.yml:/etc/traefik/traefik.yml
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./configs/traefik.tls.yml:/etc/traefik/dynamic/tls.yml
+      - ./confs/traefik.tls.yml:/etc/traefik/dynamic/tls.yml
       - /certs:/certs
     networks:
       - sqlyzr
