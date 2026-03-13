@@ -24,7 +24,7 @@ cd <SQLYZR:REPO_NAME>
 3. Setup env variables:
 
 ```shell
-cp .env.example .env
+cp .env.txt .env
 ```
 
 3. Setup experiment data:

@@ -39,3 +39,4 @@ out
 logs
 .python-version
 !requirements.txt
+conf.json

@@ -1,32 +1,28 @@
 {
-  "dataset": "bird",
-  "dataset_size": "all",
-  "model": "dail",
-  "itrs": 3,
-  "temps": [
-    0.2
-  ],
-  "aug_per_sub_cat": 5,
-  "error_threshold": 90,
-  "batch": false,
-  "force": false,
-  "pipeline": {
-    "verify": false,
-    "predict": false,
-    "eval": true,
-    "transformers": false,
-    "augment": false,
-    "charts": true
-  },
-  "charts": [
-    "Execution Accuracy",
-    "Relaxed Execution Accuracy",
-    "Exact Match",
-    "Execution Time",
-    "Token Usage",
-    "Execution Time Consistency",
-    "Execution Time Inconsistency",
-    "Complexity Consistency",
-    "Complexity Inconsistency"
-  ]
+    "aug_per_sub_cat": 5,
+    "batch": false,
+    "charts": [
+        "Execution Accuracy",
+        "Relaxed Execution Accuracy",
+        "Overall"
+    ],
+    "dataset": "spider",
+    "dataset_size": "small",
+    "error_threshold": 90,
+    "force": false,
+    "itrs": 1,
+    "models": [
+        "din"
+    ],
+    "pipeline": {
+        "verify": true,
+        "predict": true,
+        "eval": true,
+        "charts": true,
+        "transformers": false,
+        "augment": false
+    },
+    "temps": [
+        0.2
+    ]
 }
