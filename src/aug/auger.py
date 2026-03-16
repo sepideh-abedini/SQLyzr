@@ -36,7 +36,8 @@ class Auger:
 
     def __init__(self, sqlyzr_config: SQLyzrConfig, ds_conf: DatasetConfig, sub_cats: Set[SubCategory],
                  db_id: str = None,
-                 conf=DEFAULT_CONF):
+                 force=False):
+        self.force = force
         self.__sqlyzr_conf = sqlyzr_config
         self.__dataset_conf = ds_conf
         self.__conf = AugerConf(os.path.join(sqlyzr_config.aug_dir, ds_conf.dataset_type))
@@ -60,7 +61,6 @@ class Auger:
         conf = self.__conf
         self.gen_batch_file(conf.get_aug_in())
         await self.__ask_file(conf.get_aug_in(), conf.get_aug_out())
-
         resps = process_formatted_responses(conf.get_aug_out(), TextSqlPair, self.__process_response)
         write_jsonl(resps, conf.get_aug_res())
 
@@ -73,7 +73,10 @@ class Auger:
             for entry in tqdm.tqdm(dataset_data, desc="Extracting examples", total=len(dataset_data)):
                 db_id = entry["db_id"]
                 sql = entry["query"]
-                sub = self.__catter.get_sub_category(sql)
+                if "sub" in entry:
+                    sub = entry["sub"]
+                else:
+                    sub = self.__catter.get_sub_category(sql)
                 schema = self.schema_repo.dbs[db_id]
                 ex = TextSqlPairExample(sql=sql, question=entry["question"], schema=schema)
                 examples.setdefault(sub, []).append(ex)
@@ -103,10 +106,7 @@ class Auger:
 
     @alog("Asking GPT")
     async def __ask_file(self, in_path: str, out_path: str):
-        if os.path.exists(out_path):
-            logger.debug(f"Output path exists: {out_path}, skip asking gpt.")
-            return
-        await self.__gpt_sender.send_and_save(in_path, out_path)
+        await self.__gpt_sender.send_and_save(in_path, out_path, self.force)
 
     def __process_response(self, i: int, pair: TextSqlPair) -> AugOut:
         d = pair.dict()

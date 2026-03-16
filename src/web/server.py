@@ -7,6 +7,7 @@ from flask_cors import CORS
 from werkzeug.exceptions import NotFound, HTTPException
 
 from src.app_setup import setup_app
+from src.web.api.aug_api import AugAPI
 from src.web.api.config_api import ConfigAPI
 from src.web.api.env_api import EnvAPI
 from src.web.api.files_api import FilesAPI
@@ -41,6 +42,7 @@ def register_api_routes(app, config_file):
     trs_api = TrsAPI(app, config_file)
     ui_api = UIServeAPI(app, config_file)
     utils_api = UtilsAPI(app, config_file)
+    aug_api = AugAPI(app, config_file)
 
     config_api.register_routes()
     env_api.register_routes()
@@ -54,6 +56,8 @@ def register_api_routes(app, config_file):
     trs_api.register_routes()
     ui_api.register_routes()
     utils_api.register_routes()
+    aug_api.register_routes()
+
 
 @app.errorhandler(HTTPException)
 def handle_exception(e):

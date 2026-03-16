@@ -1,5 +1,6 @@
 import os.path
-from typing import List
+import shutil
+from typing import List, Optional
 
 from loguru import logger
 from natsort import natsorted
@@ -21,6 +22,7 @@ class ConfigData(BaseModel):
     error_threshold: float = 101
     dataset: DatasetName = "spider"
     dataset_size: DatasetSize = "small"
+    dataset_version: Optional[str] = None
     temps: List[float] = [0.0]
     itrs: int = 2
     models: List[ModelName]
@@ -34,8 +36,15 @@ class ConfigData(BaseModel):
     def idx(self):
         return f"{'_'.join(self.models)}_{self.dataset}_{self.dataset_size}"
 
+    @property
+    def dataset_id(self):
+        if self.dataset_version:
+            return f"{self.dataset}_{self.dataset_version}"
+        else:
+            return self.dataset
+
     def get_model_dataset_dir(self):
-        return os.path.join(self.out_dir, f"{'-'.join(natsorted(self.models))}_{self.dataset}_{self.dataset_size}")
+        return os.path.join(self.out_dir, f"{'-'.join(natsorted(self.models))}_{self.dataset_id}_{self.dataset_size}")
 
     def get_aug_dir(self):
         return os.path.join(self.get_model_dataset_dir(), "aug")
@@ -76,13 +85,11 @@ Charts: {self.charts}
 def load_config(path) -> SQLyzrConfig:
     conf_data = ConfigData.load(path)
     logger.debug(conf_data)
-    dataset_confs = DATASETS[conf_data.dataset]
+    dataset_confs = DATASETS[conf_data.dataset_id]
     dataset_confs = dataset_confs[conf_data.dataset_size]
     dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir(),
             conf_data.get_charts_dir()]
     for d in dirs:
-        if conf_data.force:
-            os.rmdir(d)
         os.makedirs(d, exist_ok=True)
     eval_conf = ModelEvalConfig(
         temps=conf_data.temps,

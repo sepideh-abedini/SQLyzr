@@ -1,0 +1,18 @@
+services:
+  sqlyzr:
+    build:
+      context: .
+      tags:
+        - "${SQLYZR_IMAGE}"
+      args:
+        SQLYZR_API_URL: "https://ui.${SQLYZR_DOMAIN}"
+    volumes:
+      - "./data:/app/data"
+      - "./gui.json:/app/gui.json"
+    env_file: ".env"
+    networks:
+      - sqlyzr
+    shm_size: '8gb'
+
+networks:
+  sqlyzr:

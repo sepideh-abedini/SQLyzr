@@ -38,6 +38,24 @@ SPIDER_ALL_CAT = DatasetConfig(
     db_dir="database"
 )
 
+AUG_ALL = DatasetConfig(
+    dataset_dir="data/spider_aug",
+    test_file="data.test.cat.json",
+    gold_file="data.test.cat.gold.txt",
+    train_file="data.train.cat.json",
+    tables_file="tables.json",
+    db_dir="database"
+)
+
+AUG_SMALL = DatasetConfig(
+    dataset_dir="data/spider_aug",
+    test_file="data.test.cat.small.json",
+    gold_file="data.test.cat.small.gold.txt",
+    train_file="data.train.cat.json",
+    tables_file="tables.json",
+    db_dir="database"
+)
+
 SPIDER_MASK = DatasetConfig(
     dataset_dir="data/mask/spider",
     test_file="test.json",
@@ -137,6 +155,10 @@ DATASETS = {
         # "train": SPIDER_TRAIN,
         "mask": [SPIDER_MASK],
         "all": [SPIDER_ALL]
+    },
+    "spider_aug": {
+        "small": [AUG_SMALL],
+        "all": [AUG_ALL]
     },
     "beaver": {
         "all": [BEAVER_ALL],

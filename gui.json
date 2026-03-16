@@ -8,12 +8,12 @@
     ],
     "dataset": "spider",
     "dataset_size": "small",
-    "error_threshold": 90,
+    "error_threshold": 0.6,
     "etcr": 2.35,
     "force": false,
     "itrs": 1,
     "models": [
-        "dail"
+        "din"
     ],
     "pipeline": {
         "augment": false,

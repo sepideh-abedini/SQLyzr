@@ -58,6 +58,7 @@ def log(name: str):
 
     return decorator
 
+
 def alog(name: str) -> Callable:
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
@@ -66,7 +67,14 @@ def alog(name: str) -> Callable:
             result = await func(*args, **kwargs)
             logger.info(f"[{name}] Finished!")
             return result
+
         return wrapper
+
     return decorator
 
 
+_LOGGING_CONFIGURED = False
+if not _LOGGING_CONFIGURED:
+    configure_logging()
+    logger.info(f"Logging configured!")
+    _LOGGING_CONFIGURED = True

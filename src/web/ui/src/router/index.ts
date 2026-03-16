@@ -9,6 +9,7 @@ import TrsView from '@/views/TrsView.vue'
 import StatusView from '@/views/StatusView.vue'
 import EnvView from '@/views/EnvView.vue'
 import DatabaseView from '@/views/DatabaseView.vue'
+import AugView from '@/views/AugView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,6 +63,11 @@ const router = createRouter({
       path: '/database',
       name: 'database',
       component: DatabaseView,
+    },
+    {
+      path: '/aug',
+      name: 'aug',
+      component: AugView,
     },
   ],
 })

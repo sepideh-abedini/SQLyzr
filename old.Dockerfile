@@ -1,7 +1,7 @@
 FROM python:3.11-slim AS builder
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  apt update && apt-get --no-install-recommends install -y vim jq default-jre curl unzip
+  apt update && apt-get --no-install-recommends install -y vim jq default-jre curl unzip \
 
 RUN curl -L -k -o /tmp/stanford-corenlp.zip http://nlp.stanford.edu/software/stanford-corenlp-full-2018-10-05.zip
 RUN unzip /tmp/stanford-corenlp.zip -d /tmp/stanford-corenlp
@@ -11,9 +11,11 @@ ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /app
 
-COPY pyproject.toml .
-
-RUN uv sync
+COPY requirements.txt .
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN pip install -r requirements.txt
+RUN mkdir -p /app/src/third_party/dail/third_party
 
 FROM node:22-alpine AS node
 
@@ -27,10 +29,12 @@ COPY src/web/ui/ ./
 
 RUN ls
 
+ARG SQLYZR_WEB_PORT
 ARG SQLYZR_API_URL
 ENV VITE_API_BASE_URL="${SQLYZR_API_URL}"
 
 RUN npm run build-only
+
 
 FROM python:3.11-slim
 
@@ -41,19 +45,32 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 WORKDIR /app
 
-COPY --from=builder /app/.venv /app/.venv
-ENV PATH="/app/.venv/bin:$PATH"
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt_tab')"
 
-RUN mkdir -p /app/src/third_party/dail/third_party
-COPY --from=builder /tmp/stanford-corenlp /app/src/third_party/dail/third_party
+COPY --from=builder /tmp/stanford-corenlp /app/src/third_party/dail/third_party 
 
 ENV PYTHONPATH=/app
-ENV PYTHONUNBUFFERED=0
+ENV PYTHONUNBUFFERED=1
 
 COPY ./src src
 COPY ./scripts scripts
 COPY ./main.py .
+COPY ./scripts/ /usr/local/bin
+COPY --from=node /app/dist /app/src/web/ui/dist
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+ARG SQLYZR_WEB_PORT
+ENV SQLYZR_WEB_PORT=${SQLUZR_WEB_PORT}
+
+RUN echo SQLYZR_WEB_PORT=$SQLYZR_WEB_PORT
+
+RUN chmod +x /usr/local/bin/*.sh
+RUN echo 'alias sqlyzr="python3 /app/main.py"' >> ~/.bashrc
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+ENTRYPOINT ["/opt/venv/bin/python"]
+
+CMD ["src/web/server.py"]

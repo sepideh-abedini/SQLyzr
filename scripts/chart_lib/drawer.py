@@ -269,14 +269,22 @@ class Drawer:
 
     def draw_cats(self):
         df = self.df
-        df = df[(df['Temp'] == 0.2) & (df['Model'] == "din") & (df['itr'] == 0)]
-        plt.figure(figsize=(5, 5))
+        subs = natsorted(df['SubCategory'].unique())
+        cats = natsorted(df['Category'].unique())
 
-        sns.countplot(df, x="Category")
+
+        temp = df["Temp"].unique()[0]
+        model = df["Model"].unique()[0]
+        itr = df["itr"].unique()[0]
+        df = df[(df['Temp'] == temp) & (df['Model'] == model) & (df['itr'] == itr)]
+        ax = sns.countplot(df, x="Category", order=cats)
+        # plt.figure(figsize=(5, 5))
+
         plt.savefig(os.path.join(self.out_dir, f"cat_count.png"))
+        plt.clf()
 
-        plt.figure(figsize=(50, 5))
-        sns.countplot(df, x="SubCategory")
+        # plt.figure(figsize=(50, 5))
+        sns.countplot(df, x="SubCategory", order=subs)
         plt.savefig(os.path.join(self.out_dir, f"sub_cat_count.png"))
         if self.show:
             plt.show()

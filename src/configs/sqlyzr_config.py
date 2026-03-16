@@ -1,5 +1,7 @@
 import os.path
+import shutil
 from dataclasses import dataclass
+from loguru import logger
 from typing import Literal
 
 from src.eval.model_eval_config import ModelEvalConfig
@@ -16,8 +18,12 @@ class SQLyzrConfig:
     aug_per_sub_cat: int = 2
     pipeline: PipelineConfig = PipelineConfig
 
-    def get_aug_out(self):
-        return os.path.join(self.aug_dir, "gen.jsonl")
+    def get_aug_out(self, ds_type):
+        return os.path.join(self.aug_dir, ds_type, "gen.jsonl")
+
+    def clear(self):
+        shutil.rmtree(self.eval_conf.base_dir)
+        logger.info(f"Data dir cleared!: {self.eval_conf.base_dir}")
 
     def __str__(self):
         return f"""

@@ -3,12 +3,17 @@ import asyncio
 import tqdm
 from dotenv import load_dotenv
 
+load_dotenv()
+
+from src.configs.config_loader import load_config
+from src.sqlyzr.augment_data import DatasetAugmentor
+from src.util.log_util import configure_logging
+
 from src.cat.catter import Catter
-from src.eval.dataset_config import DatasetConfig
+from src.sqlyzr.sqlyzr import Sqlyzr
 from src.util.file_utils import read_json, write_json
 
-load_dotenv()
-from src.configs.datasets import SPIDER_ALL, SPIDER_ALL_CAT
+from src.configs.datasets import AUG_ALL
 
 
 def extract_cats(data_file):
@@ -26,16 +31,29 @@ def extract_cats(data_file):
 
 
 async def main():
-    ds = SPIDER_ALL_CAT
-    extract_cats(ds.get_test_path())
-    extract_cats(ds.get_train_path())
-    # conf = load_config("tests/aug.json")
+    configure_logging()
+    conf_path = "tests/aug.json"
+    sqlyzr = Sqlyzr(conf_path)
+    await sqlyzr.run()
 
-    # sub_cat = find_sub("s8")
-    # auger = Auger(conf, ds_conf, [sub_cat])
-    # await auger.run()
-    # aug_data = conf.get_aug_out()
-    # prompt = auger.get_prompt_for_sub_cat(sub_cat)
+    augmentor = DatasetAugmentor(sqlyzr.conf)
+    await augmentor.augment_data()
+    # for ds_conf in conf.eval_conf.dataset_configs:
+    #     conf.get_aug_out(ds_type)
+    #     auger = Auger(conf, ds, [sub_cat], force=True)
+    #     await auger.run()
+    #     aug_data = read_jsonl(conf.get_aug_out(ds_type))
+    # print(aug_data)
+
+    # extract_cats(ds.get_train_path())
+
+    # for ds_type in conf.eval_conf.datasets:
+    #     conf.get_aug_out(ds_type)
+    #     sub_cat = find_sub("s8")
+    #     auger = Auger(conf, ds, [sub_cat], force=True)
+    #     await auger.run()
+    #     aug_data = read_jsonl(conf.get_aug_out(ds_type))
+    # print(aug_data)
 
 
 if __name__ == '__main__':
