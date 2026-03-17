@@ -1,4 +1,5 @@
 from src.configs.datasets import SPIDER_ALL
+from src.eval.dataset_config import DatasetConfig
 from src.rel.db_factory import DatabaseFactory
 from src.scalar.utils.db_stats import get_db_stats
 from src.scalar.utils.export_ddls import apply_migration, revert_backup, export_ddl
@@ -12,7 +13,7 @@ from src.util.file_utils import read_json
 def main():
     db_id = "art_1"
     scale = 1
-    scale_db(db_id, scale)
+    scale_db(SPIDER_ALL, db_id, scale)
 
 
 def exec_queries(conf, db_id):
@@ -26,9 +27,7 @@ def exec_queries(conf, db_id):
     return results
 
 
-def scale_db(db_id, scale):
-    conf = SPIDER_ALL
-
+def scale_db(conf: DatasetConfig, db_id, scale):
     revert_backup(conf.get_db_path(), db_id)
 
     print("Before Scale:")

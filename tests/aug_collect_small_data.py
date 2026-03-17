@@ -1,4 +1,5 @@
 import asyncio
+import shutil
 
 import tqdm
 from dotenv import load_dotenv
@@ -10,6 +11,9 @@ from src.util.file_utils import read_json, write_json
 
 load_dotenv()
 from src.configs.datasets import AUG_SMALL
+
+skip_dbs = ['bike_1', "student_assessment", "flight_1", "journal_committee", "department_management", "store_1",
+            "chinook_1", "insurance_fnol", "medicine_enzyme_interaction"]
 
 
 def extract_cats(data_file):
@@ -38,6 +42,8 @@ async def collect_small_data(ds: DatasetConfig):
 
     current_counts = {sub: 0 for sub in sub_counts}
     for row in all_data:
+        if row['db_id'] in skip_dbs:
+            continue
         sub = row["sub"]
         if sub in sub_counts and current_counts[sub] < sub_counts[sub]:
             collect_data.append(row)
@@ -53,7 +59,10 @@ async def collect_small_data(ds: DatasetConfig):
     with open(gold_path, "w") as f:
         for row in collect_data:
             f.write(f"{row['query']}\t{row['db_id']}\n")
+    logger.info(f"DBs: {set(map(lambda x: x['db_id'], collect_data))}")
     logger.info(f"Data size: {len(collect_data)}")
+    shutil.copy(ds.get_test_path(), ds.get_test_path().replace(".json", ".v0.json"))
+    shutil.copy(gold_path, gold_path.replace(".txt", ".v0.txt"))
 
 
 async def main():
