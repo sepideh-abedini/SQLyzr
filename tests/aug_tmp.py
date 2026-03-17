@@ -38,12 +38,12 @@ async def main():
     sqlyzr = Sqlyzr(conf_path)
     await sqlyzr.run()
 
-    augmentor = DatasetAugmentor(sqlyzr.conf)
-    conf_data = ConfigData.load(conf_path)
-    new_ver = await augmentor.augment_data(expand=True)
-    conf_data.dataset_versions.append(new_ver)
-    shutil.copy(conf_path, f"{conf_path}.bak")
-    conf_data.save(conf_path)
+    # augmentor = DatasetAugmentor(sqlyzr.conf)
+    # conf_data = ConfigData.load(conf_path)
+    # new_ver = await augmentor.augment_data(expand=True)
+    # conf_data.dataset_versions.append(new_ver)
+    # shutil.copy(conf_path, f"{conf_path}.bak")
+    # conf_data.save(conf_path)
     # for ds_conf in conf.eval_conf.dataset_configs:
     #     conf.get_aug_out(ds_type)
     #     auger = Auger(conf, ds, [sub_cat], force=True)

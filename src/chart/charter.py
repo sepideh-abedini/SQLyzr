@@ -30,6 +30,8 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         drawer.draw_cats()
     if "Overall" in included_charts:
         drawer.draw_overall()
+    if "Gold Execution Time Scaled" in included_charts:
+        drawer.draw_exec_time_scale()
 
     drawer = Drawer(scores_path, include_all=True, show=False, out_dir=out_dir)
     metrics = [

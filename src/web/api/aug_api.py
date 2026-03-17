@@ -2,13 +2,14 @@ import os
 import subprocess
 import sys
 import threading
+from dataclasses import replace
 
 from flask import jsonify, request, send_file
 from loguru import logger
 
 from .base_api import BaseAPI
-from ...configs.config_loader import load_config
-from ...sqlyzr.augment_data import DatasetAugmentor
+from ...configs.config_loader import load_config, ConfigData
+from ...rel.sqlite_facade import SqliteFacade
 from ...sqlyzr.sqlyzr import Sqlyzr
 from ...util.file_utils import read_json, write_json
 
@@ -32,12 +33,23 @@ class AugAPI(BaseAPI):
     def get_ds_stats(self):
         dataset_size = 0
         conf = load_config(AUG_CONF)
-        for ds in conf.eval_conf.dataset_configs:
-            data = read_json(ds.get_test_path())
-            dataset_size += len(data)
+        ds_conf = conf.eval_conf.dataset_configs[0]
+        dbf = SqliteFacade(ds_conf)
+        data = read_json(ds_conf.get_test_path())
+        db_ids = set(map(lambda x: x["db_id"], data))
+        db_ids = sorted(list(db_ids))
+        scales = conf.eval_conf.scales
+        db_stats = []
+        for db_id in db_ids:
+            stat = {
+                'db_id': db_id,
+            }
+            for scale in scales:
+                stat[f'x{scale}'] = dbf.get_total_rows(db_id, scale)
+            db_stats.append(stat)
         try:
             return jsonify({
-                "dataset_size": dataset_size
+                "db_stats": db_stats
             })
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -45,6 +57,11 @@ class AugAPI(BaseAPI):
     async def clear(self):
         conf = load_config(AUG_CONF)
         conf.clear()
+        conf_data = ConfigData.load(AUG_CONF)
+        conf_data = conf_data.model_copy(update={
+            "dataset_versions": [conf_data.dataset_versions[0]]
+        })
+        conf_data.save(AUG_CONF)
         return jsonify({
             "message": "Clear done!"
         }), 200
@@ -116,10 +133,13 @@ class AugAPI(BaseAPI):
             return jsonify({"error": f"Plot file not found at {plot_path}"}), 404
 
     def update_aug_config(self):
-        old_config = read_json(AUG_CONF)
-        config = request.json
-        logger.info(f"New config: {config}")
-        write_json(AUG_CONF, config)
+        old_config = ConfigData.load(AUG_CONF)
+        old_config = old_config.dict()
+        update_data = request.json
+        for key, value in update_data.items():
+            old_config[key] = value
+        logger.info(f"New config: {update_data}")
+        write_json(AUG_CONF, old_config)
         try:
             sqlyzr = Sqlyzr(AUG_CONF)
         except Exception as e:

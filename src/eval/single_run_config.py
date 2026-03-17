@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+from typing import Literal, List
 
 from src.eval.dataset_config import DatasetConfig
 from src.util.file_utils import get_num_lines
@@ -18,6 +18,7 @@ class SingleRunConfig:
     temp: float
     itr: int
     model: ModelName
+    scales: List[int]
     pred_file_name: str = "pred"
     usage_file_name: str = "usage"
     trs_file_name: str = "trs"

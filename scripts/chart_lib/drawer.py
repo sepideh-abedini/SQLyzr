@@ -1,4 +1,5 @@
 import os.path
+from loguru import logger
 
 import pandas as pd
 import seaborn as sns
@@ -16,7 +17,6 @@ from pandas import DataFrame
 # plt.rcParams['legend.title_fontsize'] = 16
 #
 ET_TRESH = 0.1
-TOP_TEMP = 0.2
 INCLUDE_ALL = True
 
 COL_NAMES = {
@@ -25,6 +25,7 @@ COL_NAMES = {
     "em": "Exact Match",
     "sem": "Spider Exact Match",
     "et": "Execution Time",
+    "get": "Gold Execution Time",
     "etc": "Execution Time Consistency",
     "cconst": "Complexity Consistency",
     "tokens": "Token Usage",
@@ -98,8 +99,9 @@ class Drawer:
         df = df.sort_values(by=['cat', 'sub', 'dst_ver'])
         if self.only_correct:
             df = df[df['rea'] == 1]
-        df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
-        df['plt'] = df.apply(lambda e: int((e['et'] / e['get']) > 1 + ET_TRESH), axis=1)
+        # df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
+        # df['plt'] = df.apply(lambda e: int((e['et'] / e['get']) > 1 + ET_TRESH), axis=1)
+        # df['plt'] = ((df['get'] != 0) & ((df['et'] / df['get']) > conf.etc_ratio)).astype(int)
         df['etc'] = df['plt']
         df["cconst"] = df["plc"]
         df["cdiff"] = 1 - df["plc"]
@@ -109,6 +111,7 @@ class Drawer:
         if self.exclude_c6:
             df = df[df['cat'] != 'c6']
 
+        TOP_TEMP = df["tmp"].unique()[0]
         df = df[df['tmp'] == TOP_TEMP]
 
         if self.include_all:
@@ -129,6 +132,9 @@ class Drawer:
 
         df = df.rename(columns=COL_NAMES)
 
+        versions = df['dst_ver'].cat.categories  # preserves order if ordered=True
+        last_ver = max(versions, key=lambda x: int(x[1:]))
+        df = df[df['dst_ver'] == last_ver]
         # df.to_csv("charts/data.csv", index=False)
         return df
 
@@ -165,6 +171,7 @@ class Drawer:
         ax.set_title("")
         path = os.path.join(self.out_dir, f"{snakecase(title)}.png")
         plt.savefig(path, bbox_inches='tight', dpi=300)
+        logger.info(f"Plot saved to {path}")
 
     def draw_metric_mean(self, x: str, metric: str):
         num_x = self.df[x].nunique()
@@ -278,7 +285,8 @@ class Drawer:
         temp = df["Temp"].unique()[0]
         model = df["Model"].unique()[0]
         itr = df["itr"].unique()[0]
-        df = df[(df['Temp'] == temp) & (df['Model'] == model) & (df['itr'] == itr)]
+        scale = df["scale"].unique()[0]
+        df = df[(df['Temp'] == temp) & (df['Model'] == model) & (df['itr'] == itr) & (df['scale'] == scale)]
         ax = sns.countplot(df, x="Category", hue="dst_ver", hue_order=vers, order=cats)
         # plt.figure(figsize=(5, 5))
 
@@ -298,6 +306,20 @@ class Drawer:
         ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
         ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
         plt.savefig(os.path.join(self.out_dir, f"overall.png"))
+
+    def draw_exec_time_scale(self):
+        x = 'scale'
+        metric = "Gold Execution Time"
+        num_x = self.df[x].nunique()
+        width = max(5, num_x * (bar_width + bar_spacing))
+        fig = plt.figure(figsize=(width, 5))
+        ax = self.draw_barplot(x, metric, "Model", "mean")
+        self.fix_axis(metric, ax)
+        title = f"Mean {metric} per {x}"
+        ax.set_title(title)
+        self.save_fig(metric, ax)
+        if self.show:
+            fig.show()
 
     def draw_all(self):
         pass

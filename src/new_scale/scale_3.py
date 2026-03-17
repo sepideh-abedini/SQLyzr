@@ -76,7 +76,7 @@ def scale_db(db_dir: str, db_id: str, scale_size: int):
 
     total_data = 0
     for t, df in merged_dfs.items():
-        df.to_csv(os.path.join(db_file_dir, '{t}_synthetic.csv'), index=False)
+        df.to_csv(os.path.join(db_file_dir, f'{t}_synthetic.csv'), index=False)
         total_data += len(df)
 
     before = get_total_row_count(db_file)

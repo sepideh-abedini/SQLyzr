@@ -19,6 +19,7 @@ class ModelEvalConfig:
     included_charts: List[ChartName]
     dataset_configs: List[DatasetConfig]
     metrics: Dict[str, Type[Metric]]
+    scales: List[int]
 
     @staticmethod
     def create(temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str, charts_dir: str,
@@ -27,7 +28,8 @@ class ModelEvalConfig:
                metrics: Dict[str, Type[Metric]],
                included_charts: List[ChartName],
                models: List[ModelName],
-               batch: bool):
+               batch: bool,
+               scales: List[int]):
         run_confs = {}
         for model in models:
             for temp, itr in product(temps, range(num_itrs)):
@@ -39,7 +41,8 @@ class ModelEvalConfig:
                                            temp=temp,
                                            itr=itr,
                                            batch=batch,
-                                           model=model)
+                                           model=model,
+                                           scales=scales)
                     run_confs.setdefault(temp, []).append(conf)
         return ModelEvalConfig(
             run_confs=run_confs,
@@ -50,7 +53,8 @@ class ModelEvalConfig:
             charts_dir=charts_dir,
             included_charts=included_charts,
             dataset_configs=dataset_configs,
-            metrics=metrics
+            metrics=metrics,
+            scales=scales
         )
 
     @property

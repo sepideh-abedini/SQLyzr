@@ -12,5 +12,6 @@ ChartName = Literal[
     "Complexity Consistency",
     "Complexity Inconsistency",
     "Category Distribution",
+    "Gold Execution Time Scaled",
     "Overall"
 ]

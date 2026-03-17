@@ -11,7 +11,7 @@ def copy_scaled_db(ds_conf: DatasetConfig, db_id: str, scale: int):
     scaled_dir = f"{ds_conf.get_db_path()}_{scale}"
     os.makedirs(scaled_dir, exist_ok=True)
     orig_db_dir = os.path.join(ds_conf.get_db_path(), db_id)
-    shutil.copytree(orig_db_dir, os.path.join(scaled_dir, db_id))
+    shutil.copytree(orig_db_dir, os.path.join(scaled_dir, db_id), dirs_exist_ok=True)
     orig_db_file = ds_conf.get_db_file_path(db_id)
     backup_and_revert(orig_db_file)
 

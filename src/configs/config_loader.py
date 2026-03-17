@@ -31,6 +31,8 @@ class ConfigData(BaseModel):
     pipeline: PipelineConfig = PipelineConfig()
     charts: List[ChartName] = []
     etcr: float = 1.1
+    scales: List[int] = []
+    eval_force: bool = True
 
     @property
     def last_version(self):
@@ -116,7 +118,8 @@ def load_config(path) -> SQLyzrConfig:
         metrics=METRICS[conf_data.dataset],
         batch=conf_data.batch,
         included_charts=conf_data.charts,
-        models=conf_data.models
+        models=conf_data.models,
+        scales=conf_data.scales
     )
     conf = SQLyzrConfig(
         idx=conf_data.idx,
@@ -126,6 +129,7 @@ def load_config(path) -> SQLyzrConfig:
         aug_per_sub_cat=conf_data.aug_per_sub_cat,
         pipeline=conf_data.pipeline,
         etc_ratio=conf_data.etcr,
+        eval_force=conf_data.eval_force,
     )
 
     return conf

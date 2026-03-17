@@ -1,15 +1,14 @@
 import argparse
 import asyncio
-import os.path
-import time
+
+from dotenv import load_dotenv
 from loguru import logger
+
+load_dotenv()
 
 from src.configs.config_loader import load_config
 from src.new_scale.apply_sdv import apply_scaling
 from src.new_scale.insert import backup_and_revert
-from src.scalar.tmp import scale_db
-from src.sqlyzr.augment_data import DatasetAugmentor
-from src.sqlyzr.sqlyzr import Sqlyzr
 from src.util.file_utils import read_json
 
 
@@ -24,15 +23,16 @@ async def main():
     data = read_json(ds_conf.get_test_path())
     db_ids = db_ids.union(set(map(lambda x: x["db_id"], data)))
     db_ids = sorted(list(db_ids))
-    scale = 1
-    for db_id in db_ids:
-        if scale == 0:
-            logger.info(f"Reverting {db_id} :")
-            backup_and_revert(ds_conf.get_db_file_path(db_id))
-        else:
+    # db_ids = db_ids[:1]
+    scales = conf.eval_conf.scales
+    for scale in scales:
+        if scale <= 1:
+            continue
+        for db_id in db_ids:
             logger.info(f"Scaling {db_id} :")
-            apply_scaling(ds_conf, db_id, 1)
+            apply_scaling(ds_conf, db_id, scale)
             logger.info(f"Scaling {db_id} DONE!")
+        logger.info(f"Scaling for scale = {scale} DONE!")
     print(db_ids)
 
 

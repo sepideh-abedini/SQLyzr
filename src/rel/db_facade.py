@@ -21,11 +21,12 @@ class DatabaseFacade(ABC):
         pass
 
     @abstractmethod
-    def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+    def exec_query_sync(self, db_id: str, sql: str, scale: int = 1, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
         pass
 
     @abstractmethod
-    def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+    def exec_query_uncached(self, db_id: str, sql: str, scale: int = 1, timeout: int = DB_TIMEOUT) -> Optional[
+        List[Tuple]]:
         pass
 
     @abstractmethod

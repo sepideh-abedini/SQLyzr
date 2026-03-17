@@ -93,11 +93,16 @@ class SqliteFacade(DatabaseFacade):
     def __init__(self, conf: DatasetConfig):
         super().__init__(conf)
 
-    def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+    def exec_query_uncached(self, db_id: str, sql: str, scale: int = 1, timeout: int = DB_TIMEOUT) -> Optional[
+        List[Tuple]]:
 
-        db_file = self.conf.get_db_file_path(db_id)
-        conn = sqlite3.connect(f"file:{db_file}?mode=ro")
-
+        db_file = self.conf.get_db_file_path(db_id, scale)
+        try:
+            conn = sqlite3.connect(f"file:{db_file}?mode=ro")
+        except sqlite3.OperationalError as e:
+            if "unable to open" in str(e):
+                raise Exception(f"SQLite Error: {db_file}")
+            raise
         # print("Opened connection: ", db_file)
         logger.debug(f"Connection created")
 
@@ -121,15 +126,24 @@ class SqliteFacade(DatabaseFacade):
                 cursor.close()
         return rows
 
-    def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+    def exec_query_sync(self, db_id: str, sql: str, scale: int = 1, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
         if DB_CACHE:
             res = lookup_db_cache(db_id, sql)
             if res:
                 logger.trace("Cache hit")
                 return res
 
-        result = self.exec_query_uncached(db_id, sql, timeout)
+        result = self.exec_query_uncached(db_id, sql, scale, timeout)
 
         if DB_CACHE:
             save_db_cache(db_id, sql, result)
         return result
+
+    def get_total_rows(self, db_id: str, scale: int = 1) -> int:
+        total = 0
+        tables = self.get_tables(db_id)
+        for table in tables:
+            res = self.exec_query_sync(db_id, f"SELECT COUNT(*) FROM {table}", scale)
+            if res and res[0]:
+                total += res[0][0]
+        return total

@@ -66,7 +66,8 @@ def total_rows(db_path):
 
 
 def insert_synthetic_data(db_dir, db_id):
-    db_file = os.path.join(db_dir, db_id, f"{db_id}.sqlite")
+    db_parent = os.path.join(db_dir, db_id)
+    db_file = os.path.join(db_parent, f"{db_id}.sqlite")
 
     backup_and_revert(db_file)
 
@@ -77,12 +78,12 @@ def insert_synthetic_data(db_dir, db_id):
 
     cursor.execute("PRAGMA foreign_keys = OFF;")
 
-    csv_files = [f for f in os.listdir(db_dir) if f.endswith('.csv')]
+    csv_files = [f for f in os.listdir(db_parent) if f.endswith('.csv')]
 
     for name in csv_files:
         table_base = name.replace('_synthetic.csv', '')
         table_name = get_existing_table_name(cursor, table_base)
-        csv_path = os.path.join(db_dir, name)
+        csv_path = os.path.join(db_parent, name)
         insert_rows_from_csv(cursor, table_name, csv_path)
         print(f"Synthetic data inserted: {table_name}")
 

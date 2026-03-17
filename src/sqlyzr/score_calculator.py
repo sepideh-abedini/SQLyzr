@@ -15,7 +15,7 @@ from src.util.multi_thread_utils import exec_multi_process
 catter = Catter()
 
 
-def calc_for_entry(conf: SQLyzrConfig, run_conf: SingleRunConfig, entry):
+def calc_for_entry(conf: SQLyzrConfig, run_conf: SingleRunConfig, scale, entry):
     pred, gold, db_id = entry
     cat, sub_cat = catter.categorize(gold)
     pred_cat, pred_sub_cat = catter.categorize(pred)
@@ -31,7 +31,7 @@ def calc_for_entry(conf: SQLyzrConfig, run_conf: SingleRunConfig, entry):
 
     for metric in metrics:
         try:
-            score = metric.calc(gold, pred, db_id)
+            score = metric.calc(gold, pred, db_id, scale)
         except Exception as e:
             logger.debug(e)
             score = 0
@@ -39,26 +39,16 @@ def calc_for_entry(conf: SQLyzrConfig, run_conf: SingleRunConfig, entry):
     return example_scores
 
 
-def calc_for_data(eval_conf, run_conf, data):
-    scores = []
-    for i, (pred, gold, db_id) in tqdm(enumerate(data), total=len(data),
-                                       desc=f"Calculating scores for {run_conf}-{os.getpid()}"):
-        example_scores = calc_for_entry(eval_conf, run_conf, (pred, gold, db_id))
-        scores.append(example_scores)
-
-    return scores
-
-
 @log("Score calculation for single conf")
-def calc_for_conf(conf: SQLyzrConfig, run_conf: SingleRunConfig):
-    if file_exists_not_forced(run_conf.get_scores_path()):
-        logger.info(f"Scores for {run_conf} exists!")
+def calc_for_conf_scale(conf: SQLyzrConfig, run_conf: SingleRunConfig, scale: int):
+    if not conf.eval_force and file_exists_not_forced(run_conf.get_scores_path()):
+        logger.info(f"Scores for {run_conf} exists at {run_conf.get_scores_path()}!")
         return pd.read_csv(run_conf.get_scores_path())
 
     reader = PredGoldReader(run_conf)
     all_data = reader.get_pred_gold_db_id()
-    all_scores = exec_multi_process(partial(calc_for_entry, conf, run_conf), all_data,
-                                    desc=f"Score calculation for {run_conf}")
+    all_scores = exec_multi_process(partial(calc_for_entry, conf, run_conf, scale), all_data,
+                                    desc=f"Score calculation for {run_conf} x{scale}")
     df = pd.DataFrame(all_scores)
     with open(run_conf.get_tokens_path(), "r") as f:
         tokens = [int(line.strip()) for line in f if line.strip()]
@@ -69,9 +59,21 @@ def calc_for_conf(conf: SQLyzrConfig, run_conf: SingleRunConfig):
     df["time_seconds"] = times
     df['count'] = 1
     df['plc'] = df.apply(lambda e: int(find_cat(e['pcat']) <= find_cat(e['cat'])), axis=1)
-    df['plt'] = df.apply(lambda e: int((e['et'] / e['get']) > conf.etc_ratio), axis=1)
-    df.to_csv(run_conf.get_scores_path())
+    # df['plt'] = df.apply(lambda e: int((df['get'] != 0) & (e['et'] / e['get']) > conf.etc_ratio), axis=1)
+    df['plt'] = ((df['get'] != 0) & ((df['et'] / df['get']) > conf.etc_ratio)).astype(int)
+    df['scale'] = scale
 
+    return df
+
+
+@log("Score calculation for single conf")
+def calc_for_conf(conf: SQLyzrConfig, run_conf: SingleRunConfig):
+    df = pd.DataFrame()
+    for scale in run_conf.scales:
+        scale_df = calc_for_conf_scale(conf, run_conf, scale)
+        df = pd.concat([df, scale_df])
+
+    df.to_csv(run_conf.get_scores_path())
     return df
 
 

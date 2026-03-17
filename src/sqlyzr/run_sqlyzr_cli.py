@@ -1,7 +1,10 @@
 import argparse
 import asyncio
-import time
+
+from dotenv import load_dotenv
 from loguru import logger
+
+load_dotenv()
 
 from src.sqlyzr.sqlyzr import Sqlyzr
 

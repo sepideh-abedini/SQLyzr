@@ -52,8 +52,11 @@ class DatasetConfig:
         desc_dir = os.path.join(self.db_dir, db_id, "database_description")
         return self.get_rel_path(desc_dir)
 
-    def get_db_file_path(self, db_id: str):
-        db_file = os.path.join(self.db_dir, db_id, f"{db_id}.sqlite")
+    def get_db_file_path(self, db_id: str, scale: int = 1):
+        if scale == 1:
+            db_file = os.path.join(self.db_dir, db_id, f"{db_id}.sqlite")
+        else:
+            db_file = os.path.join(f"{self.db_dir}_{scale}", db_id, f"{db_id}.sqlite")
         return self.get_rel_path(db_file)
 
     def __str__(self):

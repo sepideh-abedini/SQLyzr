@@ -1,18 +1,58 @@
-<template>
+<template xmlns="http://www.w3.org/1999/html">
   <div class="aug-view p-4">
     <Toast />
-    <div class="grid m-0">
-      <!-- Left Panel -->
-      <div class="col-12 md:col-6 p-4">
-        <div class="flex flex-column">
-          <div class="flex flex-column gap-2">
-            <label class="field-label">Dataset Size</label>
-            <InputNumber v-model="datasetSize" disabled class="w-full mt-2" />
-          </div>
-
-          <div class="flex flex-column gap-2">
-            <label class="field-label">Number of Synthetic Examples Per SubCategory:</label>
-            <InputText v-model="config.aug_per_sub_cat" class="w-3 mr-2" />
+    <div class="grid">
+      <div class="grid md:col-6">
+        <div class="grid m-0 w-full">
+          <FormField class="md:col-6">
+            <label class="field-label">Models:</label>
+            <MultiSelect
+              display="chip"
+              filter
+              placeholder="Select Models"
+              v-model="config.models"
+              :options="avail_models"
+            />
+          </FormField>
+          <FormField class="md:col-6">
+            <label class="field-label">Dataset:</label>
+            <Select
+              placeholder="Select Dataset"
+              :options="avail_datasets"
+              v-model="config.dataset"
+            />
+          </FormField>
+        </div>
+        <div class="grid m-0 w-full">
+          <FormField class="md:col-6">
+            <label class="field-label">Scaling Factors:</label>
+            <MultiSelect
+              display="chip"
+              filter
+              placeholder="Select scales"
+              v-model="config.scales"
+              :options="avail_scales"
+            />
+          </FormField>
+          <FormField class="md:col-6">
+            <label class="field-label">Workload Versions:</label>
+            <MultiSelect
+              display="chip"
+              filter
+              placeholder="Select scales"
+              v-model="config.dataset_versions"
+              :options="avail_versions"
+            />
+          </FormField>
+        </div>
+        <div class="grid m-0 w-full">
+          <FormField class="md:col-6">
+            <FloatLabel variant="in">
+              <label>Examples per Sub</label>
+              <InputText v-model="config.aug_per_sub_cat" />
+            </FloatLabel>
+          </FormField>
+          <FormField class="md:col-6">
             <Slider
               v-model="config.aug_per_sub_cat"
               :min="1"
@@ -20,11 +60,16 @@
               :step="1"
               class="w-5 mt-4"
             />
-          </div>
-
-          <div class="flex flex-column gap-2">
-            <label class="field-label">Error Threshold:</label>
-            <InputText v-model="config.error_threshold" class="w-3 mr-2" />
+          </FormField>
+        </div>
+        <div class="grid m-0 w-full">
+          <FormField class="md:col-6">
+            <FloatLabel variant="in">
+              <label>Error Threshold</label>
+              <InputText v-model="config.error_threshold" />
+            </FloatLabel>
+          </FormField>
+          <FormField class="md:col-6">
             <Slider
               v-model="config.error_threshold"
               :min="0"
@@ -32,12 +77,12 @@
               :step="0.01"
               class="w-5 mt-4"
             />
-          </div>
+          </FormField>
+        </div>
 
-          <div class="mt-auto flex justify-content-between pt-4 align-items-center">
-            <div class="flex gap-3 align-items-center">
-              <Button label="Run" icon="pi pi-play" @click="onRun" :disabled="isRunning" />
-            </div>
+        <div class="grid mt-5 w-full">
+          <div class="md:col-3 flex flex-column gap-2">
+            <Button label="Run" icon="pi pi-play" @click="onRun" :disabled="isRunning" />
             <Button
               label="Cleanup"
               icon="pi pi-trash"
@@ -45,17 +90,30 @@
               severity="danger"
               :disabled="isRunning"
             />
-            <Button label="Augment" icon="pi pi-plus" @click="onAugment" :disabled="isRunning" />
+          </div>
+          <div class="md:col-3 flex flex-column gap-2">
+            <Button
+              label="Scale"
+              icon="pi pi-window-maximize"
+              @click="onScale"
+              :disabled="isRunning"
+            />
+          </div>
+          <div class="md:col-3 flex flex-column gap-2">
+            <Button label="Augment" icon="pi pi-forward" @click="onAugment" :disabled="isRunning" />
             <Button
               label="Reset"
-              icon="pi pi-replay"
+              icon="pi pi-backward"
               @click="onReset"
               severity="warn"
               :disabled="isRunning"
             />
-            <Button label="Save" icon="pi pi-save"  @click="saveConfig" />
           </div>
-
+          <div class="md:col-2">
+            <Button label="Save" icon="pi pi-save" @click="saveConfig" />
+          </div>
+        </div>
+        <div class="md:col-6">
           <div v-if="status != 'idle'" class="mt-4">
             <Message v-if="status === 'running'" severity="info">Process is running...</Message>
             <Message v-else-if="status === 'completed'" severity="success">
@@ -68,31 +126,48 @@
               Error checking process status.
             </Message>
           </div>
+          <div class="mt-auto flex justify-content-between pt-4 align-items-center">
+            <ProgressSpinner
+              v-if="isRunning"
+              style="width: 30px; height: 30px"
+              strokeWidth="8"
+              animationDuration=".5s"
+            />
+          </div>
         </div>
-        <div class="mt-auto flex justify-content-between pt-4 align-items-center">
-          <ProgressSpinner
-            v-if="isRunning"
-            style="width: 30px; height: 30px"
-            strokeWidth="8"
-            animationDuration=".5s"
-          />
+        <div class="col-12 mt-4 w-full">
+          <DataTable
+            :value="db_stats"
+            class="p-datatable-sm"
+            stripedRows
+            :sortOrder="1"
+            responsiveLayout="scroll"
+          >
+            <Column field="db_id" header="Table Name" sortable />
+            <Column
+              v-bind:key="scale"
+              v-for="scale in config.scales"
+              :field="`x${scale}`"
+              :header="`x${scale}`"
+              sortable
+            />
+          </DataTable>
         </div>
       </div>
 
-      <!-- Right Panel -->
-      <div class="col-12 md:col-6 p-4">
-        <div class="w-full mb-4 flex gap-2">
-          <h3>Available Charts</h3>
-          <PSelect
+      <div class="grid md:col-6">
+        <FormField class="md:col-6">
+          <label class="field-label">Plot:</label>
+          <Select
             v-model="selectedPlot"
             :options="avail_charts"
-            placeholder="Select a chart"
+            placeholder="Select a plot"
             default-value="EA"
-            class="w-full md:w-56"
+            class="w-full"
           />
-        </div>
+        </FormField>
         <div class="h-full rounded-lg p-4">
-          <img :src="getPlotUrl()" alt="Plot" class="plot" />
+          <img :src="plot_url" alt="Plot" class="plot" />
         </div>
       </div>
     </div>
@@ -110,9 +185,16 @@ import ProgressSpinner from 'primevue/progressspinner'
 import Message from 'primevue/message'
 import apiMixin from '@/api_mixin'
 import { API_BASE_URL } from '@/config'
+import FormField from '@primevue/forms/formfield'
+import MultiSelect from 'primevue/multiselect'
+import DataTable from 'primevue/datatable'
+import FloatLabel from 'primevue/floatlabel'
+import Column from 'primevue/column'
 
 const charts = {
-  EA: 'mean__relaxed__execution__accuracy_per__sub_category',
+  REA: 'mean__relaxed__execution__accuracy_per__sub_category',
+  Overall: 'overall',
+  GET: 'mean__gold__execution__time_per_scale',
   'SubCategory Dist': 'sub_cat_count',
 }
 
@@ -121,6 +203,7 @@ export default {
   mixins: [apiMixin],
   data() {
     return {
+      db_stats: [{ db_id: 'foo', scale: 2 }],
       datasetSize: 0,
       isRunning: false,
       status: 'idle',
@@ -129,6 +212,10 @@ export default {
       config: {
         error_threshold: 0.9,
         aug_per_sub_cat: 10,
+        models: ['simple'],
+        dataset: 'spider',
+        scales: [1],
+        dataset_versions: ['v0'],
       },
       plotTimestamp: Date.now(),
       onDoneCallback: null as (() => void) | null,
@@ -140,14 +227,26 @@ export default {
       console.log(keys)
       return Object.keys(charts)
     },
+    avail_versions() {
+      return [...Array(5).keys()].map((i) => `v${i}`)
+    },
+    avail_datasets() {
+      return ['spider']
+    },
+    avail_models() {
+      return ['simple', 'simple_v2']
+    },
+    avail_scales() {
+      return [1, 2, 5, 10]
+    },
+    plot_url() {
+      const chart_name = charts[this.selectedPlot]
+      return `${API_BASE_URL}/api/aug/plot/${chart_name}?ts=${this.plotTimestamp}`
+    },
   },
   methods: {
     refreshPlot() {
       this.plotTimestamp = Date.now()
-    },
-    getPlotUrl() {
-      const chart_name = charts[this.selectedPlot]
-      return `${API_BASE_URL}/api/aug/plot/${chart_name}?ts=${this.plotTimestamp}`
     },
 
     async checkStatus() {
@@ -177,6 +276,14 @@ export default {
 
     async onRun() {
       const res = await this.call_api('api/aug/start/sqlyzr', { method: 'POST' })
+      this.onDoneCallback = () => {
+        this.selectedPlot = 'SubCategory Dist'
+      }
+      await this.checkStatus()
+    },
+
+    async onScale() {
+      const res = await this.call_api('api/aug/start/scale', { method: 'POST' })
       this.onDoneCallback = () => {
         this.selectedPlot = 'SubCategory Dist'
       }
@@ -225,11 +332,13 @@ export default {
           this.onDoneCallback = null
         }
       }
+      this.fetchConfig()
     },
 
     async fetchConfig() {
       const stats = await this.call_api('api/aug/stats')
-      this.datasetSize = stats.dataset_size
+      this.db_stats = stats.db_stats
+      console.log(stats)
       const data = await this.call_api('api/aug/config')
       this.config = data
       console.log(this.config.error_threshold)
@@ -267,9 +376,14 @@ export default {
     Slider,
     ProgressSpinner,
     InputText,
-    PSelect: Select,
+    Select,
     Button,
     Message,
+    FormField,
+    MultiSelect,
+    DataTable,
+    FloatLabel,
+    Column,
   },
 }
 </script>

@@ -33,7 +33,7 @@ class Metric(ABC):
         self.dbc = DatabaseFactory.get_instance(conf)
 
     @abstractmethod
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str, scale=1) -> int:
         pass
 
 
@@ -42,7 +42,7 @@ class ExactMatch(Metric):
         super().__init__(name, conf)
         self.parser = ExactMatchParser(self.conf.get_tables_path())
 
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str, scale=1) -> int:
         parser = self.parser
         try:
             gold_ast = parser.parse(gold, db_id)
@@ -55,7 +55,7 @@ class ExactMatch(Metric):
 
 
 class SpiderExactMatch(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str, scale=1) -> int:
         try:
             score = get_spider_exact_match(pred, f"{gold}\t{db_id}", self.conf)
             return score
@@ -65,10 +65,10 @@ class SpiderExactMatch(Metric):
 
 
 class ExecAcc(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str, scale=1) -> int:
         try:
-            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold, timeout=DB_LONG_TIMEOUT)
-            pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred, timeout=DB_LONG_TIMEOUT)
+            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold, scale=scale, timeout=DB_LONG_TIMEOUT)
+            pred_sql_exec_res = self.dbc.exec_query_sync(db_id, pred, scale=scale, timeout=DB_LONG_TIMEOUT)
             if gold_sql_exec_res is None:
                 raise RuntimeError("Gold result is None!")
             if pred_sql_exec_res is None:
@@ -83,7 +83,7 @@ class ExecAcc(Metric):
 
 
 class GoldNotEmpty(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> int:
         try:
             gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold, timeout=DB_LONG_TIMEOUT)
             if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
@@ -107,7 +107,7 @@ class RelaxedExecAcc(Metric):
             ExtraColumnsMatcher()
         ])
 
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> int:
         try:
             pd = SqlInputData(db_id, pred)
             gd = SqlInputData(db_id, gold)
@@ -153,7 +153,7 @@ class NewRelaxedExecAcc(Metric):
             logger.debug(e)
         return None
 
-    def calc(self, gold: str, pred: str, db_id: str) -> Tuple[int, int, int, int]:
+    def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> Tuple[int, int, int, int]:
         transformer = LetterCasingTransformer()
 
         gold_sql_exec_time = 0
@@ -196,15 +196,15 @@ class NewRelaxedExecAcc(Metric):
 
 class Count(Metric):
 
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> int:
         return 1
 
 
 class ExecTime(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> int:
         try:
             timer = lib.Timer.start()
-            self.dbc.exec_query_uncached(db_id, pred)
+            self.dbc.exec_query_uncached(db_id, pred, scale=scale)
             pred_sql_exec_time = timer.lap()
             return pred_sql_exec_time * 1_000_000
         except Exception as e:
@@ -213,10 +213,10 @@ class ExecTime(Metric):
 
 
 class GoldExecTime(Metric):
-    def calc(self, gold: str, pred: str, db_id: str) -> int:
+    def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> int:
         try:
             timer = lib.Timer.start()
-            res = self.dbc.exec_query_uncached(db_id, gold, timeout=1000)
+            res = self.dbc.exec_query_uncached(db_id, gold, scale=scale, timeout=1000)
             pred_sql_exec_time = timer.lap()
             return pred_sql_exec_time * 1_000_000
         except Exception as e:
