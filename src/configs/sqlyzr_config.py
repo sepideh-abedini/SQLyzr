@@ -17,6 +17,7 @@ class SQLyzrConfig:
     etc_ratio: float = 1.1
     aug_per_sub_cat: int = 2
     pipeline: PipelineConfig = PipelineConfig
+    eval_force: bool = True
 
     def get_aug_out(self, ds_type):
         return os.path.join(self.aug_dir, ds_type, "gen.jsonl")

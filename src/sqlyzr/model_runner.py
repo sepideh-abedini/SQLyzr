@@ -7,6 +7,7 @@ from src.eval.single_run_config import SingleRunConfig
 from src.monitor.mem import track_memory_async
 from src.pred.simple_predictor import SimplePredictor
 from src.pred.simple_predictor_resd import SimplePredictorRESD
+from src.pred.simple_predictor_v2 import SimplePredictorV2
 from src.sqlyzr.dummy_predictor import DummyPredictor
 from src.third_party.dail.dail_pred import DailPredictor
 from src.third_party.din.din_bird_pred import DinBirdPredictor
@@ -61,5 +62,12 @@ class DummyRunner(ModelRunner):
 class SimpleRunner(ModelRunner):
     async def run_single_internal(self, run_conf: SingleRunConfig):
         predictor = SimplePredictor(run_conf)
+        result = await predictor.run()
+        return result
+
+
+class SimpleRunnerV2(ModelRunner):
+    async def run_single_internal(self, run_conf: SingleRunConfig):
+        predictor = SimplePredictorV2(run_conf)
         result = await predictor.run()
         return result

@@ -20,24 +20,18 @@ class ModelEvalConfig:
     dataset_configs: List[DatasetConfig]
     metrics: Dict[str, Type[Metric]]
 
-    def __init__(self, temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str, charts_dir: str,
-                 base_dir: str,
-                 dataset_configs: List[DatasetConfig],
-                 metrics: Dict[str, Type[Metric]],
-                 included_charts: List[ChartName],
-                 models: List[ModelName],
-                 batch: bool):
-        self.base_dir = base_dir
-        self.pred_dir = pred_dir
-        self.eval_dir = eval_dir
-        self.trs_dir = trs_dir
-        self.charts_dir = charts_dir
-        self.included_charts = included_charts
-        self.run_confs = {}
-        self.dataset_configs = dataset_configs
+    @staticmethod
+    def create(temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str, charts_dir: str,
+               base_dir: str,
+               dataset_configs: List[DatasetConfig],
+               metrics: Dict[str, Type[Metric]],
+               included_charts: List[ChartName],
+               models: List[ModelName],
+               batch: bool):
+        run_confs = {}
         for model in models:
             for temp, itr in product(temps, range(num_itrs)):
-                for dataset_config in self.dataset_configs:
+                for dataset_config in dataset_configs:
                     conf = SingleRunConfig(dataset_config=dataset_config,
                                            pred_dir=pred_dir,
                                            trs_dir=trs_dir,
@@ -46,8 +40,18 @@ class ModelEvalConfig:
                                            itr=itr,
                                            batch=batch,
                                            model=model)
-                    self.run_confs.setdefault(temp, []).append(conf)
-        self.metrics = metrics
+                    run_confs.setdefault(temp, []).append(conf)
+        return ModelEvalConfig(
+            run_confs=run_confs,
+            base_dir=base_dir,
+            eval_dir=eval_dir,
+            pred_dir=pred_dir,
+            trs_dir=trs_dir,
+            charts_dir=charts_dir,
+            included_charts=included_charts,
+            dataset_configs=dataset_configs,
+            metrics=metrics
+        )
 
     @property
     def models(self):

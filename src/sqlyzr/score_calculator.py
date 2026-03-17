@@ -22,6 +22,7 @@ def calc_for_entry(conf: SQLyzrConfig, run_conf: SingleRunConfig, entry):
     example_scores = {"model": run_conf.model, "tmp": run_conf.temp, "itr": run_conf.itr, "cat": str(cat),
                       "sub": sub_cat,
                       "dst": run_conf.dataset_config.dataset_type,
+                      "dst_ver": run_conf.dataset_config.ver,
                       "pcat": pred_cat.name,
                       "psub": pred_sub_cat.name}
     metrics = []
@@ -83,7 +84,7 @@ class ScoreCalculator:
     @log("Score calculation")
     def calc_scores(self):
         config = self.__config.eval_conf
-        if file_exists_not_forced(config.get_raw_scores_path()):
+        if not self.__config.eval_force and file_exists_not_forced(config.get_raw_scores_path()):
             logger.info(f"Raw scores exists: {config.get_raw_scores_path()}, skipping calculation.")
             return
 

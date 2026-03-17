@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass, replace
 from os import path
-from typing import Literal
+from typing import Literal, Optional
 
 
 @dataclass(frozen=True)
@@ -12,20 +12,35 @@ class DatasetConfig:
     gold_file: str
     tables_file: str
     db_dir: str
+    ver: Optional[str] = None
     mysql: bool = False
     dataset_type: Literal['spider', 'bird', 'beaver'] = 'spider'
+
+    @property
+    def gold_file_ver(self) -> str:
+        if self.ver is None:
+            return self.gold_file
+        else:
+            return self.gold_file.replace(".txt", f".{self.ver}.txt")
+
+    @property
+    def test_file_ver(self) -> str:
+        if self.ver is None:
+            return self.test_file
+        else:
+            return self.test_file.replace(".json", f".{self.ver}.json")
 
     def get_rel_path(self, sub_path: str):
         return path.join(self.dataset_dir, sub_path)
 
     def get_test_path(self):
-        return self.get_rel_path(self.test_file)
+        return self.get_rel_path(self.test_file_ver)
+
+    def get_gold_path(self):
+        return self.get_rel_path(self.gold_file_ver)
 
     def get_train_path(self):
         return self.get_rel_path(self.train_file)
-
-    def get_gold_path(self):
-        return self.get_rel_path(self.gold_file)
 
     def get_tables_path(self):
         return self.get_rel_path(self.tables_file)
@@ -43,3 +58,6 @@ class DatasetConfig:
 
     def __str__(self):
         return self.dataset_dir
+
+    def to_ver(self, ver: str):
+        return replace(self, ver=ver)

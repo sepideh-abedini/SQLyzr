@@ -22,7 +22,7 @@ class ConfigData(BaseModel):
     error_threshold: float = 101
     dataset: DatasetName = "spider"
     dataset_size: DatasetSize = "small"
-    dataset_version: Optional[str] = None
+    dataset_versions: List[str] = []
     temps: List[float] = [0.0]
     itrs: int = 2
     models: List[ModelName]
@@ -33,21 +33,26 @@ class ConfigData(BaseModel):
     etcr: float = 1.1
 
     @property
+    def last_version(self):
+        last_version = max(self.dataset_versions, key=lambda x: int(x[1:]))
+        return last_version
+
+    @property
     def idx(self):
         return f"{'_'.join(self.models)}_{self.dataset}_{self.dataset_size}"
 
     @property
     def dataset_id(self):
-        if self.dataset_version:
-            return f"{self.dataset}_{self.dataset_version}"
-        else:
-            return self.dataset
+        # if self.dataset_version:
+        #     return f"{self.dataset}/{self.dataset_version}"
+        # else:
+        return self.dataset
 
     def get_model_dataset_dir(self):
-        return os.path.join(self.out_dir, f"{'-'.join(natsorted(self.models))}_{self.dataset_id}_{self.dataset_size}")
+        return os.path.join(self.out_dir, f"{'-'.join(natsorted(self.models))}_{self.dataset_size}_{self.dataset_id}")
 
     def get_aug_dir(self):
-        return os.path.join(self.get_model_dataset_dir(), "aug")
+        return os.path.join(self.get_model_dataset_dir(), "aug", self.last_version)
 
     def get_pred_dir(self):
         return os.path.join(self.get_model_dataset_dir(), "pred")
@@ -67,6 +72,10 @@ class ConfigData(BaseModel):
             data = ConfigData.model_validate_json(file.read())
             return data
 
+    def save(self, path):
+        with open(path, 'w') as file:
+            file.write(self.model_dump_json(indent=4))
+
     def __str__(self):
         return f"""
 ############ SQLyzr Config ############
@@ -85,13 +94,17 @@ Charts: {self.charts}
 def load_config(path) -> SQLyzrConfig:
     conf_data = ConfigData.load(path)
     logger.debug(conf_data)
-    dataset_confs = DATASETS[conf_data.dataset_id]
+    dataset_confs = DATASETS[conf_data.dataset]
     dataset_confs = dataset_confs[conf_data.dataset_size]
+    versioned_dataset_confs = []
+    for conf in dataset_confs:
+        for version in conf_data.dataset_versions:
+            versioned_dataset_confs.append(conf.to_ver(version))
     dirs = [conf_data.get_pred_dir(), conf_data.get_eval_dir(), conf_data.get_aug_dir(), conf_data.get_trs_dir(),
             conf_data.get_charts_dir()]
     for d in dirs:
         os.makedirs(d, exist_ok=True)
-    eval_conf = ModelEvalConfig(
+    eval_conf = ModelEvalConfig.create(
         temps=conf_data.temps,
         num_itrs=conf_data.itrs,
         base_dir=conf_data.get_model_dataset_dir(),
@@ -99,7 +112,7 @@ def load_config(path) -> SQLyzrConfig:
         eval_dir=conf_data.get_eval_dir(),
         trs_dir=conf_data.get_trs_dir(),
         charts_dir=conf_data.get_charts_dir(),
-        dataset_configs=dataset_confs,
+        dataset_configs=versioned_dataset_confs,
         metrics=METRICS[conf_data.dataset],
         batch=conf_data.batch,
         included_charts=conf_data.charts,

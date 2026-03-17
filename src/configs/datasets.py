@@ -148,7 +148,7 @@ DATASETS = {
         #     "train": BIRD_TRAIN
     },
     "spider": {
-        "small": [SPIDER_SMALL],
+        "small": [AUG_SMALL],
         "500": [SPIDER_500],
         # "dev": SPIDER_DEV,
         # "test": SPIDER_TEST,

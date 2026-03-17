@@ -75,6 +75,7 @@ def get_colored_diff(a: str, b: str) -> str:
             result += colored(b[j1:j2], Color.BLUE)
     return result
 
+
 def extract_sql(output):
     # output = re.sub(r"<think>.*?</think>", "", output, flags=re.DOTALL)
     output = output.strip()
@@ -101,3 +102,16 @@ def extract_sql(output):
     return sql
 
 
+def bump_ver_str(ver: str) -> str:
+    assert ver.startswith("v")
+    ver_num = int(ver.replace("v", ""))
+    new_ver_num = ver_num + 1
+    new_ver = f"v{new_ver_num}"
+    return new_ver
+
+
+def bump_ver(file_path):
+    ver = file_path.rsplit(".")[-2]
+    new_ver = bump_ver_str(ver)
+    new_path = file_path.replace(ver, new_ver)
+    return new_path

@@ -1,11 +1,13 @@
 import asyncio
+import os
+import shutil
 
 import tqdm
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from src.configs.config_loader import load_config
+from src.configs.config_loader import load_config, ConfigData
 from src.sqlyzr.augment_data import DatasetAugmentor
 from src.util.log_util import configure_logging
 
@@ -37,7 +39,11 @@ async def main():
     await sqlyzr.run()
 
     augmentor = DatasetAugmentor(sqlyzr.conf)
-    await augmentor.augment_data()
+    conf_data = ConfigData.load(conf_path)
+    new_ver = await augmentor.augment_data(expand=True)
+    conf_data.dataset_versions.append(new_ver)
+    shutil.copy(conf_path, f"{conf_path}.bak")
+    conf_data.save(conf_path)
     # for ds_conf in conf.eval_conf.dataset_configs:
     #     conf.get_aug_out(ds_type)
     #     auger = Auger(conf, ds, [sub_cat], force=True)

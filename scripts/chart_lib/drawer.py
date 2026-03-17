@@ -91,9 +91,11 @@ class Drawer:
         df = df.dropna(subset=["cat"])
         cats = natsorted(df['cat'].unique())
         sub_cats = natsorted(df['sub'].unique())
+        dst_ver = natsorted(df['dst_ver'].unique())
         df['cat'] = pd.Categorical(df['cat'], categories=cats, ordered=True)
         df['sub'] = pd.Categorical(df['sub'], categories=sub_cats, ordered=True)
-        df = df.sort_values(by=['cat', 'sub'])
+        df['dst_ver'] = pd.Categorical(df['dst_ver'], categories=dst_ver, ordered=True)
+        df = df.sort_values(by=['cat', 'sub', 'dst_ver'])
         if self.only_correct:
             df = df[df['rea'] == 1]
         df['etc'] = (df['et'] < df['get'] * (1 + ET_TRESH)).astype(int)
@@ -103,7 +105,7 @@ class Drawer:
         df["cdiff"] = 1 - df["plc"]
         df["etcdiff"] = 1 - df["plt"]
         df = df.drop(columns=[col for col in df.columns if "Unnamed" in col])
-        df = df.drop(columns=['pcat', 'psub','id'], errors='ignore')
+        df = df.drop(columns=['pcat', 'psub', 'id'], errors='ignore')
         if self.exclude_c6:
             df = df[df['cat'] != 'c6']
 
@@ -116,7 +118,7 @@ class Drawer:
             #     new_row.update(mean_values.loc[value].to_dict())
             #     row = pd.DataFrame([new_row])
             #     df = pd.concat([df, row], ignore_index=True)
-            mean_values = df.drop(columns=['sub', "dst"]).groupby(['model', 'cat'], observed=False).mean()
+            mean_values = df.drop(columns=['sub', "dst"]).groupby(['model', 'dst_ver', 'cat'], observed=False).mean()
             mean_values = mean_values.groupby(['model']).mean()
             #
             for value in df['model'].unique():
@@ -271,20 +273,20 @@ class Drawer:
         df = self.df
         subs = natsorted(df['SubCategory'].unique())
         cats = natsorted(df['Category'].unique())
-
+        vers = natsorted(df['dst_ver'].unique())
 
         temp = df["Temp"].unique()[0]
         model = df["Model"].unique()[0]
         itr = df["itr"].unique()[0]
         df = df[(df['Temp'] == temp) & (df['Model'] == model) & (df['itr'] == itr)]
-        ax = sns.countplot(df, x="Category", order=cats)
+        ax = sns.countplot(df, x="Category", hue="dst_ver", hue_order=vers, order=cats)
         # plt.figure(figsize=(5, 5))
 
         plt.savefig(os.path.join(self.out_dir, f"cat_count.png"))
         plt.clf()
 
         # plt.figure(figsize=(50, 5))
-        sns.countplot(df, x="SubCategory", order=subs)
+        sns.countplot(df, x="SubCategory", hue="dst_ver", hue_order=vers, order=subs)
         plt.savefig(os.path.join(self.out_dir, f"sub_cat_count.png"))
         if self.show:
             plt.show()

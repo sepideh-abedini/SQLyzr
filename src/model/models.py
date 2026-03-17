@@ -5,13 +5,14 @@ from loguru import logger
 
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.model.custom_runner import CustomRunner
-from src.sqlyzr.model_runner import DinRunner, DailRunner, DummyRunner, SimpleRunner
+from src.sqlyzr.model_runner import DinRunner, DailRunner, DummyRunner, SimpleRunner, SimpleRunnerV2
 
 MODELS = {
     "din": DinRunner(),
     "dail": DailRunner(),
     "dum": DummyRunner(),
     "simple": SimpleRunner(),
+    "simple_v2": SimpleRunnerV2(),
     "custom": CustomRunner()
 }
 

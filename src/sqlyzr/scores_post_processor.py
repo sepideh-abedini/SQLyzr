@@ -51,7 +51,7 @@ class ScoresPostProcessor:
         df = df.drop(columns=['pcat', 'psub', 'dst', 'itr'])
         df['count'] = 1
 
-        sub_grouped = df.groupby(['model', 'tmp', 'cat', 'sub'])
+        sub_grouped = df.groupby(['model', 'dst_ver', 'tmp', 'cat', 'sub'])
         cc = sub_grouped.apply(metric_consistency('plc'))
         etc = sub_grouped.apply(metric_consistency('plt'))
         sub_grouped = sub_grouped.agg(**self.SUMS, **self.MEANS, **self.CIS)
@@ -61,7 +61,7 @@ class ScoresPostProcessor:
         sub_grouped.to_csv(config.get_scores_path("_sub"))
         logger.info(f"Sub grouped cols: {len(sub_grouped.columns)}")
 
-        cat_grouped = df.drop(columns=['sub']).groupby(['model', 'tmp', 'cat'])
+        cat_grouped = df.drop(columns=['sub']).groupby(['model', 'dst_ver', 'tmp', 'cat'])
         cc = cat_grouped.apply(metric_consistency('plc'))
         etc = cat_grouped.apply(metric_consistency('plt'))
         cat_grouped = cat_grouped.agg(**self.MEANS, **self.SUMS, **self.CIS)
@@ -72,7 +72,7 @@ class ScoresPostProcessor:
         cat_grouped.to_csv(config.get_scores_path("_cat"))
         logger.info(f"sub = all  cols: {len(cat_grouped.columns)}")
 
-        tmp_cat_grouped = df.drop(columns=['sub']).groupby(['model', 'tmp', 'cat'])
+        tmp_cat_grouped = df.drop(columns=['sub']).groupby(['model', 'dst_ver', 'tmp', 'cat'])
         cc = tmp_cat_grouped.apply(metric_consistency('plc'))
         etc = tmp_cat_grouped.apply(metric_consistency('plt'))
         # tmp_cat_grouped = tmp_cat_grouped.mean()
@@ -83,7 +83,7 @@ class ScoresPostProcessor:
         tmp_cat_grouped['etc'] = etc
         tmp_cat_grouped = tmp_cat_grouped.reset_index()
 
-        all_cats = tmp_cat_grouped.drop(columns=['cat']).groupby(['model', 'tmp'])
+        all_cats = tmp_cat_grouped.drop(columns=['cat']).groupby(['model', 'dst_ver', 'tmp'])
         all_cats = all_cats.agg(**self.SUMS, **self.MEANS, **self.CIS, cc=pd.NamedAgg(column="cc", aggfunc="mean"),
                                 etc=pd.NamedAgg(column="etc", aggfunc="mean"))
         all_cats['cat'] = 'all'

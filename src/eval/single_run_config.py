@@ -6,7 +6,7 @@ from typing import Literal
 from src.eval.dataset_config import DatasetConfig
 from src.util.file_utils import get_num_lines
 
-ModelName = Literal["din", "dail", "dum", "custom", "simple"]
+ModelName = Literal["din", "dail", "dum", "custom", "simple", "simple_v2"]
 
 
 @dataclass(frozen=True)
@@ -30,13 +30,15 @@ class SingleRunConfig:
         os.makedirs(Path(self.get_trs_path()).parent, exist_ok=True)
         os.makedirs(Path(self.get_scores_path()).parent, exist_ok=True)
 
+    @property
+    def path_prefix(self) -> str:
+        return str(os.path.join(self.pred_dir, self.model, self.dataset_config.dataset_type, self.dataset_config.ver))
+
     def get_pred_path(self):
-        return os.path.join(self.pred_dir, self.model, self.dataset_config.dataset_type,
-                            f"{self.pred_file_name}_{self.temp}_{self.itr}.txt")
+        return os.path.join(self.path_prefix, f"{self.pred_file_name}_{self.temp}_{self.itr}.txt")
 
     def get_scores_path(self):
-        return os.path.join(self.eval_dir, self.model, self.dataset_config.dataset_type,
-                            f"{self.scores_file_name}_{self.temp}_{self.itr}.csv")
+        return os.path.join(self.path_prefix, f"{self.scores_file_name}_{self.temp}_{self.itr}.csv")
 
     def get_tokens_path(self):
         return f"{self.get_pred_path()}.tokens.txt"
@@ -48,8 +50,7 @@ class SingleRunConfig:
         return f"{self.get_pred_path()}.usage.json"
 
     def get_trs_path(self):
-        return os.path.join(self.trs_dir, self.model, self.dataset_config.dataset_type,
-                            f"{self.trs_file_name}_{self.temp}_{self.itr}.csv")
+        return os.path.join(self.path_prefix, f"{self.trs_file_name}_{self.temp}_{self.itr}.csv")
 
     def is_pred_file_valid(self):
         return os.path.exists(self.get_pred_path()) and get_num_lines(self.get_pred_path()) == get_num_lines(
