@@ -1,23 +1,27 @@
 {
-    "data_dir": "data",
-    "out_dir": "out",
     "aug_per_sub_cat": 10,
-    "error_threshold": 0.78,
-    "dataset": "spider",
+    "batch": false,
+    "charts": [
+        "Gold Execution Time Scaled",
+        "Execution Accuracy",
+        "Relaxed Execution Accuracy",
+        "Overall"
+    ],
+    "data_dir": "data",
+    "dataset": "sqlyzr",
     "dataset_size": "small",
     "dataset_versions": [
         "v0"
     ],
-    "temps": [
-        0.5
-    ],
+    "error_threshold": 0.78,
+    "etcr": 1.1,
+    "eval_force": false,
+    "force": false,
     "itrs": 1,
     "models": [
-        "simple",
-        "simple_v2"
+        "din"
     ],
-    "batch": false,
-    "force": false,
+    "out_dir": "out",
     "pipeline": {
         "augment": false,
         "charts": true,
@@ -26,17 +30,12 @@
         "transformers": false,
         "verify": false
     },
-    "charts": [
-        "Gold Execution Time Scaled",
-        "Execution Accuracy",
-        "Relaxed Execution Accuracy",
-        "Overall"
-    ],
-    "etcr": 1.1,
     "scales": [
         1,
         2,
         5
     ],
-    "eval_force": false
+    "temps": [
+        0.5
+    ]
 }

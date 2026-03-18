@@ -25,12 +25,12 @@ WORKDIR /app
 
 COPY src/web/ui/ ./
 
-RUN ls
-
+ARG SQLYZR_WEB_PORT
 ARG SQLYZR_API_URL
 ENV VITE_API_BASE_URL="${SQLYZR_API_URL}"
 
 RUN npm run build-only
+
 
 FROM python:3.11-slim
 
@@ -55,5 +55,8 @@ ENV PYTHONUNBUFFERED=0
 COPY ./src src
 COPY ./scripts scripts
 COPY ./main.py .
+COPY --from=node /app/dist /app/src/web/ui/dist
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["/app/.venv/bin/python"]
+
+CMD ["src/web/server.py"]

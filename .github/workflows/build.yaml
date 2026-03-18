@@ -3,19 +3,13 @@ name: Build
 on:
   push:
     branches:
-      - main
+      - demo
     paths:
       - 'src/**'
       - 'tests/**'
       - Dockerfile
-      - requirements.txt
-      - requirements.test.txt
-      - temp.py
+      - pyproject.toml
       - .github/workflows/build.yaml
-      - e2e.Dockerfile
-      - docker-compose.e2e.yml
-      - e2e.py
-      - e2e.json
   workflow_dispatch:
 
 env:

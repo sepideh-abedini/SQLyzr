@@ -3,9 +3,9 @@ services:
     image: "${IMAGE_TAG}"
     restart: always
     volumes:
-      - "/data/web_out:/app/out"
       - "/data:/app/data"
       - "./gui.json:/app/gui.json"
+      - "./out:/app/out"
       - "./.env:/app/.env"
     environment:
       RUNNER_TRACKING_ID: ""
@@ -18,7 +18,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ui.tls=true"
-      - "traefik.http.routers.ui.rule=Host(`ui.${SQLYZR_DOMAIN}`)"
+      - "traefik.http.routers.ui.rule=Host(`temp.${SQLYZR_DOMAIN}`)"
 
   mysql:
     image: mysql:8.0

@@ -86,6 +86,7 @@ class Drawer:
         self.df = self.proc_df(scores_path)
 
     def proc_df(self, scores_path: str):
+        logger.info(f"Processing {scores_path}")
         df = pd.read_csv(scores_path)
         df["cat"] = df["cat"].str.upper()
         df["sub"] = df["sub"].str.upper()
@@ -111,8 +112,10 @@ class Drawer:
         if self.exclude_c6:
             df = df[df['cat'] != 'c6']
 
-        TOP_TEMP = df["tmp"].unique()[0]
-        df = df[df['tmp'] == TOP_TEMP]
+        tmps = df["tmp"].unique()
+        if len(tmps) > 0:
+            TOP_TEMP = tmps[0]
+            df = df[df['tmp'] == TOP_TEMP]
 
         if self.include_all:
             # mean_values = df.drop(columns=['cat', 'sub_cat', "dataset"]).groupby('model').mean()

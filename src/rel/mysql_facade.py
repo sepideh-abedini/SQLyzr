@@ -65,7 +65,11 @@ class MysqlFacade(DatabaseFacade):
         res = self.exec_query_sync(db_id, "SHOW TABLES")
         return list(map(lambda r: r[0], res))
 
-    def exec_query_uncached(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+    def exec_query_uncached(self, db_id: str, sql: str, scale: int = 1, timeout: int = DB_TIMEOUT) -> Optional[
+        List[Tuple]]:
+
+        if scale > 1:
+            raise RuntimeError(f"MySQL scale {scale} not supported")
         conn = None
         cursor = None
         try:
@@ -87,7 +91,7 @@ class MysqlFacade(DatabaseFacade):
                 conn.close()
 
     def get_connection(self):
-        logger.info(f"MYSQL HOST: {MYSQL_HOST}")
+        logger.debug(f"MYSQL HOST: {MYSQL_HOST}")
         connection = mysql.connector.connect(
             host=MYSQL_HOST,
             user="root",
@@ -96,7 +100,9 @@ class MysqlFacade(DatabaseFacade):
         )
         return connection
 
-    def exec_query_sync(self, db_id: str, sql: str, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+    def exec_query_sync(self, db_id: str, sql: str, scale: int = 1, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
+        if scale > 1:
+            raise RuntimeError(f"MySQL scale {scale} not supported")
         if DB_CACHE:
             res = lookup_db_cache(db_id, sql)
             if res:

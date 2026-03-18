@@ -22,6 +22,6 @@ METRICS = {
     "spider": SPIDER_METRICS,
     "bird": BIRD_METRICS,
     "beaver": BIRD_METRICS,
-    "agg": BIRD_METRICS,
+    "sqlyzr": BIRD_METRICS,
     "custom": SPIDER_METRICS
 }

@@ -10,7 +10,7 @@ class AugerConf:
     gen_out: str = "gen.out.jsonl"
     gen_res: str = "gen.jsonl"
     gpt_params = {
-        'model': "openai/gpt-4.1-mini",
+        'model': "gpt-4.1-mini",
         # 'model': "gpt-5-nano",
         'max_tokens': 600,
         'temperature': 1.0
