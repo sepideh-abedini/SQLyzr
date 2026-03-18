@@ -36,6 +36,8 @@ class ConfigData(BaseModel):
 
     @property
     def last_version(self):
+        if len(self.dataset_versions) == 0:
+            return ""
         last_version = max(self.dataset_versions, key=lambda x: int(x[1:]))
         return last_version
 

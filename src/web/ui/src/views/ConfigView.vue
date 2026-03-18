@@ -77,13 +77,6 @@
                   <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
                 </div>
               </FormField>
-              <FormField class="md:col-12">
-                <label class="field-label">Number of Synthetic Examples Per Sub-Category:</label>
-                <div class="flex align-items-center">
-                  <InputText v-model.number="config.aug_per_sub_cat" class="w-3 mr-2" />
-                  <Slider v-model="config.aug_per_sub_cat" :min="10" :max="1000" class="w-full" />
-                </div>
-              </FormField>
               <FormField class="md:col-4">
                 <label class="field-label">ETC Ratio (R):</label>
                 <div class="flex align-items-center">
@@ -104,26 +97,18 @@
               </FormField>
               <FormField class="md:col-2">
                 <label class="field-label" style="visibility: hidden"> button </label>
-                <Button :loading="calculating" label="Calculate" @click="calculate" class="p-button-primary" />
+                <Button
+                  :loading="calculating"
+                  label="Calculate"
+                  @click="calculate"
+                  class="p-button-primary"
+                />
               </FormField>
             </div>
           </div>
 
           <div class="col-12 md:col-6 p-2">
             <div class="config-section">
-              <FormField class="mb-3">
-                <label class="field-label">Error Threshold (Min Acceptable REA):</label>
-                <div class="flex justify-content-center mt-2">
-                  <Knob
-                    value-color="red"
-                    valueTemplate="{value}%"
-                    :size="100"
-                    :min="0"
-                    :max="100"
-                    v-model="config.error_threshold"
-                  />
-                </div>
-              </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Pipeline Steps:</label>
                 <div class="pipeline-container mt-2">
@@ -219,7 +204,7 @@ export default {
       k: 10,
       loading: false,
       calculating: false,
-      dataset_options: ['spider', 'bird'],
+      dataset_options: ['sqlyzr', 'spider', 'bird', 'beaver'],
       size_options: ['small'],
       config: {
         models: [],
@@ -242,7 +227,7 @@ export default {
         },
         charts: [],
       },
-      modelOptions: ['din'],
+      modelOptions: ['din', 'dail', 'simple'],
       suggested_temps: [0.0, 0.2, 0.5, 0.7, 1.0],
       chartOptions: [
         'Execution Accuracy',
@@ -314,7 +299,7 @@ export default {
     },
 
     async calculate() {
-      this.calculating = true;
+      this.calculating = true
       this.error = null
 
       try {

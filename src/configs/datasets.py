@@ -148,7 +148,7 @@ DATASETS = {
         #     "train": BIRD_TRAIN
     },
     "spider": {
-        "small": [AUG_SMALL],
+        "small": [SPIDER_SMALL],
         "500": [SPIDER_500],
         # "dev": SPIDER_DEV,
         # "test": SPIDER_TEST,
@@ -157,7 +157,7 @@ DATASETS = {
         "all": [SPIDER_ALL]
     },
     "spider_aug": {
-        "small": [AUG_SMALL],
+        "small": [SPIDER_SMALL],
         "all": [AUG_ALL]
     },
     "beaver": {

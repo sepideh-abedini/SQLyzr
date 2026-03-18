@@ -12,8 +12,11 @@ def file_exists_not_forced(path: str):
 
 
 def read_json(path: str):
-    with open(path) as f:
-        return json.load(f)
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except Exception as e:
+        raise Exception(f"Error reading JSON file: {path}") from e
 
 
 def read_json_to_dict(path, key_field):
