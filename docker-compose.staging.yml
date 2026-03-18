@@ -1,9 +1,16 @@
 services:
   web:
-    image: "${IMAGE_TAG}"
+    #    image: "${IMAGE_TAG}"
+    build:
+      context: .
+      tags:
+        - "${IMAGE_TAG}"
+      args:
+        SQLYZR_WEB_PORT: "${SQLYZR_WEB_PORT:?SQLYZR_WEB_PORT}"
+        SQLYZR_API_URL: "${SQLYZR_API_URL:?SQLYZR_API_URL}"
     restart: always
     volumes:
-      - "/data:/app/data"
+      - "./sample_data:/app/data"
       - "./gui.json:/app/gui.json"
       - "./out:/app/out"
       - "./.env:/app/.env"

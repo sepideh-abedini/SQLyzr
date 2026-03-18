@@ -1,944 +1,692 @@
 [
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT T1.course_name FROM courses AS T1 JOIN student_course_registrations AS T2 ON T1.course_id = T2.course_Id GROUP BY T1.course_id ORDER BY count(*) DESC LIMIT 1",
-    "query_toks": [
-      "SELECT",
-      "T1.course_name",
-      "FROM",
-      "courses",
-      "AS",
-      "T1",
-      "JOIN",
-      "student_course_registrations",
-      "AS",
-      "T2",
-      "ON",
-      "T1.course_id",
-      "=",
-      "T2.course_Id",
-      "GROUP",
-      "BY",
-      "T1.course_id",
-      "ORDER",
-      "BY",
-      "count",
-      "(",
-      "*",
-      ")",
-      "DESC",
-      "LIMIT",
-      "1"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "t1",
-      ".",
-      "course_name",
-      "from",
-      "courses",
-      "as",
-      "t1",
-      "join",
-      "student_course_registrations",
-      "as",
-      "t2",
-      "on",
-      "t1",
-      ".",
-      "course_id",
-      "=",
-      "t2",
-      ".",
-      "course_id",
-      "group",
-      "by",
-      "t1",
-      ".",
-      "course_id",
-      "order",
-      "by",
-      "count",
-      "(",
-      "*",
-      ")",
-      "desc",
-      "limit",
-      "value"
-    ],
-    "question": "which course has most number of registered students?",
-    "question_toks": [
-      "which",
-      "course",
-      "has",
-      "most",
-      "number",
-      "of",
-      "registered",
-      "students",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            3
-          ],
-          [
-            "table_unit",
-            5
-          ]
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT T1.course_name FROM courses AS T1 JOIN student_course_registrations AS T2 ON T1.course_id = T2.course_Id GROUP BY T1.course_id ORDER BY count(*) DESC LIMIT 1",
+        "query_toks": [
+            "SELECT",
+            "T1.course_name",
+            "FROM",
+            "courses",
+            "AS",
+            "T1",
+            "JOIN",
+            "student_course_registrations",
+            "AS",
+            "T2",
+            "ON",
+            "T1.course_id",
+            "=",
+            "T2.course_Id",
+            "GROUP",
+            "BY",
+            "T1.course_id",
+            "ORDER",
+            "BY",
+            "count",
+            "(",
+            "*",
+            ")",
+            "DESC",
+            "LIMIT",
+            "1"
         ],
-        "conds": [
-          [
-            false,
-            2,
-            [
-              0,
-              [
-                0,
-                18,
-                false
-              ],
-              null
-            ],
-            [
-              0,
-              28,
-              false
-            ],
-            null
-          ]
-        ]
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                19,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [],
-      "groupBy": [
-        [
-          0,
-          18,
-          false
-        ]
-      ],
-      "having": [],
-      "orderBy": [
-        "desc",
-        [
-          [
-            0,
-            [
-              3,
-              0,
-              false
-            ],
-            null
-          ]
-        ]
-      ],
-      "limit": 1,
-      "intersect": null,
-      "union": null,
-      "except": null
-    }
-  },
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT T1.course_name FROM courses AS T1 JOIN student_course_registrations AS T2 ON T1.course_id = T2.course_Id GROUP BY T1.course_id ORDER BY count(*) DESC LIMIT 1",
-    "query_toks": [
-      "SELECT",
-      "T1.course_name",
-      "FROM",
-      "courses",
-      "AS",
-      "T1",
-      "JOIN",
-      "student_course_registrations",
-      "AS",
-      "T2",
-      "ON",
-      "T1.course_id",
-      "=",
-      "T2.course_Id",
-      "GROUP",
-      "BY",
-      "T1.course_id",
-      "ORDER",
-      "BY",
-      "count",
-      "(",
-      "*",
-      ")",
-      "DESC",
-      "LIMIT",
-      "1"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "t1",
-      ".",
-      "course_name",
-      "from",
-      "courses",
-      "as",
-      "t1",
-      "join",
-      "student_course_registrations",
-      "as",
-      "t2",
-      "on",
-      "t1",
-      ".",
-      "course_id",
-      "=",
-      "t2",
-      ".",
-      "course_id",
-      "group",
-      "by",
-      "t1",
-      ".",
-      "course_id",
-      "order",
-      "by",
-      "count",
-      "(",
-      "*",
-      ")",
-      "desc",
-      "limit",
-      "value"
-    ],
-    "question": "What is the name of the course with the most registered students?",
-    "question_toks": [
-      "What",
-      "is",
-      "the",
-      "name",
-      "of",
-      "the",
-      "course",
-      "with",
-      "the",
-      "most",
-      "registered",
-      "students",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            3
-          ],
-          [
-            "table_unit",
-            5
-          ]
+        "query_toks_no_value": [
+            "select",
+            "t1",
+            ".",
+            "course_name",
+            "from",
+            "courses",
+            "as",
+            "t1",
+            "join",
+            "student_course_registrations",
+            "as",
+            "t2",
+            "on",
+            "t1",
+            ".",
+            "course_id",
+            "=",
+            "t2",
+            ".",
+            "course_id",
+            "group",
+            "by",
+            "t1",
+            ".",
+            "course_id",
+            "order",
+            "by",
+            "count",
+            "(",
+            "*",
+            ")",
+            "desc",
+            "limit",
+            "value"
         ],
-        "conds": [
-          [
-            false,
-            2,
-            [
-              0,
-              [
-                0,
-                18,
-                false
-              ],
-              null
-            ],
-            [
-              0,
-              28,
-              false
-            ],
-            null
-          ]
-        ]
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                19,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [],
-      "groupBy": [
-        [
-          0,
-          18,
-          false
-        ]
-      ],
-      "having": [],
-      "orderBy": [
-        "desc",
-        [
-          [
-            0,
-            [
-              3,
-              0,
-              false
-            ],
-            null
-          ]
-        ]
-      ],
-      "limit": 1,
-      "intersect": null,
-      "union": null,
-      "except": null
-    }
-  },
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT student_id FROM student_course_registrations GROUP BY student_id ORDER BY count(*) LIMIT 1",
-    "query_toks": [
-      "SELECT",
-      "student_id",
-      "FROM",
-      "student_course_registrations",
-      "GROUP",
-      "BY",
-      "student_id",
-      "ORDER",
-      "BY",
-      "count",
-      "(",
-      "*",
-      ")",
-      "LIMIT",
-      "1"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "student_id",
-      "from",
-      "student_course_registrations",
-      "group",
-      "by",
-      "student_id",
-      "order",
-      "by",
-      "count",
-      "(",
-      "*",
-      ")",
-      "limit",
-      "value"
-    ],
-    "question": "what is id of students who registered some courses but the least number of courses in these students?",
-    "question_toks": [
-      "what",
-      "is",
-      "id",
-      "of",
-      "students",
-      "who",
-      "registered",
-      "some",
-      "courses",
-      "but",
-      "the",
-      "least",
-      "number",
-      "of",
-      "courses",
-      "in",
-      "these",
-      "students",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            5
-          ]
+        "question": "which course has most number of registered students?",
+        "question_toks": [
+            "which",
+            "course",
+            "has",
+            "most",
+            "number",
+            "of",
+            "registered",
+            "students",
+            "?"
         ],
-        "conds": []
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                27,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [],
-      "groupBy": [
-        [
-          0,
-          27,
-          false
-        ]
-      ],
-      "having": [],
-      "orderBy": [
-        "asc",
-        [
-          [
-            0,
-            [
-              3,
-              0,
-              false
-            ],
-            null
-          ]
-        ]
-      ],
-      "limit": 1,
-      "intersect": null,
-      "union": null,
-      "except": null
-    }
-  },
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT student_id FROM student_course_registrations GROUP BY student_id ORDER BY count(*) LIMIT 1",
-    "query_toks": [
-      "SELECT",
-      "student_id",
-      "FROM",
-      "student_course_registrations",
-      "GROUP",
-      "BY",
-      "student_id",
-      "ORDER",
-      "BY",
-      "count",
-      "(",
-      "*",
-      ")",
-      "LIMIT",
-      "1"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "student_id",
-      "from",
-      "student_course_registrations",
-      "group",
-      "by",
-      "student_id",
-      "order",
-      "by",
-      "count",
-      "(",
-      "*",
-      ")",
-      "limit",
-      "value"
-    ],
-    "question": "What are the ids of the students who registered for some courses but had the least number of courses for all students?",
-    "question_toks": [
-      "What",
-      "are",
-      "the",
-      "ids",
-      "of",
-      "the",
-      "students",
-      "who",
-      "registered",
-      "for",
-      "some",
-      "courses",
-      "but",
-      "had",
-      "the",
-      "least",
-      "number",
-      "of",
-      "courses",
-      "for",
-      "all",
-      "students",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            5
-          ]
-        ],
-        "conds": []
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                27,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [],
-      "groupBy": [
-        [
-          0,
-          27,
-          false
-        ]
-      ],
-      "having": [],
-      "orderBy": [
-        "asc",
-        [
-          [
-            0,
-            [
-              3,
-              0,
-              false
-            ],
-            null
-          ]
-        ]
-      ],
-      "limit": 1,
-      "intersect": null,
-      "union": null,
-      "except": null
-    }
-  },
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT T2.first_name ,  T2.last_name FROM candidates AS T1 JOIN people AS T2 ON T1.candidate_id = T2.person_id",
-    "query_toks": [
-      "SELECT",
-      "T2.first_name",
-      ",",
-      "T2.last_name",
-      "FROM",
-      "candidates",
-      "AS",
-      "T1",
-      "JOIN",
-      "people",
-      "AS",
-      "T2",
-      "ON",
-      "T1.candidate_id",
-      "=",
-      "T2.person_id"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "t2",
-      ".",
-      "first_name",
-      ",",
-      "t2",
-      ".",
-      "last_name",
-      "from",
-      "candidates",
-      "as",
-      "t1",
-      "join",
-      "people",
-      "as",
-      "t2",
-      "on",
-      "t1",
-      ".",
-      "candidate_id",
-      "=",
-      "t2",
-      ".",
-      "person_id"
-    ],
-    "question": "what are the first name and last name of all candidates?",
-    "question_toks": [
-      "what",
-      "are",
-      "the",
-      "first",
-      "name",
-      "and",
-      "last",
-      "name",
-      "of",
-      "all",
-      "candidates",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            7
-          ],
-          [
-            "table_unit",
-            1
-          ]
-        ],
-        "conds": [
-          [
-            false,
-            2,
-            [
-              0,
-              [
-                0,
-                33,
-                false
-              ],
-              null
-            ],
-            [
-              0,
-              8,
-              false
-            ],
-            null
-          ]
-        ]
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                9,
-                false
-              ],
-              null
-            ]
-          ],
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                11,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [],
-      "groupBy": [],
-      "having": [],
-      "orderBy": [],
-      "limit": null,
-      "intersect": null,
-      "union": null,
-      "except": null
-    }
-  },
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT T2.first_name ,  T2.last_name FROM candidates AS T1 JOIN people AS T2 ON T1.candidate_id = T2.person_id",
-    "query_toks": [
-      "SELECT",
-      "T2.first_name",
-      ",",
-      "T2.last_name",
-      "FROM",
-      "candidates",
-      "AS",
-      "T1",
-      "JOIN",
-      "people",
-      "AS",
-      "T2",
-      "ON",
-      "T1.candidate_id",
-      "=",
-      "T2.person_id"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "t2",
-      ".",
-      "first_name",
-      ",",
-      "t2",
-      ".",
-      "last_name",
-      "from",
-      "candidates",
-      "as",
-      "t1",
-      "join",
-      "people",
-      "as",
-      "t2",
-      "on",
-      "t1",
-      ".",
-      "candidate_id",
-      "=",
-      "t2",
-      ".",
-      "person_id"
-    ],
-    "question": "What are the first and last names of all the candidates?",
-    "question_toks": [
-      "What",
-      "are",
-      "the",
-      "first",
-      "and",
-      "last",
-      "names",
-      "of",
-      "all",
-      "the",
-      "candidates",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            7
-          ],
-          [
-            "table_unit",
-            1
-          ]
-        ],
-        "conds": [
-          [
-            false,
-            2,
-            [
-              0,
-              [
-                0,
-                33,
-                false
-              ],
-              null
-            ],
-            [
-              0,
-              8,
-              false
-            ],
-            null
-          ]
-        ]
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                9,
-                false
-              ],
-              null
-            ]
-          ],
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                11,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [],
-      "groupBy": [],
-      "having": [],
-      "orderBy": [],
-      "limit": null,
-      "intersect": null,
-      "union": null,
-      "except": null
-    }
-  },
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT student_id FROM students WHERE student_id NOT IN (SELECT student_id FROM student_course_attendance)",
-    "query_toks": [
-      "SELECT",
-      "student_id",
-      "FROM",
-      "students",
-      "WHERE",
-      "student_id",
-      "NOT",
-      "IN",
-      "(",
-      "SELECT",
-      "student_id",
-      "FROM",
-      "student_course_attendance",
-      ")"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "student_id",
-      "from",
-      "students",
-      "where",
-      "student_id",
-      "not",
-      "in",
-      "(",
-      "select",
-      "student_id",
-      "from",
-      "student_course_attendance",
-      ")"
-    ],
-    "question": "List the id of students who never attends courses?",
-    "question_toks": [
-      "List",
-      "the",
-      "id",
-      "of",
-      "students",
-      "who",
-      "never",
-      "attends",
-      "courses",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            2
-          ]
-        ],
-        "conds": []
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                16,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [
-        [
-          true,
-          8,
-          [
-            0,
-            [
-              0,
-              16,
-              false
-            ],
-            null
-          ],
-          {
+        "sql": {
             "from": {
-              "table_units": [
-                [
-                  "table_unit",
-                  6
+                "table_units": [
+                    [
+                        "table_unit",
+                        3
+                    ],
+                    [
+                        "table_unit",
+                        5
+                    ]
+                ],
+                "conds": [
+                    [
+                        false,
+                        2,
+                        [
+                            0,
+                            [
+                                0,
+                                18,
+                                false
+                            ],
+                            null
+                        ],
+                        [
+                            0,
+                            28,
+                            false
+                        ],
+                        null
+                    ]
                 ]
-              ],
-              "conds": []
             },
             "select": [
-              false,
-              [
+                false,
                 [
-                  0,
-                  [
-                    0,
                     [
-                      0,
-                      30,
-                      false
-                    ],
-                    null
-                  ]
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                19,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
                 ]
-              ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    18,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            3,
+                            0,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 1,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c3",
+        "sub": "s15"
+    },
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT T1.course_name FROM courses AS T1 JOIN student_course_registrations AS T2 ON T1.course_id = T2.course_Id GROUP BY T1.course_id ORDER BY count(*) DESC LIMIT 1",
+        "query_toks": [
+            "SELECT",
+            "T1.course_name",
+            "FROM",
+            "courses",
+            "AS",
+            "T1",
+            "JOIN",
+            "student_course_registrations",
+            "AS",
+            "T2",
+            "ON",
+            "T1.course_id",
+            "=",
+            "T2.course_Id",
+            "GROUP",
+            "BY",
+            "T1.course_id",
+            "ORDER",
+            "BY",
+            "count",
+            "(",
+            "*",
+            ")",
+            "DESC",
+            "LIMIT",
+            "1"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "t1",
+            ".",
+            "course_name",
+            "from",
+            "courses",
+            "as",
+            "t1",
+            "join",
+            "student_course_registrations",
+            "as",
+            "t2",
+            "on",
+            "t1",
+            ".",
+            "course_id",
+            "=",
+            "t2",
+            ".",
+            "course_id",
+            "group",
+            "by",
+            "t1",
+            ".",
+            "course_id",
+            "order",
+            "by",
+            "count",
+            "(",
+            "*",
+            ")",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "What is the name of the course with the most registered students?",
+        "question_toks": [
+            "What",
+            "is",
+            "the",
+            "name",
+            "of",
+            "the",
+            "course",
+            "with",
+            "the",
+            "most",
+            "registered",
+            "students",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        3
+                    ],
+                    [
+                        "table_unit",
+                        5
+                    ]
+                ],
+                "conds": [
+                    [
+                        false,
+                        2,
+                        [
+                            0,
+                            [
+                                0,
+                                18,
+                                false
+                            ],
+                            null
+                        ],
+                        [
+                            0,
+                            28,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                19,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    18,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            3,
+                            0,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 1,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c3",
+        "sub": "s15"
+    },
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT student_id FROM student_course_registrations GROUP BY student_id ORDER BY count(*) LIMIT 1",
+        "query_toks": [
+            "SELECT",
+            "student_id",
+            "FROM",
+            "student_course_registrations",
+            "GROUP",
+            "BY",
+            "student_id",
+            "ORDER",
+            "BY",
+            "count",
+            "(",
+            "*",
+            ")",
+            "LIMIT",
+            "1"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "student_id",
+            "from",
+            "student_course_registrations",
+            "group",
+            "by",
+            "student_id",
+            "order",
+            "by",
+            "count",
+            "(",
+            "*",
+            ")",
+            "limit",
+            "value"
+        ],
+        "question": "what is id of students who registered some courses but the least number of courses in these students?",
+        "question_toks": [
+            "what",
+            "is",
+            "id",
+            "of",
+            "students",
+            "who",
+            "registered",
+            "some",
+            "courses",
+            "but",
+            "the",
+            "least",
+            "number",
+            "of",
+            "courses",
+            "in",
+            "these",
+            "students",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        5
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                27,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    27,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "asc",
+                [
+                    [
+                        0,
+                        [
+                            3,
+                            0,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 1,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s9"
+    },
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT student_id FROM student_course_registrations GROUP BY student_id ORDER BY count(*) LIMIT 1",
+        "query_toks": [
+            "SELECT",
+            "student_id",
+            "FROM",
+            "student_course_registrations",
+            "GROUP",
+            "BY",
+            "student_id",
+            "ORDER",
+            "BY",
+            "count",
+            "(",
+            "*",
+            ")",
+            "LIMIT",
+            "1"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "student_id",
+            "from",
+            "student_course_registrations",
+            "group",
+            "by",
+            "student_id",
+            "order",
+            "by",
+            "count",
+            "(",
+            "*",
+            ")",
+            "limit",
+            "value"
+        ],
+        "question": "What are the ids of the students who registered for some courses but had the least number of courses for all students?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "ids",
+            "of",
+            "the",
+            "students",
+            "who",
+            "registered",
+            "for",
+            "some",
+            "courses",
+            "but",
+            "had",
+            "the",
+            "least",
+            "number",
+            "of",
+            "courses",
+            "for",
+            "all",
+            "students",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        5
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                27,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    27,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "asc",
+                [
+                    [
+                        0,
+                        [
+                            3,
+                            0,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 1,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s9"
+    },
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT T2.first_name ,  T2.last_name FROM candidates AS T1 JOIN people AS T2 ON T1.candidate_id = T2.person_id",
+        "query_toks": [
+            "SELECT",
+            "T2.first_name",
+            ",",
+            "T2.last_name",
+            "FROM",
+            "candidates",
+            "AS",
+            "T1",
+            "JOIN",
+            "people",
+            "AS",
+            "T2",
+            "ON",
+            "T1.candidate_id",
+            "=",
+            "T2.person_id"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "t2",
+            ".",
+            "first_name",
+            ",",
+            "t2",
+            ".",
+            "last_name",
+            "from",
+            "candidates",
+            "as",
+            "t1",
+            "join",
+            "people",
+            "as",
+            "t2",
+            "on",
+            "t1",
+            ".",
+            "candidate_id",
+            "=",
+            "t2",
+            ".",
+            "person_id"
+        ],
+        "question": "what are the first name and last name of all candidates?",
+        "question_toks": [
+            "what",
+            "are",
+            "the",
+            "first",
+            "name",
+            "and",
+            "last",
+            "name",
+            "of",
+            "all",
+            "candidates",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        7
+                    ],
+                    [
+                        "table_unit",
+                        1
+                    ]
+                ],
+                "conds": [
+                    [
+                        false,
+                        2,
+                        [
+                            0,
+                            [
+                                0,
+                                33,
+                                false
+                            ],
+                            null
+                        ],
+                        [
+                            0,
+                            8,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                9,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                11,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
             ],
             "where": [],
             "groupBy": [],
@@ -948,137 +696,134 @@
             "intersect": null,
             "union": null,
             "except": null
-          },
-          null
-        ]
-      ],
-      "groupBy": [],
-      "having": [],
-      "orderBy": [],
-      "limit": null,
-      "intersect": null,
-      "union": null,
-      "except": null
-    }
-  },
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT student_id FROM students WHERE student_id NOT IN (SELECT student_id FROM student_course_attendance)",
-    "query_toks": [
-      "SELECT",
-      "student_id",
-      "FROM",
-      "students",
-      "WHERE",
-      "student_id",
-      "NOT",
-      "IN",
-      "(",
-      "SELECT",
-      "student_id",
-      "FROM",
-      "student_course_attendance",
-      ")"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "student_id",
-      "from",
-      "students",
-      "where",
-      "student_id",
-      "not",
-      "in",
-      "(",
-      "select",
-      "student_id",
-      "from",
-      "student_course_attendance",
-      ")"
-    ],
-    "question": "What are the  ids of every student who has never attended a course?",
-    "question_toks": [
-      "What",
-      "are",
-      "the",
-      "ids",
-      "of",
-      "every",
-      "student",
-      "who",
-      "has",
-      "never",
-      "attended",
-      "a",
-      "course",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            2
-          ]
+        },
+        "cat": "c2",
+        "sub": "s10"
+    },
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT T2.first_name ,  T2.last_name FROM candidates AS T1 JOIN people AS T2 ON T1.candidate_id = T2.person_id",
+        "query_toks": [
+            "SELECT",
+            "T2.first_name",
+            ",",
+            "T2.last_name",
+            "FROM",
+            "candidates",
+            "AS",
+            "T1",
+            "JOIN",
+            "people",
+            "AS",
+            "T2",
+            "ON",
+            "T1.candidate_id",
+            "=",
+            "T2.person_id"
         ],
-        "conds": []
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                16,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [
-        [
-          true,
-          8,
-          [
-            0,
-            [
-              0,
-              16,
-              false
-            ],
-            null
-          ],
-          {
+        "query_toks_no_value": [
+            "select",
+            "t2",
+            ".",
+            "first_name",
+            ",",
+            "t2",
+            ".",
+            "last_name",
+            "from",
+            "candidates",
+            "as",
+            "t1",
+            "join",
+            "people",
+            "as",
+            "t2",
+            "on",
+            "t1",
+            ".",
+            "candidate_id",
+            "=",
+            "t2",
+            ".",
+            "person_id"
+        ],
+        "question": "What are the first and last names of all the candidates?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "first",
+            "and",
+            "last",
+            "names",
+            "of",
+            "all",
+            "the",
+            "candidates",
+            "?"
+        ],
+        "sql": {
             "from": {
-              "table_units": [
-                [
-                  "table_unit",
-                  6
+                "table_units": [
+                    [
+                        "table_unit",
+                        7
+                    ],
+                    [
+                        "table_unit",
+                        1
+                    ]
+                ],
+                "conds": [
+                    [
+                        false,
+                        2,
+                        [
+                            0,
+                            [
+                                0,
+                                33,
+                                false
+                            ],
+                            null
+                        ],
+                        [
+                            0,
+                            8,
+                            false
+                        ],
+                        null
+                    ]
                 ]
-              ],
-              "conds": []
             },
             "select": [
-              false,
-              [
+                false,
                 [
-                  0,
-                  [
-                    0,
                     [
-                      0,
-                      30,
-                      false
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                9,
+                                false
+                            ],
+                            null
+                        ]
                     ],
-                    null
-                  ]
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                11,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
                 ]
-              ]
             ],
             "where": [],
             "groupBy": [],
@@ -1088,152 +833,2056 @@
             "intersect": null,
             "union": null,
             "except": null
-          },
-          null
-        ]
-      ],
-      "groupBy": [],
-      "having": [],
-      "orderBy": [],
-      "limit": null,
-      "intersect": null,
-      "union": null,
-      "except": null
-    }
-  },
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT student_id FROM student_course_attendance",
-    "query_toks": [
-      "SELECT",
-      "student_id",
-      "FROM",
-      "student_course_attendance"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "student_id",
-      "from",
-      "student_course_attendance"
-    ],
-    "question": "List the id of students who attended some courses?",
-    "question_toks": [
-      "List",
-      "the",
-      "id",
-      "of",
-      "students",
-      "who",
-      "attended",
-      "some",
-      "courses",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            6
-          ]
+        },
+        "cat": "c2",
+        "sub": "s10"
+    },
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT student_id FROM students WHERE student_id NOT IN (SELECT student_id FROM student_course_attendance)",
+        "query_toks": [
+            "SELECT",
+            "student_id",
+            "FROM",
+            "students",
+            "WHERE",
+            "student_id",
+            "NOT",
+            "IN",
+            "(",
+            "SELECT",
+            "student_id",
+            "FROM",
+            "student_course_attendance",
+            ")"
         ],
-        "conds": []
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                30,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [],
-      "groupBy": [],
-      "having": [],
-      "orderBy": [],
-      "limit": null,
-      "intersect": null,
-      "union": null,
-      "except": null
-    }
-  },
-  {
-    "db_id": "student_assessment",
-    "query": "SELECT student_id FROM student_course_attendance",
-    "query_toks": [
-      "SELECT",
-      "student_id",
-      "FROM",
-      "student_course_attendance"
-    ],
-    "query_toks_no_value": [
-      "select",
-      "student_id",
-      "from",
-      "student_course_attendance"
-    ],
-    "question": "What are the ids of all students who have attended at least one course?",
-    "question_toks": [
-      "What",
-      "are",
-      "the",
-      "ids",
-      "of",
-      "all",
-      "students",
-      "who",
-      "have",
-      "attended",
-      "at",
-      "least",
-      "one",
-      "course",
-      "?"
-    ],
-    "sql": {
-      "from": {
-        "table_units": [
-          [
-            "table_unit",
-            6
-          ]
+        "query_toks_no_value": [
+            "select",
+            "student_id",
+            "from",
+            "students",
+            "where",
+            "student_id",
+            "not",
+            "in",
+            "(",
+            "select",
+            "student_id",
+            "from",
+            "student_course_attendance",
+            ")"
         ],
-        "conds": []
-      },
-      "select": [
-        false,
-        [
-          [
-            0,
-            [
-              0,
-              [
-                0,
-                30,
-                false
-              ],
-              null
-            ]
-          ]
-        ]
-      ],
-      "where": [],
-      "groupBy": [],
-      "having": [],
-      "orderBy": [],
-      "limit": null,
-      "intersect": null,
-      "union": null,
-      "except": null
+        "question": "List the id of students who never attends courses?",
+        "question_toks": [
+            "List",
+            "the",
+            "id",
+            "of",
+            "students",
+            "who",
+            "never",
+            "attends",
+            "courses",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                16,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    true,
+                    8,
+                    [
+                        0,
+                        [
+                            0,
+                            16,
+                            false
+                        ],
+                        null
+                    ],
+                    {
+                        "from": {
+                            "table_units": [
+                                [
+                                    "table_unit",
+                                    6
+                                ]
+                            ],
+                            "conds": []
+                        },
+                        "select": [
+                            false,
+                            [
+                                [
+                                    0,
+                                    [
+                                        0,
+                                        [
+                                            0,
+                                            30,
+                                            false
+                                        ],
+                                        null
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "where": [],
+                        "groupBy": [],
+                        "having": [],
+                        "orderBy": [],
+                        "limit": null,
+                        "intersect": null,
+                        "union": null,
+                        "except": null
+                    },
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c4",
+        "sub": "s20"
+    },
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT student_id FROM students WHERE student_id NOT IN (SELECT student_id FROM student_course_attendance)",
+        "query_toks": [
+            "SELECT",
+            "student_id",
+            "FROM",
+            "students",
+            "WHERE",
+            "student_id",
+            "NOT",
+            "IN",
+            "(",
+            "SELECT",
+            "student_id",
+            "FROM",
+            "student_course_attendance",
+            ")"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "student_id",
+            "from",
+            "students",
+            "where",
+            "student_id",
+            "not",
+            "in",
+            "(",
+            "select",
+            "student_id",
+            "from",
+            "student_course_attendance",
+            ")"
+        ],
+        "question": "What are the  ids of every student who has never attended a course?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "ids",
+            "of",
+            "every",
+            "student",
+            "who",
+            "has",
+            "never",
+            "attended",
+            "a",
+            "course",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                16,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    true,
+                    8,
+                    [
+                        0,
+                        [
+                            0,
+                            16,
+                            false
+                        ],
+                        null
+                    ],
+                    {
+                        "from": {
+                            "table_units": [
+                                [
+                                    "table_unit",
+                                    6
+                                ]
+                            ],
+                            "conds": []
+                        },
+                        "select": [
+                            false,
+                            [
+                                [
+                                    0,
+                                    [
+                                        0,
+                                        [
+                                            0,
+                                            30,
+                                            false
+                                        ],
+                                        null
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "where": [],
+                        "groupBy": [],
+                        "having": [],
+                        "orderBy": [],
+                        "limit": null,
+                        "intersect": null,
+                        "union": null,
+                        "except": null
+                    },
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c4",
+        "sub": "s20"
+    },
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT student_id FROM student_course_attendance",
+        "query_toks": [
+            "SELECT",
+            "student_id",
+            "FROM",
+            "student_course_attendance"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "student_id",
+            "from",
+            "student_course_attendance"
+        ],
+        "question": "List the id of students who attended some courses?",
+        "question_toks": [
+            "List",
+            "the",
+            "id",
+            "of",
+            "students",
+            "who",
+            "attended",
+            "some",
+            "courses",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                30,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c1",
+        "sub": "s0"
+    },
+    {
+        "db_id": "student_assessment",
+        "query": "SELECT student_id FROM student_course_attendance",
+        "query_toks": [
+            "SELECT",
+            "student_id",
+            "FROM",
+            "student_course_attendance"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "student_id",
+            "from",
+            "student_course_attendance"
+        ],
+        "question": "What are the ids of all students who have attended at least one course?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "ids",
+            "of",
+            "all",
+            "students",
+            "who",
+            "have",
+            "attended",
+            "at",
+            "least",
+            "one",
+            "course",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                30,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c1",
+        "sub": "s0"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT billing_country ,  COUNT(*) FROM invoices GROUP BY billing_country ORDER BY count(*) DESC LIMIT 5;",
+        "query_toks": [
+            "SELECT",
+            "billing_country",
+            ",",
+            "COUNT",
+            "(",
+            "*",
+            ")",
+            "FROM",
+            "invoices",
+            "GROUP",
+            "BY",
+            "billing_country",
+            "ORDER",
+            "BY",
+            "count",
+            "(",
+            "*",
+            ")",
+            "DESC",
+            "LIMIT",
+            "5",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "billing_country",
+            ",",
+            "count",
+            "(",
+            "*",
+            ")",
+            "from",
+            "invoices",
+            "group",
+            "by",
+            "billing_country",
+            "order",
+            "by",
+            "count",
+            "(",
+            "*",
+            ")",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "A list of the top 5 countries by number of invoices. List country name and number of invoices.",
+        "question_toks": [
+            "A",
+            "list",
+            "of",
+            "the",
+            "top",
+            "5",
+            "countries",
+            "by",
+            "number",
+            "of",
+            "invoices",
+            ".",
+            "List",
+            "country",
+            "name",
+            "and",
+            "number",
+            "of",
+            "invoices",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                44,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        3,
+                        [
+                            0,
+                            [
+                                0,
+                                0,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    44,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            3,
+                            0,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 5,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s9"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT billing_country ,  COUNT(*) FROM invoices GROUP BY billing_country ORDER BY count(*) DESC LIMIT 5;",
+        "query_toks": [
+            "SELECT",
+            "billing_country",
+            ",",
+            "COUNT",
+            "(",
+            "*",
+            ")",
+            "FROM",
+            "invoices",
+            "GROUP",
+            "BY",
+            "billing_country",
+            "ORDER",
+            "BY",
+            "count",
+            "(",
+            "*",
+            ")",
+            "DESC",
+            "LIMIT",
+            "5",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "billing_country",
+            ",",
+            "count",
+            "(",
+            "*",
+            ")",
+            "from",
+            "invoices",
+            "group",
+            "by",
+            "billing_country",
+            "order",
+            "by",
+            "count",
+            "(",
+            "*",
+            ")",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "What are the top 5 countries by number of invoices and how many do they have?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "top",
+            "5",
+            "countries",
+            "by",
+            "number",
+            "of",
+            "invoices",
+            "and",
+            "how",
+            "many",
+            "do",
+            "they",
+            "have",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                44,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        3,
+                        [
+                            0,
+                            [
+                                0,
+                                0,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    44,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            3,
+                            0,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 5,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s9"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT billing_country ,  SUM(total) FROM invoices GROUP BY billing_country ORDER BY SUM(total) DESC LIMIT 8;",
+        "query_toks": [
+            "SELECT",
+            "billing_country",
+            ",",
+            "SUM",
+            "(",
+            "total",
+            ")",
+            "FROM",
+            "invoices",
+            "GROUP",
+            "BY",
+            "billing_country",
+            "ORDER",
+            "BY",
+            "SUM",
+            "(",
+            "total",
+            ")",
+            "DESC",
+            "LIMIT",
+            "8",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "billing_country",
+            ",",
+            "sum",
+            "(",
+            "total",
+            ")",
+            "from",
+            "invoices",
+            "group",
+            "by",
+            "billing_country",
+            "order",
+            "by",
+            "sum",
+            "(",
+            "total",
+            ")",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "A list of the top 8 countries by gross/total invoice size. List country name and gross invoice size.",
+        "question_toks": [
+            "A",
+            "list",
+            "of",
+            "the",
+            "top",
+            "8",
+            "countries",
+            "by",
+            "gross/total",
+            "invoice",
+            "size",
+            ".",
+            "List",
+            "country",
+            "name",
+            "and",
+            "gross",
+            "invoice",
+            "size",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                44,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        4,
+                        [
+                            0,
+                            [
+                                0,
+                                46,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    44,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            4,
+                            46,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 8,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s9"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT billing_country ,  SUM(total) FROM invoices GROUP BY billing_country ORDER BY SUM(total) DESC LIMIT 8;",
+        "query_toks": [
+            "SELECT",
+            "billing_country",
+            ",",
+            "SUM",
+            "(",
+            "total",
+            ")",
+            "FROM",
+            "invoices",
+            "GROUP",
+            "BY",
+            "billing_country",
+            "ORDER",
+            "BY",
+            "SUM",
+            "(",
+            "total",
+            ")",
+            "DESC",
+            "LIMIT",
+            "8",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "billing_country",
+            ",",
+            "sum",
+            "(",
+            "total",
+            ")",
+            "from",
+            "invoices",
+            "group",
+            "by",
+            "billing_country",
+            "order",
+            "by",
+            "sum",
+            "(",
+            "total",
+            ")",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "What are the names of the top 8 countries by total invoice size and what are those sizes?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "names",
+            "of",
+            "the",
+            "top",
+            "8",
+            "countries",
+            "by",
+            "total",
+            "invoice",
+            "size",
+            "and",
+            "what",
+            "are",
+            "those",
+            "sizes",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                44,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        4,
+                        [
+                            0,
+                            [
+                                0,
+                                46,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    44,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            4,
+                            46,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 8,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s9"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT billing_country ,  AVG(total) FROM invoices GROUP BY billing_country ORDER BY AVG(total) DESC LIMIT 10;",
+        "query_toks": [
+            "SELECT",
+            "billing_country",
+            ",",
+            "AVG",
+            "(",
+            "total",
+            ")",
+            "FROM",
+            "invoices",
+            "GROUP",
+            "BY",
+            "billing_country",
+            "ORDER",
+            "BY",
+            "AVG",
+            "(",
+            "total",
+            ")",
+            "DESC",
+            "LIMIT",
+            "10",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "billing_country",
+            ",",
+            "avg",
+            "(",
+            "total",
+            ")",
+            "from",
+            "invoices",
+            "group",
+            "by",
+            "billing_country",
+            "order",
+            "by",
+            "avg",
+            "(",
+            "total",
+            ")",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "A list of the top 10 countries by average invoice size. List country name and average invoice size.",
+        "question_toks": [
+            "A",
+            "list",
+            "of",
+            "the",
+            "top",
+            "10",
+            "countries",
+            "by",
+            "average",
+            "invoice",
+            "size",
+            ".",
+            "List",
+            "country",
+            "name",
+            "and",
+            "average",
+            "invoice",
+            "size",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                44,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        5,
+                        [
+                            0,
+                            [
+                                0,
+                                46,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    44,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            5,
+                            46,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 10,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s9"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT billing_country ,  AVG(total) FROM invoices GROUP BY billing_country ORDER BY AVG(total) DESC LIMIT 10;",
+        "query_toks": [
+            "SELECT",
+            "billing_country",
+            ",",
+            "AVG",
+            "(",
+            "total",
+            ")",
+            "FROM",
+            "invoices",
+            "GROUP",
+            "BY",
+            "billing_country",
+            "ORDER",
+            "BY",
+            "AVG",
+            "(",
+            "total",
+            ")",
+            "DESC",
+            "LIMIT",
+            "10",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "billing_country",
+            ",",
+            "avg",
+            "(",
+            "total",
+            ")",
+            "from",
+            "invoices",
+            "group",
+            "by",
+            "billing_country",
+            "order",
+            "by",
+            "avg",
+            "(",
+            "total",
+            ")",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "What are the names of the countries and average invoice size of the top countries by size?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "names",
+            "of",
+            "the",
+            "countries",
+            "and",
+            "average",
+            "invoice",
+            "size",
+            "of",
+            "the",
+            "top",
+            "countries",
+            "by",
+            "size",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                44,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        5,
+                        [
+                            0,
+                            [
+                                0,
+                                46,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    44,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            5,
+                            46,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 10,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s9"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT T1.first_name ,  T1.last_name FROM customers AS T1 JOIN invoices AS T2 ON T2.customer_id  =  T1.id ORDER BY T2.invoice_date DESC LIMIT 5;",
+        "query_toks": [
+            "SELECT",
+            "T1.first_name",
+            ",",
+            "T1.last_name",
+            "FROM",
+            "customers",
+            "AS",
+            "T1",
+            "JOIN",
+            "invoices",
+            "AS",
+            "T2",
+            "ON",
+            "T2.customer_id",
+            "=",
+            "T1.id",
+            "ORDER",
+            "BY",
+            "T2.invoice_date",
+            "DESC",
+            "LIMIT",
+            "5",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "t1",
+            ".",
+            "first_name",
+            ",",
+            "t1",
+            ".",
+            "last_name",
+            "from",
+            "customers",
+            "as",
+            "t1",
+            "join",
+            "invoices",
+            "as",
+            "t2",
+            "on",
+            "t2",
+            ".",
+            "customer_id",
+            "=",
+            "t1",
+            ".",
+            "id",
+            "order",
+            "by",
+            "t2",
+            ".",
+            "invoice_date",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "Find out 5 customers who most recently purchased something. List customers' first and last name.",
+        "question_toks": [
+            "Find",
+            "out",
+            "5",
+            "customers",
+            "who",
+            "most",
+            "recently",
+            "purchased",
+            "something",
+            ".",
+            "List",
+            "customers",
+            "'",
+            "first",
+            "and",
+            "last",
+            "name",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        4
+                    ],
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": [
+                    [
+                        false,
+                        2,
+                        [
+                            0,
+                            [
+                                0,
+                                39,
+                                false
+                            ],
+                            null
+                        ],
+                        [
+                            0,
+                            23,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                24,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                25,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            40,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 5,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s10"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT T1.first_name ,  T1.last_name FROM customers AS T1 JOIN invoices AS T2 ON T2.customer_id  =  T1.id ORDER BY T2.invoice_date DESC LIMIT 5;",
+        "query_toks": [
+            "SELECT",
+            "T1.first_name",
+            ",",
+            "T1.last_name",
+            "FROM",
+            "customers",
+            "AS",
+            "T1",
+            "JOIN",
+            "invoices",
+            "AS",
+            "T2",
+            "ON",
+            "T2.customer_id",
+            "=",
+            "T1.id",
+            "ORDER",
+            "BY",
+            "T2.invoice_date",
+            "DESC",
+            "LIMIT",
+            "5",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "t1",
+            ".",
+            "first_name",
+            ",",
+            "t1",
+            ".",
+            "last_name",
+            "from",
+            "customers",
+            "as",
+            "t1",
+            "join",
+            "invoices",
+            "as",
+            "t2",
+            "on",
+            "t2",
+            ".",
+            "customer_id",
+            "=",
+            "t1",
+            ".",
+            "id",
+            "order",
+            "by",
+            "t2",
+            ".",
+            "invoice_date",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "What are the first and last names of the 5 customers who purchased something most recently?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "first",
+            "and",
+            "last",
+            "names",
+            "of",
+            "the",
+            "5",
+            "customers",
+            "who",
+            "purchased",
+            "something",
+            "most",
+            "recently",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        4
+                    ],
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": [
+                    [
+                        false,
+                        2,
+                        [
+                            0,
+                            [
+                                0,
+                                39,
+                                false
+                            ],
+                            null
+                        ],
+                        [
+                            0,
+                            23,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                24,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                25,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            40,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 5,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s10"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT T1.first_name ,  T1.last_name ,  COUNT(*) FROM customers AS T1 JOIN invoices AS T2 ON T2.customer_id  =  T1.id GROUP BY T1.id ORDER BY COUNT(*) DESC LIMIT 10;",
+        "query_toks": [
+            "SELECT",
+            "T1.first_name",
+            ",",
+            "T1.last_name",
+            ",",
+            "COUNT",
+            "(",
+            "*",
+            ")",
+            "FROM",
+            "customers",
+            "AS",
+            "T1",
+            "JOIN",
+            "invoices",
+            "AS",
+            "T2",
+            "ON",
+            "T2.customer_id",
+            "=",
+            "T1.id",
+            "GROUP",
+            "BY",
+            "T1.id",
+            "ORDER",
+            "BY",
+            "COUNT",
+            "(",
+            "*",
+            ")",
+            "DESC",
+            "LIMIT",
+            "10",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "t1",
+            ".",
+            "first_name",
+            ",",
+            "t1",
+            ".",
+            "last_name",
+            ",",
+            "count",
+            "(",
+            "*",
+            ")",
+            "from",
+            "customers",
+            "as",
+            "t1",
+            "join",
+            "invoices",
+            "as",
+            "t2",
+            "on",
+            "t2",
+            ".",
+            "customer_id",
+            "=",
+            "t1",
+            ".",
+            "id",
+            "group",
+            "by",
+            "t1",
+            ".",
+            "id",
+            "order",
+            "by",
+            "count",
+            "(",
+            "*",
+            ")",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "Find out the top 10 customers by total number of orders. List customers' first and last name and the number of total orders.",
+        "question_toks": [
+            "Find",
+            "out",
+            "the",
+            "top",
+            "10",
+            "customers",
+            "by",
+            "total",
+            "number",
+            "of",
+            "orders",
+            ".",
+            "List",
+            "customers",
+            "'",
+            "first",
+            "and",
+            "last",
+            "name",
+            "and",
+            "the",
+            "number",
+            "of",
+            "total",
+            "orders",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        4
+                    ],
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": [
+                    [
+                        false,
+                        2,
+                        [
+                            0,
+                            [
+                                0,
+                                39,
+                                false
+                            ],
+                            null
+                        ],
+                        [
+                            0,
+                            23,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                24,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                25,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        3,
+                        [
+                            0,
+                            [
+                                0,
+                                0,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    23,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            3,
+                            0,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 10,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c3",
+        "sub": "s15"
+    },
+    {
+        "db_id": "store_1",
+        "query": "SELECT T1.first_name ,  T1.last_name ,  COUNT(*) FROM customers AS T1 JOIN invoices AS T2 ON T2.customer_id  =  T1.id GROUP BY T1.id ORDER BY COUNT(*) DESC LIMIT 10;",
+        "query_toks": [
+            "SELECT",
+            "T1.first_name",
+            ",",
+            "T1.last_name",
+            ",",
+            "COUNT",
+            "(",
+            "*",
+            ")",
+            "FROM",
+            "customers",
+            "AS",
+            "T1",
+            "JOIN",
+            "invoices",
+            "AS",
+            "T2",
+            "ON",
+            "T2.customer_id",
+            "=",
+            "T1.id",
+            "GROUP",
+            "BY",
+            "T1.id",
+            "ORDER",
+            "BY",
+            "COUNT",
+            "(",
+            "*",
+            ")",
+            "DESC",
+            "LIMIT",
+            "10",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "t1",
+            ".",
+            "first_name",
+            ",",
+            "t1",
+            ".",
+            "last_name",
+            ",",
+            "count",
+            "(",
+            "*",
+            ")",
+            "from",
+            "customers",
+            "as",
+            "t1",
+            "join",
+            "invoices",
+            "as",
+            "t2",
+            "on",
+            "t2",
+            ".",
+            "customer_id",
+            "=",
+            "t1",
+            ".",
+            "id",
+            "group",
+            "by",
+            "t1",
+            ".",
+            "id",
+            "order",
+            "by",
+            "count",
+            "(",
+            "*",
+            ")",
+            "desc",
+            "limit",
+            "value"
+        ],
+        "question": "What are the top 10 customers' first and last names by total number of orders and how many orders did they make?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "top",
+            "10",
+            "customers",
+            "'",
+            "first",
+            "and",
+            "last",
+            "names",
+            "by",
+            "total",
+            "number",
+            "of",
+            "orders",
+            "and",
+            "how",
+            "many",
+            "orders",
+            "did",
+            "they",
+            "make",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        4
+                    ],
+                    [
+                        "table_unit",
+                        6
+                    ]
+                ],
+                "conds": [
+                    [
+                        false,
+                        2,
+                        [
+                            0,
+                            [
+                                0,
+                                39,
+                                false
+                            ],
+                            null
+                        ],
+                        [
+                            0,
+                            23,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                24,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                25,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        3,
+                        [
+                            0,
+                            [
+                                0,
+                                0,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [
+                [
+                    0,
+                    23,
+                    false
+                ]
+            ],
+            "having": [],
+            "orderBy": [
+                "desc",
+                [
+                    [
+                        0,
+                        [
+                            3,
+                            0,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": 10,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c3",
+        "sub": "s15"
     }
-  }
 ]

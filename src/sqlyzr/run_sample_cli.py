@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import os.path
 from random import shuffle
 
 from dotenv import load_dotenv
@@ -10,7 +11,7 @@ load_dotenv()
 from src.cat.catter import Catter
 from src.configs.config_loader import load_config
 from src.eval.dataset_config import DatasetConfig
-from src.util.file_utils import read_json, write_json
+from src.util.file_utils import read_json, write_json, get_dir_size
 
 
 def assign_cats(rows):
@@ -33,7 +34,7 @@ def replace_small_json(path: str) -> str:
     return re.sub(r'\.small.*\.json$', '.json', path)
 
 
-def sample_data(small_data_path, num_dbs, data_per_db):
+def sample_data(conf, small_data_path, num_dbs, data_per_db):
     all_test_path = replace_small_json(small_data_path)
     all_data = read_json(all_test_path)
     collect_data = dict()
@@ -46,6 +47,10 @@ def sample_data(small_data_path, num_dbs, data_per_db):
     shuffle(candidate_dbs)
     for db_id in candidate_dbs:
         if len(collect_data[db_id]) >= data_per_db:
+            db_size = os.path.getsize(conf.get_db_file_path(db_id)) / (1024 * 1024)
+            logger.info(f"DB Size {db_id}: {db_size:.2f} MB")
+            if db_size > 50:
+                continue
             pick_dbs.add(db_id)
         if len(pick_dbs) >= num_dbs:
             break
@@ -69,8 +74,8 @@ def sample_data(small_data_path, num_dbs, data_per_db):
 
 
 async def collect_small_data(ds: DatasetConfig, num_dbs: int, data_per_db: int):
-    test_dbs = sample_data(ds.get_test_path(), num_dbs, data_per_db)
-    train_dbs = sample_data(ds.get_train_path(), num_dbs, data_per_db)
+    test_dbs = sample_data(ds, ds.get_test_path(), num_dbs, data_per_db)
+    train_dbs = sample_data(ds, ds.get_train_path(), num_dbs, data_per_db)
     all_dbs = test_dbs.union(train_dbs)
     pick_tables = dict()
     tables = read_json(ds.get_tables_path().replace(".small", ""))

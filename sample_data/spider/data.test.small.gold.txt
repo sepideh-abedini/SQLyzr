@@ -1,5 +1,0 @@
-SELECT count(*) FROM head WHERE age  >  56	department_management
-SELECT name ,  born_state ,  age FROM head ORDER BY age	department_management
-SELECT creation ,  name ,  budget_in_billions FROM department	department_management
-SELECT max(budget_in_billions) ,  min(budget_in_billions) FROM department	department_management
-SELECT avg(num_employees) FROM department WHERE ranking BETWEEN 10 AND 15	department_management
