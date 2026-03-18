@@ -2,17 +2,21 @@ from typing import Literal
 
 from src.eval.dataset_config import DatasetConfig
 
+# BASE_DIR = "data"
+BASE_DIR = "sample_data"
+
 SPIDER_SMALL = DatasetConfig(
-    dataset_dir="data/spider",
+    dataset_dir=f"{BASE_DIR}/spider",
     test_file="data.test.small.json",
     gold_file="data.test.small.gold.txt",
     train_file="data.train.small.json",
     tables_file="tables.small.json",
-    db_dir="database"
+    db_dir="database",
+    ver="v0"
 )
 
 SPIDER_500 = DatasetConfig(
-    dataset_dir="data/spider",
+    dataset_dir=f"{BASE_DIR}/spider",
     test_file="data.500.json",
     gold_file="data.500.gold.txt",
     train_file="data.500.json",
@@ -21,7 +25,7 @@ SPIDER_500 = DatasetConfig(
 )
 
 SPIDER_ALL = DatasetConfig(
-    dataset_dir="data/spider",
+    dataset_dir=f"{BASE_DIR}/spider",
     test_file="data.test.json",
     gold_file="data.test.gold.txt",
     train_file="data.train.json",
@@ -30,7 +34,7 @@ SPIDER_ALL = DatasetConfig(
 )
 
 SPIDER_ALL_CAT = DatasetConfig(
-    dataset_dir="data/spider",
+    dataset_dir=f"{BASE_DIR}/spider",
     test_file="data.test.cat.json",
     gold_file="data.test.gold.txt",
     train_file="data.train.cat.json",
@@ -39,7 +43,7 @@ SPIDER_ALL_CAT = DatasetConfig(
 )
 
 AUG_ALL = DatasetConfig(
-    dataset_dir="data/spider_aug",
+    dataset_dir=f"{BASE_DIR}/spider_aug",
     test_file="data.test.cat.json",
     gold_file="data.test.cat.gold.txt",
     train_file="data.train.cat.json",
@@ -48,7 +52,7 @@ AUG_ALL = DatasetConfig(
 )
 
 AUG_SMALL = DatasetConfig(
-    dataset_dir="data/spider_aug",
+    dataset_dir=f"{BASE_DIR}/spider_aug",
     test_file="data.test.cat.small.json",
     gold_file="data.test.cat.small.gold.txt",
     train_file="data.train.cat.json",
@@ -57,7 +61,7 @@ AUG_SMALL = DatasetConfig(
 )
 
 SPIDER_MASK = DatasetConfig(
-    dataset_dir="data/mask/spider",
+    dataset_dir=f"{BASE_DIR}/mask/spider",
     test_file="test.json",
     gold_file="test.gold.txt",
     train_file="train.json",
@@ -66,7 +70,7 @@ SPIDER_MASK = DatasetConfig(
 )
 
 BIRD_MASK = DatasetConfig(
-    dataset_dir="data/mask/bird",
+    dataset_dir=f"{BASE_DIR}/mask/bird",
     test_file="test.json",
     gold_file="test.gold.txt",
     train_file="train.json",
@@ -76,17 +80,18 @@ BIRD_MASK = DatasetConfig(
 )
 
 BIRD_SMALL = DatasetConfig(
-    dataset_dir="data/bird",
+    dataset_dir=f"{BASE_DIR}/bird",
     test_file="data.test.small.json",
     gold_file="data.test.small.gold.txt",
     train_file="data.train.small.json",
     tables_file="tables.small.json",
     db_dir="database",
-    dataset_type="bird"
+    dataset_type="bird",
+    ver="v0"
 )
 
 BIRD_BAD = DatasetConfig(
-    dataset_dir="data/bird",
+    dataset_dir=f"{BASE_DIR}/bird",
     test_file="data.test.small.bad.json",
     gold_file="data.test.small.bad.gold.txt",
     train_file="data.train.small.json",
@@ -96,7 +101,7 @@ BIRD_BAD = DatasetConfig(
 )
 
 BIRD_ALL = DatasetConfig(
-    dataset_dir="data/bird",
+    dataset_dir=f"{BASE_DIR}/bird",
     test_file="data.test.json",
     gold_file="data.test.gold.txt",
     train_file="data.train.json",
@@ -106,7 +111,7 @@ BIRD_ALL = DatasetConfig(
 )
 
 BEAVER_ALL = DatasetConfig(
-    dataset_dir="data/beaver",
+    dataset_dir=f"{BASE_DIR}/beaver",
     test_file="data.test.json",
     gold_file="data.test.gold.txt",
     train_file="data.train.json",
@@ -116,17 +121,18 @@ BEAVER_ALL = DatasetConfig(
 )
 
 BEAVER_SMALL = DatasetConfig(
-    dataset_dir="data/beaver",
+    dataset_dir=f"{BASE_DIR}/beaver",
     test_file="data.test.small.json",
     gold_file="data.test.small.gold.txt",
     train_file="data.train.small.json",
     tables_file="tables.small.json",
     db_dir="database",
-    dataset_type="beaver"
+    dataset_type="beaver",
+    ver="v0"
 )
 
 CUSTOM_SQLITE_DATASET = DatasetConfig(
-    dataset_dir="data/custom",
+    dataset_dir=f"{BASE_DIR}/custom",
     test_file="data.test.json",
     gold_file="data.test.gold.txt",
     train_file="data.train.json",

@@ -82,7 +82,7 @@ async def collect_small_data(ds: DatasetConfig, num_dbs: int, data_per_db: int):
     for table in tables:
         if table['db_id'] in all_dbs:
             pick_tables[table['db_id']] = table
-    logger.info(f"DBs: {pick_tables.keys()}")
+    logger.info(f"DBs: {pick_tables.keys()} into {ds.get_tables_path()}")
     write_json(ds.get_tables_path(), list(pick_tables.values()))
 
 

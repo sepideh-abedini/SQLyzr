@@ -1,25 +1,43 @@
 [
     {
-        "db_id": "video_games",
+        "db_id": "movies_4",
         "table_names_original": [
+            "country",
+            "department",
+            "gender",
             "genre",
-            "game",
-            "platform",
-            "publisher",
-            "game_publisher",
-            "game_platform",
-            "region",
-            "region_sales"
+            "keyword",
+            "language",
+            "language_role",
+            "movie",
+            "movie_genres",
+            "movie_languages",
+            "person",
+            "movie_crew",
+            "production_company",
+            "production_country",
+            "movie_cast",
+            "movie_keywords",
+            "movie_company"
         ],
         "table_names": [
+            "country",
+            "department",
+            "gender",
             "genre",
-            "game",
-            "platform",
-            "publisher",
-            "game_publisher",
-            "game_platform",
-            "region",
-            "region_sales"
+            "keyword",
+            "language",
+            "language_role",
+            "movie",
+            "movie_genres",
+            "movie_languages",
+            "person",
+            "movie_crew",
+            "production_company",
+            "production_country",
+            "movie_cast",
+            "movie_keywords",
+            "movie_company"
         ],
         "column_names_original": [
             [
@@ -28,87 +46,215 @@
             ],
             [
                 0,
-                "id"
+                "country_id"
             ],
             [
                 0,
-                "genre_name"
+                "country_iso_code"
+            ],
+            [
+                0,
+                "country_name"
             ],
             [
                 1,
-                "id"
+                "department_id"
             ],
             [
                 1,
+                "department_name"
+            ],
+            [
+                2,
+                "gender_id"
+            ],
+            [
+                2,
+                "gender"
+            ],
+            [
+                3,
                 "genre_id"
             ],
             [
-                1,
-                "game_name"
-            ],
-            [
-                2,
-                "id"
-            ],
-            [
-                2,
-                "platform_name"
-            ],
-            [
                 3,
-                "id"
-            ],
-            [
-                3,
-                "publisher_name"
+                "genre_name"
             ],
             [
                 4,
-                "id"
+                "keyword_id"
             ],
             [
                 4,
-                "game_id"
-            ],
-            [
-                4,
-                "publisher_id"
+                "keyword_name"
             ],
             [
                 5,
-                "id"
+                "language_id"
             ],
             [
                 5,
-                "game_publisher_id"
+                "language_code"
             ],
             [
                 5,
-                "platform_id"
-            ],
-            [
-                5,
-                "release_year"
+                "language_name"
             ],
             [
                 6,
-                "id"
+                "role_id"
             ],
             [
                 6,
-                "region_name"
+                "language_role"
             ],
             [
                 7,
-                "region_id"
+                "movie_id"
             ],
             [
                 7,
-                "game_platform_id"
+                "title"
             ],
             [
                 7,
-                "num_sales"
+                "budget"
+            ],
+            [
+                7,
+                "homepage"
+            ],
+            [
+                7,
+                "overview"
+            ],
+            [
+                7,
+                "popularity"
+            ],
+            [
+                7,
+                "release_date"
+            ],
+            [
+                7,
+                "revenue"
+            ],
+            [
+                7,
+                "runtime"
+            ],
+            [
+                7,
+                "movie_status"
+            ],
+            [
+                7,
+                "tagline"
+            ],
+            [
+                7,
+                "vote_average"
+            ],
+            [
+                7,
+                "vote_count"
+            ],
+            [
+                8,
+                "movie_id"
+            ],
+            [
+                8,
+                "genre_id"
+            ],
+            [
+                9,
+                "movie_id"
+            ],
+            [
+                9,
+                "language_id"
+            ],
+            [
+                9,
+                "language_role_id"
+            ],
+            [
+                10,
+                "person_id"
+            ],
+            [
+                10,
+                "person_name"
+            ],
+            [
+                11,
+                "movie_id"
+            ],
+            [
+                11,
+                "person_id"
+            ],
+            [
+                11,
+                "department_id"
+            ],
+            [
+                11,
+                "job"
+            ],
+            [
+                12,
+                "company_id"
+            ],
+            [
+                12,
+                "company_name"
+            ],
+            [
+                13,
+                "movie_id"
+            ],
+            [
+                13,
+                "country_id"
+            ],
+            [
+                14,
+                "movie_id"
+            ],
+            [
+                14,
+                "person_id"
+            ],
+            [
+                14,
+                "character_name"
+            ],
+            [
+                14,
+                "gender_id"
+            ],
+            [
+                14,
+                "cast_order"
+            ],
+            [
+                15,
+                "movie_id"
+            ],
+            [
+                15,
+                "keyword_id"
+            ],
+            [
+                16,
+                "movie_id"
+            ],
+            [
+                16,
+                "company_id"
             ]
         ],
         "column_names": [
@@ -118,101 +264,247 @@
             ],
             [
                 0,
-                "id"
+                "country id"
             ],
             [
                 0,
-                "genre_name"
+                "country iso code"
+            ],
+            [
+                0,
+                "country name"
             ],
             [
                 1,
-                "id"
+                "department id"
             ],
             [
                 1,
+                "department name"
+            ],
+            [
+                2,
+                "gender id"
+            ],
+            [
+                2,
+                "gender"
+            ],
+            [
+                3,
                 "genre id"
             ],
             [
-                1,
-                "game name"
-            ],
-            [
-                2,
-                "id"
-            ],
-            [
-                2,
-                "platform_name"
-            ],
-            [
                 3,
-                "id"
-            ],
-            [
-                3,
-                "publisher_name"
+                "genre_name"
             ],
             [
                 4,
-                "id"
+                "keyword id"
             ],
             [
                 4,
-                "game id"
-            ],
-            [
-                4,
-                "publisher id"
+                "keyword name"
             ],
             [
                 5,
-                "id"
+                "language id"
             ],
             [
                 5,
-                "game publisher id"
+                "language code"
             ],
             [
                 5,
-                "platform id"
-            ],
-            [
-                5,
-                "release year"
+                "language name"
             ],
             [
                 6,
-                "id"
+                "role id"
             ],
             [
                 6,
-                "region_name"
+                "language role"
             ],
             [
                 7,
-                "region_id"
+                "movie id"
             ],
             [
                 7,
-                "game platform id"
+                "title"
             ],
             [
                 7,
-                "number sales"
+                "budget"
+            ],
+            [
+                7,
+                "homepage"
+            ],
+            [
+                7,
+                "overview"
+            ],
+            [
+                7,
+                "popularity"
+            ],
+            [
+                7,
+                "release date"
+            ],
+            [
+                7,
+                "revenue"
+            ],
+            [
+                7,
+                "runtime"
+            ],
+            [
+                7,
+                "movie_status"
+            ],
+            [
+                7,
+                "tagline"
+            ],
+            [
+                7,
+                "vote average"
+            ],
+            [
+                7,
+                "vote count"
+            ],
+            [
+                8,
+                "movie id"
+            ],
+            [
+                8,
+                "genre id"
+            ],
+            [
+                9,
+                "movie id"
+            ],
+            [
+                9,
+                "language id"
+            ],
+            [
+                9,
+                "language role id"
+            ],
+            [
+                10,
+                "person id"
+            ],
+            [
+                10,
+                "person name"
+            ],
+            [
+                11,
+                "movie id"
+            ],
+            [
+                11,
+                "person id"
+            ],
+            [
+                11,
+                "department id"
+            ],
+            [
+                11,
+                "job"
+            ],
+            [
+                12,
+                "company id"
+            ],
+            [
+                12,
+                "company name"
+            ],
+            [
+                13,
+                "mivie id"
+            ],
+            [
+                13,
+                "country id"
+            ],
+            [
+                14,
+                "movie id"
+            ],
+            [
+                14,
+                "person id"
+            ],
+            [
+                14,
+                "character name"
+            ],
+            [
+                14,
+                "gender id"
+            ],
+            [
+                14,
+                "cast order"
+            ],
+            [
+                15,
+                "movie id"
+            ],
+            [
+                15,
+                "keyword id"
+            ],
+            [
+                16,
+                "movie id"
+            ],
+            [
+                16,
+                "company id"
             ]
         ],
         "column_types": [
             "text",
             "integer",
             "text",
-            "integer",
-            "integer",
             "text",
             "integer",
             "text",
             "integer",
             "text",
             "integer",
+            "text",
+            "integer",
+            "text",
+            "integer",
+            "text",
+            "text",
+            "integer",
+            "text",
+            "integer",
+            "text",
+            "integer",
+            "text",
+            "text",
+            "real",
+            "date",
+            "integer",
+            "integer",
+            "text",
+            "text",
+            "real",
             "integer",
             "integer",
             "integer",
@@ -223,67 +515,106 @@
             "text",
             "integer",
             "integer",
-            "real"
+            "integer",
+            "text",
+            "integer",
+            "text",
+            "integer",
+            "integer",
+            "integer",
+            "integer",
+            "text",
+            "integer",
+            "integer",
+            "integer",
+            "integer",
+            "integer",
+            "integer"
         ],
         "primary_keys": [
             1,
-            3,
+            4,
             6,
             8,
             10,
-            13,
-            17
+            12,
+            15,
+            17,
+            35,
+            41
         ],
         "foreign_keys": [
             [
-                4,
-                1
-            ],
-            [
-                12,
-                8
-            ],
-            [
-                11,
-                3
-            ],
-            [
-                15,
-                6
-            ],
-            [
-                14,
-                10
-            ],
-            [
-                19,
+                30,
                 17
             ],
             [
-                20,
-                13
+                31,
+                8
+            ],
+            [
+                34,
+                15
+            ],
+            [
+                32,
+                17
+            ],
+            [
+                33,
+                12
+            ],
+            [
+                38,
+                35
+            ],
+            [
+                37,
+                17
+            ],
+            [
+                39,
+                4
+            ],
+            [
+                43,
+                17
+            ],
+            [
+                44,
+                1
+            ],
+            [
+                46,
+                35
+            ],
+            [
+                45,
+                17
+            ],
+            [
+                48,
+                6
             ]
         ]
     },
     {
-        "db_id": "beer_factory",
+        "db_id": "superstore",
         "table_names_original": [
-            "customers",
-            "geolocation",
-            "location",
-            "rootbeerbrand",
-            "rootbeer",
-            "rootbeerreview",
-            "transaction"
+            "people",
+            "product",
+            "central_superstore",
+            "east_superstore",
+            "south_superstore",
+            "west_superstore"
         ],
         "table_names": [
-            "customers",
-            "geolocation",
-            "location",
-            "rootbeerbrand",
-            "rootbeer",
-            "rootbeerreview",
-            "transaction"
+            "people",
+            "product",
+            "central_superstore",
+            "east_superstore",
+            "south_superstore",
+            "west_superstore"
         ],
         "column_names_original": [
             [
@@ -292,247 +623,247 @@
             ],
             [
                 0,
-                "CustomerID"
+                "Customer ID"
             ],
             [
                 0,
-                "First"
+                "Customer Name"
             ],
             [
                 0,
-                "Last"
+                "Segment"
             ],
             [
                 0,
-                "StreetAddress"
-            ],
-            [
-                0,
-                "City"
-            ],
-            [
-                0,
-                "State"
-            ],
-            [
-                0,
-                "ZipCode"
-            ],
-            [
-                0,
-                "Email"
-            ],
-            [
-                0,
-                "PhoneNumber"
-            ],
-            [
-                0,
-                "FirstPurchaseDate"
-            ],
-            [
-                0,
-                "SubscribedToEmailList"
-            ],
-            [
-                0,
-                "Gender"
-            ],
-            [
-                1,
-                "LocationID"
-            ],
-            [
-                1,
-                "Latitude"
-            ],
-            [
-                1,
-                "Longitude"
-            ],
-            [
-                2,
-                "LocationID"
-            ],
-            [
-                2,
-                "LocationName"
-            ],
-            [
-                2,
-                "StreetAddress"
-            ],
-            [
-                2,
-                "City"
-            ],
-            [
-                2,
-                "State"
-            ],
-            [
-                2,
-                "ZipCode"
-            ],
-            [
-                3,
-                "BrandID"
-            ],
-            [
-                3,
-                "BrandName"
-            ],
-            [
-                3,
-                "FirstBrewedYear"
-            ],
-            [
-                3,
-                "BreweryName"
-            ],
-            [
-                3,
-                "City"
-            ],
-            [
-                3,
-                "State"
-            ],
-            [
-                3,
                 "Country"
             ],
             [
-                3,
-                "Description"
+                0,
+                "City"
+            ],
+            [
+                0,
+                "State"
+            ],
+            [
+                0,
+                "Postal Code"
+            ],
+            [
+                0,
+                "Region"
+            ],
+            [
+                1,
+                "Product ID"
+            ],
+            [
+                1,
+                "Product Name"
+            ],
+            [
+                1,
+                "Category"
+            ],
+            [
+                1,
+                "Sub-Category"
+            ],
+            [
+                1,
+                "Region"
+            ],
+            [
+                2,
+                "Row ID"
+            ],
+            [
+                2,
+                "Order ID"
+            ],
+            [
+                2,
+                "Order Date"
+            ],
+            [
+                2,
+                "Ship Date"
+            ],
+            [
+                2,
+                "Ship Mode"
+            ],
+            [
+                2,
+                "Customer ID"
+            ],
+            [
+                2,
+                "Region"
+            ],
+            [
+                2,
+                "Product ID"
+            ],
+            [
+                2,
+                "Sales"
+            ],
+            [
+                2,
+                "Quantity"
+            ],
+            [
+                2,
+                "Discount"
+            ],
+            [
+                2,
+                "Profit"
             ],
             [
                 3,
-                "CaneSugar"
+                "Row ID"
             ],
             [
                 3,
-                "CornSyrup"
+                "Order ID"
             ],
             [
                 3,
-                "Honey"
+                "Order Date"
             ],
             [
                 3,
-                "ArtificialSweetener"
+                "Ship Date"
             ],
             [
                 3,
-                "Caffeinated"
+                "Ship Mode"
             ],
             [
                 3,
-                "Alcoholic"
+                "Customer ID"
             ],
             [
                 3,
-                "AvailableInCans"
+                "Region"
             ],
             [
                 3,
-                "AvailableInBottles"
+                "Product ID"
             ],
             [
                 3,
-                "AvailableInKegs"
+                "Sales"
             ],
             [
                 3,
-                "Website"
+                "Quantity"
             ],
             [
                 3,
-                "FacebookPage"
+                "Discount"
             ],
             [
                 3,
-                "Twitter"
-            ],
-            [
-                3,
-                "WholesaleCost"
-            ],
-            [
-                3,
-                "CurrentRetailPrice"
+                "Profit"
             ],
             [
                 4,
-                "RootBeerID"
+                "Row ID"
             ],
             [
                 4,
-                "BrandID"
+                "Order ID"
             ],
             [
                 4,
-                "ContainerType"
+                "Order Date"
             ],
             [
                 4,
-                "LocationID"
+                "Ship Date"
             ],
             [
                 4,
-                "PurchaseDate"
+                "Ship Mode"
+            ],
+            [
+                4,
+                "Customer ID"
+            ],
+            [
+                4,
+                "Region"
+            ],
+            [
+                4,
+                "Product ID"
+            ],
+            [
+                4,
+                "Sales"
+            ],
+            [
+                4,
+                "Quantity"
+            ],
+            [
+                4,
+                "Discount"
+            ],
+            [
+                4,
+                "Profit"
             ],
             [
                 5,
-                "CustomerID"
+                "Row ID"
             ],
             [
                 5,
-                "BrandID"
+                "Order ID"
             ],
             [
                 5,
-                "StarRating"
+                "Order Date"
             ],
             [
                 5,
-                "ReviewDate"
+                "Ship Date"
             ],
             [
                 5,
-                "Review"
+                "Ship Mode"
             ],
             [
-                6,
-                "TransactionID"
+                5,
+                "Customer ID"
             ],
             [
-                6,
-                "CreditCardNumber"
+                5,
+                "Region"
             ],
             [
-                6,
-                "CustomerID"
+                5,
+                "Product ID"
             ],
             [
-                6,
-                "TransactionDate"
+                5,
+                "Sales"
             ],
             [
-                6,
-                "CreditCardType"
+                5,
+                "Quantity"
             ],
             [
-                6,
-                "LocationID"
+                5,
+                "Discount"
             ],
             [
-                6,
-                "RootBeerID"
-            ],
-            [
-                6,
-                "PurchasePrice"
+                5,
+                "Profit"
             ]
         ],
         "column_names": [
@@ -542,195 +873,219 @@
             ],
             [
                 0,
-                "customer id"
+                "Customer ID"
             ],
             [
                 0,
-                "first name"
+                "Customer Name"
             ],
             [
                 0,
-                "last name"
+                "Segment"
             ],
             [
                 0,
-                "street address"
-            ],
-            [
-                0,
-                "City"
-            ],
-            [
-                0,
-                "State"
-            ],
-            [
-                0,
-                "zip code"
-            ],
-            [
-                0,
-                "Email"
-            ],
-            [
-                0,
-                "phone number"
-            ],
-            [
-                0,
-                "first purchase date"
-            ],
-            [
-                0,
-                "subscribed to email list"
-            ],
-            [
-                0,
-                "Gender"
-            ],
-            [
-                1,
-                "location id"
-            ],
-            [
-                1,
-                "Latitude"
-            ],
-            [
-                1,
-                "Longitude"
-            ],
-            [
-                2,
-                "location id"
-            ],
-            [
-                2,
-                "location name"
-            ],
-            [
-                2,
-                "street address"
-            ],
-            [
-                2,
-                "City"
-            ],
-            [
-                2,
-                "State"
-            ],
-            [
-                2,
-                "zip code"
-            ],
-            [
-                3,
-                "brand id"
-            ],
-            [
-                3,
-                "brand name"
-            ],
-            [
-                3,
-                "first brewed year"
-            ],
-            [
-                3,
-                "brewery name"
-            ],
-            [
-                3,
-                "City"
-            ],
-            [
-                3,
-                "State"
-            ],
-            [
-                3,
                 "Country"
             ],
             [
-                3,
-                "Description"
+                0,
+                "City"
+            ],
+            [
+                0,
+                "State"
+            ],
+            [
+                0,
+                "Postal Code"
+            ],
+            [
+                0,
+                "Region"
+            ],
+            [
+                1,
+                "Product ID"
+            ],
+            [
+                1,
+                "Product Name"
+            ],
+            [
+                1,
+                "Category"
+            ],
+            [
+                1,
+                "Sub-Category"
+            ],
+            [
+                1,
+                "Region"
+            ],
+            [
+                2,
+                "row id"
+            ],
+            [
+                2,
+                "order id"
+            ],
+            [
+                2,
+                "order date"
+            ],
+            [
+                2,
+                "ship date"
+            ],
+            [
+                2,
+                "ship mode"
+            ],
+            [
+                2,
+                "customer id"
+            ],
+            [
+                2,
+                "Region"
+            ],
+            [
+                2,
+                "product id"
+            ],
+            [
+                2,
+                "Sales"
+            ],
+            [
+                2,
+                "Quantity"
+            ],
+            [
+                2,
+                "Discount"
+            ],
+            [
+                2,
+                "Profit"
             ],
             [
                 3,
-                "cane sugar"
+                "row id"
             ],
             [
                 3,
-                "corn syrup"
+                "order id"
             ],
             [
                 3,
-                "Honey"
+                "order date"
             ],
             [
                 3,
-                "artificial sweetener"
+                "ship date"
             ],
             [
                 3,
-                "Caffeinated"
+                "ship mode"
             ],
             [
                 3,
-                "Alcoholic"
+                "customer id"
             ],
             [
                 3,
-                "available in cans"
+                "Region"
             ],
             [
                 3,
-                "available in bottles"
+                "product id"
             ],
             [
                 3,
-                "available in kegs"
+                "Sales"
             ],
             [
                 3,
-                "Website"
+                "Quantity"
             ],
             [
                 3,
-                "facebook page"
+                "Discount"
             ],
             [
                 3,
-                "Twitter"
-            ],
-            [
-                3,
-                "wholesale cost"
-            ],
-            [
-                3,
-                "current retail price"
+                "Profit"
             ],
             [
                 4,
-                "root beer id"
+                "row id"
             ],
             [
                 4,
-                "brandid"
+                "order id"
             ],
             [
                 4,
-                "container type"
+                "order date"
             ],
             [
                 4,
-                "location id"
+                "ship date"
             ],
             [
                 4,
-                "purchase date"
+                "ship mode"
+            ],
+            [
+                4,
+                "customer id"
+            ],
+            [
+                4,
+                "Region"
+            ],
+            [
+                4,
+                "product id"
+            ],
+            [
+                4,
+                "Sales"
+            ],
+            [
+                4,
+                "Quantity"
+            ],
+            [
+                4,
+                "Discount"
+            ],
+            [
+                4,
+                "Profit"
+            ],
+            [
+                5,
+                "row id"
+            ],
+            [
+                5,
+                "order id"
+            ],
+            [
+                5,
+                "order date"
+            ],
+            [
+                5,
+                "ship date"
+            ],
+            [
+                5,
+                "ship mode"
             ],
             [
                 5,
@@ -738,169 +1093,171 @@
             ],
             [
                 5,
-                "brand id"
+                "Region"
             ],
             [
                 5,
-                "star rating"
+                "product id"
             ],
             [
                 5,
-                "review date"
+                "Sales"
             ],
             [
                 5,
-                "Review"
+                "Quantity"
             ],
             [
-                6,
-                "transaction id"
+                5,
+                "Discount"
             ],
             [
-                6,
-                "credit card number"
-            ],
-            [
-                6,
-                "customer id"
-            ],
-            [
-                6,
-                "transaction date"
-            ],
-            [
-                6,
-                "credit card type"
-            ],
-            [
-                6,
-                "location id"
-            ],
-            [
-                6,
-                "root beer id"
-            ],
-            [
-                6,
-                "purchase price"
+                5,
+                "Profit"
             ]
         ],
         "column_types": [
             "text",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text",
             "integer",
             "text",
             "text",
             "text",
             "text",
             "text",
-            "integer",
             "text",
+            "integer",
             "text",
             "date",
-            "text",
-            "text",
-            "integer",
-            "real",
-            "real",
-            "integer",
-            "text",
-            "text",
-            "text",
-            "text",
-            "integer",
-            "integer",
-            "text",
-            "integer",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
+            "date",
             "text",
             "text",
             "text",
             "text",
             "real",
+            "integer",
+            "real",
             "real",
             "integer",
-            "integer",
             "text",
-            "integer",
             "date",
-            "integer",
-            "integer",
-            "integer",
             "date",
             "text",
+            "text",
+            "text",
+            "text",
+            "real",
             "integer",
+            "real",
+            "real",
             "integer",
-            "integer",
+            "text",
+            "date",
             "date",
             "text",
+            "text",
+            "text",
+            "text",
+            "real",
             "integer",
+            "real",
+            "real",
             "integer",
+            "text",
+            "date",
+            "date",
+            "text",
+            "text",
+            "text",
+            "text",
+            "real",
+            "integer",
+            "real",
             "real"
         ],
         "primary_keys": [
-            1,
-            13,
-            16,
-            22,
-            44,
             [
-                49,
-                50
+                1,
+                8
             ],
-            54
+            [
+                9,
+                13
+            ],
+            14,
+            26,
+            38,
+            50
         ],
         "foreign_keys": [
             [
-                13,
-                16
+                21,
+                9
             ],
             [
-                16,
+                20,
                 13
+            ],
+            [
+                19,
+                1
+            ],
+            [
+                20,
+                8
+            ],
+            [
+                33,
+                9
+            ],
+            [
+                32,
+                13
+            ],
+            [
+                31,
+                1
+            ],
+            [
+                32,
+                8
             ],
             [
                 45,
-                22
+                9
             ],
             [
-                47,
-                16
-            ],
-            [
-                47,
+                44,
                 13
             ],
             [
-                50,
-                22
-            ],
-            [
-                49,
+                43,
                 1
             ],
             [
-                60,
-                44
+                44,
+                8
             ],
             [
-                59,
-                16
+                57,
+                9
             ],
             [
                 56,
+                13
+            ],
+            [
+                55,
                 1
+            ],
+            [
+                56,
+                8
             ]
         ]
     },

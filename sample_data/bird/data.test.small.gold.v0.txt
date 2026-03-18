@@ -1,10 +1,20 @@
-SELECT COUNT(DISTINCT TweetID) FROM twitter WHERE Lang = 'en'	social_media
-SELECT LocationID FROM twitter WHERE TweetID = 'tw-682714048199311366'	social_media
-SELECT COUNT(TweetID) FROM twitter WHERE Weekday = 'Wednesday'	social_media
-SELECT text FROM twitter WHERE Weekday = 'Thursday'	social_media
-SELECT T2.Gender FROM twitter AS T1 INNER JOIN user AS T2 ON T1.UserID = T2.UserID WHERE T1.TweetID = 'tw-682714583044243456'	social_media
-SELECT T1.text FROM twitter AS T1 INNER JOIN user AS T2 ON T1.UserID = T2.UserID WHERE T2.Gender = 'Unknown'	social_media
-SELECT COUNT(T1.TweetID) FROM twitter AS T1 INNER JOIN user AS T2 ON T1.UserID = T2.UserID WHERE T2.Gender = 'Male'	social_media
-SELECT T.Gender FROM ( SELECT T2.Gender, COUNT( text) AS num FROM twitter AS T1 INNER JOIN user AS T2 ON T1.UserID = T2.UserID WHERE T1.Lang = 'en' GROUP BY T2.Gender ) T ORDER BY T.num DESC LIMIT 1	social_media
-SELECT DISTINCT T2.Gender FROM twitter AS T1 INNER JOIN user AS T2 ON T1.UserID = T2.UserID WHERE T1.RetweetCount > 30	social_media
-SELECT COUNT(T1.UserID) FROM twitter AS T1 INNER JOIN user AS T2 ON T1.UserID = T2.UserID WHERE T2.Gender = 'Female' AND T1.IsReshare = 'TRUE'	social_media
+SELECT DISTINCT T2.`Product Name` FROM central_superstore AS T1 INNER JOIN product AS T2 ON T1.`Product ID` = T2.`Product ID` WHERE T1.`Order ID` = 'CA-2011-112326'	superstore
+SELECT MAX(strftime('%J', `Ship Date`) - strftime('%J', `Order Date`)) AS longestTimeDays FROM people AS T1 INNER JOIN central_superstore AS T2 ON T1.`Customer ID` = T2.`Customer ID` WHERE T1.`Customer Name` = 'Aimee Bixby'	superstore
+SELECT COUNT(DISTINCT T2.`Order ID`) FROM people AS T1 INNER JOIN central_superstore AS T2 ON T1.`Customer ID` = T2.`Customer ID` WHERE T1.`Customer Name` = 'Aimee Bixby' AND T2.`Ship Mode` = 'Standard Class'	superstore
+SELECT COUNT(DISTINCT T2.`Order ID`) FROM people AS T1 INNER JOIN central_superstore AS T2 ON T1.`Customer ID` = T2.`Customer ID` WHERE T1.`Customer Name` = 'Aimee Bixby'	superstore
+SELECT DISTINCT T2.`Order ID` FROM people AS T1 INNER JOIN central_superstore AS T2 ON T1.`Customer ID` = T2.`Customer ID` WHERE T1.`Customer Name` = 'Aimee Bixby' GROUP BY T2.`Product ID` HAVING COUNT(T2.`Product ID`) > 3	superstore
+SELECT COUNT(DISTINCT T2.`Order ID`) FROM people AS T1 INNER JOIN central_superstore AS T2 ON T1.`Customer ID` = T2.`Customer ID` INNER JOIN product AS T3 ON T3.`Product ID` = T2.`Product ID` WHERE T3.Category = 'Furniture' AND T1.`Customer Name` = 'Aimee Bixby'	superstore
+SELECT DISTINCT T3.`Product Name` FROM people AS T1 INNER JOIN central_superstore AS T2 ON T1.`Customer ID` = T2.`Customer ID` INNER JOIN product AS T3 ON T3.`Product ID` = T2.`Product ID` WHERE T1.`Customer Name` = 'Aimee Bixby' AND STRFTIME('%Y', T2.`Ship Date`) = '2016'	superstore
+SELECT SUM(T1.Quantity) FROM central_superstore AS T1 INNER JOIN product AS T2 ON T1.`Product ID` = T2.`Product ID` WHERE T2.`Product Name` = 'Telescoping Adjustable Floor Lamp'	superstore
+SELECT DISTINCT T1.`Customer Name` FROM people AS T1 INNER JOIN central_superstore AS T2 ON T1.`Customer ID` = T2.`Customer ID` INNER JOIN product AS T3 ON T3.`Product ID` = T2.`Product ID` WHERE T3.`Product Name` = 'Telescoping Adjustable Floor Lamp'	superstore
+SELECT COUNT(DISTINCT T1.`Customer Name`) FROM people AS T1 INNER JOIN central_superstore AS T2 ON T1.`Customer ID` = T2.`Customer ID` INNER JOIN product AS T3 ON T3.`Product ID` = T2.`Product ID` WHERE T3.`Product Name` = 'Telescoping Adjustable Floor Lamp' AND T1.Segment = 'Consumer'	superstore
+SELECT T1.company_name FROM production_company AS T1 INNER JOIN movie_company AS T2 ON T1.company_id = T2.company_id INNER JOIN movie AS T3 ON T2.movie_id = T3.movie_id WHERE T3.title = 'Four Rooms'	movies_4
+SELECT COUNT(CNAME) FROM ( SELECT T1.company_name AS CNAME FROM production_company AS T1 INNER JOIN movie_company AS T2 ON T1.company_id = T2.company_id INNER JOIN movie AS T3 ON T2.movie_id = T3.movie_id WHERE T3.title = 'Four Rooms' )	movies_4
+SELECT T3.title FROM production_company AS T1 INNER JOIN movie_company AS T2 ON T1.company_id = T2.company_id INNER JOIN movie AS T3 ON T2.movie_id = T3.movie_id WHERE T1.company_name = 'Universal Pictures'	movies_4
+SELECT T3.title FROM production_company AS T1 INNER JOIN movie_company AS T2 ON T1.company_id = T2.company_id INNER JOIN movie AS T3 ON T2.movie_id = T3.movie_id WHERE T1.company_name = 'Universal Pictures' ORDER BY T3.release_date DESC LIMIT 1	movies_4
+SELECT T3.person_name FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T1.title LIKE 'Pirates of the Caribbean: At World%s End' AND T2.job = 'Director of Photography'	movies_4
+SELECT T2.job FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T1.title LIKE 'Pirates of the Caribbean: At World%s End' AND T3.person_name = 'Dariusz Wolski'	movies_4
+SELECT T3.person_name FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T1.title LIKE 'Pirates of the Caribbean: At World%s End'	movies_4
+SELECT COUNT(T3.person_id) FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T1.title LIKE 'Pirates of the Caribbean: At World%s End' AND T2.job = 'Producer'	movies_4
+SELECT T3.person_name FROM movie AS T1 INNER JOIN movie_crew AS T2 ON T1.movie_id = T2.movie_id INNER JOIN person AS T3 ON T2.person_id = T3.person_id WHERE T1.title LIKE 'Pirates of the Caribbean: At World%s End' AND T2.job = 'Producer'	movies_4
+SELECT COUNT(T2.movie_id) FROM person AS T1 INNER JOIN movie_crew AS T2 ON T1.person_id = T2.person_id WHERE T1.person_name = 'Dariusz Wolski' AND T2.job = 'Director of Photography'	movies_4

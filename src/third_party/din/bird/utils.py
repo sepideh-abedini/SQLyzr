@@ -17,9 +17,13 @@ def get_database_schema(DB_URI: str) -> str:
     Returns:
         str: Database schema
     """
-    db = SQLDatabase.from_uri("sqlite:///" + DB_URI)
-    db._sample_rows_in_table_info = 3
+    uri = "sqlite:///" + DB_URI
     try:
+        db = SQLDatabase.from_uri(uri)
+        db._sample_rows_in_table_info = 3
+    except Exception as e:
+        raise Exception(f"Could not connect to database at uri = {uri}") from e
+
         return db.get_table_info_no_throw()
     except Exception as e:
         return None

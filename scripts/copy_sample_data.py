@@ -46,7 +46,4 @@ for ds_conf in ds_confs:
         ds_conf.get_gold_path(),
     ]:
         dst_path = copy_to_sample_dir(f)
-        ver_path = dst_path.replace(".json", ".v0.json")
-        ver_path = ver_path.replace(".txt", ".v0.txt")
-        shutil.move(dst_path, ver_path)
     copy_dbs(ds_conf)
