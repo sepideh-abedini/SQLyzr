@@ -13,7 +13,7 @@ import Menubar from 'primevue/menubar'
         <RouterLink to="/">Dashboard</RouterLink>
         <!--        <RouterLink to="/status">Execution</RouterLink>-->
         <RouterLink to="/charts">Charts</RouterLink>
-<!--        <RouterLink to="/aug">Augmentation</RouterLink>-->
+        <!--        <RouterLink to="/aug">Augmentation</RouterLink>-->
         <RouterLink to="/scores">Scores</RouterLink>
         <RouterLink to="/logs">Logs</RouterLink>
         <RouterLink to="/files">Files</RouterLink>

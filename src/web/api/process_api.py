@@ -10,6 +10,7 @@ from dotenv import dotenv_values
 from flask import jsonify
 
 from .base_api import BaseAPI
+from ...ipc.messanger import Messanger
 from ...sqlyzr.sqlyzr import Sqlyzr
 from loguru import logger
 
@@ -57,6 +58,7 @@ class ProcessAPI(BaseAPI):
             )
 
             self.process = process
+
             def log_reader(pipe, logger):
                 with pipe:
                     for line in iter(pipe.readline, ''):
@@ -96,6 +98,7 @@ class ProcessAPI(BaseAPI):
             return jsonify({"Message": f"Process not found: {print}"}), 200
 
         status = self._get_single_process_status(self.process)
+        status['msg'] = Messanger(self.process.pid).read()
         return jsonify(status)
 
     def _get_single_process_status(self, process: subprocess.Popen) -> Dict:

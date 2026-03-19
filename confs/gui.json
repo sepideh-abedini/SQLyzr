@@ -1,17 +1,18 @@
 {
     "data_dir": "data",
     "out_dir": "out",
-    "aug_per_sub_cat": 10,
-    "error_threshold": 0.78,
+    "aug_per_sub_cat": 5,
+    "error_threshold": 0.8,
     "dataset": "aug",
     "dataset_size": "small",
     "dataset_versions": [
         "v0",
         "v1",
-        "v2"
+        "v2",
+        "v3"
     ],
     "temps": [
-        0.4
+        0.2
     ],
     "itrs": 1,
     "models": [
@@ -21,7 +22,7 @@
     "force": false,
     "pipeline": {
         "augment": false,
-        "charts": false,
+        "charts": true,
         "eval": true,
         "predict": true,
         "scale": false,
@@ -29,13 +30,23 @@
         "verify": false
     },
     "charts": [
-        "Execution Accuracy",
-        "Relaxed Execution Accuracy",
-        "Overall"
+        "Token Usage",
+        "Gold Execution Time Scaled"
     ],
-    "etcr": 1.46,
+    "etcr": 1,
     "scales": [
-        1
+        1,
+        2,
+        5,
+        10
     ],
-    "eval_force": true
+    "eval_force": true,
+    "pipeline_status": {
+        "augment": false,
+        "charts": false,
+        "eval": false,
+        "predict": false,
+        "scale": false,
+        "verify": false
+    }
 }

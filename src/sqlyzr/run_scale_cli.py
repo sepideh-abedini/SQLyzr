@@ -81,6 +81,7 @@ def scale_dbs(conf_path: str):
             logger.info(f"Scaling {db_id} DONE!")
         save_hash(ds_conf, scale)
         logger.info(f"Scaling for scale = {scale} DONE!")
+    return scales
 
 
 async def main():

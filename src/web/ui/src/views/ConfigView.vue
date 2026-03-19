@@ -2,11 +2,6 @@
   <div class="config">
     <Toast />
     <Card>
-      <template #title>
-        <div class="text-center">
-          <h1>Dashboard</h1>
-        </div>
-      </template>
       <template #content>
         <div class="grid">
           <div class="md:col-6 p-2 config-section">
@@ -50,12 +45,12 @@
               </FormField>
               <FormField class="md:col-6">
                 <label class="field-label">Workload Versions:</label>
-                <MultiSelect
+                <Select
                   display="chip"
                   filter
-                  placeholder="Select scales"
-                  v-model="config.dataset_versions"
-                  :options="avail_versions"
+                  placeholder="Select version"
+                  v-model="selected_version"
+                  :options="config.dataset_versions"
                 />
               </FormField>
             </div>
@@ -149,6 +144,17 @@
                   </div>
                 </div>
               </FormField>
+              <FormField class="col-12 flex justify-content-center">
+                <FloatLabel variant="in">
+                  <label class="field-label">Pipeline Mode:</label>
+                  <SelectButton
+                    severity="success"
+                    name="selection"
+                    v-model="selected_pipeline_mode"
+                    :options="['Evaluation', 'Augmentation', 'Scaling']"
+                  />
+                </FloatLabel>
+              </FormField>
               <FormField class="mb-3">
                 <label class="field-label">Charts:</label>
                 <MultiSelect
@@ -229,7 +235,7 @@ import Slider from 'primevue/slider'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Knob from 'primevue/knob'
 import Toast from 'primevue/toast'
-import { ToggleButton, AutoComplete } from 'primevue'
+import { ToggleButton, AutoComplete, SelectButton } from 'primevue'
 import LogsView from '@/views/LogsView.vue'
 import ChartsView from '@/views/ChartsView.vue'
 import RCalc from '@/views/RCalc.vue'
@@ -253,6 +259,7 @@ export default {
     Knob,
     ToggleButton,
     AutoComplete,
+    SelectButton,
   },
   data() {
     return {
@@ -268,12 +275,15 @@ export default {
       success: false,
       fail: false,
       calculating: false,
+      selected_pipeline_mode: 'Evaluation',
       dataset_options: ['sqlyzr', 'aug', 'bird', 'beaver'],
       size_options: ['small', 'all'],
+      selected_version: null,
       config: {
         models: [],
         dataset: '',
         dataset_size: '',
+        dataset_versions: [],
         itrs: 1,
         temps: [0.2],
         batch: false,
@@ -281,11 +291,10 @@ export default {
         aug_per_sub_cat: 5,
         error_threshold: 90,
         etcr: 1.0,
-        pipeline_config: {
+        pipeline: {
           verify: false,
           predict: false,
           eval: false,
-          transformers: false,
           augment: false,
           charts: false,
           scale: false,
@@ -295,7 +304,6 @@ export default {
           predict: false,
           eval: false,
           charts: false,
-          transformers: false,
           augment: false,
           scale: false,
         },
@@ -307,12 +315,10 @@ export default {
         'Execution Accuracy',
         'Relaxed Execution Accuracy',
         'Exact Match',
-        'Execution Time',
+        'Gold Execution Time Scaled',
         'Token Usage',
         'Execution Time Consistency',
-        'Execution Time Inconsistency',
         'Complexity Consistency',
-        'Complexity Inconsistency',
         'Category Distribution',
         'Overall',
       ],
@@ -335,7 +341,7 @@ export default {
       return [1, 2, 5, 10]
     },
     sorted_pipeline_steps() {
-      return ['verify', 'predict', 'eval', 'charts', 'transformers', 'augment', 'scale']
+      return ['verify', 'predict', 'eval', 'charts', 'augment', 'scale']
     },
 
     // finished() {
@@ -371,7 +377,6 @@ export default {
     },
 
     async fetchStatus() {
-      console.log('fetching status')
       const data = await this.call_api('api/process/status', {}, false)
       const old_running = this.running
       this.running = data.running
@@ -383,12 +388,14 @@ export default {
         this.max_cpu = data.cpu_percent_max || 0
       }
       if (old_running !== this.running) {
+        console.log(data)
+        const msg = data.msg ?? ''
         if (data.return_code === 0) {
           this.success = true
           this.$toast.add({
             severity: 'success',
             summary: 'Success',
-            detail: 'SQLyzr completed successfully',
+            detail: msg,
             life: 3000,
           })
         }
@@ -397,7 +404,7 @@ export default {
           this.$toast.add({
             severity: 'error',
             summary: 'Failure',
-            detail: 'SQLyzr failed!',
+            detail: msg,
             life: 3000,
           })
         }
@@ -406,12 +413,10 @@ export default {
       if (!this.running) {
         this.finished = true
         this.clearInterval()
-      }
-      if (this.success) {
+        this.fetchConfig()
       }
     },
     clearInterval() {
-      console.log('clearing interval')
       if (this.refreshInterval) {
         clearInterval(this.refreshInterval)
       }
@@ -424,10 +429,8 @@ export default {
     },
     async fetchPipelineStatus() {
       this.pipeline_status = await this.call_api('api/pipeline/status', {}, false)
-      console.log(this.pipeline_status)
     },
     async fetchPipelineConfig() {
-      console.log('fetching pipeline config')
       const data = await this.call_api('api/config', {}, false)
       this.pipeline_config = data.pipeline
     },
@@ -453,7 +456,8 @@ export default {
       this.loading = true
       this.error = null
       const data = await this.call_api('api/config')
-      this.config = data
+      console.log(data)
+      Object.assign(this.config, data)
 
       if (this.config.temps && Array.isArray(this.config.temps)) {
         this.config.temps = this.config.temps.map((temp) => parseFloat(temp))
@@ -475,10 +479,15 @@ export default {
       if (!Array.isArray(this.config.charts)) {
         this.config.charts = []
       }
+      const highest = this.config.dataset_versions
+        .map((v) => parseInt(v.slice(1), 10))
+        .reduce((a, b) => Math.max(a, b), -Infinity)
+      this.selected_version = `v${highest}`
     },
 
     async saveConfig() {
       this.loading = true
+      console.log(this.config)
       await this.call_api(
         'api/config',
         {
@@ -491,7 +500,81 @@ export default {
     },
     async resetConfig() {
       const response = await this.call_api('api/error', { method: 'POST' })
-      console.log(response)
+    },
+  },
+  watch: {
+    selected_version(newVal) {
+      if (newVal && typeof newVal === 'string') {
+        const index = parseInt(newVal.replace('v', ''), 10)
+        if (!isNaN(index)) {
+          this.config.dataset_versions = Array.from({ length: index + 1 }, (_, i) => `v${i}`)
+        }
+      }
+    },
+    'config.dataset_versions': {
+      handler(newArr) {
+        if (newArr && newArr.length > 0) {
+          // Find the highest version in the current array to set the dropdown
+          const highest = newArr
+            .map((v) => parseInt(v.replace('v', ''), 10))
+            .reduce((a, b) => Math.max(a, b), 0)
+          this.selected_version = `v${highest}`
+        }
+      },
+      deep: true,
+    },
+    selected_pipeline_mode(newMode) {
+      if (!this.config.pipeline) return
+
+      const old_pipe = JSON.parse(JSON.stringify(this.config.pipeline))
+
+      const flags = ['predict', 'eval', 'charts', 'augment', 'scale']
+      flags.forEach((flag) => {
+        this.config.pipeline[flag] = false
+      })
+
+      switch (newMode) {
+        case 'Evaluation':
+          this.config.pipeline.predict = true
+          this.config.pipeline.eval = true
+          this.config.pipeline.charts = true
+          break
+        case 'Augmentation':
+          this.config.pipeline.augment = true
+          break
+        case 'Scaling':
+          this.config.pipeline.scale = true
+          break
+        default:
+          this.config.pipeline = old_pipe
+      }
+    },
+    'config.pipeline': {
+      handler(newVal) {
+        if (!newVal) return
+        if (newVal.predict && newVal.eval && newVal.charts && !newVal.augment && !newVal.scale) {
+          this.selected_pipeline_mode = 'Evaluation'
+        } else if (
+          newVal.augment &&
+          !newVal.predict &&
+          !newVal.eval &&
+          !newVal.charts &&
+          !newVal.scale
+        ) {
+          this.selected_pipeline_mode = 'Augmentation'
+        } else if (
+          newVal.scale &&
+          !newVal.predict &&
+          !newVal.eval &&
+          !newVal.charts &&
+          !newVal.augment
+        ) {
+          this.selected_pipeline_mode = 'Scaling'
+        } else {
+          this.selected_pipeline_mode = null
+        }
+      },
+      deep: true,
     },
   },
   mounted() {
@@ -500,7 +583,6 @@ export default {
   },
 
   beforeUnmount() {
-    console.log('Unmount')
     this.clearInterval()
   },
 }

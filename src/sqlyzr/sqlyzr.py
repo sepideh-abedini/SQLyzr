@@ -1,3 +1,4 @@
+import os
 import shutil
 
 import pandas as pd
@@ -5,6 +6,7 @@ import pandas as pd
 from src.chart.charter import draw_all_charts
 from src.configs.config_loader import load_config, ConfigData
 from src.configs.sqlyzr_config import SQLyzrConfig
+from src.ipc.messanger import Messanger
 from src.model.models import run_model
 from src.sqlyzr.augment_data import DatasetAugmentor
 from src.sqlyzr.pipeline_config import PipelineConfig
@@ -22,6 +24,7 @@ class Sqlyzr:
     def __init__(self, conf_path: str):
         self.conf = load_config(conf_path)
         self.conf_path = conf_path
+        self.messanger = Messanger()
 
     async def run(self):
         run_status = PipelineConfig.init()
@@ -29,6 +32,7 @@ class Sqlyzr:
         if self.conf.pipeline.verify:
             await validate_dataset(self.conf.eval_conf.dataset_configs)
             run_status.verify = True
+            self.messanger.write(f"Verify DONE!!")
 
         if self.conf.pipeline.predict:
             await run_model(self.conf)
@@ -59,9 +63,12 @@ class Sqlyzr:
             new_ver = await augmentor.augment_data(expand=True)
             run_status.augment = True
             conf_data = ConfigData.load(self.conf_path)
+            cur_ver = conf_data.dataset_versions[-1]
             conf_data.dataset_versions.append(new_ver)
             shutil.copy(self.conf_path, f"{self.conf_path}.bak")
             conf_data.save(self.conf_path)
+            self.messanger.write(f"Data augmentation done: {cur_ver} -> {new_ver}")
 
         if self.conf.pipeline.scale:
-            scale_dbs(self.conf_path)
+            scales = scale_dbs(self.conf_path)
+            self.messanger.write(f"Scaling for factors {scales} completed")
