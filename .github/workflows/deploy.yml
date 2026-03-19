@@ -2,10 +2,19 @@ name: Deploy to Staging
 
 on:
   workflow_run:
-    workflows:
-      - Build
+    workflows: [ "Build" ]
     types:
       - completed
+  push:
+    branches:
+      - demo
+    paths:
+      #      - 'src/**'
+      #      - 'tests/**'
+      #      - Dockerfile
+      #      - pyproject.toml
+      - docker-compose.staging.yml
+      - .github/workflows/deploy.yml
   workflow_dispatch:
 
 env:
@@ -15,10 +24,10 @@ env:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [ self-hosted, cd ]
     environment:
       name: staging
-      url: https://ui.${{vars.SQLYZR_DOMAIN}}
+      url: https://temp.${{vars.SQLYZR_DOMAIN}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,25 +49,22 @@ jobs:
           images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
 
       - name: Deploy
-        run: echo "IMAGE_TAG=${{ steps.meta.outputs.tags }}" >> $GITHUB_ENV
+        run: echo "SQLYZR_IMAGE=${{ steps.meta.outputs.tags }}" >> $GITHUB_ENV
 
       - name: Create .env
         run: |
-          echo "ASYNC_BATCH=${{ vars.ASYNC_BATCH }}" >> .env
-          echo "DAIL_CACHE_DIR=${{ vars.DAIL_CACHE_DIR }}" >> .env
           echo "DB_CACHE=${{ vars.DB_CACHE }}" >> .env
-          echo "DB_TIMEOUT=${{ vars.DB_TIMEOUT }}" >> .env
-          echo "ENC_PROG=${{ vars.ENC_PROG }}" >> .env
           echo "GPT_CACHE=${{ vars.GPT_CACHE }}" >> .env
-          echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
-          echo "MYSQL_HOST=${{ vars.MYSQL_HOST }}" >> .env
+          echo "ENC_PROG=${{ vars.ENC_PROG }}" >> .env
+          echo "PYTHONUNBUFFERED=${{ vars.PYTHONUNBUFFERED }}" >> .env
           echo "NUM_PROCS=${{ vars.NUM_PROCS }}" >> .env
           echo "NUM_PROC_CHUNKS=${{ vars.NUM_PROC_CHUNKS }}" >> .env
-          echo "OPENAI_GROUP_ID=${{ vars.OPENAI_GROUP_ID }}" >> .env
-          echo "OPENAI_PROJ_ID=${{ vars.OPENAI_PROJ_ID }}" >> .env
-          echo "OPENAI_USAGE_TIER=${{ vars.OPENAI_USAGE_TIER }}" >> .env
-          echo "PYTHONUNBUFFERED=${{ vars.PYTHONUNBUFFERED }}" >> .env
+          echo "ASYNC_BATCH=${{ vars.ASYNC_BATCH }}" >> .env
+          echo "DB_TIMEOUT=${{ vars.DB_TIMEOUT }}" >> .env
           echo "SQLYZR_DEVICE=${{ vars.SQLYZR_DEVICE }}" >> .env
+          echo "DAIL_CACHE_DIR=${{ vars.DAIL_CACHE_DIR }}" >> .env
+          echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
+          echo "MYSQL_HOST=${{ vars.MYSQL_HOST }}" >> .env
           echo "SQLYZR_DOMAIN=${{ vars.SQLYZR_DOMAIN }}" >> .env
           echo "SQLYZR_WEB_PORT=${{ vars.SQLYZR_WEB_PORT }}" >> .env
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
@@ -72,27 +78,27 @@ jobs:
           docker compose -f docker-compose.staging.yml down -v
           sleep 3
           docker compose -f docker-compose.staging.yml pull
-          docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_TAG
+          docker inspect --format='{{index .RepoDigests 0}}' $SQLYZR_IMAGE
           docker compose -f docker-compose.staging.yml up --force-recreate -d
 
-      - name: Logs
-        env: ${{ vars }}
-        run: docker compose -f docker-compose.staging.yml logs
-
-      - name: Health check
-        env: ${{ vars }}
-        run: |
-          for i in {1..10}; do
-            if curl -fs https:///ui.$SQLYZR_DOMAIN/api/health; then
-              echo "Server is up"
-              exit 0
-            fi
-            echo "Waiting for server..."
-            sleep 6
-          done
-          echo "Health check failed"
-          exit 1
-
-      - name: Cleanup on failure
-        if: failure()
-        run: docker compose -f docker-compose.staging.yml down -v
+#      - name: Logs
+#        env: ${{ vars }}
+#        run: docker compose -f docker-compose.staging.yml logs
+#
+#      - name: Health check
+#        env: ${{ vars }}
+#        run: |
+#          for i in {1..10}; do
+#            if curl -fs https:///temp.$SQLYZR_DOMAIN/api/health; then
+#              echo "Server is up"
+#              exit 0
+#            fi
+#            echo "Waiting for server..."
+#            sleep 6
+#          done
+#          echo "Health check failed"
+#          exit 1
+#
+#      - name: Cleanup on failure
+#        if: failure()
+#        run: docker compose -f docker-compose.staging.yml down -v

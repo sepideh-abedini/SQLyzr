@@ -22,4 +22,26 @@
     <label class="field-label" style="visibility: hidden"> button </label>
     <Button :loading="calculating" label="Calculate" @click="calculate" class="p-button-primary" />
   </FormField>
+
+  <!--              <FormField class="mb-3">-->
+  <!--                <label class="field-label">Pipeline Steps:</label>-->
+  <!--                <div class="pipeline-container mt-2">-->
+  <!--                  <div-->
+  <!--                    v-for="(step, index) in sorted_pipeline_steps"-->
+  <!--                    :key="step"-->
+  <!--                    class="pipeline-step"-->
+  <!--                  >-->
+  <!--                    <ToggleButton-->
+  <!--                      v-model="config.pipeline[step]"-->
+  <!--                      :on-label="step"-->
+  <!--                      :off-label="step"-->
+  <!--                      class="text-capitalize"-->
+  <!--                    />-->
+  <!--                    <i-->
+  <!--                      v-if="index < sorted_pipeline_steps.length - 1"-->
+  <!--                      class="pi pi-arrow-right pipeline-arrow"-->
+  <!--                    ></i>-->
+  <!--                  </div>-->
+  <!--                </div>-->
+  <!--              </FormField>-->
 </template>

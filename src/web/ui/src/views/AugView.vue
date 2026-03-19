@@ -166,6 +166,16 @@
             class="w-full"
           />
         </FormField>
+        <FormField class="md:col-6">
+          <label class="field-label">Grouping</label>
+          <Select
+            v-model="selectedHue"
+            :options="avail_hues"
+            placeholder="Select a grouping"
+            default-value="Model"
+            class="w-full"
+          />
+        </FormField>
         <div class="h-full rounded-lg p-4">
           <img :src="plot_url" alt="Plot" class="plot" />
         </div>
@@ -193,7 +203,7 @@ import Column from 'primevue/column'
 
 const charts = {
   REA: 'mean__relaxed__execution__accuracy_per__sub_category',
-  Overall: 'overall',
+  Overall: 'overall__scores',
   GET: 'mean__gold__execution__time_per_scale',
   'SubCategory Dist': 'sub_cat_count',
 }
@@ -209,11 +219,12 @@ export default {
       status: 'idle',
       statusInterval: null as number | null,
       selectedPlot: 'EA',
+      selectedHue: 'Model',
       config: {
         error_threshold: 0.9,
         aug_per_sub_cat: 10,
         models: ['simple'],
-        dataset: 'spider',
+        dataset: 'aug',
         scales: [1],
         dataset_versions: ['v0'],
       },
@@ -231,17 +242,21 @@ export default {
       return [...Array(5).keys()].map((i) => `v${i}`)
     },
     avail_datasets() {
-      return ['spider']
+      return ['aug']
     },
     avail_models() {
       return ['simple', 'simple_v2']
+    },
+
+    avail_hues() {
+      return ['Model', 'dst_ver']
     },
     avail_scales() {
       return [1, 2, 5, 10]
     },
     plot_url() {
       const chart_name = charts[this.selectedPlot]
-      return `${API_BASE_URL}/api/aug/plot/${chart_name}?ts=${this.plotTimestamp}`
+      return `${API_BASE_URL}/api/aug/plot/${this.selectedHue}/${chart_name}?ts=${this.plotTimestamp}`
     },
   },
   methods: {
