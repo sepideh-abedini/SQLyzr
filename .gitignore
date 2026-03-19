@@ -40,3 +40,4 @@ logs
 .python-version
 !requirements.txt
 conf.json
+out_old

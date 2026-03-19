@@ -1,47 +1,39 @@
 <template>
-  <div class="charts">
-    <Toast />
-
-    <Message v-if="error" severity="error">{{ error }}</Message>
-
-    <Card >
-      <template #title>
-        <div class="text-center">
-          <h1>Charts</h1>
-        </div>
-      </template>
-      <template #content>
-        <div class="flex gap-4 mt-1">
-          <div class="w-full mb-4 flex gap-2">
-            <Button label="Refresh Charts" icon="pi pi-refresh" @click="fetchCharts" />
-          </div>
-          <div class="w-full mb-4 flex gap-2">
-            <h3>Available Charts</h3>
-            <Select
-              v-model="selectedChart"
-              :options="charts"
-              filter
-              placeholder="Select a chart"
-              default-value="overall.png"
-              @update:modelValue="selectChart"
-              class="w-full md:w-56"
-            />
-          </div>
-        </div>
-        <div v-if="selectedChart" class="chart-display">
-          <h3>{{ selectedChart }}</h3>
-          <div v-if="chartLoading" class="flex justify-content-center">
-            <ProgressSpinner />
-          </div>
-          <div v-else-if="chartError" class="p-3">
-            <Message severity="error">{{ chartError }}</Message>
-          </div>
-          <div v-else class="chart-image">
-            <img :src="chartUrl" :alt="selectedChart" class="w-full" />
-          </div>
-        </div>
-      </template>
-    </Card>
+  <div class="p-2">
+    <div class="flex gap-4 mt-1">
+      <!--      <div class="w-full mb-4 flex gap-2">-->
+      <!--        <Button label="Refresh Charts" icon="pi pi-refresh" @click="fetchCharts" />-->
+      <!--      </div>-->
+      <div class="w-full mb-4 flex gap-2">
+        <FloatLabel class="w-full" variant="in">
+          <label>Examples per Sub</label>
+          <Select
+            v-model="selectedChart"
+            :options="avail_charts"
+            filter
+            option-label="label"
+            option-value="value"
+            placeholder="Select a chart"
+            default-value="overall.png"
+            @update:modelValue="selectChart"
+            class="w-full"
+            size="small"
+          />
+        </FloatLabel>
+      </div>
+    </div>
+    <div v-if="selectedChart" class="chart-display">
+      <h3>{{ selectedChart }}</h3>
+      <div v-if="chartLoading" class="flex justify-content-center">
+        <ProgressSpinner />
+      </div>
+      <div v-else-if="chartError" class="p-3">
+        <Message severity="error">{{ chartError }}</Message>
+      </div>
+      <div v-else class="chart-image">
+        <img :src="chartUrl" :alt="selectedChart" class="w-full" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -53,19 +45,26 @@ import ProgressSpinner from 'primevue/progressspinner'
 import Toast from 'primevue/toast'
 import Card from 'primevue/card'
 import { API_BASE_URL } from '../config'
+import FloatLabel from 'primevue/floatlabel'
+
+// const CHARTS = {
+//   Overall: 'Model/overall__scores',
+// }
 
 export default {
   data() {
     return {
       loading: false,
       error: null,
-      charts: [],
-      selectedChart: null,
+      avail_charts: [],
+      selectedChart: 'Overall',
+      availableCharts: [],
       chartLoading: false,
       chartError: null,
       chartUrl: null,
     }
   },
+  computed: {},
   methods: {
     async fetchCharts() {
       this.loading = true
@@ -73,7 +72,18 @@ export default {
 
       try {
         const data = await this.call_api('api/charts')
-        this.charts = data.charts || []
+        const chart_paths = data.avail_charts
+        this.avail_charts = chart_paths.map((p) => {
+          const label = p
+            .split('/')
+            .pop()
+            .replace(/\.png$/, '')
+            .replace(/__/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase())
+
+          return { value: p, label }
+        })
+        console.log(this.avail_charts)
       } catch (error) {
         this.error = `Error loading charts: ${error.message}`
         console.error('Error loading charts:', error)
@@ -112,35 +122,13 @@ export default {
     ProgressSpinner,
     Toast,
     Select,
-    Card
+    Card,
+    FloatLabel
   },
 }
 </script>
 
 <style>
-.charts {
-  padding: 2rem;
-}
-
-.charts h1 {
-  margin-bottom: 2rem;
-  font-weight: bold;
-}
-
-.charts h3 {
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.card {
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow:
-    0 2px 1px -1px rgba(0, 0, 0, 0.2),
-    0 1px 1px 0 rgba(0, 0, 0, 0.14),
-    0 1px 3px 0 rgba(0, 0, 0, 0.12);
-}
-
 .chart-display {
   padding: 1rem;
   border: 1px solid #e0e0e0;

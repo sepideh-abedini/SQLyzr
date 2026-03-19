@@ -32,7 +32,7 @@ class ResultsAPI(BaseAPI):
     def register_routes(self):
         self.app.route('/api/results', methods=['GET'])(self.get_results)
         self.app.route('/api/charts', methods=['GET'])(self.get_charts)
-        self.app.route('/api/charts/<chart_name>', methods=['GET'])(self.get_chart)
+        self.app.route('/api/charts/<hue>/<chart_name>', methods=['GET'])(self.get_chart)
         self.app.route('/api/logs', methods=['GET'])(self.get_logs)
         self.app.route('/api/logs', methods=['DELETE'])(self.clear_logs)
 
@@ -65,17 +65,24 @@ class ResultsAPI(BaseAPI):
     def get_charts(self):
         try:
             sqlyzr = Sqlyzr(self.config_file)
-            files = [os.path.basename(f) for f in os.listdir(sqlyzr.conf.eval_conf.charts_dir)]
+            files = []
+            # hues = [os.path.basename(f) for f in os.listdir(sqlyzr.conf.eval_conf.charts_dir)]
+            # for hue in hues:
+            hue = "Model"
+            chart_names = [os.path.basename(f) for f in
+                           os.listdir(os.path.join(sqlyzr.conf.eval_conf.charts_dir, hue))]
+            for chart_name in chart_names:
+                files.append(str(os.path.join(hue, chart_name)))
             return jsonify({
-                "charts": files,
+                "avail_charts": files,
             })
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
-    def get_chart(self, chart_name):
+    def get_chart(self, hue, chart_name):
         try:
             sqlyzr = Sqlyzr(self.config_file)
-            full_path = os.path.join(sqlyzr.conf.eval_conf.charts_dir, chart_name)
+            full_path = os.path.join(sqlyzr.conf.eval_conf.charts_dir, hue, chart_name)
             if os.path.exists(full_path) and os.path.isfile(full_path):
                 full_path = "../../" + full_path
                 return send_file(full_path)

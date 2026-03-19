@@ -37,9 +37,10 @@ class Sqlyzr:
             run_status.eval = True
 
         if self.conf.pipeline.charts:
-            draw_all_charts(self.conf.eval_conf.get_raw_scores_path(),
-                            out_dir=self.conf.eval_conf.charts_dir,
-                            included_charts=self.conf.eval_conf.included_charts)
+            for hue in ["Model", "dst_ver"]:
+                draw_all_charts(self.conf.eval_conf.get_raw_scores_path(),
+                                out_dir=self.conf.eval_conf.charts_dir,
+                                included_charts=self.conf.eval_conf.included_charts, hue=hue)
             run_status.charts = True
 
         if self.conf.pipeline.transformers:

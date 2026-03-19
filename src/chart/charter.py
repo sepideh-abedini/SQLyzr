@@ -20,12 +20,12 @@ from src.sqlyzr.chart_config import ChartName
 # exit(0)
 
 
-def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartName]):
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-        os.mkdir(out_dir)
+def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartName], hue):
+    # if os.path.exists(out_dir):
+    #     shutil.rmtree(out_dir)
+    #     os.mkdir(out_dir)
 
-    drawer = Drawer(scores_path, show=False, out_dir=out_dir)
+    drawer = Drawer(scores_path, show=False, out_dir=out_dir, hue=hue)
     if "Category Distribution" in included_charts:
         drawer.draw_cats()
     if "Overall" in included_charts:
@@ -33,7 +33,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
     if "Gold Execution Time Scaled" in included_charts:
         drawer.draw_exec_time_scale()
 
-    drawer = Drawer(scores_path, include_all=True, show=False, out_dir=out_dir)
+    drawer = Drawer(scores_path, include_all=True, show=False, out_dir=out_dir, hue=hue)
     metrics = [
         "Execution Accuracy",
         "Relaxed Execution Accuracy",
@@ -45,7 +45,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         if metric in included_charts:
             drawer.draw(metric)
 
-    drawer = Drawer(scores_path, include_all=True, show=False, only_correct=True, out_dir=out_dir)
+    drawer = Drawer(scores_path, include_all=True, show=False, only_correct=True, out_dir=out_dir, hue=hue)
     metrics = [
         "Execution Time Consistency",
         "Execution Time Inconsistency",
@@ -54,7 +54,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         if metric in included_charts:
             drawer.draw(metric)
 
-    drawer = Drawer(scores_path, include_all=True, only_correct=True, show=False, exclude_c6=True, out_dir=out_dir)
+    drawer = Drawer(scores_path, include_all=True, only_correct=True, show=False, exclude_c6=True, out_dir=out_dir, hue=hue)
     metrics = [
         "Complexity Consistency",
         "Complexity Inconsistency"

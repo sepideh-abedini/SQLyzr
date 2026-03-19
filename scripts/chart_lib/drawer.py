@@ -58,7 +58,7 @@ def full_extent(ax, pad=0.0):
 
 
 def melt_scores(df):
-    df = pd.melt(df, id_vars=['Model', 'Dataset', 'Category', 'Temp', 'SubCategory'],
+    df = pd.melt(df, id_vars=['Model', 'Dataset', 'Category', 'Temp', 'SubCategory', 'dst_ver'],
                  value_vars=['Execution Accuracy', 'Relaxed Execution Accuracy', 'Exact Match',
                              'Complexity Consistency', "Execution Time Consistency"],
                  var_name="Metric",
@@ -75,15 +75,18 @@ class Drawer:
     only_correct: bool
     exclude_c6: bool
     df: DataFrame
+    hue: str
 
     def __init__(self, scores_path: str, include_all: bool = False, only_correct: bool = False,
-                 exclude_c6: bool = False, show: bool = False, out_dir: str = OUT_DIR):
+                 exclude_c6: bool = False, show: bool = False, out_dir: str = OUT_DIR, hue: str = 'Model'):
+        self.hue = hue
         self.out_dir = out_dir
         self.show = show
         self.include_all = include_all
         self.only_correct = only_correct
         self.exclude_c6 = exclude_c6
         self.df = self.proc_df(scores_path)
+        os.makedirs(os.path.join(self.out_dir, self.hue), exist_ok=True)
 
     def proc_df(self, scores_path: str):
         logger.info(f"Processing {scores_path}")
@@ -135,9 +138,10 @@ class Drawer:
 
         df = df.rename(columns=COL_NAMES)
 
-        versions = df['dst_ver'].cat.categories  # preserves order if ordered=True
-        last_ver = max(versions, key=lambda x: int(x[1:]))
-        df = df[df['dst_ver'] == last_ver]
+        if self.hue != 'dst_ver':
+            versions = df['dst_ver'].cat.categories
+            last_ver = max(versions, key=lambda x: int(x[1:]))
+            df = df[df['dst_ver'] == last_ver]
         # df.to_csv("charts/data.csv", index=False)
         return df
 
@@ -172,7 +176,7 @@ class Drawer:
     def save_fig(self, metric, ax: Axes):
         title = ax.get_title()
         ax.set_title("")
-        path = os.path.join(self.out_dir, f"{snakecase(title)}.png")
+        path = os.path.join(self.out_dir, self.hue, f"{snakecase(title)}.png")
         plt.savefig(path, bbox_inches='tight', dpi=300)
         logger.info(f"Plot saved to {path}")
 
@@ -180,7 +184,7 @@ class Drawer:
         num_x = self.df[x].nunique()
         width = max(5, num_x * (bar_width + bar_spacing))
         fig = plt.figure(figsize=(width, 5))
-        ax = self.draw_barplot(x, metric, "Model", "mean")
+        ax = self.draw_barplot(x, metric, self.hue, "mean")
         self.fix_axis(metric, ax)
         title = f"Mean {metric} per {x}"
         ax.set_title(title)
@@ -212,7 +216,7 @@ class Drawer:
                 ax.set_title(title)
                 sub_df = df[(df[row] == row_val) & (df[col] == col_val)]
                 sub_cats = natsorted(sub_df[x].unique())
-                sns.barplot(sub_df, x=x, y=metric, hue="Model", estimator="mean", ax=ax, legend=False,
+                sns.barplot(sub_df, x=x, y=metric, hue=self.hue, estimator="mean", ax=ax, legend=False,
                             order=sub_cats)
                 self.fix_axis(metric, ax)
                 if save_indiv:
@@ -250,7 +254,7 @@ class Drawer:
             ax.set_title(title)
             sub_df = df[(df[col] == col_val)]
             sub_cats = natsorted(sub_df[x].unique())
-            sns.barplot(sub_df, x=x, y=metric, hue="Model", estimator="mean", ax=ax, legend=False,
+            sns.barplot(sub_df, x=x, y=metric, hue=self.hue, estimator="mean", ax=ax, legend=False,
                         order=sub_cats)
             self.fix_axis(metric, ax)
             if save_indiv:
@@ -305,10 +309,12 @@ class Drawer:
     def draw_overall(self):
         df = melt_scores(self.df)
         plt.figure(figsize=(15, 5))
-        ax = sns.barplot(df, x="Metric", y="Score", hue="Model")
+        plt.title("Overall Scores")
+        ax = sns.barplot(df, x="Metric", y="Score", hue=self.hue)
         ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
         ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
-        plt.savefig(os.path.join(self.out_dir, f"overall.png"))
+        self.save_fig("overall", ax)
+        # plt.savefig(os.path.join(self.out_dir, f"overall.png"))
 
     def draw_exec_time_scale(self):
         x = 'scale'
@@ -316,7 +322,7 @@ class Drawer:
         num_x = self.df[x].nunique()
         width = max(5, num_x * (bar_width + bar_spacing))
         fig = plt.figure(figsize=(width, 5))
-        ax = self.draw_barplot(x, metric, "Model", "mean")
+        ax = self.draw_barplot(x, metric, self.hue, "mean")
         self.fix_axis(metric, ax)
         title = f"Mean {metric} per {x}"
         ax.set_title(title)

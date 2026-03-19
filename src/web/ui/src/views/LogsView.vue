@@ -1,36 +1,40 @@
 <template>
   <div class="logs">
-    <Toast/>
-    <h1>Logs</h1>
-    <div class="card">
-      <Button icon="pi pi-trash" @click="clearLogs" class="p-button-sm p-button-danger ml-2"
-              label="Clear Logs"/>
-      <ToggleButton v-model="autoRefresh" class="w-48" on-label="Auto Refresh"
-                    off-label="Auto Refresh"/>
-      <ProgressSpinner v-if="loading" class="my-4"/>
+    <div class="">
+      <ProgressSpinner v-if="loading" class="my-4" />
       <div v-else class="log-container">
         <pre class="log-content" v-html="colorizedLogs"></pre>
       </div>
-
+      <Button
+        icon="pi pi-trash"
+        @click="clearLogs"
+        class="p-button-sm p-button-danger ml-2"
+        label="Clear Logs"
+      />
+      <ToggleButton
+        v-model="autoRefresh"
+        class="w-48"
+        on-label="Auto Refresh"
+        off-label="Auto Refresh"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import ProgressSpinner from 'primevue/progressspinner';
-import Toast from 'primevue/toast';
-import Button from 'primevue/button';
-import ToggleButton from 'primevue/togglebutton';
+import ProgressSpinner from 'primevue/progressspinner'
+import Toast from 'primevue/toast'
+import Button from 'primevue/button'
+import ToggleButton from 'primevue/togglebutton'
 
-import {API_BASE_URL} from '../config';
+import { API_BASE_URL } from '../config'
 
 export default {
-
   components: {
     ProgressSpinner,
     Toast,
     Button,
-    ToggleButton
+    ToggleButton,
   },
   data() {
     return {
@@ -42,101 +46,101 @@ export default {
   },
   computed: {
     colorizedLogs() {
-      if (!this.logs) return '';
-      return this.ansiToHtml(this.logs);
-    }
+      if (!this.logs) return ''
+      return this.ansiToHtml(this.logs)
+    },
   },
   watch: {
     autoRefresh(newValue, oldValue) {
       if (newValue) {
         this.refreshInterval = setInterval(() => {
-          this.fetchLogs();
-        }, 1000);
+          this.fetchLogs()
+        }, 1000)
       } else {
         if (this.refreshInterval) {
-          clearInterval(this.refreshInterval);
+          clearInterval(this.refreshInterval)
         }
       }
-    }
+    },
   },
   methods: {
     async fetchLogs() {
-      const data = await this.call_api('api/logs', {}, false);
-      this.logs = data.logs || 'No logs available';
-      this.loading = false;
+      const data = await this.call_api('api/logs', {}, false)
+      this.logs = data.logs || 'No logs available'
+      this.loading = false
       this.$nextTick(() => {
-        const logContainer = document.querySelector('.log-container');
+        const logContainer = document.querySelector('.log-container')
         if (logContainer) {
-          logContainer.scrollTop = logContainer.scrollHeight;
+          logContainer.scrollTop = logContainer.scrollHeight
         }
-      });
+      })
     },
     async clearLogs() {
-      await this.call_api('api/logs', {method: 'DELETE'});
-      this.fetchLogs();
+      await this.call_api('api/logs', { method: 'DELETE' })
+      this.fetchLogs()
     },
 
     ansiToHtml(text) {
-      if (!text) return '';
+      if (!text) return ''
 
-      const ansiRegex = /\u001b\[((?:\d{1,3};?)+)m/g;
+      const ansiRegex = /\u001b\[((?:\d{1,3};?)+)m/g
 
-      let currentFgColor = '';
-      let currentBgColor = '';
-      let isBold = false;
+      let currentFgColor = ''
+      let currentBgColor = ''
+      let isBold = false
 
       let html = text.replace(ansiRegex, (match, p1) => {
-        const codes = p1.split(';').map(Number);
+        const codes = p1.split(';').map(Number)
 
         for (const code of codes) {
           if (code === 0) {
-            currentFgColor = '';
-            currentBgColor = '';
-            isBold = false;
-            return '</span><span class="ansi">';
+            currentFgColor = ''
+            currentBgColor = ''
+            isBold = false
+            return '</span><span class="ansi">'
           }
 
           if (code === 1) {
-            isBold = true;
+            isBold = true
           }
 
           if (code >= 30 && code <= 37) {
-            currentFgColor = `ansi-fg-${code - 30}`;
+            currentFgColor = `ansi-fg-${code - 30}`
           }
 
           if (code >= 40 && code <= 47) {
-            currentBgColor = `ansi-bg-${code - 40}`;
+            currentBgColor = `ansi-bg-${code - 40}`
           }
 
           if (code >= 90 && code <= 97) {
-            currentFgColor = `ansi-fg-bright-${code - 90}`;
+            currentFgColor = `ansi-fg-bright-${code - 90}`
           }
 
           if (code >= 100 && code <= 107) {
-            currentBgColor = `ansi-bg-bright-${code - 100}`;
+            currentBgColor = `ansi-bg-bright-${code - 100}`
           }
         }
 
-        const classes = ['ansi'];
-        if (currentFgColor) classes.push(currentFgColor);
-        if (currentBgColor) classes.push(currentBgColor);
-        if (isBold) classes.push('ansi-bold');
+        const classes = ['ansi']
+        if (currentFgColor) classes.push(currentFgColor)
+        if (currentBgColor) classes.push(currentBgColor)
+        if (isBold) classes.push('ansi-bold')
 
-        return `</span><span class="${classes.join(' ')}">`;
-      });
+        return `</span><span class="${classes.join(' ')}">`
+      })
 
-      return `<span class="ansi">${html}</span>`;
-    }
+      return `<span class="ansi">${html}</span>`
+    },
   },
   mounted() {
-    this.fetchLogs();
+    this.fetchLogs()
     this.refreshInterval = setInterval(() => {
-      this.fetchLogs();
-    }, 1000);
+      this.fetchLogs()
+    }, 1000)
   },
   beforeUnmount() {
     if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
+      clearInterval(this.refreshInterval)
     }
   },
 }
@@ -144,7 +148,6 @@ export default {
 
 <style>
 .logs {
-  padding: 2rem;
 }
 
 .logs h1 {
@@ -153,15 +156,17 @@ export default {
 }
 
 .card {
-  padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 
 .log-container {
   border-radius: 0.5rem;
   padding: 1rem;
-  max-height: 70vh;
+  max-height: 50vh;
   overflow-y: auto;
   background-color: #1e1e1e;
   color: #f0f0f0;

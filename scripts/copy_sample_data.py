@@ -2,11 +2,11 @@ import os.path
 import shutil
 from pathlib import Path
 
-from src.configs.datasets import SPIDER_SMALL, BIRD_SMALL
+from src.configs.datasets import SPIDER_SMALL, BIRD_SMALL, AUG_SMALL
 from src.eval.dataset_config import DatasetConfig
 from src.util.file_utils import read_json
 
-ds_confs = [SPIDER_SMALL, BIRD_SMALL]
+ds_confs = [SPIDER_SMALL, BIRD_SMALL, AUG_SMALL]
 
 SAMPLE_DIR = "sample_data"
 

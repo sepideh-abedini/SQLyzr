@@ -10,11 +10,11 @@ import Menubar from 'primevue/menubar'
     </template>
     <template #end>
       <div class="flex items-center gap-2">
-        <RouterLink to="/">Configuration</RouterLink>
-        <RouterLink to="/status">Execution</RouterLink>
-        <RouterLink to="/charts">Charts</RouterLink>
-        <RouterLink to="/scores">Scores</RouterLink>
+        <RouterLink to="/">Dashboard</RouterLink>
+        <!--        <RouterLink to="/status">Execution</RouterLink>-->
+        <!--        <RouterLink to="/charts">Charts</RouterLink>-->
         <RouterLink to="/aug">Augmentation</RouterLink>
+        <RouterLink to="/scores">Scores</RouterLink>
         <RouterLink to="/logs">Logs</RouterLink>
         <RouterLink to="/files">Files</RouterLink>
         <RouterLink to="/data">Data</RouterLink>

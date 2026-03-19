@@ -3,10 +3,11 @@
     "out_dir": "out",
     "aug_per_sub_cat": 10,
     "error_threshold": 0.78,
-    "dataset": "spider",
+    "dataset": "aug",
     "dataset_size": "small",
     "dataset_versions": [
-        "v0"
+        "v0",
+        "v1"
     ],
     "temps": [
         0.5
@@ -21,21 +22,19 @@
         "verify": false,
         "predict": true,
         "eval": true,
-        "charts": true,
         "transformers": false,
-        "augment": false
+        "augment": false,
+        "charts": true
     },
     "charts": [
-        "Category Distribution",
+        "Gold Execution Time Scaled",
         "Execution Accuracy",
         "Relaxed Execution Accuracy",
-        "Overall",
-        "Execution Time Consistency",
-        "Complexity Consistency"
+        "Overall"
     ],
     "etcr": 1.1,
     "scales": [
         1
     ],
-    "eval_force": false
+    "eval_force": true
 }

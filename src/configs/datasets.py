@@ -2,8 +2,8 @@ from typing import Literal
 
 from src.eval.dataset_config import DatasetConfig
 
-# BASE_DIR = "data"
-BASE_DIR = "sample_data"
+BASE_DIR = "data"
+# BASE_DIR = "sample_data"
 
 SPIDER_SMALL = DatasetConfig(
     dataset_dir=f"{BASE_DIR}/spider",
@@ -56,8 +56,9 @@ AUG_SMALL = DatasetConfig(
     test_file="data.test.cat.small.json",
     gold_file="data.test.cat.small.gold.txt",
     train_file="data.train.cat.json",
-    tables_file="tables.json",
-    db_dir="database"
+    tables_file="tables.small.json",
+    db_dir="database",
+    ver="v0"
 )
 
 SPIDER_MASK = DatasetConfig(
@@ -162,8 +163,8 @@ DATASETS = {
         "mask": [SPIDER_MASK],
         "all": [SPIDER_ALL]
     },
-    "spider_aug": {
-        "small": [SPIDER_SMALL],
+    "aug": {
+        "small": [AUG_SMALL],
         "all": [AUG_ALL]
     },
     "beaver": {
@@ -175,5 +176,5 @@ DATASETS = {
     }
 }
 
-DatasetName = Literal["spider", "bird", "beaver", "sqlyzr", "custom"]
+DatasetName = Literal["spider", "bird", "beaver", "sqlyzr", "custom", "aug"]
 DatasetSize = Literal["small", "dev", "train", "test", "all", "500", "bad", "mask"]

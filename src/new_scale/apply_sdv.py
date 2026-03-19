@@ -14,10 +14,13 @@ def copy_scaled_db(ds_conf: DatasetConfig, db_id: str, scale: int):
     shutil.copytree(orig_db_dir, os.path.join(scaled_dir, db_id), dirs_exist_ok=True)
     orig_db_file = ds_conf.get_db_file_path(db_id)
     backup_and_revert(orig_db_file)
+    return scaled_dir
 
 
 def apply_scaling(ds_conf: DatasetConfig, db_id: str, scale: int):
     save_meta(ds_conf.get_db_path(), db_id)
     scale_db(ds_conf.get_db_path(), db_id, scale)
     insert_synthetic_data(ds_conf.get_db_path(), db_id)
-    copy_scaled_db(ds_conf, db_id, scale)
+    scaled_dir = copy_scaled_db(ds_conf, db_id, scale)
+    return scaled_dir
+

@@ -20,6 +20,7 @@ BIRD_METRICS = {
 }
 METRICS = {
     "spider": SPIDER_METRICS,
+    "aug": SPIDER_METRICS,
     "bird": BIRD_METRICS,
     "beaver": BIRD_METRICS,
     "sqlyzr": BIRD_METRICS,

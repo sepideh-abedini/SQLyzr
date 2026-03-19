@@ -4,12 +4,12 @@
     <Card>
       <template #title>
         <div class="text-center">
-          <h1>Configuration</h1>
+          <h1>Dashboard</h1>
         </div>
       </template>
       <template #content>
         <div class="grid">
-          <div class="col-12 md:col-6 p-2 config-section">
+          <div class="md:col-6 p-2 config-section">
             <div class="grid">
               <FormField class="md:col-6">
                 <label class="field-label">Dataset:</label>
@@ -79,8 +79,11 @@
               />
             </FormField>
           </div>
-          <div class="col-12 md:col-6 p-2">
-
+          <div v-if="running" class="md:col-6">
+            <LogsView />
+          </div>
+          <div v-if="finished" class="md:col-6">
+            <ChartsView />
           </div>
         </div>
       </template>
@@ -150,9 +153,13 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import Knob from 'primevue/knob'
 import Toast from 'primevue/toast'
 import { ToggleButton, AutoComplete } from 'primevue'
+import LogsView from '@/views/LogsView.vue'
+import ChartsView from '@/views/ChartsView.vue'
 
 export default {
   components: {
+    LogsView,
+    ChartsView,
     Card,
     Button,
     Checkbox,
@@ -236,13 +243,14 @@ export default {
     },
 
     finished() {
-      for (let step of this.sorted_pipeline_steps) {
-        if (this.pipeline_config[step]) {
-          if (!this.pipeline_status[step]) {
-            return false
-          }
-        }
-      }
+      console.log(this.config)
+      // for (let step of this.sorted_pipeline_steps) {
+      //   if (this.config.pipeline[step]) {
+      //     if (!this.pipeline_status[step]) {
+      //       return false
+      //     }
+      //   }
+      // }
       return true
     },
     current_step() {

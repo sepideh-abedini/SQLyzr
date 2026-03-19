@@ -27,7 +27,7 @@ class AugAPI(BaseAPI):
         self.app.route('/api/aug/config', methods=['GET'])(self.get_aug_config)
         self.app.route('/api/aug/save', methods=['POST'])(self.update_aug_config)
         self.app.route('/api/aug/status', methods=['GET'])(self.get_eval_status)
-        self.app.route('/api/aug/plot/<name>', methods=['GET'])(self.get_plot)
+        self.app.route('/api/aug/plot/<hue>/<name>', methods=['GET'])(self.get_plot)
         self.app.route('/api/aug/clear', methods=['POST'])(self.clear)
 
     def get_ds_stats(self):
@@ -120,11 +120,11 @@ class AugAPI(BaseAPI):
                 "pid": self.process.pid
             })
 
-    def get_plot(self, name):
+    def get_plot(self, hue, name):
         conf = load_config(AUG_CONF)
         logger.info(conf.get_aug_out("spider"))
         chart_file = f"{name}.png"
-        plot_path = os.path.join(conf.eval_conf.charts_dir, chart_file)
+        plot_path = os.path.join(conf.eval_conf.charts_dir, hue, chart_file)
         plot_path = os.path.normpath(plot_path)
         if os.path.exists(plot_path):
             plot_path = "../../" + plot_path
