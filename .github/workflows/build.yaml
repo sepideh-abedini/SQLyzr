@@ -52,6 +52,9 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=ref,event=branch
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -75,5 +78,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             SQLYZR_WEB_PORT=${{vars.SQLYZR_WEB_PORT}}
-            SQLYZR_API_URL=https://ui.${{vars.SQLYZR_DOMAIN}}
+            SQLYZR_API_URL=https://temp.${{vars.SQLYZR_DOMAIN}}
 

@@ -81,9 +81,9 @@ class AugAPI(BaseAPI):
             self.process = subprocess.Popen(
                 [sys.executable, "-u", script_path, "--config", AUG_CONF],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,  # Redirect stderr to stdout
+                stderr=subprocess.STDOUT,
                 text=True,
-                bufsize=1  # Line buffered
+                bufsize=1
             )
 
             def log_reader(pipe, logger):

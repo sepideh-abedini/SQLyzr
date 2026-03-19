@@ -3,94 +3,6 @@
     <Toast />
     <div class="grid">
       <div class="grid md:col-6">
-        <AugConfigView ref="augRef" v-model="modified" />
-        <div class="grid mt-5 w-full">
-          <div class="md:col-3 flex flex-column gap-2">
-            <Button
-              label="Run"
-              icon="pi pi-play"
-              @click="onRun"
-              v-tooltip="getTooltip('Run SQLyzr on the latest workload version.')"
-              :disabled="disabled"
-            />
-            <Button
-              label="Cleanup"
-              icon="pi pi-trash"
-              v-tooltip="'Delete all output files'"
-              @click="onClear"
-              severity="danger"
-            />
-          </div>
-          <div class="md:col-3 flex flex-column gap-2">
-            <Button
-              label="Scale"
-              v-tooltip="getTooltip('Scale all database by the selected factors.')"
-              icon="pi pi-window-maximize"
-              @click="onScale"
-              :disabled="disabled"
-            />
-          </div>
-          <div class="md:col-3 flex flex-column gap-2">
-            <Button
-              label="Augment"
-              v-tooltip="getTooltip('')"
-              icon="pi pi-forward"
-              @click="onAugment"
-              :disabled="disabled"
-            />
-            <Button
-              label="Reset"
-              icon="pi pi-backward"
-              v-tooltip="getTooltip('Delete all workload versions and revert to v0.')"
-              @click="onReset"
-              severity="warn"
-              :disabled="disabled"
-            />
-          </div>
-        </div>
-        <div class="md:col-6">
-          <div v-if="status != 'idle'" class="mt-4">
-            <Message v-if="status === 'running'" severity="info">Process is running...</Message>
-            <Message v-else-if="status === 'completed'" severity="success">
-              Process completed successfully.
-            </Message>
-            <Message v-else-if="status === 'no_process_found'" severity="secondary">
-              No active process found.
-            </Message>
-            <Message v-else-if="status === 'error'" severity="error">
-              Error checking process status.
-            </Message>
-          </div>
-          <div class="mt-auto flex justify-content-between pt-4 align-items-center">
-            <ProgressSpinner
-              v-if="isRunning"
-              style="width: 30px; height: 30px"
-              strokeWidth="8"
-              animationDuration=".5s"
-            />
-          </div>
-        </div>
-        <div v-if="0" class="col-12 mt-4 w-full">
-          <DataTable
-            :value="db_stats"
-            class="p-datatable-sm"
-            stripedRows
-            :sortOrder="1"
-            responsiveLayout="scroll"
-          >
-            <Column field="db_id" header="Table Name" sortable />
-            <Column
-              v-bind:key="scale"
-              v-for="scale in config.scales"
-              :field="`x${scale}`"
-              :header="`x${scale}`"
-              sortable
-            />
-          </DataTable>
-        </div>
-      </div>
-
-      <div class="grid md:col-6">
         <FormField class="md:col-6">
           <label class="field-label">Plot:</label>
           <Select
@@ -164,8 +76,8 @@ export default {
       isRunning: false,
       status: 'idle',
       statusInterval: null as number | null,
-      selectedPlot: null,
       selectedHue: null,
+      selectedPlot: null,
       config: {
         error_threshold: 0.9,
         aug_per_sub_cat: 10,
@@ -183,35 +95,41 @@ export default {
   computed: {
     avail_charts() {
       const keys = Object.keys(charts)
-      console.log(keys)
       return Object.keys(charts)
-    },
-    avail_versions() {
-      return [...Array(5).keys()].map((i) => `v${i}`)
-    },
-    avail_datasets() {
-      return ['aug']
-    },
-    avail_models() {
-      return ['simple', 'simple_v2']
-    },
-    avail_scales() {
-      return [1, 2, 5, 10]
     },
     plot_url() {
       const chart_name = charts[this.selectedPlot]?.file
       if (this.selectedHue)
         return `${API_BASE_URL}/api/aug/plot/${this.selectedHue}/${chart_name}?ts=${this.plotTimestamp}`
-      else return `${API_BASE_URL}/api/aug/plot/${chart_name}?ts=${this.plotTimestamp}`
+      else
+        return `${API_BASE_URL}/api/aug/plot/${chart_name}?ts=${this.plotTimestamp}`
     },
     disabled() {
       return this.isRunning || this.modified
     },
   },
   methods: {
-    getTooltip(msg: string) {
-      if (this.disabled) return 'Save configuration changes before running.'
-      else return msg
+    async fetchCharts() {
+      try {
+        const data = await this.call_api('api/charts')
+        const chart_paths = data.avail_charts
+        if (chart_paths.length > 0) {
+          this.avail_charts = chart_paths.map((p) => {
+            const label = p
+              .split('/')
+              .pop()
+              .replace(/\.png$/, '')
+              .replace(/__/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase())
+
+            return { value: p, label }
+          })
+          this.selectedChart = this.avail_charts[1].value
+        }
+      } catch (error) {
+      } finally {
+        this.loading = false
+      }
     },
     refreshPlot() {
       this.plotTimestamp = Date.now()
@@ -241,51 +159,6 @@ export default {
       }
     },
 
-    async onRun() {
-      const res = await this.call_api('api/aug/start/sqlyzr', { method: 'POST' })
-      this.onDoneCallback = () => {
-        this.selectedPlot = 'Overall'
-      }
-      await this.checkStatus()
-    },
-
-    async onScale() {
-      const res = await this.call_api('api/aug/start/scale', { method: 'POST' })
-      this.onDoneCallback = () => {
-        this.selectedPlot = 'SubCategory Dist'
-      }
-      await this.checkStatus()
-    },
-
-    async onClear() {
-      const res = await this.call_api('api/aug/clear', { method: 'POST' })
-      console.log(res)
-      await this.fetchConfig()
-      this.$toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Data cleared successfully.',
-        life: 3000,
-      })
-    },
-
-    async onAugment() {
-      const res = await this.call_api('api/aug/start/aug', { method: 'POST' })
-      this.onDoneCallback = () => {
-        this.selectedPlot = 'SubCategory Dist'
-        this.fetchConfig()
-      }
-      await this.checkStatus()
-    },
-
-    async onReset() {
-      const res = await this.call_api('api/aug/start/reset', { method: 'POST' })
-      this.onDoneCallback = () => {
-        this.selectedPlot = 'SubCategory Dist'
-        this.fetchConfig()
-      }
-      await this.checkStatus()
-    },
     async startPolling() {
       if (this.statusInterval) return
       this.statusInterval = window.setInterval(() => {
@@ -301,25 +174,7 @@ export default {
           this.onDoneCallback = null
         }
       }
-      await this.fetchConfig()
-    },
-
-    async fetchConfig() {
-      const stats = await this.call_api('api/aug/stats')
-      this.db_stats = stats.db_stats
-      this.$refs.augRef.fetchConfig()
-      this.refreshPlot()
-    },
-
-    async saveConfig() {
-      await this.call_api(
-        'api/aug/save',
-        {
-          method: 'POST',
-          body: JSON.stringify(this.config),
-        },
-        true,
-      )
+      await this.refreshPlot()
     },
   },
   watch: {
@@ -336,7 +191,7 @@ export default {
     },
   },
   mounted() {
-    this.fetchConfig()
+    this.fetchCharts()
     this.checkStatus()
   },
   beforeUnmount() {

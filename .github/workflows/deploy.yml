@@ -5,16 +5,16 @@ on:
     workflows: [ "Build" ]
     types:
       - completed
-  push:
-    branches:
-      - demo
-    paths:
-      #      - 'src/**'
-      #      - 'tests/**'
-      #      - Dockerfile
-      #      - pyproject.toml
-      - docker-compose.staging.yml
-      - .github/workflows/deploy.yml
+#  push:
+#    branches:
+#      - demo
+#    paths:
+#      #      - 'src/**'
+#      #      - 'tests/**'
+#      #      - Dockerfile
+#      #      - pyproject.toml
+#      - docker-compose.staging.yml
+#      - .github/workflows/deploy.yml
   workflow_dispatch:
 
 env:
@@ -41,6 +41,11 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Image Tag
+        run: |
+          echo "SQLYZR_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.event.workflow_run.head_sha }}" >> $GITHUB_ENV
+          # Note: short SHA usually works, but full head_sha is safest for mapping
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta

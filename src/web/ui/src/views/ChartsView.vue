@@ -4,9 +4,32 @@
       <!--      <div class="w-full mb-4 flex gap-2">-->
       <!--        <Button label="Refresh Charts" icon="pi pi-refresh" @click="fetchCharts" />-->
       <!--      </div>-->
+
+      <div class="grid md:col-6">
+        <FormField class="md:col-6">
+          <label class="field-label">Plot:</label>
+          <Select
+            v-model="selectedPlot"
+            :options="avail_charts"
+            placeholder="Select a plot"
+            default-value="EA"
+            class="w-full"
+          />
+        </FormField>
+        <FormField class="md:col-6">
+          <label class="field-label">Grouping</label>
+          <Select
+            v-model="selectedHue"
+            :options="avail_hues"
+            placeholder="Select a grouping"
+            default-value="Model"
+            class="w-full"
+            :disabled="avail_hues.length === 0"
+          />
+        </FormField>
+      </div>
       <div class="w-full mb-4 flex gap-2">
         <FloatLabel class="w-full" variant="in">
-          <label>Examples per Sub</label>
           <Select
             v-model="selectedChart"
             :options="avail_charts"
@@ -14,8 +37,6 @@
             option-label="label"
             option-value="value"
             placeholder="Select a chart"
-            default-value="overall.png"
-            @update:modelValue="selectChart"
             class="w-full"
             size="small"
           />
@@ -30,7 +51,7 @@
       <div v-else-if="chartError" class="p-3">
         <Message severity="error">{{ chartError }}</Message>
       </div>
-      <div v-else class="chart-image">
+      <div v-else-if="avail_charts.length > 0" class="chart-image">
         <img :src="chartUrl" :alt="selectedChart" class="w-full" />
       </div>
     </div>
@@ -57,7 +78,7 @@ export default {
       loading: false,
       error: null,
       avail_charts: [],
-      selectedChart: 'Overall',
+      selectedChart: null,
       availableCharts: [],
       chartLoading: false,
       chartError: null,
@@ -73,16 +94,19 @@ export default {
       try {
         const data = await this.call_api('api/charts')
         const chart_paths = data.avail_charts
-        this.avail_charts = chart_paths.map((p) => {
-          const label = p
-            .split('/')
-            .pop()
-            .replace(/\.png$/, '')
-            .replace(/__/g, ' ')
-            .replace(/\b\w/g, (c) => c.toUpperCase())
+        if (chart_paths.length > 0) {
+          this.avail_charts = chart_paths.map((p) => {
+            const label = p
+              .split('/')
+              .pop()
+              .replace(/\.png$/, '')
+              .replace(/__/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase())
 
-          return { value: p, label }
-        })
+            return { value: p, label }
+          })
+          this.selectedChart = this.avail_charts[1].value
+        }
         console.log(this.avail_charts)
       } catch (error) {
         this.error = `Error loading charts: ${error.message}`
@@ -92,7 +116,7 @@ export default {
       }
     },
 
-    async selectChart() {
+    async refreshChart() {
       this.chartLoading = true
       this.chartError = null
       try {
@@ -113,6 +137,16 @@ export default {
       }
     },
   },
+  watch: {
+    selectedChart: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal) {
+          this.refreshChart()
+        }
+      },
+    },
+  },
   mounted() {
     this.fetchCharts()
   },
@@ -123,7 +157,7 @@ export default {
     Toast,
     Select,
     Card,
-    FloatLabel
+    FloatLabel,
   },
 }
 </script>

@@ -58,11 +58,8 @@ def verify_hash(ds_conf: DatasetConfig, scale: int):
     return actual_hash == expected_hash
 
 
-async def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True, help="Path to the config file")
-    args = parser.parse_args()
-    conf = load_config(args.config)
+def scale_dbs(conf_path: str):
+    conf = load_config(conf_path)
     db_ids = set()
     ds_conf = conf.eval_conf.dataset_configs[0]
     data = read_json(ds_conf.get_test_path())
@@ -84,6 +81,13 @@ async def main():
             logger.info(f"Scaling {db_id} DONE!")
         save_hash(ds_conf, scale)
         logger.info(f"Scaling for scale = {scale} DONE!")
+
+
+async def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", required=True, help="Path to the config file")
+    args = parser.parse_args()
+    scale_dbs(args.config)
 
     #
 

@@ -1,5 +1,7 @@
 import os
 import subprocess
+import sys
+import threading
 import time
 from typing import Dict, Optional
 
@@ -9,6 +11,7 @@ from flask import jsonify
 
 from .base_api import BaseAPI
 from ...sqlyzr.sqlyzr import Sqlyzr
+from loguru import logger
 
 
 class ProcessAPI(BaseAPI):
@@ -35,15 +38,35 @@ class ProcessAPI(BaseAPI):
             print("MYSQL_HOST===============", env.get("MYSQL_HOST"))
             env.update(dotenv_values(".env"))
             env.update({'PATH': f"/opt/venv/bin:{env.get('PATH')}"})
-            with open("std.log", 'w') as std_file:
-                process = subprocess.Popen(
-                    ['python', script_path],
-                    stdout=std_file,
-                    stderr=std_file,
-                    text=True,
-                    env=env
-                )
+            # with open("std.log", 'w') as std_file:
+            #     process = subprocess.Popen(
+            #         ['python', script_path],
+            #         stdout=std_file,
+            #         stderr=std_file,
+            #         text=True,
+            #         env=env
+            #         bufsize=1
+            #     )
+
+            process = subprocess.Popen(
+                [sys.executable, "-u", script_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
+            )
+
             self.process = process
+            def log_reader(pipe, logger):
+                with pipe:
+                    for line in iter(pipe.readline, ''):
+                        logger.info(f"[Subprocess {self.process.pid}]: {line.strip()}")
+                logger.info("Subprocess log stream closed.")
+
+            thread = threading.Thread(target=log_reader, args=(self.process.stdout, logger))
+            thread.daemon = True
+            thread.start()
+
             return jsonify({
                 "message": "Process started",
                 "process_id": process_id,
@@ -93,5 +116,4 @@ class ProcessAPI(BaseAPI):
                 status["elapsed_time"] = round(time.time() - proc.create_time(), 2)
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 status["running"] = False
-        print(status)
         return status

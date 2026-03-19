@@ -255,10 +255,10 @@ export default {
       }
     },
     setInterval() {
-      this.fetchData()
-      this.refreshInterval = setInterval(() => {
-        this.fetchData()
-      }, 1000)
+      // this.fetchData()
+      // this.refreshInterval = setInterval(() => {
+      //   this.fetchData()
+      // }, 1000)
     },
   },
   mounted() {

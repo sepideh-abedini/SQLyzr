@@ -1,0 +1,50 @@
+SELECT Hosts FROM farm_competition WHERE Theme !=  'Aliens'	farm
+SELECT Hosts FROM farm_competition WHERE Theme !=  'Aliens'	farm
+SELECT Census_Ranking FROM city WHERE Status !=  "Village"	farm
+SELECT Census_Ranking FROM city WHERE Status !=  "Village"	farm
+SELECT Title FROM book WHERE Writer != "Elaine Lee"	book_2
+SELECT DISTINCT Publisher FROM publication WHERE Price  >  5000000	book_2
+SELECT Name FROM actor WHERE Age != 20	musical
+SELECT Name FROM actor WHERE Age != 20	musical
+SELECT Name FROM musical WHERE Nominee  =  "Bob Fosse"	musical
+SELECT Name FROM musical WHERE Nominee  =  "Bob Fosse"	musical
+SELECT DISTINCT Nominee FROM musical WHERE Award != "Tony Award"	musical
+SELECT DISTINCT Nominee FROM musical WHERE Award != "Tony Award"	musical
+SELECT email FROM user_profiles WHERE name  =  'Mary'	twitter_1
+SELECT partitionid FROM user_profiles WHERE name  =  'Iron Man'	twitter_1
+SELECT name ,  email FROM user_profiles WHERE followers  >  1000	twitter_1
+SELECT distinct(catalog_entry_name) FROM catalog_contents	product_catalog
+SELECT distinct(catalog_entry_name) FROM catalog_contents	product_catalog
+SELECT attribute_data_type FROM Attribute_Definitions WHERE attribute_name  =  "Green"	product_catalog
+SELECT attribute_data_type FROM Attribute_Definitions WHERE attribute_name  =  "Green"	product_catalog
+SELECT catalog_entry_name ,  capacity FROM Catalog_Contents WHERE price_in_dollars  >  700	product_catalog
+SELECT catalog_entry_name ,  capacity FROM Catalog_Contents WHERE price_in_dollars  >  700	product_catalog
+SELECT catalog_entry_name FROM catalog_contents WHERE next_entry_id  >  8	product_catalog
+SELECT catalog_entry_name FROM catalog_contents WHERE next_entry_id  >  8	product_catalog
+SELECT DISTINCT allergytype FROM Allergy_type	allergy_1
+SELECT DISTINCT allergytype FROM Allergy_type	allergy_1
+SELECT DISTINCT allergy FROM Allergy_type WHERE allergytype  =  "food"	allergy_1
+SELECT DISTINCT allergy FROM Allergy_type WHERE allergytype  =  "food"	allergy_1
+SELECT allergytype FROM Allergy_type WHERE allergy  =  "Cat"	allergy_1
+SELECT allergytype FROM Allergy_type WHERE allergy  =  "Cat"	allergy_1
+SELECT DISTINCT Major FROM Student	allergy_1
+SELECT Fname ,  Lname ,  Age FROM Student WHERE Sex  =  'F'	allergy_1
+SELECT Fname ,  Lname ,  Age FROM Student WHERE Sex  =  'F'	allergy_1
+SELECT StuID FROM Student WHERE Sex  =  'M'	allergy_1
+SELECT StuID FROM Student WHERE Sex  =  'M'	allergy_1
+SELECT StuID FROM Student WHERE age  >  20	allergy_1
+SELECT StuID FROM Student WHERE age  >  20	allergy_1
+SELECT city_code FROM Student WHERE LName  =  "Kim"	allergy_1
+SELECT city_code FROM Student WHERE LName  =  "Kim"	allergy_1
+SELECT Advisor FROM Student WHERE StuID  =  1004	allergy_1
+SELECT Advisor FROM Student WHERE StuID  =  1004	allergy_1
+SELECT other_account_details FROM Accounts WHERE account_name  =  "338"	customers_card_transactions
+SELECT other_account_details FROM Accounts WHERE account_name  =  "338"	customers_card_transactions
+SELECT date_valid_from ,  date_valid_to FROM Customers_cards WHERE card_number  =  "4560596484842"	customers_card_transactions
+SELECT date_valid_from ,  date_valid_to FROM Customers_cards WHERE card_number  =  "4560596484842"	customers_card_transactions
+SELECT name ,  seating FROM track WHERE year_opened  >  2000 ORDER BY seating	race_track
+SELECT name ,  seating FROM track WHERE year_opened  >  2000 ORDER BY seating	race_track
+SELECT school ,  LOCATION FROM university WHERE affiliation  =  'Public'	university_basketball
+SELECT school ,  LOCATION FROM university WHERE affiliation  =  'Public'	university_basketball
+SELECT chip_model ,  screen_mode FROM phone WHERE Hardware_Model_name = "LG-P760";	phone_1
+SELECT Player FROM match_season WHERE College  =  "UCLA"	match_season

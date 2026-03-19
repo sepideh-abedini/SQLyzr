@@ -91,7 +91,6 @@ import MultiSelect from 'primevue/multiselect'
 import DataTable from 'primevue/datatable'
 import FloatLabel from 'primevue/floatlabel'
 import Column from 'primevue/column'
-import { c } from 'vite/dist/node/moduleRunnerTransport.d-DJ_mE5sf'
 
 const charts = {
   REA: 'mean__relaxed__execution__accuracy_per__sub_category',

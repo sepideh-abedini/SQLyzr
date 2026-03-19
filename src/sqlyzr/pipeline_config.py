@@ -12,6 +12,7 @@ class PipelineConfig(BaseModel):
     transformers: bool = False
     augment: bool = False
     charts: bool = False
+    scale: bool = False
 
     def __str__(self):
         return " ".join([

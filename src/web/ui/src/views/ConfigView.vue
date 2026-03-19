@@ -12,78 +12,155 @@
           <div class="md:col-6 p-2 config-section">
             <div class="grid">
               <FormField class="md:col-6">
-                <label class="field-label">Dataset:</label>
-                <Select
-                  v-model="config.dataset"
-                  :options="dataset_options"
-                  placeholder="Select Dataset"
-                  class="w-full"
-                />
+                <FloatLabel variant="in">
+                  <label class="field-label">Workload:</label>
+                  <Select
+                    v-model="config.dataset"
+                    :options="dataset_options"
+                    placeholder="Select Dataset"
+                    class="w-full"
+                  />
+                </FloatLabel>
               </FormField>
               <FormField class="md:col-6">
-                <label class="field-label">Dataset Size:</label>
-                <Select
-                  v-model="config.dataset_size"
-                  :options="size_options"
-                  placeholder="Select Size"
-                  class="w-full"
+                <FloatLabel variant="in">
+                  <label class="field-label">Workload Size:</label>
+                  <Select
+                    v-model="config.dataset_size"
+                    :options="size_options"
+                    placeholder="Select Size"
+                    class="w-full"
+                  />
+                </FloatLabel>
+              </FormField>
+            </div>
+            <div class="grid">
+              <FormField class="md:col-6">
+                <label class="field-label">Text2SQL System:</label>
+                <div class="flex flex-wrap gap-3 mt-2">
+                  <MultiSelect
+                    v-model="config.models"
+                    display="chip"
+                    :options="modelOptions"
+                    filter
+                    placeholder="Select Models"
+                    class="w-full"
+                  />
+                </div>
+              </FormField>
+              <FormField class="md:col-6">
+                <label class="field-label">Workload Versions:</label>
+                <MultiSelect
+                  display="chip"
+                  filter
+                  placeholder="Select scales"
+                  v-model="config.dataset_versions"
+                  :options="avail_versions"
                 />
               </FormField>
             </div>
-            <FormField class="md:col-12">
-              <label class="field-label">Models:</label>
-              <div class="flex flex-wrap gap-3 mt-2">
-                <MultiSelect
-                  v-model="config.models"
-                  display="chip"
-                  :options="modelOptions"
-                  filter
-                  placeholder="Select Models"
-                  class="w-full"
-                />
-              </div>
-            </FormField>
             <div class="grid">
               <FormField class="md:col-3">
                 <label class="field-label">Num Iterations:</label>
                 <InputNumber v-model="config.itrs" :min="1" :max="5" fluid> </InputNumber>
               </FormField>
               <FormField class="md:col-6">
-                <label class="field-label">Temperature:</label>
-                <AutoComplete
-                  :typeahead="false"
-                  multiple
-                  :suggestions="suggested_temps"
-                  v-model="config.temps"
-                  @complete="addTemp"
-                  fluid
-                />
+                <FloatLabel variant="in">
+                  <label class="field-label">Temperature:</label>
+                  <AutoComplete
+                    :typeahead="false"
+                    multiple
+                    :suggestions="suggested_temps"
+                    v-model="config.temps"
+                    @complete="addTemp"
+                    fluid
+                  />
+                </FloatLabel>
               </FormField>
               <FormField class="md:col-3">
-                <label class="field-label">Batch Mode:</label>
-                <div class="flex align-items-center">
-                  <ToggleSwitch v-model="config.batch" />
-                  <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
-                </div>
+                <FloatLabel variant="in">
+                  <label class="field-label">Batch Mode:</label>
+                  <div class="flex align-items-center">
+                    <ToggleSwitch v-model="config.batch" />
+                    <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
+                  </div>
+                </FloatLabel>
               </FormField>
             </div>
-            <FormField class="md:col-12">
-              <label class="field-label">Charts:</label>
-              <MultiSelect
-                v-model="config.charts"
-                display="chip"
-                :options="chartOptions"
-                filter
-                placeholder="Select Charts"
-                class="w-full"
-              />
-            </FormField>
+            <div class="grid w-full">
+              <FormField class="md:col-6">
+                <FloatLabel variant="in">
+                  <label>Scaling Factors:</label>
+                  <MultiSelect
+                    class="w-full"
+                    display="chip"
+                    filter
+                    placeholder="Select scales"
+                    v-model="config.scales"
+                    :options="avail_scales"
+                  >
+                  </MultiSelect>
+                </FloatLabel>
+              </FormField>
+              <FormField class="md:col-6">
+                <FloatLabel variant="in">
+                  <label>Augmentation per Subcategory</label>
+                  <InputText size="large" fluid v-model="config.aug_per_sub_cat" />
+                </FloatLabel>
+              </FormField>
+            </div>
+            <div class="grid w-full">
+              <RCalc />
+            </div>
           </div>
-          <div v-if="running" class="md:col-6">
-            <LogsView />
-          </div>
-          <div v-if="finished" class="md:col-6">
-            <ChartsView />
+          <div class="md:col-6 p-2">
+            <div class="config-section">
+              <FormField class="mb-3">
+                <label class="field-label">Error Threshold (Min Acceptable REA):</label>
+                <div class="flex justify-content-center mt-2">
+                  <Knob
+                    value-color="red"
+                    valueTemplate="{value}%"
+                    :size="100"
+                    :min="0"
+                    :max="100"
+                    v-model="errorThresholdPercent"
+                  />
+                </div>
+              </FormField>
+              <FormField v-if="config.pipeline" class="mb-3">
+                <label class="field-label">Pipeline Steps:</label>
+                <div class="pipeline-container mt-2">
+                  <div
+                    v-for="(step, index) in sorted_pipeline_steps"
+                    :key="step"
+                    class="pipeline-step"
+                  >
+                    <ToggleButton
+                      v-model="config.pipeline[step]"
+                      :on-label="step"
+                      :off-label="step"
+                      class="text-capitalize"
+                    />
+                    <i
+                      v-if="index < sorted_pipeline_steps.length - 1"
+                      class="pi pi-arrow-right pipeline-arrow"
+                    ></i>
+                  </div>
+                </div>
+              </FormField>
+              <FormField class="mb-3">
+                <label class="field-label">Charts:</label>
+                <MultiSelect
+                  v-model="config.charts"
+                  display="chip"
+                  :options="chartOptions"
+                  filter
+                  placeholder="Select Charts"
+                  class="w-full"
+                />
+              </FormField>
+            </div>
           </div>
         </div>
       </template>
@@ -155,9 +232,11 @@ import Toast from 'primevue/toast'
 import { ToggleButton, AutoComplete } from 'primevue'
 import LogsView from '@/views/LogsView.vue'
 import ChartsView from '@/views/ChartsView.vue'
+import RCalc from '@/views/RCalc.vue'
 
 export default {
   components: {
+    RCalc,
     LogsView,
     ChartsView,
     Card,
@@ -189,8 +268,8 @@ export default {
       success: false,
       fail: false,
       calculating: false,
-      dataset_options: ['sqlyzr', 'spider', 'bird', 'beaver'],
-      size_options: ['small'],
+      dataset_options: ['sqlyzr', 'aug', 'bird', 'beaver'],
+      size_options: ['small', 'all'],
       config: {
         models: [],
         dataset: '',
@@ -209,6 +288,7 @@ export default {
           transformers: false,
           augment: false,
           charts: false,
+          scale: false,
         },
         pipeline_status: {
           verify: false,
@@ -217,6 +297,7 @@ export default {
           charts: false,
           transformers: false,
           augment: false,
+          scale: false,
         },
         charts: [],
       },
@@ -238,21 +319,35 @@ export default {
     }
   },
   computed: {
-    sorted_pipeline_steps() {
-      return ['verify', 'predict', 'eval', 'charts', 'transformers', 'augment']
+    errorThresholdPercent: {
+      get() {
+        return Math.round((this.config.error_threshold ?? 0) * 100)
+      },
+      set(val) {
+        this.config.error_threshold = val / 100
+      },
     },
 
-    finished() {
-      console.log(this.config)
-      // for (let step of this.sorted_pipeline_steps) {
-      //   if (this.config.pipeline[step]) {
-      //     if (!this.pipeline_status[step]) {
-      //       return false
-      //     }
-      //   }
-      // }
-      return true
+    avail_versions() {
+      return [...Array(5).keys()].map((i) => `v${i}`)
     },
+    avail_scales() {
+      return [1, 2, 5, 10]
+    },
+    sorted_pipeline_steps() {
+      return ['verify', 'predict', 'eval', 'charts', 'transformers', 'augment', 'scale']
+    },
+
+    // finished() {
+    //   for (let step of this.sorted_pipeline_steps) {
+    //     if (this.config.pipeline?.[step]) {
+    //       if (!this.pipeline_status?.[step]) {
+    //         return false
+    //       }
+    //     }
+    //   }
+    //   return true
+    // },
     current_step() {
       let max_i = -1
       for (let i = 0; i < this.sorted_pipeline_steps.length; i++) {
@@ -276,6 +371,7 @@ export default {
     },
 
     async fetchStatus() {
+      console.log('fetching status')
       const data = await this.call_api('api/process/status', {}, false)
       const old_running = this.running
       this.running = data.running
@@ -307,9 +403,17 @@ export default {
         }
       }
 
-      if (this.success || this.fail) {
+      if (!this.running) {
         this.finished = true
         this.clearInterval()
+      }
+      if (this.success) {
+      }
+    },
+    clearInterval() {
+      console.log('clearing interval')
+      if (this.refreshInterval) {
+        clearInterval(this.refreshInterval)
       }
     },
     setInterval() {
@@ -323,6 +427,7 @@ export default {
       console.log(this.pipeline_status)
     },
     async fetchPipelineConfig() {
+      console.log('fetching pipeline config')
       const data = await this.call_api('api/config', {}, false)
       this.pipeline_config = data.pipeline
     },
@@ -364,6 +469,7 @@ export default {
           transformers: false,
           augment: false,
           charts: false,
+          scale: false,
         }
       }
       if (!Array.isArray(this.config.charts)) {
@@ -386,44 +492,6 @@ export default {
     async resetConfig() {
       const response = await this.call_api('api/error', { method: 'POST' })
       console.log(response)
-    },
-
-    async calculate() {
-      this.calculating = true
-      this.error = null
-
-      try {
-        const response = await this.call_api('api/utils/calcr', {
-          method: 'POST',
-          body: JSON.stringify({
-            p: this.p,
-            k: this.k,
-          }),
-        })
-
-        if (response) {
-          this.config.etcr = response.result
-
-          this.$toast.add({
-            severity: 'success',
-            summary: 'Calculation Complete',
-            detail: `R calculation is done`,
-            life: 3000,
-          })
-        }
-      } catch (error) {
-        console.error('Error calculating:', error)
-        this.error = error.message || 'An error occurred during calculation'
-
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Calculation Error',
-          detail: this.error,
-          life: 5000,
-        })
-      } finally {
-        this.calculating = false
-      }
     },
   },
   mounted() {

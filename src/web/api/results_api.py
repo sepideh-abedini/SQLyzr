@@ -69,10 +69,11 @@ class ResultsAPI(BaseAPI):
             # hues = [os.path.basename(f) for f in os.listdir(sqlyzr.conf.eval_conf.charts_dir)]
             # for hue in hues:
             hue = "Model"
-            chart_names = [os.path.basename(f) for f in
-                           os.listdir(os.path.join(sqlyzr.conf.eval_conf.charts_dir, hue))]
-            for chart_name in chart_names:
-                files.append(str(os.path.join(hue, chart_name)))
+            hue_dir = os.path.join(sqlyzr.conf.eval_conf.charts_dir, hue)
+            if os.path.exists(hue_dir):
+                chart_names = [os.path.basename(f) for f in os.listdir(hue_dir)]
+                for chart_name in chart_names:
+                    files.append(str(os.path.join(hue, chart_name)))
             return jsonify({
                 "avail_charts": files,
             })

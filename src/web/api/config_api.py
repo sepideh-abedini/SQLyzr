@@ -6,6 +6,8 @@ from src.sqlyzr.sqlyzr import Sqlyzr
 from .base_api import BaseAPI
 from loguru import logger
 
+from ...configs.config_loader import ConfigData
+
 
 class ConfigAPI(BaseAPI):
 
@@ -18,10 +20,13 @@ class ConfigAPI(BaseAPI):
         return jsonify(data)
 
     def update_config(self):
-        old_config = read_json(self.config_file)
-        config = request.json
-        logger.info(f"New config: {config}")
-        write_json(self.config_file, config)
+        old_config = ConfigData.load(self.config_file)
+        old_config = old_config.dict()
+        update_data = request.json
+        for key, value in update_data.items():
+            old_config[key] = value
+        logger.info(f"New config: {update_data}")
+        write_json(self.config_file, old_config)
         try:
             sqlyzr = Sqlyzr(self.config_file)
         except Exception as e:
@@ -29,3 +34,4 @@ class ConfigAPI(BaseAPI):
             write_json(self.config_file, old_config)
             return str(e), 400
         return jsonify({"message": "Configuration updated successfully"})
+

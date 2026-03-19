@@ -1,11 +1,14 @@
+import shutil
+
 import pandas as pd
 
 from src.chart.charter import draw_all_charts
-from src.configs.config_loader import load_config
+from src.configs.config_loader import load_config, ConfigData
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.model.models import run_model
 from src.sqlyzr.augment_data import DatasetAugmentor
 from src.sqlyzr.pipeline_config import PipelineConfig
+from src.sqlyzr.run_scale_cli import scale_dbs
 from src.sqlyzr.score_calculator import ScoreCalculator
 from src.sqlyzr.scores_post_processor import ScoresPostProcessor
 from src.sqlyzr.transformer_eval import TransformerFinder
@@ -14,9 +17,11 @@ from src.sqlyzr.validate import validate_dataset
 
 class Sqlyzr:
     conf: SQLyzrConfig
+    conf_path: str
 
     def __init__(self, conf_path: str):
         self.conf = load_config(conf_path)
+        self.conf_path = conf_path
 
     async def run(self):
         run_status = PipelineConfig.init()
@@ -51,5 +56,12 @@ class Sqlyzr:
 
         if self.conf.pipeline.augment:
             augmentor = DatasetAugmentor(self.conf)
-            await augmentor.augment_data()
+            new_ver = await augmentor.augment_data(expand=True)
             run_status.augment = True
+            conf_data = ConfigData.load(self.conf_path)
+            conf_data.dataset_versions.append(new_ver)
+            shutil.copy(self.conf_path, f"{self.conf_path}.bak")
+            conf_data.save(self.conf_path)
+
+        if self.conf.pipeline.scale:
+            scale_dbs(self.conf_path)

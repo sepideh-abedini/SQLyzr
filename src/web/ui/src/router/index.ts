@@ -32,7 +32,7 @@ const router = createRouter({
     {
       path: '/charts',
       name: 'charts',
-      component: ChartsView,
+      component: AugView,
     },
     {
       path: '/files',

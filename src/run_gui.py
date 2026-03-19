@@ -10,7 +10,7 @@ from src.sqlyzr.sqlyzr import Sqlyzr
 async def run_gui():
     logger.info("STARTING SQLYZR")
     print_logo()
-    sqlyzr = Sqlyzr("gui.json")
+    sqlyzr = Sqlyzr("confs/gui.json")
     await sqlyzr.run()
     logger.info("FINISHED SQLYZR")
 
