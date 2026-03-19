@@ -3,114 +3,49 @@
     <Toast />
     <div class="grid">
       <div class="grid md:col-6">
-        <div class="grid m-0 w-full">
-          <FormField class="md:col-6">
-            <label class="field-label">Models:</label>
-            <MultiSelect
-              display="chip"
-              filter
-              placeholder="Select Models"
-              v-model="config.models"
-              :options="avail_models"
-            />
-          </FormField>
-          <FormField class="md:col-6">
-            <label class="field-label">Dataset:</label>
-            <Select
-              placeholder="Select Dataset"
-              :options="avail_datasets"
-              v-model="config.dataset"
-            />
-          </FormField>
-        </div>
-        <div class="grid m-0 w-full">
-          <FormField class="md:col-6">
-            <label class="field-label">Scaling Factors:</label>
-            <MultiSelect
-              display="chip"
-              filter
-              placeholder="Select scales"
-              v-model="config.scales"
-              :options="avail_scales"
-            />
-          </FormField>
-          <FormField class="md:col-6">
-            <label class="field-label">Workload Versions:</label>
-            <MultiSelect
-              display="chip"
-              filter
-              placeholder="Select scales"
-              v-model="config.dataset_versions"
-              :options="avail_versions"
-            />
-          </FormField>
-        </div>
-        <div class="grid m-0 w-full">
-          <FormField class="md:col-6">
-            <FloatLabel variant="in">
-              <label>Examples per Sub</label>
-              <InputText v-model="config.aug_per_sub_cat" />
-            </FloatLabel>
-          </FormField>
-          <FormField class="md:col-6">
-            <Slider
-              v-model="config.aug_per_sub_cat"
-              :min="1"
-              :max="100"
-              :step="1"
-              class="w-5 mt-4"
-            />
-          </FormField>
-        </div>
-        <div class="grid m-0 w-full">
-          <FormField class="md:col-6">
-            <FloatLabel variant="in">
-              <label>Error Threshold</label>
-              <InputText v-model="config.error_threshold" />
-            </FloatLabel>
-          </FormField>
-          <FormField class="md:col-6">
-            <Slider
-              v-model="config.error_threshold"
-              :min="0"
-              :max="1"
-              :step="0.01"
-              class="w-5 mt-4"
-            />
-          </FormField>
-        </div>
-
+        <AugConfigView ref="augRef" v-model="modified" />
         <div class="grid mt-5 w-full">
           <div class="md:col-3 flex flex-column gap-2">
-            <Button label="Run" icon="pi pi-play" @click="onRun" :disabled="isRunning" />
+            <Button
+              label="Run"
+              icon="pi pi-play"
+              @click="onRun"
+              v-tooltip="getTooltip('Run SQLyzr on the latest workload version.')"
+              :disabled="disabled"
+            />
             <Button
               label="Cleanup"
               icon="pi pi-trash"
+              v-tooltip="'Delete all output files'"
               @click="onClear"
               severity="danger"
-              :disabled="isRunning"
             />
           </div>
           <div class="md:col-3 flex flex-column gap-2">
             <Button
               label="Scale"
+              v-tooltip="getTooltip('Scale all database by the selected factors.')"
               icon="pi pi-window-maximize"
               @click="onScale"
-              :disabled="isRunning"
+              :disabled="disabled"
             />
           </div>
           <div class="md:col-3 flex flex-column gap-2">
-            <Button label="Augment" icon="pi pi-forward" @click="onAugment" :disabled="isRunning" />
+            <Button
+              label="Augment"
+              v-tooltip="getTooltip('')"
+              icon="pi pi-forward"
+              @click="onAugment"
+              :disabled="disabled"
+            />
             <Button
               label="Reset"
               icon="pi pi-backward"
+              v-tooltip="getTooltip('Delete all workload versions and revert to v0.')"
               @click="onReset"
               severity="warn"
-              :disabled="isRunning"
+              :disabled="disabled"
             />
-          </div>
-          <div class="md:col-2">
-            <Button label="Save" icon="pi pi-save" @click="saveConfig" />
           </div>
         </div>
         <div class="md:col-6">
@@ -135,7 +70,7 @@
             />
           </div>
         </div>
-        <div class="col-12 mt-4 w-full">
+        <div v-if="0" class="col-12 mt-4 w-full">
           <DataTable
             :value="db_stats"
             class="p-datatable-sm"
@@ -174,10 +109,11 @@
             placeholder="Select a grouping"
             default-value="Model"
             class="w-full"
+            :disabled="avail_hues.length === 0"
           />
         </FormField>
-        <div class="h-full rounded-lg p-4">
-          <img :src="plot_url" alt="Plot" class="plot" />
+        <div v-if="selectedPlot" class="h-full rounded-lg p-4">
+          <img :src="plot_url" class="plot" />
         </div>
       </div>
     </div>
@@ -200,12 +136,22 @@ import MultiSelect from 'primevue/multiselect'
 import DataTable from 'primevue/datatable'
 import FloatLabel from 'primevue/floatlabel'
 import Column from 'primevue/column'
+import AugConfigView from '@/views/AugConfigView.vue'
 
 const charts = {
-  REA: 'mean__relaxed__execution__accuracy_per__sub_category',
-  Overall: 'overall__scores',
-  GET: 'mean__gold__execution__time_per_scale',
-  'SubCategory Dist': 'sub_cat_count',
+  REA: {
+    file: 'mean__relaxed__execution__accuracy_per__sub_category',
+    vars: ['Model', 'dst_ver'],
+  },
+  Overall: {
+    file: 'overall__scores',
+    vars: ['Model', 'dst_ver'],
+  },
+  'Gold Exec Time': { file: 'mean__gold__execution__time_per_scale', vars: ['Model', 'dst_ver'] },
+  'SubCategory Dist': {
+    file: 'sub_cat_count',
+    vars: [],
+  },
 }
 
 export default {
@@ -218,8 +164,8 @@ export default {
       isRunning: false,
       status: 'idle',
       statusInterval: null as number | null,
-      selectedPlot: 'EA',
-      selectedHue: 'Model',
+      selectedPlot: null,
+      selectedHue: null,
       config: {
         error_threshold: 0.9,
         aug_per_sub_cat: 10,
@@ -230,6 +176,8 @@ export default {
       },
       plotTimestamp: Date.now(),
       onDoneCallback: null as (() => void) | null,
+      modified: false,
+      avail_hues: [],
     }
   },
   computed: {
@@ -247,31 +195,35 @@ export default {
     avail_models() {
       return ['simple', 'simple_v2']
     },
-
-    avail_hues() {
-      return ['Model', 'dst_ver']
-    },
     avail_scales() {
       return [1, 2, 5, 10]
     },
     plot_url() {
-      const chart_name = charts[this.selectedPlot]
-      return `${API_BASE_URL}/api/aug/plot/${this.selectedHue}/${chart_name}?ts=${this.plotTimestamp}`
+      const chart_name = charts[this.selectedPlot]?.file
+      if (this.selectedHue)
+        return `${API_BASE_URL}/api/aug/plot/${this.selectedHue}/${chart_name}?ts=${this.plotTimestamp}`
+      else return `${API_BASE_URL}/api/aug/plot/${chart_name}?ts=${this.plotTimestamp}`
+    },
+    disabled() {
+      return this.isRunning || this.modified
     },
   },
   methods: {
+    getTooltip(msg: string) {
+      if (this.disabled) return 'Save configuration changes before running.'
+      else return msg
+    },
     refreshPlot() {
       this.plotTimestamp = Date.now()
     },
-
     async checkStatus() {
       try {
-        const res = await this.call_api('api/aug/status')
+        const res = await this.call_api('api/aug/status', {}, false)
         if (res && res.status === 'running') {
           this.isRunning = true
           this.status = 'running'
           if (!this.statusInterval) {
-            this.startPolling()
+            await this.startPolling()
           }
         } else {
           if (this.isRunning) {
@@ -279,20 +231,20 @@ export default {
           }
           this.refreshPlot()
           this.isRunning = false
-          this.stopPolling()
+          await this.stopPolling()
         }
       } catch (error) {
         console.error('Error checking status:', error)
         this.status = 'error'
         this.isRunning = false
-        this.stopPolling()
+        await this.stopPolling()
       }
     },
 
     async onRun() {
       const res = await this.call_api('api/aug/start/sqlyzr', { method: 'POST' })
       this.onDoneCallback = () => {
-        this.selectedPlot = 'SubCategory Dist'
+        this.selectedPlot = 'Overall'
       }
       await this.checkStatus()
     },
@@ -321,24 +273,26 @@ export default {
       const res = await this.call_api('api/aug/start/aug', { method: 'POST' })
       this.onDoneCallback = () => {
         this.selectedPlot = 'SubCategory Dist'
+        this.fetchConfig()
       }
       await this.checkStatus()
     },
 
     async onReset() {
       const res = await this.call_api('api/aug/start/reset', { method: 'POST' })
-      await this.checkStatus()
       this.onDoneCallback = () => {
         this.selectedPlot = 'SubCategory Dist'
+        this.fetchConfig()
       }
+      await this.checkStatus()
     },
-    startPolling() {
+    async startPolling() {
       if (this.statusInterval) return
       this.statusInterval = window.setInterval(() => {
         this.checkStatus()
       }, 2000)
     },
-    stopPolling() {
+    async stopPolling() {
       if (this.statusInterval) {
         clearInterval(this.statusInterval)
         this.statusInterval = null
@@ -347,16 +301,13 @@ export default {
           this.onDoneCallback = null
         }
       }
-      this.fetchConfig()
+      await this.fetchConfig()
     },
 
     async fetchConfig() {
       const stats = await this.call_api('api/aug/stats')
       this.db_stats = stats.db_stats
-      console.log(stats)
-      const data = await this.call_api('api/aug/config')
-      this.config = data
-      console.log(this.config.error_threshold)
+      this.$refs.augRef.fetchConfig()
       this.refreshPlot()
     },
 
@@ -373,9 +324,15 @@ export default {
   },
   watch: {
     selectedPlot(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.refreshPlot()
+      if (newVal !== null) {
+        this.avail_hues = charts[newVal].vars
+        if (this.avail_hues.length === 0) {
+          this.selectedHue = null
+        } else {
+          this.selectedHue = this.avail_hues[0]
+        }
       }
+      this.refreshPlot()
     },
   },
   mounted() {
@@ -399,6 +356,7 @@ export default {
     DataTable,
     FloatLabel,
     Column,
+    AugConfigView,
   },
 }
 </script>

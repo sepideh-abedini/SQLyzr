@@ -24,7 +24,7 @@ from src.web.api.utils_api import UtilsAPI
 app = Flask(__name__)
 CORS(app)
 
-CONFIG_FILE = "gui.json"
+CONFIG_FILE = "confs/gui.json"
 
 background_tasks = {}
 

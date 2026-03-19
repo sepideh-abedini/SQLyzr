@@ -6,8 +6,7 @@
     "dataset": "aug",
     "dataset_size": "small",
     "dataset_versions": [
-        "v0",
-        "v1"
+        "v0"
     ],
     "temps": [
         0.5
@@ -30,9 +29,10 @@
         "Gold Execution Time Scaled",
         "Execution Accuracy",
         "Relaxed Execution Accuracy",
-        "Overall"
+        "Overall",
+        "Category Distribution"
     ],
-    "etcr": 1.1,
+    "etcr": 1.46,
     "scales": [
         1
     ],

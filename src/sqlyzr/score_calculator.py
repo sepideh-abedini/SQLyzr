@@ -58,9 +58,15 @@ def calc_for_conf_scale(conf: SQLyzrConfig, run_conf: SingleRunConfig, scale: in
     df["tokens"] = tokens
     df["time_seconds"] = times
     df['count'] = 1
-    df['plc'] = df.apply(lambda e: int(find_cat(e['pcat']) <= find_cat(e['cat'])), axis=1)
+    df['gold_cat_idx'] = df['cat'].str.replace('c', '', regex=False).astype(int)
+    df['pred_cat_idx'] = df['pcat'].str.replace('c', '', regex=False).astype(int)
+    df['pred_cat_lt_gold'] = (df['pred_cat_idx'] <= df['gold_cat_idx']).astype(int)
+    df['plc'] = df['pred_cat_lt_gold'] * df['rea']
+    df['pred_et_lt_gold'] = df.apply(lambda e: int((e['et'] / e['get']) < conf.etc_ratio), axis=1)
+    df["plt"] = df['pred_et_lt_gold'] * df['rea']
+    # df['plc'] = df.apply(lambda e: int(find_cat(e['pcat']) <= find_cat(e['cat'])), axis=1)
     # df['plt'] = df.apply(lambda e: int((df['get'] != 0) & (e['et'] / e['get']) > conf.etc_ratio), axis=1)
-    df['plt'] = ((df['get'] != 0) & ((df['et'] / df['get']) > conf.etc_ratio)).astype(int)
+    # df['plt'] = ((df['get'] != 0) & ((df['et'] / df['get']) > conf.etc_ratio)).astype(int)
     df['scale'] = scale
 
     return df

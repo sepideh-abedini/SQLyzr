@@ -34,7 +34,7 @@ def extract_cats(data_file):
 
 async def main():
     configure_logging()
-    conf_path = "tests/aug.json"
+    conf_path = "confs/aug.json"
     sqlyzr = Sqlyzr(conf_path)
     await sqlyzr.run()
 

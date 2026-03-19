@@ -13,7 +13,7 @@ from ...rel.sqlite_facade import SqliteFacade
 from ...sqlyzr.sqlyzr import Sqlyzr
 from ...util.file_utils import read_json, write_json
 
-AUG_CONF = "tests/aug.json"
+AUG_CONF = "confs/aug.json"
 
 
 class AugAPI(BaseAPI):
@@ -24,9 +24,11 @@ class AugAPI(BaseAPI):
     def register_routes(self):
         self.app.route('/api/aug/stats', methods=['GET'])(self.get_ds_stats)
         self.app.route('/api/aug/start/<script>', methods=['POST'])(self.start_eval)
+        self.app.route('/api/aug/reset', methods=['POST'])(self.reset_aug)
         self.app.route('/api/aug/config', methods=['GET'])(self.get_aug_config)
         self.app.route('/api/aug/save', methods=['POST'])(self.update_aug_config)
         self.app.route('/api/aug/status', methods=['GET'])(self.get_eval_status)
+        self.app.route('/api/aug/plot/<name>', methods=['GET'])(self.get_plot)
         self.app.route('/api/aug/plot/<hue>/<name>', methods=['GET'])(self.get_plot)
         self.app.route('/api/aug/clear', methods=['POST'])(self.clear)
 
@@ -104,7 +106,7 @@ class AugAPI(BaseAPI):
 
     def get_eval_status(self):
         if self.process is None:
-            return jsonify({"status": "no_process_found"}), 404
+            return jsonify({"status": "no_process_found"}), 200
 
         exit_code = self.process.poll()
 
@@ -120,11 +122,14 @@ class AugAPI(BaseAPI):
                 "pid": self.process.pid
             })
 
-    def get_plot(self, hue, name):
+    def get_plot(self, hue=None, name=None):
         conf = load_config(AUG_CONF)
         logger.info(conf.get_aug_out("spider"))
         chart_file = f"{name}.png"
-        plot_path = os.path.join(conf.eval_conf.charts_dir, hue, chart_file)
+        if hue is not None:
+            plot_path = os.path.join(conf.eval_conf.charts_dir, hue, chart_file)
+        else:
+            plot_path = os.path.join(conf.eval_conf.charts_dir, chart_file)
         plot_path = os.path.normpath(plot_path)
         if os.path.exists(plot_path):
             plot_path = "../../" + plot_path
@@ -151,3 +156,11 @@ class AugAPI(BaseAPI):
     def get_aug_config(self):
         data = read_json(AUG_CONF)
         return jsonify(data)
+
+    def reset_aug(self):
+        conf_data = ConfigData.load(AUG_CONF)
+        conf_data = conf_data.model_copy(update={
+            "dataset_versions": [conf_data.dataset_versions[0]]
+        })
+        conf_data.save(AUG_CONF)
+        return jsonify(conf_data.dict()), 200

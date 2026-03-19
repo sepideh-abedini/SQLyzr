@@ -14,6 +14,8 @@ import 'vuefinder/dist/style.css'
 import VueFinder from 'vuefinder/dist/vuefinder'
 import api_mixin from './api_mixin'
 import Userback from '@userback/widget'
+import Tooltip from 'primevue/tooltip'
+
 
 const app = createApp(App)
 const MyPreset = definePreset(Aura, {
@@ -21,6 +23,7 @@ const MyPreset = definePreset(Aura, {
     '--p-togglebutton-content-checked-background': '#2196f3',
   },
 })
+app.directive('tooltip', Tooltip)
 app.use(router)
 app.use(PrimeVue, {
   theme: {

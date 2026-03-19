@@ -2,19 +2,18 @@
     "aug_per_sub_cat": 10,
     "batch": false,
     "charts": [
-        "Gold Execution Time Scaled",
         "Execution Accuracy",
         "Relaxed Execution Accuracy",
         "Overall"
     ],
     "data_dir": "data",
-    "dataset": "sqlyzr",
+    "dataset": "spider",
     "dataset_size": "small",
     "dataset_versions": [
         "v0"
     ],
     "error_threshold": 0.78,
-    "etcr": 1.1,
+    "etcr": 1.46,
     "eval_force": false,
     "force": false,
     "itrs": 1,
@@ -31,11 +30,9 @@
         "verify": false
     },
     "scales": [
-        1,
-        2,
-        5
+        1
     ],
     "temps": [
-        0.5
+        0.4
     ]
 }
