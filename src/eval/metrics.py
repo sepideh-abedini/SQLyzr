@@ -11,7 +11,7 @@ from src.eval import lib
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.eval.single_run_config import SingleRunConfig
-from src.rel.db_facade import DatabaseFacade
+from src.rel.db_facade import DatabaseFacade, DB_TIMEOUT
 from src.rel.db_factory import DatabaseFactory
 from src.rel.result_matcher import ExtraColumnsMatcher, IgnoreListOrderMatcher, IgnoreColOrderMatcher
 from src.rel.sql_data import SqlInputData, SqlParsedData
@@ -216,7 +216,7 @@ class GoldExecTime(Metric):
     def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> int:
         try:
             timer = lib.Timer.start()
-            res = self.dbc.exec_query_uncached(db_id, gold, scale=scale, timeout=1000)
+            res = self.dbc.exec_query_uncached(db_id, gold, scale=scale, timeout=DB_TIMEOUT)
             pred_sql_exec_time = timer.lap()
             return pred_sql_exec_time * 1_000_000
         except Exception as e:

@@ -17,7 +17,7 @@ class SqliteTable(dict):
     __setattr__ = dict.__setitem__
 
 
-DB_LONG_TIMEOUT = int(os.environ.get("DB_LONG_TIMEOUT", 6000))
+DB_LONG_TIMEOUT = int(os.environ.get("DB_LONG_TIMEOUT", 60000))
 
 
 def get_tables(conf: DatasetConfig, db_id):

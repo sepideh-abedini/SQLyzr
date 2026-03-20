@@ -316,9 +316,8 @@ class Drawer:
         self.save_fig("overall", ax)
         # plt.savefig(os.path.join(self.out_dir, f"overall.png"))
 
-    def draw_exec_time_scale(self):
+    def draw_scale_plot(self, metric):
         x = 'scale'
-        metric = "Gold Execution Time"
         num_x = self.df[x].nunique()
         width = max(5, num_x * (bar_width + bar_spacing))
         fig = plt.figure(figsize=(width, 5))

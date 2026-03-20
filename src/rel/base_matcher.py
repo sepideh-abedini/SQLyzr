@@ -3,7 +3,7 @@ from typing import List
 from loguru import logger
 
 from src.eval.exact_match import ExactMatchParser
-from src.rel.db_facade import DatabaseFacade
+from src.rel.db_facade import DatabaseFacade, DB_TIMEOUT
 from src.rel.result_matcher import ExactMatcher, ResultMatcher
 from src.rel.sql_data import SqlInputData, SqlParsedData, SqlExecResult
 from src.rel.sql_processor import SqlMatchingProcessor
@@ -39,7 +39,7 @@ class Matcher:
 
     def exec(self, data: SqlParsedData) -> SqlExecResult:
         # res = await self.db_facade.exec_query_async(data.db_id, data.sql)
-        res = self.db_facade.exec_query_sync(data.db_id, data.sql, timeout=2500)
+        res = self.db_facade.exec_query_sync(data.db_id, data.sql, timeout=5000)
         return data.to_result(res)
 
     def match(self, pred: SqlInputData, gold: SqlInputData):

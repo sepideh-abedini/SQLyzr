@@ -3,7 +3,7 @@
     "out_dir": "out",
     "aug_per_sub_cat": 5,
     "error_threshold": 0.8,
-    "dataset": "aug",
+    "dataset": "spider",
     "dataset_size": "small",
     "dataset_versions": [
         "v0"
@@ -13,24 +13,23 @@
     ],
     "itrs": 1,
     "models": [
-        "direct"
+        "dail"
     ],
     "batch": false,
     "force": false,
     "pipeline": {
         "augment": false,
         "charts": true,
-        "eval": false,
+        "eval": true,
         "predict": true,
         "scale": false,
         "transformers": false,
         "verify": false
     },
     "charts": [
-        "Token Usage",
-        "Gold Execution Time Scaled",
+        "Execution Accuracy",
         "Relaxed Execution Accuracy",
-        "Overall"
+        "Execution Accuracy-Scaled"
     ],
     "etcr": 1,
     "scales": [

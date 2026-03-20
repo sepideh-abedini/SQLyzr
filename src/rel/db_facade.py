@@ -6,7 +6,7 @@ from src.eval.dataset_config import DatasetConfig
 
 IN_MEM_DB = False
 
-DB_TIMEOUT = int(os.environ.get("DB_TIMEOUT", 6_000))
+DB_TIMEOUT = int(os.environ.get("DB_TIMEOUT", 60_000))
 DB_CACHE = bool(int(os.environ.get("DB_CACHE", 0)))
 
 

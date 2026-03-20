@@ -30,8 +30,11 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         drawer.draw_cats()
     if "Overall" in included_charts:
         drawer.draw_overall()
-    if "Gold Execution Time Scaled" in included_charts:
-        drawer.draw_exec_time_scale()
+
+    drawer = Drawer(scores_path, show=False, out_dir=out_dir, hue="scale")
+    scaled_metrics = [c.replace("-Scaled", "") for c in included_charts if "Scaled" in c]
+    for metric in scaled_metrics:
+        drawer.draw_scale_plot(metric)
 
     drawer = Drawer(scores_path, include_all=True, show=False, out_dir=out_dir, hue=hue)
     metrics = [
@@ -54,7 +57,8 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         if metric in included_charts:
             drawer.draw(metric)
 
-    drawer = Drawer(scores_path, include_all=True, only_correct=True, show=False, exclude_c6=True, out_dir=out_dir, hue=hue)
+    drawer = Drawer(scores_path, include_all=True, only_correct=True, show=False, exclude_c6=True, out_dir=out_dir,
+                    hue=hue)
     metrics = [
         "Complexity Consistency",
         "Complexity Inconsistency"
