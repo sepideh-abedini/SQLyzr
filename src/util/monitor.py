@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 import time
 from multiprocessing import Process
 
@@ -18,6 +19,7 @@ class MonitorProcess(Process):
 
     def run(self):
         logger.remove()
+        logger.add(sys.stdout)
         logger.add("util.log")
         logger.add("util.jsonl", serialize=True)
         logger.bind(pid=self.tracking_pid)
@@ -30,7 +32,9 @@ class MonitorProcess(Process):
                 print(e)
 
     def stop(self):
+        logger.info("Terminating Process")
         self.running = False
+        self.terminate()
 
 
 class ProcessUsage:

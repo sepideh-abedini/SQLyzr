@@ -22,6 +22,7 @@ def configure_logging():
         logger.remove(0)
     except Exception:
         pass
+    logger.add("std.log", level="INFO")
     # logger.add(sys.stderr, level=os.environ.get("LOG_LEVEL", "INFO").upper(), colorize=True,
     #            format="<green>{time:HH:mm:ss} | </green><level> {level}: {message}</level>")
     # logger.add("timing.jsonl", level="INFO", filter=filter_timing, serialize=True)
