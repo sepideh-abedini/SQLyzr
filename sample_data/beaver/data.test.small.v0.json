@@ -1,0 +1,1330 @@
+[
+    {
+        "question": "For each IAP category and academic year, list the category name, academic year, total fee collected, total number of IAP subjects, and the minimum and maximum enrollment.",
+        "db_id": "dw",
+        "sql": "SELECT isc.IAP_CATEGORY_NAME, td.ACADEMIC_YEAR, SUM(isd.FEE) AS Total_Fee, COUNT(distinct isd.ACTIVITY_TITLE) AS Total_Subjects, MIN(isd.MAX_ENROLLMENT) AS Min_Attendance, MAX(isd.MAX_ENROLLMENT) AS Max_Attendance FROM IAP_SUBJECT_DETAIL isd JOIN IAP_SUBJECT_CATEGORY isc ON isd.IAP_SUBJECT_CATEGORY_KEY = isc.IAP_SUBJECT_CATEGORY_KEY JOIN TIME_DAY td ON isd.TERM_CODE = td.ACADEMIC_TERM_CODE GROUP BY isc.IAP_CATEGORY_NAME, td.ACADEMIC_YEAR;",
+        "oracle_sql": "SELECT isc.IAP_CATEGORY_NAME, td.ACADEMIC_YEAR, SUM(isd.FEE) AS Total_Fee, COUNT(distinct isd.ACTIVITY_TITLE) AS Total_Subjects, MIN(isd.MAX_ENROLLMENT) AS Min_Attendance, MAX(isd.MAX_ENROLLMENT) AS Max_Attendance FROM IAP_SUBJECT_DETAIL isd JOIN IAP_SUBJECT_CATEGORY isc ON isd.IAP_SUBJECT_CATEGORY_KEY = isc.IAP_SUBJECT_CATEGORY_KEY JOIN TIME_DAY td ON isd.TERM_CODE = td.ACADEMIC_TERM_CODE GROUP BY isc.IAP_CATEGORY_NAME, td.ACADEMIC_YEAR;",
+        "gold_tables": [
+            "dw#sep#IAP_SUBJECT_DETAIL",
+            "dw#sep#IAP_SUBJECT_CATEGORY",
+            "dw#sep#TIME_DAY"
+        ],
+        "mapping": {
+            "category name": [
+                "IAP_SUBJECT_CATEGORY.IAP_CATEGORY_NAME"
+            ],
+            "academic year": [
+                "TIME_DAY.ACADEMIC_YEAR"
+            ],
+            "fee collected": [
+                "IAP_SUBJECT_DETAIL.FEE"
+            ],
+            "IAP subjects": [
+                "IAP_SUBJECT_DETAIL.ACTIVITY_TITLE"
+            ],
+            "enrollment": [
+                "IAP_SUBJECT_DETAIL.MAX_ENROLLMENT"
+            ]
+        },
+        "join_keys": [
+            [
+                "IAP_SUBJECT_DETAIL.IAP_SUBJECT_CATEGORY_KEY",
+                "IAP_SUBJECT_CATEGORY.IAP_SUBJECT_CATEGORY_KEY"
+            ],
+            [
+                "TIME_DAY.ACADEMIC_TERM_CODE",
+                "IAP_SUBJECT_DETAIL.TERM_CODE"
+            ]
+        ],
+        "query": "SELECT isc.IAP_CATEGORY_NAME, td.ACADEMIC_YEAR, SUM(isd.FEE) AS Total_Fee, COUNT(distinct isd.ACTIVITY_TITLE) AS Total_Subjects, MIN(isd.MAX_ENROLLMENT) AS Min_Attendance, MAX(isd.MAX_ENROLLMENT) AS Max_Attendance FROM IAP_SUBJECT_DETAIL isd JOIN IAP_SUBJECT_CATEGORY isc ON isd.IAP_SUBJECT_CATEGORY_KEY = isc.IAP_SUBJECT_CATEGORY_KEY JOIN TIME_DAY td ON isd.TERM_CODE = td.ACADEMIC_TERM_CODE GROUP BY isc.IAP_CATEGORY_NAME, td.ACADEMIC_YEAR;",
+        "question_toks": [
+            "For",
+            "each",
+            "IAP",
+            "category",
+            "and",
+            "academic",
+            "year",
+            ",",
+            "list",
+            "the",
+            "category",
+            "name",
+            ",",
+            "academic",
+            "year",
+            ",",
+            "total",
+            "fee",
+            "collected",
+            ",",
+            "total",
+            "number",
+            "of",
+            "IAP",
+            "subjects",
+            ",",
+            "and",
+            "the",
+            "minimum",
+            "and",
+            "maximum",
+            "enrollment",
+            "."
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "For each sponsor of the independent activity periods, list the sponsor name, number of sessions held, the total number of enrollment, the minimum and maximum fee, the number of sessions with info, and the number of sessions without info.",
+        "db_id": "dw",
+        "sql": "SELECT issr.SPONSOR_NAME, COUNT(DISTINCT iss.IAP_SUBJECT_SESSION_KEY) AS Total_Sessions, SUM(isd.MAX_ENROLLMENT), MIN(isd.FEE) AS Min_Fee, MAX(isd.FEE) AS Max_Fee, SUM(CASE WHEN iss.HAS_SESSION_INFO = 'Y' THEN 1 ELSE 0 END) AS Num_Sessions_With_Info, SUM(CASE WHEN iss.HAS_SESSION_INFO = 'N' THEN 1 ELSE 0 END) AS Num_Sessions_Without_Info FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN IAP_SUBJECT_SPONSOR issr ON isd.IAP_SUBJECT_SPONSOR_KEY = issr.IAP_SUBJECT_SPONSOR_KEY GROUP BY issr.SPONSOR_NAME;",
+        "oracle_sql": "SELECT issr.SPONSOR_NAME, COUNT(DISTINCT iss.IAP_SUBJECT_SESSION_KEY) AS Total_Sessions, SUM(isd.MAX_ENROLLMENT), MIN(isd.FEE) AS Min_Fee, MAX(isd.FEE) AS Max_Fee, SUM(CASE WHEN iss.HAS_SESSION_INFO = 'Y' THEN 1 ELSE 0 END) AS Num_Sessions_With_Info, SUM(CASE WHEN iss.HAS_SESSION_INFO = 'N' THEN 1 ELSE 0 END) AS Num_Sessions_Without_Info FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN IAP_SUBJECT_SPONSOR issr ON isd.IAP_SUBJECT_SPONSOR_KEY = issr.IAP_SUBJECT_SPONSOR_KEY GROUP BY issr.SPONSOR_NAME;",
+        "gold_tables": [
+            "dw#sep#IAP_SUBJECT_SESSION",
+            "dw#sep#IAP_SUBJECT_DETAIL",
+            "dw#sep#IAP_SUBJECT_SPONSOR"
+        ],
+        "mapping": {
+            "sponsor name": [
+                "IAP_SUBJECT_SPONSOR.SPONSOR_NAME"
+            ],
+            "sessions": [
+                "IAP_SUBJECT_SESSION.IAP_SUBJECT_SESSION_KEY"
+            ],
+            "enrollment": [
+                "IAP_SUBJECT_DETAIL.MAX_ENROLLMENT"
+            ],
+            "fee": [
+                "IAP_SUBJECT_DETAIL.FEE"
+            ],
+            "info": [
+                "IAP_SUBJECT_SESSION.HAS_SESSION_INFO"
+            ]
+        },
+        "join_keys": [
+            [
+                "IAP_SUBJECT_DETAIL.IAP_SUBJECT_SESSION_KEY",
+                "IAP_SUBJECT_SESSION.IAP_SUBJECT_SESSION_KEY"
+            ],
+            [
+                "IAP_SUBJECT_SPONSOR.IAP_SUBJECT_SPONSOR_KEY",
+                "IAP_SUBJECT_DETAIL.IAP_SUBJECT_SPONSOR_KEY"
+            ]
+        ],
+        "query": "SELECT issr.SPONSOR_NAME, COUNT(DISTINCT iss.IAP_SUBJECT_SESSION_KEY) AS Total_Sessions, SUM(isd.MAX_ENROLLMENT), MIN(isd.FEE) AS Min_Fee, MAX(isd.FEE) AS Max_Fee, SUM(CASE WHEN iss.HAS_SESSION_INFO = 'Y' THEN 1 ELSE 0 END) AS Num_Sessions_With_Info, SUM(CASE WHEN iss.HAS_SESSION_INFO = 'N' THEN 1 ELSE 0 END) AS Num_Sessions_Without_Info FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN IAP_SUBJECT_SPONSOR issr ON isd.IAP_SUBJECT_SPONSOR_KEY = issr.IAP_SUBJECT_SPONSOR_KEY GROUP BY issr.SPONSOR_NAME;",
+        "question_toks": [
+            "For",
+            "each",
+            "sponsor",
+            "of",
+            "the",
+            "independent",
+            "activity",
+            "periods",
+            ",",
+            "list",
+            "the",
+            "sponsor",
+            "name",
+            ",",
+            "number",
+            "of",
+            "sessions",
+            "held",
+            ",",
+            "the",
+            "total",
+            "number",
+            "of",
+            "enrollment",
+            ",",
+            "the",
+            "minimum",
+            "and",
+            "maximum",
+            "fee",
+            ",",
+            "the",
+            "number",
+            "of",
+            "sessions",
+            "with",
+            "info",
+            ",",
+            "and",
+            "the",
+            "number",
+            "of",
+            "sessions",
+            "without",
+            "info",
+            "."
+        ],
+        "cat": "c5",
+        "sub": "s32"
+    },
+    {
+        "question": "What are the individual's email and name, academic year, total number of IAP subjects, the minimum and maximum fees, and the total course enrollment for each individual and academic year?",
+        "db_id": "dw",
+        "sql": "SELECT isp.PERSON_EMAIL, isp.PERSON_NAME, td.ACADEMIC_YEAR, COUNT(distinct isd.ACTIVITY_TITLE) AS Total_Subjects, MIN(isd.FEE) AS Min_Fee, MAX(isd.FEE) AS Max_Fee, SUM(isd.MAX_ENROLLMENT) FROM IAP_SUBJECT_PERSON isp JOIN IAP_SUBJECT_DETAIL isd ON isp.IAP_SUBJECT_PERSON_KEY = isd.IAP_SUBJECT_PERSON_KEY JOIN TIME_DAY td ON isd.TERM_CODE = td.ACADEMIC_TERM_CODE GROUP BY isp.PERSON_EMAIL, isp.PERSON_NAME, td.ACADEMIC_YEAR;",
+        "oracle_sql": "SELECT isp.PERSON_EMAIL, isp.PERSON_NAME, td.ACADEMIC_YEAR, COUNT(distinct isd.ACTIVITY_TITLE) AS Total_Subjects, MIN(isd.FEE) AS Min_Fee, MAX(isd.FEE) AS Max_Fee, SUM(isd.MAX_ENROLLMENT) FROM IAP_SUBJECT_PERSON isp JOIN IAP_SUBJECT_DETAIL isd ON isp.IAP_SUBJECT_PERSON_KEY = isd.IAP_SUBJECT_PERSON_KEY JOIN TIME_DAY td ON isd.TERM_CODE = td.ACADEMIC_TERM_CODE GROUP BY isp.PERSON_EMAIL, isp.PERSON_NAME, td.ACADEMIC_YEAR;",
+        "gold_tables": [
+            "dw#sep#IAP_SUBJECT_PERSON",
+            "dw#sep#IAP_SUBJECT_DETAIL",
+            "dw#sep#TIME_DAY"
+        ],
+        "mapping": {
+            "email": [
+                "IAP_SUBJECT_PERSON.PERSON_EMAIL"
+            ],
+            "name": [
+                "IAP_SUBJECT_PERSON.PERSON_NAME"
+            ],
+            "academic year": [
+                "TIME_DAY.ACADEMIC_YEAR"
+            ],
+            "IAP subjects": [
+                "IAP_SUBJECT_DETAIL.ACTIVITY_TITLE"
+            ],
+            "fees": [
+                "IAP_SUBJECT_DETAIL.FEE"
+            ],
+            "course enrollment": [
+                "IAP_SUBJECT_DETAIL.MAX_ENROLLMENT"
+            ]
+        },
+        "join_keys": [
+            [
+                "IAP_SUBJECT_DETAIL.IAP_SUBJECT_PERSON_KEY",
+                "IAP_SUBJECT_PERSON.IAP_SUBJECT_PERSON_KEY"
+            ],
+            [
+                "TIME_DAY.ACADEMIC_TERM_CODE",
+                "IAP_SUBJECT_DETAIL.TERM_CODE"
+            ]
+        ],
+        "query": "SELECT isp.PERSON_EMAIL, isp.PERSON_NAME, td.ACADEMIC_YEAR, COUNT(distinct isd.ACTIVITY_TITLE) AS Total_Subjects, MIN(isd.FEE) AS Min_Fee, MAX(isd.FEE) AS Max_Fee, SUM(isd.MAX_ENROLLMENT) FROM IAP_SUBJECT_PERSON isp JOIN IAP_SUBJECT_DETAIL isd ON isp.IAP_SUBJECT_PERSON_KEY = isd.IAP_SUBJECT_PERSON_KEY JOIN TIME_DAY td ON isd.TERM_CODE = td.ACADEMIC_TERM_CODE GROUP BY isp.PERSON_EMAIL, isp.PERSON_NAME, td.ACADEMIC_YEAR;",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "individual's",
+            "email",
+            "and",
+            "name",
+            ",",
+            "academic",
+            "year",
+            ",",
+            "total",
+            "number",
+            "of",
+            "IAP",
+            "subjects",
+            ",",
+            "the",
+            "minimum",
+            "and",
+            "maximum",
+            "fees",
+            ",",
+            "and",
+            "the",
+            "total",
+            "course",
+            "enrollment",
+            "for",
+            "each",
+            "individual",
+            "and",
+            "academic",
+            "year",
+            "?"
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "What is the term code, term description, total number of IAP sessions, total fee collected, and minimum and maximum enrollment for each term code?",
+        "db_id": "dw",
+        "sql": "SELECT isd.TERM_CODE, ata.TERM_DESCRIPTION, COUNT(distinct iss.IAP_SUBJECT_SESSION_KEY) AS Total_Sessions, SUM(isd.FEE) AS Total_Fee, MIN(isd.MAX_ENROLLMENT) AS Min_Enrollment, MAX(isd.MAX_ENROLLMENT) AS Max_Enrollment FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN ACADEMIC_TERMS_ALL ata ON isd.TERM_CODE = ata.TERM_CODE GROUP BY isd.TERM_CODE, ata.TERM_DESCRIPTION;",
+        "oracle_sql": "SELECT isd.TERM_CODE, ata.TERM_DESCRIPTION, COUNT(distinct iss.IAP_SUBJECT_SESSION_KEY) AS Total_Sessions, SUM(isd.FEE) AS Total_Fee, MIN(isd.MAX_ENROLLMENT) AS Min_Enrollment, MAX(isd.MAX_ENROLLMENT) AS Max_Enrollment FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN ACADEMIC_TERMS_ALL ata ON isd.TERM_CODE = ata.TERM_CODE GROUP BY isd.TERM_CODE, ata.TERM_DESCRIPTION;",
+        "gold_tables": [
+            "dw#sep#IAP_SUBJECT_SESSION",
+            "dw#sep#IAP_SUBJECT_DETAIL",
+            "dw#sep#ACADEMIC_TERMS_ALL"
+        ],
+        "mapping": {
+            "term code": [
+                "IAP_SUBJECT_DETAIL.TERM_CODE"
+            ],
+            "term description": [
+                "ACADEMIC_TERMS_ALL.TERM_DESCRIPTION"
+            ],
+            "IAP sessions": [
+                "IAP_SUBJECT_SESSION.IAP_SUBJECT_SESSION_KEY"
+            ],
+            "fee": [
+                "IAP_SUBJECT_DETAIL.FEE"
+            ],
+            "enrollment": [
+                "IAP_SUBJECT_DETAIL.MAX_ENROLLMENT"
+            ]
+        },
+        "join_keys": [
+            [
+                "IAP_SUBJECT_SESSION.IAP_SUBJECT_SESSION_KEY",
+                "IAP_SUBJECT_DETAIL.IAP_SUBJECT_SESSION_KEY"
+            ],
+            [
+                "ACADEMIC_TERMS_ALL.TERM_CODE",
+                "IAP_SUBJECT_DETAIL.TERM_CODE"
+            ]
+        ],
+        "query": "SELECT isd.TERM_CODE, ata.TERM_DESCRIPTION, COUNT(distinct iss.IAP_SUBJECT_SESSION_KEY) AS Total_Sessions, SUM(isd.FEE) AS Total_Fee, MIN(isd.MAX_ENROLLMENT) AS Min_Enrollment, MAX(isd.MAX_ENROLLMENT) AS Max_Enrollment FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN ACADEMIC_TERMS_ALL ata ON isd.TERM_CODE = ata.TERM_CODE GROUP BY isd.TERM_CODE, ata.TERM_DESCRIPTION;",
+        "question_toks": [
+            "What",
+            "is",
+            "the",
+            "term",
+            "code",
+            ",",
+            "term",
+            "description",
+            ",",
+            "total",
+            "number",
+            "of",
+            "IAP",
+            "sessions",
+            ",",
+            "total",
+            "fee",
+            "collected",
+            ",",
+            "and",
+            "minimum",
+            "and",
+            "maximum",
+            "enrollment",
+            "for",
+            "each",
+            "term",
+            "code",
+            "?"
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "What is the name of the building, total number of subjects, total fee, and shortest and longest sessions for each physical IAP session location?",
+        "db_id": "dw",
+        "sql": "SELECT b.BUILDING_NAME, COUNT(DISTINCT isd.ACTIVITY_TITLE) AS Total_Subjects, SUM(isd.FEE) AS Total_Fee, MIN(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p'), CASE WHEN STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p') > STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') THEN STR_TO_DATE('1200PM', '%h%i%p') ELSE STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') END)) AS Min_Sessions, MAX(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p'), CASE WHEN STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p') > STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') THEN STR_TO_DATE('1200PM', '%h%i%p') ELSE STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') END)) AS Max_Sessions FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN BUILDINGS b ON b.BUILDING_NUMBER = iss.SESSION_LOCATION GROUP BY b.BUILDING_NAME;",
+        "oracle_sql": "SELECT b.BUILDING_NAME, COUNT(Distinct isd.ACTIVITY_TITLE) AS Total_Subjects, SUM(isd.FEE) AS Total_Fee, MIN((CASE WHEN TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') > TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM') THEN TO_DATE('12:00PM', 'HH12:MIAM') ELSE TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')END) - TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') ) * 24 * 60 AS Min_Sessions, MAX((CASE WHEN TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') > TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM') THEN TO_DATE('12:00PM', 'HH12:MIAM') ELSE TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')END) - TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') ) * 24 * 60 AS Max_Sessions FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN BUILDINGS b on b.BUILDING_NUMBER = iss.SESSION_LOCATION GROUP BY b.BUILDING_NAME;",
+        "gold_tables": [
+            "dw#sep#IAP_SUBJECT_SESSION",
+            "dw#sep#IAP_SUBJECT_DETAIL",
+            "dw#sep#BUILDINGS"
+        ],
+        "mapping": {
+            "name of the building": [
+                "BUILDINGS.BUILDING_NAME"
+            ],
+            "subjects": [
+                "IAP_SUBJECT_DETAIL.ACTIVITY_TITLE"
+            ],
+            "fee": [
+                "IAP_SUBJECT_DETAIL.FEE"
+            ],
+            "sessions": [
+                "IAP_SUBJECT_SESSION.SESSION_END_TIME",
+                "IAP_SUBJECT_SESSION.SESSION_START_TIME"
+            ]
+        },
+        "join_keys": [
+            [
+                "IAP_SUBJECT_SESSION.IAP_SUBJECT_SESSION_KEY",
+                "IAP_SUBJECT_DETAIL.IAP_SUBJECT_SESSION_KEY"
+            ],
+            [
+                "IAP_SUBJECT_SESSION.SESSION_LOCATION",
+                "BUILDINGS.BUILDING_NUMBER"
+            ]
+        ],
+        "query": "SELECT b.BUILDING_NAME, COUNT(DISTINCT isd.ACTIVITY_TITLE) AS Total_Subjects, SUM(isd.FEE) AS Total_Fee, MIN(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p'), CASE WHEN STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p') > STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') THEN STR_TO_DATE('1200PM', '%h%i%p') ELSE STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') END)) AS Min_Sessions, MAX(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p'), CASE WHEN STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p') > STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') THEN STR_TO_DATE('1200PM', '%h%i%p') ELSE STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') END)) AS Max_Sessions FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN BUILDINGS b ON b.BUILDING_NUMBER = iss.SESSION_LOCATION GROUP BY b.BUILDING_NAME;",
+        "question_toks": [
+            "What",
+            "is",
+            "the",
+            "name",
+            "of",
+            "the",
+            "building",
+            ",",
+            "total",
+            "number",
+            "of",
+            "subjects",
+            ",",
+            "total",
+            "fee",
+            ",",
+            "and",
+            "shortest",
+            "and",
+            "longest",
+            "sessions",
+            "for",
+            "each",
+            "physical",
+            "IAP",
+            "session",
+            "location",
+            "?"
+        ],
+        "cat": "c5",
+        "sub": "s32"
+    },
+    {
+        "question": "What is total number of subjects, the total fee, and the shortest and longest sessions, for all virtual IAP sessions?",
+        "db_id": "dw",
+        "sql": "SELECT COUNT(DISTINCT isd.ACTIVITY_TITLE) AS Total_Subjects, SUM(isd.FEE) AS Total_Fee, MIN(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p'), CASE WHEN STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p') > STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') THEN STR_TO_DATE('1200PM', '%h%i%p') ELSE STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') END)) AS Min_Sessions, MAX(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p'), CASE WHEN STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p') > STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') THEN STR_TO_DATE('1200PM', '%h%i%p') ELSE STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') END)) AS Max_Sessions FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN BUILDINGS b ON b.BUILDING_NUMBER != iss.SESSION_LOCATION;",
+        "oracle_sql": "SELECT COUNT(DISTINCT isd.ACTIVITY_TITLE) AS Total_Subjects, SUM(isd.FEE) AS Total_Fee, MIN((CASE WHEN TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') > TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM') THEN TO_DATE('12:00PM', 'HH12:MIAM') ELSE TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')END) - TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') ) * 24 * 60 AS Min_Sessions, MAX((CASE WHEN TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') > TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM') THEN TO_DATE('12:00PM', 'HH12:MIAM') ELSE TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')END) - TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') ) * 24 * 60 AS Max_Sessions FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN BUILDINGS b on b.BUILDING_NUMBER != iss.SESSION_LOCATION;",
+        "gold_tables": [
+            "dw#sep#IAP_SUBJECT_SESSION",
+            "dw#sep#IAP_SUBJECT_DETAIL",
+            "dw#sep#BUILDINGS"
+        ],
+        "mapping": {
+            "subjects": [
+                "IAP_SUBJECT_DETAIL.ACTIVITY_TITLE"
+            ],
+            "fee": [
+                "IAP_SUBJECT_DETAIL.FEE"
+            ],
+            "sessions": [
+                "IAP_SUBJECT_SESSION.SESSION_END_TIME",
+                "IAP_SUBJECT_SESSION.SESSION_START_TIME"
+            ]
+        },
+        "join_keys": [
+            [
+                "IAP_SUBJECT_SESSION.IAP_SUBJECT_SESSION_KEY",
+                "IAP_SUBJECT_DETAIL.IAP_SUBJECT_SESSION_KEY"
+            ],
+            [
+                "IAP_SUBJECT_SESSION.SESSION_LOCATION",
+                "BUILDINGS.BUILDING_NUMBER"
+            ]
+        ],
+        "query": "SELECT COUNT(DISTINCT isd.ACTIVITY_TITLE) AS Total_Subjects, SUM(isd.FEE) AS Total_Fee, MIN(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p'), CASE WHEN STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p') > STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') THEN STR_TO_DATE('1200PM', '%h%i%p') ELSE STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') END)) AS Min_Sessions, MAX(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p'), CASE WHEN STR_TO_DATE(iss.SESSION_START_TIME, '%h%i%p') > STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') THEN STR_TO_DATE('1200PM', '%h%i%p') ELSE STR_TO_DATE(iss.SESSION_END_TIME, '%h%i%p') END)) AS Max_Sessions FROM IAP_SUBJECT_SESSION iss JOIN IAP_SUBJECT_DETAIL isd ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY JOIN BUILDINGS b ON b.BUILDING_NUMBER != iss.SESSION_LOCATION;",
+        "question_toks": [
+            "What",
+            "is",
+            "total",
+            "number",
+            "of",
+            "subjects",
+            ",",
+            "the",
+            "total",
+            "fee",
+            ",",
+            "and",
+            "the",
+            "shortest",
+            "and",
+            "longest",
+            "sessions",
+            ",",
+            "for",
+            "all",
+            "virtual",
+            "IAP",
+            "sessions",
+            "?"
+        ],
+        "cat": "c5",
+        "sub": "s32"
+    },
+    {
+        "question": "What is the school code, school name, full name of the department, course level, total number of courses, and total number of degree-granting courses for each school code, department, and course level?",
+        "db_id": "dw",
+        "sql": "SELECT ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DEPARTMENT_FULL_NAME, scd.COURSE_LEVEL, COUNT(DISTINCT scd.COURSE) AS Total_Courses, SUM(CASE WHEN scd.IS_DEGREE_GRANTING = 'Y' THEN 1 ELSE 0 END) AS Total_Degree_Granting_Courses FROM SIS_COURSE_DESCRIPTION scd JOIN SIS_DEPARTMENT sd ON scd.DEPARTMENT = sd.DEPARTMENT_CODE JOIN SIS_SUBJECT_CODE ssc ON scd.COURSE = ssc.SUBJECT_CODE GROUP BY ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, scd.DEPARTMENT, sd.DEPARTMENT_FULL_NAME, scd.COURSE_LEVEL;",
+        "oracle_sql": "SELECT ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DEPARTMENT_FULL_NAME, scd.COURSE_LEVEL, COUNT(DISTINCT scd.COURSE) AS Total_Courses, SUM(CASE WHEN scd.IS_DEGREE_GRANTING = 'Y' THEN 1 ELSE 0 END) AS Total_Degree_Granting_Courses FROM SIS_COURSE_DESCRIPTION scd JOIN SIS_DEPARTMENT sd ON scd.DEPARTMENT = sd.DEPARTMENT_CODE JOIN SIS_SUBJECT_CODE ssc ON scd.COURSE = ssc.SUBJECT_CODE GROUP BY ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, scd.DEPARTMENT, sd.DEPARTMENT_FULL_NAME, scd.COURSE_LEVEL;",
+        "gold_tables": [
+            "dw#sep#SIS_COURSE_DESCRIPTION",
+            "dw#sep#SIS_DEPARTMENT",
+            "dw#sep#SIS_SUBJECT_CODE"
+        ],
+        "mapping": {
+            "school code": [
+                "SIS_SUBJECT_CODE.SCHOOL_CODE"
+            ],
+            "school name": [
+                "SIS_SUBJECT_CODE.SCHOOL_NAME"
+            ],
+            "full name of the department": [
+                "SIS_DEPARTMENT.DEPARTMENT_FULL_NAME"
+            ],
+            "course level": [
+                "SIS_COURSE_DESCRIPTION.COURSE_LEVEL"
+            ],
+            "courses": [
+                "SIS_COURSE_DESCRIPTION.COURSE"
+            ],
+            "degree-granting courses": [
+                "SIS_COURSE_DESCRIPTION.IS_DEGREE_GRANTING"
+            ]
+        },
+        "join_keys": [
+            [
+                "SIS_DEPARTMENT.DEPARTMENT_CODE",
+                "SIS_COURSE_DESCRIPTION.DEPARTMENT"
+            ],
+            [
+                "SIS_COURSE_DESCRIPTION.COURSE",
+                "SIS_SUBJECT_CODE.SUBJECT_CODE"
+            ]
+        ],
+        "query": "SELECT ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DEPARTMENT_FULL_NAME, scd.COURSE_LEVEL, COUNT(DISTINCT scd.COURSE) AS Total_Courses, SUM(CASE WHEN scd.IS_DEGREE_GRANTING = 'Y' THEN 1 ELSE 0 END) AS Total_Degree_Granting_Courses FROM SIS_COURSE_DESCRIPTION scd JOIN SIS_DEPARTMENT sd ON scd.DEPARTMENT = sd.DEPARTMENT_CODE JOIN SIS_SUBJECT_CODE ssc ON scd.COURSE = ssc.SUBJECT_CODE GROUP BY ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, scd.DEPARTMENT, sd.DEPARTMENT_FULL_NAME, scd.COURSE_LEVEL;",
+        "question_toks": [
+            "What",
+            "is",
+            "the",
+            "school",
+            "code",
+            ",",
+            "school",
+            "name",
+            ",",
+            "full",
+            "name",
+            "of",
+            "the",
+            "department",
+            ",",
+            "course",
+            "level",
+            ",",
+            "total",
+            "number",
+            "of",
+            "courses",
+            ",",
+            "and",
+            "total",
+            "number",
+            "of",
+            "degree-granting",
+            "courses",
+            "for",
+            "each",
+            "school",
+            "code",
+            ",",
+            "department",
+            ",",
+            "and",
+            "course",
+            "level",
+            "?"
+        ],
+        "cat": "c5",
+        "sub": "s32"
+    },
+    {
+        "question": "What are the different schools and departments that offer SIS courses? List their school code, school name, department code, department name, the total number of phone numbers, and the most common course level.",
+        "db_id": "dw",
+        "sql": "SELECT ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DEPARTMENT_CODE, sad.SIS_ADMIN_DEPARTMENT_NAME, COUNT(DISTINCT sad.DEPARTMENT_PHONE_NUMBER) AS Total_Phone_Numbers, CASE WHEN SUM(CASE WHEN scd.COURSE_LEVEL = 'U' THEN 1 ELSE 0 END) >= SUM(CASE WHEN scd.COURSE_LEVEL = 'G' THEN 1 ELSE 0 END) THEN 'U' ELSE 'G' END AS Most_Common_Course_Level FROM SIS_ADMIN_DEPARTMENT sad JOIN SIS_DEPARTMENT sd ON sad.SIS_ADMIN_DEPARTMENT_CODE = sd.DEPARTMENT_CODE JOIN SIS_COURSE_DESCRIPTION scd ON sd.DEPARTMENT_CODE = scd.DEPARTMENT JOIN SIS_SUBJECT_CODE ssc ON scd.COURSE = ssc.SUBJECT_CODE GROUP BY ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DEPARTMENT_CODE, sad.SIS_ADMIN_DEPARTMENT_NAME;",
+        "oracle_sql": "SELECT ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DEPARTMENT_CODE, sad.SIS_ADMIN_DEPARTMENT_NAME, COUNT(DISTINCT sad.DEPARTMENT_PHONE_NUMBER) AS Total_Phone_Numbers, CASE WHEN SUM(CASE WHEN scd.COURSE_LEVEL = 'U' THEN 1 ELSE 0 END) >= SUM(CASE WHEN scd.COURSE_LEVEL = 'G' THEN 1 ELSE 0 END) THEN 'U' ELSE 'G' END AS Most_Common_Course_Level FROM SIS_ADMIN_DEPARTMENT sad JOIN SIS_DEPARTMENT sd ON sad.SIS_ADMIN_DEPARTMENT_CODE = sd.DEPARTMENT_CODE JOIN SIS_COURSE_DESCRIPTION scd ON sd.DEPARTMENT_CODE = scd.DEPARTMENT JOIN SIS_SUBJECT_CODE ssc ON scd.COURSE = ssc.SUBJECT_CODE GROUP BY ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DEPARTMENT_CODE, sad.SIS_ADMIN_DEPARTMENT_NAME;",
+        "gold_tables": [
+            "dw#sep#SIS_ADMIN_DEPARTMENT",
+            "dw#sep#SIS_DEPARTMENT",
+            "dw#sep#SIS_COURSE_DESCRIPTION",
+            "dw#sep#SIS_SUBJECT_CODE"
+        ],
+        "mapping": {
+            "school code": [
+                "SIS_SUBJECT_CODE.SCHOOL_CODE"
+            ],
+            "school name": [
+                "SIS_SUBJECT_CODE.SCHOOL_NAME"
+            ],
+            "department code": [
+                "SIS_DEPARTMENT.DEPARTMENT_CODE"
+            ],
+            "department name": [
+                "SIS_ADMIN_DEPARTMENT.SIS_ADMIN_DEPARTMENT_NAME"
+            ],
+            "phone numbers": [
+                "SIS_ADMIN_DEPARTMENT.DEPARTMENT_PHONE_NUMBER"
+            ],
+            "course level": [
+                "SIS_COURSE_DESCRIPTION.COURSE_LEVEL"
+            ]
+        },
+        "join_keys": [
+            [
+                "SIS_ADMIN_DEPARTMENT.SIS_ADMIN_DEPARTMENT_CODE",
+                "SIS_DEPARTMENT.DEPARTMENT_CODE"
+            ],
+            [
+                "SIS_DEPARTMENT.DEPARTMENT_CODE",
+                "SIS_COURSE_DESCRIPTION.DEPARTMENT"
+            ],
+            [
+                "SIS_SUBJECT_CODE.SUBJECT_CODE",
+                "SIS_COURSE_DESCRIPTION.COURSE"
+            ]
+        ],
+        "query": "SELECT ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DEPARTMENT_CODE, sad.SIS_ADMIN_DEPARTMENT_NAME, COUNT(DISTINCT sad.DEPARTMENT_PHONE_NUMBER) AS Total_Phone_Numbers, CASE WHEN SUM(CASE WHEN scd.COURSE_LEVEL = 'U' THEN 1 ELSE 0 END) >= SUM(CASE WHEN scd.COURSE_LEVEL = 'G' THEN 1 ELSE 0 END) THEN 'U' ELSE 'G' END AS Most_Common_Course_Level FROM SIS_ADMIN_DEPARTMENT sad JOIN SIS_DEPARTMENT sd ON sad.SIS_ADMIN_DEPARTMENT_CODE = sd.DEPARTMENT_CODE JOIN SIS_COURSE_DESCRIPTION scd ON sd.DEPARTMENT_CODE = scd.DEPARTMENT JOIN SIS_SUBJECT_CODE ssc ON scd.COURSE = ssc.SUBJECT_CODE GROUP BY ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DEPARTMENT_CODE, sad.SIS_ADMIN_DEPARTMENT_NAME;",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "different",
+            "schools",
+            "and",
+            "departments",
+            "that",
+            "offer",
+            "SIS",
+            "courses",
+            "?",
+            "List",
+            "their",
+            "school",
+            "code",
+            ",",
+            "school",
+            "name",
+            ",",
+            "department",
+            "code",
+            ",",
+            "department",
+            "name",
+            ",",
+            "the",
+            "total",
+            "number",
+            "of",
+            "phone",
+            "numbers",
+            ",",
+            "and",
+            "the",
+            "most",
+            "common",
+            "course",
+            "level",
+            "."
+        ],
+        "cat": "c5",
+        "sub": "s32"
+    },
+    {
+        "question": "What is the school code, school name, DLC key, the graduate level, total number of SIS subjects, the minimum and maximum course numbers, and the total number of departments offering subjects for each school?",
+        "db_id": "dw",
+        "sql": "SELECT ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DLC_KEY, GRADUATE_LEVEL, COUNT(DISTINCT ssc.SUBJECT_CODE) AS Total_Subjects, MIN(ssc.COURSE_NUMBER) AS Min_Course_Number, MAX(ssc.COURSE_NUMBER) AS Max_Course_Number, COUNT(DISTINCT sd.DEPARTMENT_CODE) AS Total_Departments FROM SIS_SUBJECT_CODE ssc JOIN SIS_COURSE_DESCRIPTION scd ON ssc.SUBJECT_CODE = scd.COURSE JOIN SIS_DEPARTMENT sd ON scd.DEPARTMENT = sd.DEPARTMENT_CODE GROUP BY ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DLC_KEY,GRADUATE_LEVEL;",
+        "oracle_sql": "SELECT ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DLC_KEY, GRADUATE_LEVEL, COUNT(DISTINCT ssc.SUBJECT_CODE) AS Total_Subjects, MIN(ssc.COURSE_NUMBER) AS Min_Course_Number, MAX(ssc.COURSE_NUMBER) AS Max_Course_Number, COUNT(DISTINCT sd.DEPARTMENT_CODE) AS Total_Departments FROM SIS_SUBJECT_CODE ssc JOIN SIS_COURSE_DESCRIPTION scd ON ssc.SUBJECT_CODE = scd.COURSE JOIN SIS_DEPARTMENT sd ON scd.DEPARTMENT = sd.DEPARTMENT_CODE GROUP BY ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DLC_KEY,GRADUATE_LEVEL;",
+        "gold_tables": [
+            "dw#sep#SIS_SUBJECT_CODE",
+            "dw#sep#SIS_COURSE_DESCRIPTION",
+            "dw#sep#SIS_DEPARTMENT"
+        ],
+        "mapping": {
+            "school code": [
+                "SIS_SUBJECT_CODE.SCHOOL_CODE"
+            ],
+            "school name": [
+                "SIS_SUBJECT_CODE.SCHOOL_NAME"
+            ],
+            "DLC key": [
+                "SIS_DEPARTMENT.DLC_KEY"
+            ],
+            "graduate level": [
+                "SIS_COURSE_DESCRIPTION.GRADUATE_LEVEL"
+            ],
+            "SIS subjects": [
+                "SIS_SUBJECT_CODE.SUBJECT_CODE"
+            ],
+            "course numbers": [
+                "SIS_SUBJECT_CODE.COURSE_NUMBER"
+            ],
+            "departments": [
+                "SIS_DEPARTMENT.DEPARTMENT_CODE"
+            ]
+        },
+        "join_keys": [
+            [
+                "SIS_SUBJECT_CODE.SUBJECT_CODE",
+                "SIS_COURSE_DESCRIPTION.COURSE"
+            ],
+            [
+                "SIS_COURSE_DESCRIPTION.DEPARTMENT",
+                "SIS_DEPARTMENT.DEPARTMENT_CODE"
+            ]
+        ],
+        "query": "SELECT ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DLC_KEY, GRADUATE_LEVEL, COUNT(DISTINCT ssc.SUBJECT_CODE) AS Total_Subjects, MIN(ssc.COURSE_NUMBER) AS Min_Course_Number, MAX(ssc.COURSE_NUMBER) AS Max_Course_Number, COUNT(DISTINCT sd.DEPARTMENT_CODE) AS Total_Departments FROM SIS_SUBJECT_CODE ssc JOIN SIS_COURSE_DESCRIPTION scd ON ssc.SUBJECT_CODE = scd.COURSE JOIN SIS_DEPARTMENT sd ON scd.DEPARTMENT = sd.DEPARTMENT_CODE GROUP BY ssc.SCHOOL_CODE, ssc.SCHOOL_NAME, sd.DLC_KEY,GRADUATE_LEVEL;",
+        "question_toks": [
+            "What",
+            "is",
+            "the",
+            "school",
+            "code",
+            ",",
+            "school",
+            "name",
+            ",",
+            "DLC",
+            "key",
+            ",",
+            "the",
+            "graduate",
+            "level",
+            ",",
+            "total",
+            "number",
+            "of",
+            "SIS",
+            "subjects",
+            ",",
+            "the",
+            "minimum",
+            "and",
+            "maximum",
+            "course",
+            "numbers",
+            ",",
+            "and",
+            "the",
+            "total",
+            "number",
+            "of",
+            "departments",
+            "offering",
+            "subjects",
+            "for",
+            "each",
+            "school",
+            "?"
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "What is the building component, name of the building, square footage for all rooms, total number of floors, total number of rooms, total number of facility organizations, total number of supervisors, and total number of supervisees for each building component?",
+        "db_id": "dw",
+        "sql": "SELECT sd.BUILDING_COMPONENT, b.BUILDING_NAME, sd.Total_Square_Footage, COUNT(DISTINCT SF.FLOOR) AS Total_Number_Of_Floors, COUNT(DISTINCT sd.BUILDING_ROOM) AS Total_Rooms, COUNT(DISTINCT su.FCLT_ORGANIZATION_KEY) as Total_Number_FCLT, COUNT(DISTINCT ssu.MIT_ID) AS Total_Supervisors, SUM(ssu.NUM_OF_SUPERVISEES) AS Total_Supervisees FROM (SELECT SPACE_DETAIL.*, SUM(ROOM_SQUARE_FOOTAGE) OVER (PARTITION BY BUILDING_COMPONENT) AS Total_Square_Footage FROM SPACE_DETAIL) sd JOIN BUILDINGS b ON b.BUILDING_KEY = sd.BUILDING_KEY JOIN SPACE_FLOOR sf ON sd.FLOOR_KEY = sf.FLOOR_KEY JOIN SPACE_UNIT su ON sd.SPACE_UNIT_KEY = su.SPACE_UNIT_KEY JOIN SPACE_SUPERVISOR_USAGE ssu ON su.DLC_KEY = ssu.DEPT_NAMES GROUP BY sd.BUILDING_COMPONENT, b.BUILDING_NAME, sd.Total_Square_Footage;",
+        "oracle_sql": "SELECT sd.BUILDING_COMPONENT, b.BUILDING_NAME, sd.Total_Square_Footage, COUNT(DISTINCT SF.FLOOR) AS Total_Number_Of_Floors, COUNT(DISTINCT sd.BUILDING_ROOM) AS Total_Rooms, COUNT(DISTINCT su.FCLT_ORGANIZATION_KEY) as Total_Number_FCLT, COUNT(DISTINCT ssu.MIT_ID) AS Total_Supervisors, SUM(ssu.NUM_OF_SUPERVISEES) AS Total_Supervisees FROM (SELECT SPACE_DETAIL.*, SUM(ROOM_SQUARE_FOOTAGE) OVER (PARTITION BY BUILDING_COMPONENT) AS Total_Square_Footage FROM SPACE_DETAIL) sd JOIN BUILDINGS b ON b.BUILDING_KEY = sd.BUILDING_KEY JOIN SPACE_FLOOR sf ON sd.FLOOR_KEY = sf.FLOOR_KEY JOIN SPACE_UNIT su ON sd.SPACE_UNIT_KEY = su.SPACE_UNIT_KEY JOIN SPACE_SUPERVISOR_USAGE ssu ON su.DLC_KEY = ssu.DEPT_NAMES GROUP BY sd.BUILDING_COMPONENT, b.BUILDING_NAME, sd.Total_Square_Footage;",
+        "gold_tables": [
+            "dw#sep#SPACE_DETAIL",
+            "dw#sep#BUILDINGS",
+            "dw#sep#SPACE_FLOOR",
+            "dw#sep#SPACE_UNIT",
+            "dw#sep#SPACE_SUPERVISOR_USAGE"
+        ],
+        "mapping": {
+            "building component": [
+                "SPACE_DETAIL.BUILDING_COMPONENT"
+            ],
+            "name of the building": [
+                "BUILDINGS.BUILDING_NAME"
+            ],
+            "square footage": [
+                "SPACE_DETAIL.ROOM_SQUARE_FOOTAGE"
+            ],
+            "rooms": [
+                "SPACE_DETAIL.BUILDING_ROOM"
+            ],
+            "floors": [
+                "SPACE_FLOOR.FLOOR"
+            ],
+            "facility organizations": [
+                "SPACE_UNIT.FCLT_ORGANIZATION_KEY"
+            ],
+            "supervisors": [
+                "SPACE_SUPERVISOR_USAGE.MIT_ID"
+            ],
+            "supervisees": [
+                "SPACE_SUPERVISOR_USAGE.NUM_OF_SUPERVISEES"
+            ]
+        },
+        "join_keys": [
+            [
+                "SPACE_SUPERVISOR_USAGE.DEPT_NAMES",
+                "SPACE_UNIT.DLC_KEY"
+            ]
+        ],
+        "query": "SELECT sd.BUILDING_COMPONENT, b.BUILDING_NAME, sd.Total_Square_Footage, COUNT(DISTINCT SF.FLOOR) AS Total_Number_Of_Floors, COUNT(DISTINCT sd.BUILDING_ROOM) AS Total_Rooms, COUNT(DISTINCT su.FCLT_ORGANIZATION_KEY) as Total_Number_FCLT, COUNT(DISTINCT ssu.MIT_ID) AS Total_Supervisors, SUM(ssu.NUM_OF_SUPERVISEES) AS Total_Supervisees FROM (SELECT SPACE_DETAIL.*, SUM(ROOM_SQUARE_FOOTAGE) OVER (PARTITION BY BUILDING_COMPONENT) AS Total_Square_Footage FROM SPACE_DETAIL) sd JOIN BUILDINGS b ON b.BUILDING_KEY = sd.BUILDING_KEY JOIN SPACE_FLOOR sf ON sd.FLOOR_KEY = sf.FLOOR_KEY JOIN SPACE_UNIT su ON sd.SPACE_UNIT_KEY = su.SPACE_UNIT_KEY JOIN SPACE_SUPERVISOR_USAGE ssu ON su.DLC_KEY = ssu.DEPT_NAMES GROUP BY sd.BUILDING_COMPONENT, b.BUILDING_NAME, sd.Total_Square_Footage;",
+        "question_toks": [
+            "What",
+            "is",
+            "the",
+            "building",
+            "component",
+            ",",
+            "name",
+            "of",
+            "the",
+            "building",
+            ",",
+            "square",
+            "footage",
+            "for",
+            "all",
+            "rooms",
+            ",",
+            "total",
+            "number",
+            "of",
+            "floors",
+            ",",
+            "total",
+            "number",
+            "of",
+            "rooms",
+            ",",
+            "total",
+            "number",
+            "of",
+            "facility",
+            "organizations",
+            ",",
+            "total",
+            "number",
+            "of",
+            "supervisors",
+            ",",
+            "and",
+            "total",
+            "number",
+            "of",
+            "supervisees",
+            "for",
+            "each",
+            "building",
+            "component",
+            "?"
+        ],
+        "cat": "c6",
+        "sub": "s36"
+    },
+    {
+        "question": "Provide information (including extra data) about VMs assigned to the physical host blaze8-12.",
+        "sql": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_extra_1.numa_topology AS instance_extra_1_numa_topology, instance_extra_1.flavor AS instance_extra_1_flavor, instance_extra_1.migration_context AS instance_extra_1_migration_context, instance_extra_1.created_at AS instance_extra_1_created_at, instance_extra_1.updated_at AS instance_extra_1_updated_at, instance_extra_1.deleted_at AS instance_extra_1_deleted_at, instance_extra_1.deleted AS instance_extra_1_deleted, instance_extra_1.id AS instance_extra_1_id, instance_extra_1.instance_uuid AS instance_extra_1_instance_uuid \nFROM instances LEFT OUTER JOIN instance_extra AS instance_extra_1 ON instance_extra_1.instance_uuid = instances.uuid \nWHERE instances.deleted = 0 AND instances.host = 'blaze8-12' AND instances.node = 'blaze8-12.yahoo.ca.com'",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "INSTANCES.UUID",
+                "INSTANCE_EXTRA.INSTANCE_UUID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#INSTANCE_EXTRA",
+            "csail_stata_nova#sep#INSTANCES"
+        ],
+        "query": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_extra_1.numa_topology AS instance_extra_1_numa_topology, instance_extra_1.flavor AS instance_extra_1_flavor, instance_extra_1.migration_context AS instance_extra_1_migration_context, instance_extra_1.created_at AS instance_extra_1_created_at, instance_extra_1.updated_at AS instance_extra_1_updated_at, instance_extra_1.deleted_at AS instance_extra_1_deleted_at, instance_extra_1.deleted AS instance_extra_1_deleted, instance_extra_1.id AS instance_extra_1_id, instance_extra_1.instance_uuid AS instance_extra_1_instance_uuid  FROM instances LEFT OUTER JOIN instance_extra AS instance_extra_1 ON instance_extra_1.instance_uuid = instances.uuid  WHERE instances.deleted = 0 AND instances.host = 'blaze8-12' AND instances.node = 'blaze8-12.yahoo.ca.com'",
+        "question_toks": [
+            "Provide",
+            "information",
+            "(including",
+            "extra",
+            "data)",
+            "about",
+            "VMs",
+            "assigned",
+            "to",
+            "the",
+            "physical",
+            "host",
+            "blaze8-12",
+            "."
+        ],
+        "cat": "c3",
+        "sub": "s19"
+    },
+    {
+        "question": "Provide information (including info caches, and security groups) about VMs on the physical host astro-92 that have not yet been cleaned up.",
+        "sql": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id \nFROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0 \nWHERE instances.deleted = instances.id AND instances.cleaned = 0 AND instances.host = 'astro-92' ORDER BY instances.created_at DESC, instances.id DESC",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "INSTANCES.UUID",
+                "INSTANCE_INFO_CACHES.INSTANCE_UUID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#SECURITY_GROUP_INSTANCE_ASSOCIATION",
+            "csail_stata_nova#sep#SECURITY_GROUPS",
+            "csail_stata_nova#sep#INSTANCE_INFO_CACHES",
+            "csail_stata_nova#sep#INSTANCES"
+        ],
+        "query": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id  FROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0  WHERE instances.deleted = instances.id AND instances.cleaned = 0 AND instances.host = 'astro-92' ORDER BY instances.created_at DESC, instances.id DESC",
+        "question_toks": [
+            "Provide",
+            "information",
+            "(including",
+            "info",
+            "caches",
+            ",",
+            "and",
+            "security",
+            "groups)",
+            "about",
+            "VMs",
+            "on",
+            "the",
+            "physical",
+            "host",
+            "astro-92",
+            "that",
+            "have",
+            "not",
+            "yet",
+            "been",
+            "cleaned",
+            "up",
+            "."
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "Provide information about migrations associated with VM that moves to or from the physical host streak-26.",
+        "sql": "SELECT migrations.created_at AS migrations_created_at, migrations.updated_at AS migrations_updated_at, migrations.deleted_at AS migrations_deleted_at, migrations.deleted AS migrations_deleted, migrations.id AS migrations_id, migrations.source_compute AS migrations_source_compute, migrations.dest_compute AS migrations_dest_compute, migrations.source_node AS migrations_source_node, migrations.dest_node AS migrations_dest_node, migrations.dest_host AS migrations_dest_host, migrations.old_instance_type_id AS migrations_old_instance_type_id, migrations.new_instance_type_id AS migrations_new_instance_type_id, migrations.instance_uuid AS migrations_instance_uuid, migrations.status AS migrations_status, migrations.migration_type AS migrations_migration_type, migrations.hidden AS migrations_hidden, migrations.memory_total AS migrations_memory_total, migrations.memory_processed AS migrations_memory_processed, migrations.memory_remaining AS migrations_memory_remaining, migrations.disk_total AS migrations_disk_total, migrations.disk_processed AS migrations_disk_processed, migrations.disk_remaining AS migrations_disk_remaining, instances_1.created_at AS instances_1_created_at, instances_1.updated_at AS instances_1_updated_at, instances_1.deleted_at AS instances_1_deleted_at, instances_1.deleted AS instances_1_deleted, instances_1.id AS instances_1_id, instances_1.user_id AS instances_1_user_id, instances_1.project_id AS instances_1_project_id, instances_1.image_ref AS instances_1_image_ref, instances_1.kernel_id AS instances_1_kernel_id, instances_1.ramdisk_id AS instances_1_ramdisk_id, instances_1.hostname AS instances_1_hostname, instances_1.launch_index AS instances_1_launch_index, instances_1.key_name AS instances_1_key_name, instances_1.key_data AS instances_1_key_data, instances_1.power_state AS instances_1_power_state, instances_1.vm_state AS instances_1_vm_state, instances_1.task_state AS instances_1_task_state, instances_1.memory_mb AS instances_1_memory_mb, instances_1.vcpus AS instances_1_vcpus, instances_1.root_gb AS instances_1_root_gb, instances_1.ephemeral_gb AS instances_1_ephemeral_gb, instances_1.ephemeral_key_uuid AS instances_1_ephemeral_key_uuid, instances_1.host AS instances_1_host, instances_1.node AS instances_1_node, instances_1.instance_type_id AS instances_1_instance_type_id, instances_1.user_data AS instances_1_user_data, instances_1.reservation_id AS instances_1_reservation_id, instances_1.launched_at AS instances_1_launched_at, instances_1.terminated_at AS instances_1_terminated_at, instances_1.availability_zone AS instances_1_availability_zone, instances_1.display_name AS instances_1_display_name, instances_1.display_description AS instances_1_display_description, instances_1.launched_on AS instances_1_launched_on, instances_1.locked AS instances_1_locked, instances_1.locked_by AS instances_1_locked_by, instances_1.os_type AS instances_1_os_type, instances_1.architecture AS instances_1_architecture, instances_1.vm_mode AS instances_1_vm_mode, instances_1.uuid AS instances_1_uuid, instances_1.root_device_name AS instances_1_root_device_name, instances_1.default_ephemeral_device AS instances_1_default_ephemeral_device, instances_1.default_swap_device AS instances_1_default_swap_device, instances_1.config_drive AS instances_1_config_drive, instances_1.access_ip_v4 AS instances_1_access_ip_v4, instances_1.access_ip_v6 AS instances_1_access_ip_v6, instances_1.auto_disk_config AS instances_1_auto_disk_config, instances_1.progress AS instances_1_progress, instances_1.shutdown_terminate AS instances_1_shutdown_terminate, instances_1.disable_terminate AS instances_1_disable_terminate, instances_1.cell_name AS instances_1_cell_name, instances_1.internal_id AS instances_1_internal_id, instances_1.cleaned AS instances_1_cleaned, instance_system_metadata_1.created_at AS instance_system_metadata_1_created_at, instance_system_metadata_1.updated_at AS instance_system_metadata_1_updated_at, instance_system_metadata_1.deleted_at AS instance_system_metadata_1_deleted_at, instance_system_metadata_1.deleted AS instance_system_metadata_1_deleted, instance_system_metadata_1.id AS instance_system_metadata_1_id, instance_system_metadata_1.`key` AS instance_system_metadata_1_key, instance_system_metadata_1.value AS instance_system_metadata_1_value, instance_system_metadata_1.instance_uuid AS instance_system_metadata_1_instance_uuid \nFROM migrations LEFT OUTER JOIN instances AS instances_1 ON migrations.instance_uuid = instances_1.uuid AND instances_1.deleted = 0 LEFT OUTER JOIN instance_system_metadata AS instance_system_metadata_1 ON instances_1.uuid = instance_system_metadata_1.instance_uuid \nWHERE migrations.deleted = 0 AND (migrations.source_compute = 'streak-26' AND migrations.source_node = 'streak-26.yahoo.ca.com' OR migrations.dest_compute = 'streak-26' AND migrations.dest_node = 'streak-26.yahoo.ca.com') AND migrations.status NOT IN ('accepted', 'confirmed', 'reverted', 'error', 'failed', 'completed')",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "INSTANCES.UUID",
+                "MIGRATIONS.INSTANCE_UUID"
+            ],
+            [
+                "INSTANCE_SYSTEM_METADATA.INSTANCE_UUID",
+                "INSTANCES.UUID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#INSTANCE_SYSTEM_METADATA",
+            "csail_stata_nova#sep#MIGRATIONS",
+            "csail_stata_nova#sep#INSTANCES"
+        ],
+        "query": "SELECT migrations.created_at AS migrations_created_at, migrations.updated_at AS migrations_updated_at, migrations.deleted_at AS migrations_deleted_at, migrations.deleted AS migrations_deleted, migrations.id AS migrations_id, migrations.source_compute AS migrations_source_compute, migrations.dest_compute AS migrations_dest_compute, migrations.source_node AS migrations_source_node, migrations.dest_node AS migrations_dest_node, migrations.dest_host AS migrations_dest_host, migrations.old_instance_type_id AS migrations_old_instance_type_id, migrations.new_instance_type_id AS migrations_new_instance_type_id, migrations.instance_uuid AS migrations_instance_uuid, migrations.status AS migrations_status, migrations.migration_type AS migrations_migration_type, migrations.hidden AS migrations_hidden, migrations.memory_total AS migrations_memory_total, migrations.memory_processed AS migrations_memory_processed, migrations.memory_remaining AS migrations_memory_remaining, migrations.disk_total AS migrations_disk_total, migrations.disk_processed AS migrations_disk_processed, migrations.disk_remaining AS migrations_disk_remaining, instances_1.created_at AS instances_1_created_at, instances_1.updated_at AS instances_1_updated_at, instances_1.deleted_at AS instances_1_deleted_at, instances_1.deleted AS instances_1_deleted, instances_1.id AS instances_1_id, instances_1.user_id AS instances_1_user_id, instances_1.project_id AS instances_1_project_id, instances_1.image_ref AS instances_1_image_ref, instances_1.kernel_id AS instances_1_kernel_id, instances_1.ramdisk_id AS instances_1_ramdisk_id, instances_1.hostname AS instances_1_hostname, instances_1.launch_index AS instances_1_launch_index, instances_1.key_name AS instances_1_key_name, instances_1.key_data AS instances_1_key_data, instances_1.power_state AS instances_1_power_state, instances_1.vm_state AS instances_1_vm_state, instances_1.task_state AS instances_1_task_state, instances_1.memory_mb AS instances_1_memory_mb, instances_1.vcpus AS instances_1_vcpus, instances_1.root_gb AS instances_1_root_gb, instances_1.ephemeral_gb AS instances_1_ephemeral_gb, instances_1.ephemeral_key_uuid AS instances_1_ephemeral_key_uuid, instances_1.host AS instances_1_host, instances_1.node AS instances_1_node, instances_1.instance_type_id AS instances_1_instance_type_id, instances_1.user_data AS instances_1_user_data, instances_1.reservation_id AS instances_1_reservation_id, instances_1.launched_at AS instances_1_launched_at, instances_1.terminated_at AS instances_1_terminated_at, instances_1.availability_zone AS instances_1_availability_zone, instances_1.display_name AS instances_1_display_name, instances_1.display_description AS instances_1_display_description, instances_1.launched_on AS instances_1_launched_on, instances_1.locked AS instances_1_locked, instances_1.locked_by AS instances_1_locked_by, instances_1.os_type AS instances_1_os_type, instances_1.architecture AS instances_1_architecture, instances_1.vm_mode AS instances_1_vm_mode, instances_1.uuid AS instances_1_uuid, instances_1.root_device_name AS instances_1_root_device_name, instances_1.default_ephemeral_device AS instances_1_default_ephemeral_device, instances_1.default_swap_device AS instances_1_default_swap_device, instances_1.config_drive AS instances_1_config_drive, instances_1.access_ip_v4 AS instances_1_access_ip_v4, instances_1.access_ip_v6 AS instances_1_access_ip_v6, instances_1.auto_disk_config AS instances_1_auto_disk_config, instances_1.progress AS instances_1_progress, instances_1.shutdown_terminate AS instances_1_shutdown_terminate, instances_1.disable_terminate AS instances_1_disable_terminate, instances_1.cell_name AS instances_1_cell_name, instances_1.internal_id AS instances_1_internal_id, instances_1.cleaned AS instances_1_cleaned, instance_system_metadata_1.created_at AS instance_system_metadata_1_created_at, instance_system_metadata_1.updated_at AS instance_system_metadata_1_updated_at, instance_system_metadata_1.deleted_at AS instance_system_metadata_1_deleted_at, instance_system_metadata_1.deleted AS instance_system_metadata_1_deleted, instance_system_metadata_1.id AS instance_system_metadata_1_id, instance_system_metadata_1.`key` AS instance_system_metadata_1_key, instance_system_metadata_1.value AS instance_system_metadata_1_value, instance_system_metadata_1.instance_uuid AS instance_system_metadata_1_instance_uuid  FROM migrations LEFT OUTER JOIN instances AS instances_1 ON migrations.instance_uuid = instances_1.uuid AND instances_1.deleted = 0 LEFT OUTER JOIN instance_system_metadata AS instance_system_metadata_1 ON instances_1.uuid = instance_system_metadata_1.instance_uuid  WHERE migrations.deleted = 0 AND (migrations.source_compute = 'streak-26' AND migrations.source_node = 'streak-26.yahoo.ca.com' OR migrations.dest_compute = 'streak-26' AND migrations.dest_node = 'streak-26.yahoo.ca.com') AND migrations.status NOT IN ('accepted', 'confirmed', 'reverted', 'error', 'failed', 'completed')",
+        "question_toks": [
+            "Provide",
+            "information",
+            "about",
+            "migrations",
+            "associated",
+            "with",
+            "VM",
+            "that",
+            "moves",
+            "to",
+            "or",
+            "from",
+            "the",
+            "physical",
+            "host",
+            "streak-26",
+            "."
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "Provide information (including info caches, and security groups) for these VMs d6e79a50-82c0-49be-9967-2d5da9c87001, 003c6f3d-6c4c-40dc-840b-81feb6360e31, 7fbac52f-3ee5-4c38-a25a-c52ac39c8bb7, ade24b16-e170-4c2f-a8bd-e0b3ef60a87d, 6fed903f-e4e5-415c-a41c-fc50bdde11de, e1820f1d-ef1b-4155-83fc-b5c9d782a67a, eb216147-8e56-4b6b-99cf-bd6436fd65bb, 5395b5fb-4d3e-4606-9ac4-145431f1fe93, 62e96b06-461a-4cf0-b9d5-80b981760c26.",
+        "sql": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id \nFROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0 \nWHERE instances.uuid IN ('d6e79a50-82c0-49be-9967-2d5da9c87001', '003c6f3d-6c4c-40dc-840b-81feb6360e31', '7fbac52f-3ee5-4c38-a25a-c52ac39c8bb7', 'ade24b16-e170-4c2f-a8bd-e0b3ef60a87d', '6fed903f-e4e5-415c-a41c-fc50bdde11de', 'e1820f1d-ef1b-4155-83fc-b5c9d782a67a', 'eb216147-8e56-4b6b-99cf-bd6436fd65bb', '5395b5fb-4d3e-4606-9ac4-145431f1fe93', '62e96b06-461a-4cf0-b9d5-80b981760c26') ORDER BY instances.created_at DESC, instances.id DESC",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "INSTANCES.UUID",
+                "INSTANCE_INFO_CACHES.INSTANCE_UUID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#SECURITY_GROUP_INSTANCE_ASSOCIATION",
+            "csail_stata_nova#sep#SECURITY_GROUPS",
+            "csail_stata_nova#sep#INSTANCE_INFO_CACHES",
+            "csail_stata_nova#sep#INSTANCES"
+        ],
+        "query": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id  FROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0  WHERE instances.uuid IN ('d6e79a50-82c0-49be-9967-2d5da9c87001', '003c6f3d-6c4c-40dc-840b-81feb6360e31', '7fbac52f-3ee5-4c38-a25a-c52ac39c8bb7', 'ade24b16-e170-4c2f-a8bd-e0b3ef60a87d', '6fed903f-e4e5-415c-a41c-fc50bdde11de', 'e1820f1d-ef1b-4155-83fc-b5c9d782a67a', 'eb216147-8e56-4b6b-99cf-bd6436fd65bb', '5395b5fb-4d3e-4606-9ac4-145431f1fe93', '62e96b06-461a-4cf0-b9d5-80b981760c26') ORDER BY instances.created_at DESC, instances.id DESC",
+        "question_toks": [
+            "Provide",
+            "information",
+            "(including",
+            "info",
+            "caches",
+            ",",
+            "and",
+            "security",
+            "groups)",
+            "for",
+            "these",
+            "VMs",
+            "d6e79a50-82c0-49be-9967-2d5da9c87001",
+            ",",
+            "003c6f3d-6c4c-40dc-840b-81feb6360e31",
+            ",",
+            "7fbac52f-3ee5-4c38-a25a-c52ac39c8bb7",
+            ",",
+            "ade24b16-e170-4c2f-a8bd-e0b3ef60a87d",
+            ",",
+            "6fed903f-e4e5-415c-a41c-fc50bdde11de",
+            ",",
+            "e1820f1d-ef1b-4155-83fc-b5c9d782a67a",
+            ",",
+            "eb216147-8e56-4b6b-99cf-bd6436fd65bb",
+            ",",
+            "5395b5fb-4d3e-4606-9ac4-145431f1fe93",
+            ",",
+            "62e96b06-461a-4cf0-b9d5-80b981760c26",
+            "."
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "Provide information about migrations associated with VM that moves to or from the physical host drive-59.",
+        "sql": "SELECT migrations.created_at AS migrations_created_at, migrations.updated_at AS migrations_updated_at, migrations.deleted_at AS migrations_deleted_at, migrations.deleted AS migrations_deleted, migrations.id AS migrations_id, migrations.source_compute AS migrations_source_compute, migrations.dest_compute AS migrations_dest_compute, migrations.source_node AS migrations_source_node, migrations.dest_node AS migrations_dest_node, migrations.dest_host AS migrations_dest_host, migrations.old_instance_type_id AS migrations_old_instance_type_id, migrations.new_instance_type_id AS migrations_new_instance_type_id, migrations.instance_uuid AS migrations_instance_uuid, migrations.status AS migrations_status, migrations.migration_type AS migrations_migration_type, migrations.hidden AS migrations_hidden, migrations.memory_total AS migrations_memory_total, migrations.memory_processed AS migrations_memory_processed, migrations.memory_remaining AS migrations_memory_remaining, migrations.disk_total AS migrations_disk_total, migrations.disk_processed AS migrations_disk_processed, migrations.disk_remaining AS migrations_disk_remaining, instances_1.created_at AS instances_1_created_at, instances_1.updated_at AS instances_1_updated_at, instances_1.deleted_at AS instances_1_deleted_at, instances_1.deleted AS instances_1_deleted, instances_1.id AS instances_1_id, instances_1.user_id AS instances_1_user_id, instances_1.project_id AS instances_1_project_id, instances_1.image_ref AS instances_1_image_ref, instances_1.kernel_id AS instances_1_kernel_id, instances_1.ramdisk_id AS instances_1_ramdisk_id, instances_1.hostname AS instances_1_hostname, instances_1.launch_index AS instances_1_launch_index, instances_1.key_name AS instances_1_key_name, instances_1.key_data AS instances_1_key_data, instances_1.power_state AS instances_1_power_state, instances_1.vm_state AS instances_1_vm_state, instances_1.task_state AS instances_1_task_state, instances_1.memory_mb AS instances_1_memory_mb, instances_1.vcpus AS instances_1_vcpus, instances_1.root_gb AS instances_1_root_gb, instances_1.ephemeral_gb AS instances_1_ephemeral_gb, instances_1.ephemeral_key_uuid AS instances_1_ephemeral_key_uuid, instances_1.host AS instances_1_host, instances_1.node AS instances_1_node, instances_1.instance_type_id AS instances_1_instance_type_id, instances_1.user_data AS instances_1_user_data, instances_1.reservation_id AS instances_1_reservation_id, instances_1.launched_at AS instances_1_launched_at, instances_1.terminated_at AS instances_1_terminated_at, instances_1.availability_zone AS instances_1_availability_zone, instances_1.display_name AS instances_1_display_name, instances_1.display_description AS instances_1_display_description, instances_1.launched_on AS instances_1_launched_on, instances_1.locked AS instances_1_locked, instances_1.locked_by AS instances_1_locked_by, instances_1.os_type AS instances_1_os_type, instances_1.architecture AS instances_1_architecture, instances_1.vm_mode AS instances_1_vm_mode, instances_1.uuid AS instances_1_uuid, instances_1.root_device_name AS instances_1_root_device_name, instances_1.default_ephemeral_device AS instances_1_default_ephemeral_device, instances_1.default_swap_device AS instances_1_default_swap_device, instances_1.config_drive AS instances_1_config_drive, instances_1.access_ip_v4 AS instances_1_access_ip_v4, instances_1.access_ip_v6 AS instances_1_access_ip_v6, instances_1.auto_disk_config AS instances_1_auto_disk_config, instances_1.progress AS instances_1_progress, instances_1.shutdown_terminate AS instances_1_shutdown_terminate, instances_1.disable_terminate AS instances_1_disable_terminate, instances_1.cell_name AS instances_1_cell_name, instances_1.internal_id AS instances_1_internal_id, instances_1.cleaned AS instances_1_cleaned, instance_system_metadata_1.created_at AS instance_system_metadata_1_created_at, instance_system_metadata_1.updated_at AS instance_system_metadata_1_updated_at, instance_system_metadata_1.deleted_at AS instance_system_metadata_1_deleted_at, instance_system_metadata_1.deleted AS instance_system_metadata_1_deleted, instance_system_metadata_1.id AS instance_system_metadata_1_id, instance_system_metadata_1.`key` AS instance_system_metadata_1_key, instance_system_metadata_1.value AS instance_system_metadata_1_value, instance_system_metadata_1.instance_uuid AS instance_system_metadata_1_instance_uuid \nFROM migrations LEFT OUTER JOIN instances AS instances_1 ON migrations.instance_uuid = instances_1.uuid AND instances_1.deleted = 0 LEFT OUTER JOIN instance_system_metadata AS instance_system_metadata_1 ON instances_1.uuid = instance_system_metadata_1.instance_uuid \nWHERE migrations.deleted = 0 AND (migrations.source_compute = 'drive-59' AND migrations.source_node = 'drive-59.yahoo.ca.com' OR migrations.dest_compute = 'drive-59' AND migrations.dest_node = 'drive-59.yahoo.ca.com') AND migrations.status NOT IN ('accepted', 'confirmed', 'reverted', 'error', 'failed', 'completed')",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "MIGRATIONS.INSTANCE_UUID",
+                "INSTANCES.UUID"
+            ],
+            [
+                "INSTANCES.UUID",
+                "INSTANCE_SYSTEM_METADATA.INSTANCE_UUID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#INSTANCE_SYSTEM_METADATA",
+            "csail_stata_nova#sep#MIGRATIONS",
+            "csail_stata_nova#sep#INSTANCES"
+        ],
+        "query": "SELECT migrations.created_at AS migrations_created_at, migrations.updated_at AS migrations_updated_at, migrations.deleted_at AS migrations_deleted_at, migrations.deleted AS migrations_deleted, migrations.id AS migrations_id, migrations.source_compute AS migrations_source_compute, migrations.dest_compute AS migrations_dest_compute, migrations.source_node AS migrations_source_node, migrations.dest_node AS migrations_dest_node, migrations.dest_host AS migrations_dest_host, migrations.old_instance_type_id AS migrations_old_instance_type_id, migrations.new_instance_type_id AS migrations_new_instance_type_id, migrations.instance_uuid AS migrations_instance_uuid, migrations.status AS migrations_status, migrations.migration_type AS migrations_migration_type, migrations.hidden AS migrations_hidden, migrations.memory_total AS migrations_memory_total, migrations.memory_processed AS migrations_memory_processed, migrations.memory_remaining AS migrations_memory_remaining, migrations.disk_total AS migrations_disk_total, migrations.disk_processed AS migrations_disk_processed, migrations.disk_remaining AS migrations_disk_remaining, instances_1.created_at AS instances_1_created_at, instances_1.updated_at AS instances_1_updated_at, instances_1.deleted_at AS instances_1_deleted_at, instances_1.deleted AS instances_1_deleted, instances_1.id AS instances_1_id, instances_1.user_id AS instances_1_user_id, instances_1.project_id AS instances_1_project_id, instances_1.image_ref AS instances_1_image_ref, instances_1.kernel_id AS instances_1_kernel_id, instances_1.ramdisk_id AS instances_1_ramdisk_id, instances_1.hostname AS instances_1_hostname, instances_1.launch_index AS instances_1_launch_index, instances_1.key_name AS instances_1_key_name, instances_1.key_data AS instances_1_key_data, instances_1.power_state AS instances_1_power_state, instances_1.vm_state AS instances_1_vm_state, instances_1.task_state AS instances_1_task_state, instances_1.memory_mb AS instances_1_memory_mb, instances_1.vcpus AS instances_1_vcpus, instances_1.root_gb AS instances_1_root_gb, instances_1.ephemeral_gb AS instances_1_ephemeral_gb, instances_1.ephemeral_key_uuid AS instances_1_ephemeral_key_uuid, instances_1.host AS instances_1_host, instances_1.node AS instances_1_node, instances_1.instance_type_id AS instances_1_instance_type_id, instances_1.user_data AS instances_1_user_data, instances_1.reservation_id AS instances_1_reservation_id, instances_1.launched_at AS instances_1_launched_at, instances_1.terminated_at AS instances_1_terminated_at, instances_1.availability_zone AS instances_1_availability_zone, instances_1.display_name AS instances_1_display_name, instances_1.display_description AS instances_1_display_description, instances_1.launched_on AS instances_1_launched_on, instances_1.locked AS instances_1_locked, instances_1.locked_by AS instances_1_locked_by, instances_1.os_type AS instances_1_os_type, instances_1.architecture AS instances_1_architecture, instances_1.vm_mode AS instances_1_vm_mode, instances_1.uuid AS instances_1_uuid, instances_1.root_device_name AS instances_1_root_device_name, instances_1.default_ephemeral_device AS instances_1_default_ephemeral_device, instances_1.default_swap_device AS instances_1_default_swap_device, instances_1.config_drive AS instances_1_config_drive, instances_1.access_ip_v4 AS instances_1_access_ip_v4, instances_1.access_ip_v6 AS instances_1_access_ip_v6, instances_1.auto_disk_config AS instances_1_auto_disk_config, instances_1.progress AS instances_1_progress, instances_1.shutdown_terminate AS instances_1_shutdown_terminate, instances_1.disable_terminate AS instances_1_disable_terminate, instances_1.cell_name AS instances_1_cell_name, instances_1.internal_id AS instances_1_internal_id, instances_1.cleaned AS instances_1_cleaned, instance_system_metadata_1.created_at AS instance_system_metadata_1_created_at, instance_system_metadata_1.updated_at AS instance_system_metadata_1_updated_at, instance_system_metadata_1.deleted_at AS instance_system_metadata_1_deleted_at, instance_system_metadata_1.deleted AS instance_system_metadata_1_deleted, instance_system_metadata_1.id AS instance_system_metadata_1_id, instance_system_metadata_1.`key` AS instance_system_metadata_1_key, instance_system_metadata_1.value AS instance_system_metadata_1_value, instance_system_metadata_1.instance_uuid AS instance_system_metadata_1_instance_uuid  FROM migrations LEFT OUTER JOIN instances AS instances_1 ON migrations.instance_uuid = instances_1.uuid AND instances_1.deleted = 0 LEFT OUTER JOIN instance_system_metadata AS instance_system_metadata_1 ON instances_1.uuid = instance_system_metadata_1.instance_uuid  WHERE migrations.deleted = 0 AND (migrations.source_compute = 'drive-59' AND migrations.source_node = 'drive-59.yahoo.ca.com' OR migrations.dest_compute = 'drive-59' AND migrations.dest_node = 'drive-59.yahoo.ca.com') AND migrations.status NOT IN ('accepted', 'confirmed', 'reverted', 'error', 'failed', 'completed')",
+        "question_toks": [
+            "Provide",
+            "information",
+            "about",
+            "migrations",
+            "associated",
+            "with",
+            "VM",
+            "that",
+            "moves",
+            "to",
+            "or",
+            "from",
+            "the",
+            "physical",
+            "host",
+            "drive-59",
+            "."
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "Provide information (including info caches, and security groups) for these VMs 1453d6b3-d1a0-4649-8ac8-38f60beabb2b, 0c97d219-2dfc-4689-ad7f-fe3758d91a9e, 325b4e2d-ba54-4728-b2ed-af638cecb8cc, c2873331-af43-4ac9-82d6-d5547ecd15fa, e8202c21-082f-4182-a255-ad8e5de7932e, 26ad4e9b-215e-4b27-8718-1033f7a54c8e, 1f863dd8-76d3-4671-9b18-af456d1b2e1d, 5e028bfa-d3bd-4acd-8e7b-b293bc780814, 9480f48c-36a1-4885-9429-2d65d35f0031, 3307d967-b1cf-4c6f-b438-5fc0a8029488, 6341e0f8-9418-49e1-9f30-a7aa139f2c7b, 06758786-89b1-405e-ba26-00392864c06d, 1ab25e55-cdb4-44ae-84b9-e74b961cd463, 75ee7199-c9b6-45c9-9500-70566ec64969, 6036acdf-8118-4e8d-a98c-4cf6d4fc64c2, 4f3171be-cf1c-4a59-a3c0-8694461379f5, 514e9993-7b63-4984-a1af-8c6e33171b62, 07094c45-97cc-45a2-aef2-738a7d96a9ef, f050072f-dfba-40d6-8506-aece1c265508, c23b80b0-4d2f-4b29-8b67-9302b59bff29, 4bfb5507-31f3-4a5c-811c-996eef9b742a, 259f6b6c-8661-49a4-b171-e836f7bfd9de, 5e50080b-00a5-4df1-add3-065e69e647d6.",
+        "sql": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id \nFROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0 \nWHERE instances.uuid IN ('1453d6b3-d1a0-4649-8ac8-38f60beabb2b', '0c97d219-2dfc-4689-ad7f-fe3758d91a9e', '325b4e2d-ba54-4728-b2ed-af638cecb8cc', 'c2873331-af43-4ac9-82d6-d5547ecd15fa', 'e8202c21-082f-4182-a255-ad8e5de7932e', '26ad4e9b-215e-4b27-8718-1033f7a54c8e', '1f863dd8-76d3-4671-9b18-af456d1b2e1d', '5e028bfa-d3bd-4acd-8e7b-b293bc780814', '9480f48c-36a1-4885-9429-2d65d35f0031', '3307d967-b1cf-4c6f-b438-5fc0a8029488', '6341e0f8-9418-49e1-9f30-a7aa139f2c7b', '06758786-89b1-405e-ba26-00392864c06d', '1ab25e55-cdb4-44ae-84b9-e74b961cd463', '75ee7199-c9b6-45c9-9500-70566ec64969', '6036acdf-8118-4e8d-a98c-4cf6d4fc64c2', '4f3171be-cf1c-4a59-a3c0-8694461379f5', '514e9993-7b63-4984-a1af-8c6e33171b62', '07094c45-97cc-45a2-aef2-738a7d96a9ef', 'f050072f-dfba-40d6-8506-aece1c265508', 'c23b80b0-4d2f-4b29-8b67-9302b59bff29', '4bfb5507-31f3-4a5c-811c-996eef9b742a', '259f6b6c-8661-49a4-b171-e836f7bfd9de', '5e50080b-00a5-4df1-add3-065e69e647d6') ORDER BY instances.created_at DESC, instances.id DESC",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "INSTANCE_INFO_CACHES.INSTANCE_UUID",
+                "INSTANCES.UUID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#SECURITY_GROUP_INSTANCE_ASSOCIATION",
+            "csail_stata_nova#sep#SECURITY_GROUPS",
+            "csail_stata_nova#sep#INSTANCE_INFO_CACHES",
+            "csail_stata_nova#sep#INSTANCES"
+        ],
+        "query": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id  FROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0  WHERE instances.uuid IN ('1453d6b3-d1a0-4649-8ac8-38f60beabb2b', '0c97d219-2dfc-4689-ad7f-fe3758d91a9e', '325b4e2d-ba54-4728-b2ed-af638cecb8cc', 'c2873331-af43-4ac9-82d6-d5547ecd15fa', 'e8202c21-082f-4182-a255-ad8e5de7932e', '26ad4e9b-215e-4b27-8718-1033f7a54c8e', '1f863dd8-76d3-4671-9b18-af456d1b2e1d', '5e028bfa-d3bd-4acd-8e7b-b293bc780814', '9480f48c-36a1-4885-9429-2d65d35f0031', '3307d967-b1cf-4c6f-b438-5fc0a8029488', '6341e0f8-9418-49e1-9f30-a7aa139f2c7b', '06758786-89b1-405e-ba26-00392864c06d', '1ab25e55-cdb4-44ae-84b9-e74b961cd463', '75ee7199-c9b6-45c9-9500-70566ec64969', '6036acdf-8118-4e8d-a98c-4cf6d4fc64c2', '4f3171be-cf1c-4a59-a3c0-8694461379f5', '514e9993-7b63-4984-a1af-8c6e33171b62', '07094c45-97cc-45a2-aef2-738a7d96a9ef', 'f050072f-dfba-40d6-8506-aece1c265508', 'c23b80b0-4d2f-4b29-8b67-9302b59bff29', '4bfb5507-31f3-4a5c-811c-996eef9b742a', '259f6b6c-8661-49a4-b171-e836f7bfd9de', '5e50080b-00a5-4df1-add3-065e69e647d6') ORDER BY instances.created_at DESC, instances.id DESC",
+        "question_toks": [
+            "Provide",
+            "information",
+            "(including",
+            "info",
+            "caches",
+            ",",
+            "and",
+            "security",
+            "groups)",
+            "for",
+            "these",
+            "VMs",
+            "1453d6b3-d1a0-4649-8ac8-38f60beabb2b",
+            ",",
+            "0c97d219-2dfc-4689-ad7f-fe3758d91a9e",
+            ",",
+            "325b4e2d-ba54-4728-b2ed-af638cecb8cc",
+            ",",
+            "c2873331-af43-4ac9-82d6-d5547ecd15fa",
+            ",",
+            "e8202c21-082f-4182-a255-ad8e5de7932e",
+            ",",
+            "26ad4e9b-215e-4b27-8718-1033f7a54c8e",
+            ",",
+            "1f863dd8-76d3-4671-9b18-af456d1b2e1d",
+            ",",
+            "5e028bfa-d3bd-4acd-8e7b-b293bc780814",
+            ",",
+            "9480f48c-36a1-4885-9429-2d65d35f0031",
+            ",",
+            "3307d967-b1cf-4c6f-b438-5fc0a8029488",
+            ",",
+            "6341e0f8-9418-49e1-9f30-a7aa139f2c7b",
+            ",",
+            "06758786-89b1-405e-ba26-00392864c06d",
+            ",",
+            "1ab25e55-cdb4-44ae-84b9-e74b961cd463",
+            ",",
+            "75ee7199-c9b6-45c9-9500-70566ec64969",
+            ",",
+            "6036acdf-8118-4e8d-a98c-4cf6d4fc64c2",
+            ",",
+            "4f3171be-cf1c-4a59-a3c0-8694461379f5",
+            ",",
+            "514e9993-7b63-4984-a1af-8c6e33171b62",
+            ",",
+            "07094c45-97cc-45a2-aef2-738a7d96a9ef",
+            ",",
+            "f050072f-dfba-40d6-8506-aece1c265508",
+            ",",
+            "c23b80b0-4d2f-4b29-8b67-9302b59bff29",
+            ",",
+            "4bfb5507-31f3-4a5c-811c-996eef9b742a",
+            ",",
+            "259f6b6c-8661-49a4-b171-e836f7bfd9de",
+            ",",
+            "5e50080b-00a5-4df1-add3-065e69e647d6",
+            "."
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "Provide information about physical host blitz1-32.",
+        "sql": "SELECT cn.created_at, cn.updated_at, cn.deleted_at, cn.deleted, cn.id, cn.service_id, cn.host, cn.uuid, cn.vcpus, cn.memory_mb, cn.local_gb, cn.vcpus_used, cn.memory_mb_used, cn.local_gb_used, cn.hypervisor_type, cn.hypervisor_version, cn.hypervisor_hostname, cn.free_ram_mb, cn.free_disk_gb, cn.current_workload, cn.running_vms, cn.cpu_info, cn.disk_available_least, cn.host_ip, cn.supported_instances, cn.metrics, cn.pci_stats, cn.extra_resources, cn.stats, cn.numa_topology, cn.ram_allocation_ratio, cn.cpu_allocation_ratio, cn.disk_allocation_ratio, ram_inv.total AS inv_memory_mb, ram_inv.reserved AS inv_memory_mb_reserved, ram_inv.allocation_ratio AS inv_ram_allocation_ratio, ram_usage.used AS inv_memory_mb_used, cpu_inv.total AS inv_vcpus, cpu_inv.allocation_ratio AS inv_cpu_allocation_ratio, cpu_usage.used AS inv_vcpus_used, disk_inv.total AS inv_local_gb, disk_inv.reserved AS inv_local_gb_reserved, disk_inv.allocation_ratio AS inv_disk_allocation_ratio, disk_usage.used AS inv_local_gb_used \nFROM compute_nodes AS cn LEFT OUTER JOIN resource_providers AS rp ON cn.uuid = rp.uuid LEFT OUTER JOIN inventories AS ram_inv ON rp.id = ram_inv.resource_provider_id AND ram_inv.resource_class_id = 1 LEFT OUTER JOIN (SELECT allocations.resource_provider_id AS resource_provider_id, sum(allocations.used) AS used \nFROM allocations \nWHERE allocations.resource_class_id = 1 GROUP BY allocations.resource_provider_id) AS ram_usage ON ram_inv.resource_provider_id = ram_usage.resource_provider_id LEFT OUTER JOIN inventories AS cpu_inv ON rp.id = cpu_inv.resource_provider_id AND cpu_inv.resource_class_id = 0 LEFT OUTER JOIN (SELECT allocations.resource_provider_id AS resource_provider_id, sum(allocations.used) AS used \nFROM allocations \nWHERE allocations.resource_class_id = 0 GROUP BY allocations.resource_provider_id) AS cpu_usage ON cpu_inv.resource_provider_id = cpu_usage.resource_provider_id LEFT OUTER JOIN inventories AS disk_inv ON rp.id = disk_inv.resource_provider_id AND disk_inv.resource_class_id = 2 LEFT OUTER JOIN (SELECT allocations.resource_provider_id AS resource_provider_id, sum(allocations.used) AS used \nFROM allocations \nWHERE allocations.resource_class_id = 2 GROUP BY allocations.resource_provider_id) AS disk_usage ON disk_inv.resource_provider_id = disk_usage.resource_provider_id \nWHERE cn.deleted = 0 AND cn.host = 'blitz1-32'",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "RESOURCE_PROVIDERS.UUID",
+                "COMPUTE_NODES.UUID"
+            ],
+            [
+                "RESOURCE_PROVIDERS.ID",
+                "INVENTORIES.RESOURCE_PROVIDER_ID"
+            ],
+            [
+                "RESOURCE_PROVIDERS.ID",
+                "INVENTORIES.RESOURCE_PROVIDER_ID"
+            ],
+            [
+                "INVENTORIES.RESOURCE_PROVIDER_ID",
+                "RESOURCE_PROVIDERS.ID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#RESOURCE_PROVIDERS",
+            "csail_stata_nova#sep#ALLOCATIONS",
+            "csail_stata_nova#sep#INVENTORIES",
+            "csail_stata_nova#sep#COMPUTE_NODES"
+        ],
+        "query": "SELECT cn.created_at, cn.updated_at, cn.deleted_at, cn.deleted, cn.id, cn.service_id, cn.host, cn.uuid, cn.vcpus, cn.memory_mb, cn.local_gb, cn.vcpus_used, cn.memory_mb_used, cn.local_gb_used, cn.hypervisor_type, cn.hypervisor_version, cn.hypervisor_hostname, cn.free_ram_mb, cn.free_disk_gb, cn.current_workload, cn.running_vms, cn.cpu_info, cn.disk_available_least, cn.host_ip, cn.supported_instances, cn.metrics, cn.pci_stats, cn.extra_resources, cn.stats, cn.numa_topology, cn.ram_allocation_ratio, cn.cpu_allocation_ratio, cn.disk_allocation_ratio, ram_inv.total AS inv_memory_mb, ram_inv.reserved AS inv_memory_mb_reserved, ram_inv.allocation_ratio AS inv_ram_allocation_ratio, ram_usage.used AS inv_memory_mb_used, cpu_inv.total AS inv_vcpus, cpu_inv.allocation_ratio AS inv_cpu_allocation_ratio, cpu_usage.used AS inv_vcpus_used, disk_inv.total AS inv_local_gb, disk_inv.reserved AS inv_local_gb_reserved, disk_inv.allocation_ratio AS inv_disk_allocation_ratio, disk_usage.used AS inv_local_gb_used  FROM compute_nodes AS cn LEFT OUTER JOIN resource_providers AS rp ON cn.uuid = rp.uuid LEFT OUTER JOIN inventories AS ram_inv ON rp.id = ram_inv.resource_provider_id AND ram_inv.resource_class_id = 1 LEFT OUTER JOIN (SELECT allocations.resource_provider_id AS resource_provider_id, sum(allocations.used) AS used  FROM allocations  WHERE allocations.resource_class_id = 1 GROUP BY allocations.resource_provider_id) AS ram_usage ON ram_inv.resource_provider_id = ram_usage.resource_provider_id LEFT OUTER JOIN inventories AS cpu_inv ON rp.id = cpu_inv.resource_provider_id AND cpu_inv.resource_class_id = 0 LEFT OUTER JOIN (SELECT allocations.resource_provider_id AS resource_provider_id, sum(allocations.used) AS used  FROM allocations  WHERE allocations.resource_class_id = 0 GROUP BY allocations.resource_provider_id) AS cpu_usage ON cpu_inv.resource_provider_id = cpu_usage.resource_provider_id LEFT OUTER JOIN inventories AS disk_inv ON rp.id = disk_inv.resource_provider_id AND disk_inv.resource_class_id = 2 LEFT OUTER JOIN (SELECT allocations.resource_provider_id AS resource_provider_id, sum(allocations.used) AS used  FROM allocations  WHERE allocations.resource_class_id = 2 GROUP BY allocations.resource_provider_id) AS disk_usage ON disk_inv.resource_provider_id = disk_usage.resource_provider_id  WHERE cn.deleted = 0 AND cn.host = 'blitz1-32'",
+        "question_toks": [
+            "Provide",
+            "information",
+            "about",
+            "physical",
+            "host",
+            "blitz1-32",
+            "."
+        ],
+        "cat": "c5",
+        "sub": "s30"
+    },
+    {
+        "question": "Provide information (including info caches, and security groups) about VMs running on physical host flash-9.",
+        "sql": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id \nFROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0 \nWHERE instances.deleted = 0 AND instances.host = 'flash-9'",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "INSTANCES.UUID",
+                "INSTANCE_INFO_CACHES.INSTANCE_UUID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#SECURITY_GROUP_INSTANCE_ASSOCIATION",
+            "csail_stata_nova#sep#SECURITY_GROUPS",
+            "csail_stata_nova#sep#INSTANCE_INFO_CACHES",
+            "csail_stata_nova#sep#INSTANCES"
+        ],
+        "query": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id  FROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0  WHERE instances.deleted = 0 AND instances.host = 'flash-9'",
+        "question_toks": [
+            "Provide",
+            "information",
+            "(including",
+            "info",
+            "caches",
+            ",",
+            "and",
+            "security",
+            "groups)",
+            "about",
+            "VMs",
+            "running",
+            "on",
+            "physical",
+            "host",
+            "flash-9",
+            "."
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "Provide information (including info caches, and security groups) for these VMs dae33792-fddf-4ef1-b06f-aca2d8cf90e2, 69d29554-8111-49e9-9033-4790700fac35, 85bdf307-26d3-490d-83c4-b3c803bbe12e, 6e2ca95e-a9bc-4426-a7ea-6de5c75d1fe6, d29c6a18-68a1-4f80-8962-e6be76be155b, 5634b187-fac9-47e3-8452-00d4c180a135, 6a4653b2-60cc-4085-b5d6-d3a90d8a099d, bd6a9e8f-8652-498f-b7aa-027f2f40c60d, 234b3669-30a2-432e-a906-b4c747cea3e7, b67262b4-644c-48b5-9c33-ed968f60cd77, 2eaa5fee-b472-46b0-a79a-9df601646581, a878223b-7b58-4fcb-a027-a00063d40e32, 7393f4d3-e6e5-4cb7-9380-eda551372018, 991b0946-6377-41c3-b4ad-16880d24416f, 96c76788-8d28-42d0-8765-44d9990d3152, 5c1881f2-face-4e2a-aa92-17d9848f2a96, f1af17d9-bdb7-4fea-9772-182301b87c1d, 7760956b-c1e4-440b-8ba3-676896f4441a, f3e6a1db-6733-45fb-9ff5-53b760b020ff, 9fbdb8d9-e3b3-40ae-9e97-915981107caf, f78b9615-5abe-4249-9da0-e0b58821cc61, 50d909da-5a4b-4c20-af67-fe2d6362b7a3.",
+        "sql": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id \nFROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0 \nWHERE instances.uuid IN ('dae33792-fddf-4ef1-b06f-aca2d8cf90e2', '69d29554-8111-49e9-9033-4790700fac35', '85bdf307-26d3-490d-83c4-b3c803bbe12e', '6e2ca95e-a9bc-4426-a7ea-6de5c75d1fe6', 'd29c6a18-68a1-4f80-8962-e6be76be155b', '5634b187-fac9-47e3-8452-00d4c180a135', '6a4653b2-60cc-4085-b5d6-d3a90d8a099d', 'bd6a9e8f-8652-498f-b7aa-027f2f40c60d', '234b3669-30a2-432e-a906-b4c747cea3e7', 'b67262b4-644c-48b5-9c33-ed968f60cd77', '2eaa5fee-b472-46b0-a79a-9df601646581', 'a878223b-7b58-4fcb-a027-a00063d40e32', '7393f4d3-e6e5-4cb7-9380-eda551372018', '991b0946-6377-41c3-b4ad-16880d24416f', '96c76788-8d28-42d0-8765-44d9990d3152', '5c1881f2-face-4e2a-aa92-17d9848f2a96', 'f1af17d9-bdb7-4fea-9772-182301b87c1d', '7760956b-c1e4-440b-8ba3-676896f4441a', 'f3e6a1db-6733-45fb-9ff5-53b760b020ff', '9fbdb8d9-e3b3-40ae-9e97-915981107caf', 'f78b9615-5abe-4249-9da0-e0b58821cc61', '50d909da-5a4b-4c20-af67-fe2d6362b7a3') ORDER BY instances.created_at DESC, instances.id DESC",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "INSTANCE_INFO_CACHES.INSTANCE_UUID",
+                "INSTANCES.UUID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#SECURITY_GROUP_INSTANCE_ASSOCIATION",
+            "csail_stata_nova#sep#SECURITY_GROUPS",
+            "csail_stata_nova#sep#INSTANCE_INFO_CACHES",
+            "csail_stata_nova#sep#INSTANCES"
+        ],
+        "query": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id  FROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0  WHERE instances.uuid IN ('dae33792-fddf-4ef1-b06f-aca2d8cf90e2', '69d29554-8111-49e9-9033-4790700fac35', '85bdf307-26d3-490d-83c4-b3c803bbe12e', '6e2ca95e-a9bc-4426-a7ea-6de5c75d1fe6', 'd29c6a18-68a1-4f80-8962-e6be76be155b', '5634b187-fac9-47e3-8452-00d4c180a135', '6a4653b2-60cc-4085-b5d6-d3a90d8a099d', 'bd6a9e8f-8652-498f-b7aa-027f2f40c60d', '234b3669-30a2-432e-a906-b4c747cea3e7', 'b67262b4-644c-48b5-9c33-ed968f60cd77', '2eaa5fee-b472-46b0-a79a-9df601646581', 'a878223b-7b58-4fcb-a027-a00063d40e32', '7393f4d3-e6e5-4cb7-9380-eda551372018', '991b0946-6377-41c3-b4ad-16880d24416f', '96c76788-8d28-42d0-8765-44d9990d3152', '5c1881f2-face-4e2a-aa92-17d9848f2a96', 'f1af17d9-bdb7-4fea-9772-182301b87c1d', '7760956b-c1e4-440b-8ba3-676896f4441a', 'f3e6a1db-6733-45fb-9ff5-53b760b020ff', '9fbdb8d9-e3b3-40ae-9e97-915981107caf', 'f78b9615-5abe-4249-9da0-e0b58821cc61', '50d909da-5a4b-4c20-af67-fe2d6362b7a3') ORDER BY instances.created_at DESC, instances.id DESC",
+        "question_toks": [
+            "Provide",
+            "information",
+            "(including",
+            "info",
+            "caches",
+            ",",
+            "and",
+            "security",
+            "groups)",
+            "for",
+            "these",
+            "VMs",
+            "dae33792-fddf-4ef1-b06f-aca2d8cf90e2",
+            ",",
+            "69d29554-8111-49e9-9033-4790700fac35",
+            ",",
+            "85bdf307-26d3-490d-83c4-b3c803bbe12e",
+            ",",
+            "6e2ca95e-a9bc-4426-a7ea-6de5c75d1fe6",
+            ",",
+            "d29c6a18-68a1-4f80-8962-e6be76be155b",
+            ",",
+            "5634b187-fac9-47e3-8452-00d4c180a135",
+            ",",
+            "6a4653b2-60cc-4085-b5d6-d3a90d8a099d",
+            ",",
+            "bd6a9e8f-8652-498f-b7aa-027f2f40c60d",
+            ",",
+            "234b3669-30a2-432e-a906-b4c747cea3e7",
+            ",",
+            "b67262b4-644c-48b5-9c33-ed968f60cd77",
+            ",",
+            "2eaa5fee-b472-46b0-a79a-9df601646581",
+            ",",
+            "a878223b-7b58-4fcb-a027-a00063d40e32",
+            ",",
+            "7393f4d3-e6e5-4cb7-9380-eda551372018",
+            ",",
+            "991b0946-6377-41c3-b4ad-16880d24416f",
+            ",",
+            "96c76788-8d28-42d0-8765-44d9990d3152",
+            ",",
+            "5c1881f2-face-4e2a-aa92-17d9848f2a96",
+            ",",
+            "f1af17d9-bdb7-4fea-9772-182301b87c1d",
+            ",",
+            "7760956b-c1e4-440b-8ba3-676896f4441a",
+            ",",
+            "f3e6a1db-6733-45fb-9ff5-53b760b020ff",
+            ",",
+            "9fbdb8d9-e3b3-40ae-9e97-915981107caf",
+            ",",
+            "f78b9615-5abe-4249-9da0-e0b58821cc61",
+            ",",
+            "50d909da-5a4b-4c20-af67-fe2d6362b7a3",
+            "."
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    },
+    {
+        "question": "Provide information (including info caches, and security groups) for these VMs caeefb11-d678-46c5-b240-639688fff42e, 20fe7a2a-f2c0-4d9a-af3f-2d836fd35f3c, d68d2937-511a-4f89-8a4d-a3f114781e1a, 337d64cd-2daf-488a-b74b-5eddf97462db, 2e078448-351f-419b-adca-12b644fa6d2c, 2e35f274-5b4a-4cba-9cfe-0786c0a90906, 234fd9ec-1375-46bd-969a-237fc46eadc4, f14b5d3f-1c42-40b1-a48b-6baeba62c889, 6f2b0902-4667-4daa-b8dc-42cac14ab9e5, 29c9a596-a557-4ff7-abd6-a985bdc39be0, 8c691810-dfd5-44d8-ae8e-0ffba13bde47, b9eb36ee-3afc-40c0-a6b4-5f9ed2e41e8e, cd27ab83-30a2-4be8-942f-a3ee124dc4e4.",
+        "sql": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id \nFROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0 \nWHERE instances.uuid IN ('caeefb11-d678-46c5-b240-639688fff42e', '20fe7a2a-f2c0-4d9a-af3f-2d836fd35f3c', 'd68d2937-511a-4f89-8a4d-a3f114781e1a', '337d64cd-2daf-488a-b74b-5eddf97462db', '2e078448-351f-419b-adca-12b644fa6d2c', '2e35f274-5b4a-4cba-9cfe-0786c0a90906', '234fd9ec-1375-46bd-969a-237fc46eadc4', 'f14b5d3f-1c42-40b1-a48b-6baeba62c889', '6f2b0902-4667-4daa-b8dc-42cac14ab9e5', '29c9a596-a557-4ff7-abd6-a985bdc39be0', '8c691810-dfd5-44d8-ae8e-0ffba13bde47', 'b9eb36ee-3afc-40c0-a6b4-5f9ed2e41e8e', 'cd27ab83-30a2-4be8-942f-a3ee124dc4e4') ORDER BY instances.created_at DESC, instances.id DESC",
+        "db_id": "csail_stata_nova",
+        "join_keys": [
+            [
+                "INSTANCE_INFO_CACHES.INSTANCE_UUID",
+                "INSTANCES.UUID"
+            ]
+        ],
+        "gold_tables": [
+            "csail_stata_nova#sep#SECURITY_GROUP_INSTANCE_ASSOCIATION",
+            "csail_stata_nova#sep#SECURITY_GROUPS",
+            "csail_stata_nova#sep#INSTANCE_INFO_CACHES",
+            "csail_stata_nova#sep#INSTANCES"
+        ],
+        "query": "SELECT instances.created_at AS instances_created_at, instances.updated_at AS instances_updated_at, instances.deleted_at AS instances_deleted_at, instances.deleted AS instances_deleted, instances.id AS instances_id, instances.user_id AS instances_user_id, instances.project_id AS instances_project_id, instances.image_ref AS instances_image_ref, instances.kernel_id AS instances_kernel_id, instances.ramdisk_id AS instances_ramdisk_id, instances.hostname AS instances_hostname, instances.launch_index AS instances_launch_index, instances.key_name AS instances_key_name, instances.key_data AS instances_key_data, instances.power_state AS instances_power_state, instances.vm_state AS instances_vm_state, instances.task_state AS instances_task_state, instances.memory_mb AS instances_memory_mb, instances.vcpus AS instances_vcpus, instances.root_gb AS instances_root_gb, instances.ephemeral_gb AS instances_ephemeral_gb, instances.ephemeral_key_uuid AS instances_ephemeral_key_uuid, instances.host AS instances_host, instances.node AS instances_node, instances.instance_type_id AS instances_instance_type_id, instances.user_data AS instances_user_data, instances.reservation_id AS instances_reservation_id, instances.launched_at AS instances_launched_at, instances.terminated_at AS instances_terminated_at, instances.availability_zone AS instances_availability_zone, instances.display_name AS instances_display_name, instances.display_description AS instances_display_description, instances.launched_on AS instances_launched_on, instances.locked AS instances_locked, instances.locked_by AS instances_locked_by, instances.os_type AS instances_os_type, instances.architecture AS instances_architecture, instances.vm_mode AS instances_vm_mode, instances.uuid AS instances_uuid, instances.root_device_name AS instances_root_device_name, instances.default_ephemeral_device AS instances_default_ephemeral_device, instances.default_swap_device AS instances_default_swap_device, instances.config_drive AS instances_config_drive, instances.access_ip_v4 AS instances_access_ip_v4, instances.access_ip_v6 AS instances_access_ip_v6, instances.auto_disk_config AS instances_auto_disk_config, instances.progress AS instances_progress, instances.shutdown_terminate AS instances_shutdown_terminate, instances.disable_terminate AS instances_disable_terminate, instances.cell_name AS instances_cell_name, instances.internal_id AS instances_internal_id, instances.cleaned AS instances_cleaned, instance_info_caches_1.created_at AS instance_info_caches_1_created_at, instance_info_caches_1.updated_at AS instance_info_caches_1_updated_at, instance_info_caches_1.deleted_at AS instance_info_caches_1_deleted_at, instance_info_caches_1.deleted AS instance_info_caches_1_deleted, instance_info_caches_1.id AS instance_info_caches_1_id, instance_info_caches_1.network_info AS instance_info_caches_1_network_info, instance_info_caches_1.instance_uuid AS instance_info_caches_1_instance_uuid, security_groups_1.created_at AS security_groups_1_created_at, security_groups_1.updated_at AS security_groups_1_updated_at, security_groups_1.deleted_at AS security_groups_1_deleted_at, security_groups_1.deleted AS security_groups_1_deleted, security_groups_1.id AS security_groups_1_id, security_groups_1.name AS security_groups_1_name, security_groups_1.description AS security_groups_1_description, security_groups_1.user_id AS security_groups_1_user_id, security_groups_1.project_id AS security_groups_1_project_id  FROM instances LEFT OUTER JOIN instance_info_caches AS instance_info_caches_1 ON instance_info_caches_1.instance_uuid = instances.uuid LEFT OUTER JOIN (security_group_instance_association AS security_group_instance_association_1 INNER JOIN security_groups AS security_groups_1 ON security_groups_1.id = security_group_instance_association_1.security_group_id AND security_group_instance_association_1.deleted = 0 AND security_groups_1.deleted = 0) ON security_group_instance_association_1.instance_uuid = instances.uuid AND instances.deleted = 0  WHERE instances.uuid IN ('caeefb11-d678-46c5-b240-639688fff42e', '20fe7a2a-f2c0-4d9a-af3f-2d836fd35f3c', 'd68d2937-511a-4f89-8a4d-a3f114781e1a', '337d64cd-2daf-488a-b74b-5eddf97462db', '2e078448-351f-419b-adca-12b644fa6d2c', '2e35f274-5b4a-4cba-9cfe-0786c0a90906', '234fd9ec-1375-46bd-969a-237fc46eadc4', 'f14b5d3f-1c42-40b1-a48b-6baeba62c889', '6f2b0902-4667-4daa-b8dc-42cac14ab9e5', '29c9a596-a557-4ff7-abd6-a985bdc39be0', '8c691810-dfd5-44d8-ae8e-0ffba13bde47', 'b9eb36ee-3afc-40c0-a6b4-5f9ed2e41e8e', 'cd27ab83-30a2-4be8-942f-a3ee124dc4e4') ORDER BY instances.created_at DESC, instances.id DESC",
+        "question_toks": [
+            "Provide",
+            "information",
+            "(including",
+            "info",
+            "caches",
+            ",",
+            "and",
+            "security",
+            "groups)",
+            "for",
+            "these",
+            "VMs",
+            "caeefb11-d678-46c5-b240-639688fff42e",
+            ",",
+            "20fe7a2a-f2c0-4d9a-af3f-2d836fd35f3c",
+            ",",
+            "d68d2937-511a-4f89-8a4d-a3f114781e1a",
+            ",",
+            "337d64cd-2daf-488a-b74b-5eddf97462db",
+            ",",
+            "2e078448-351f-419b-adca-12b644fa6d2c",
+            ",",
+            "2e35f274-5b4a-4cba-9cfe-0786c0a90906",
+            ",",
+            "234fd9ec-1375-46bd-969a-237fc46eadc4",
+            ",",
+            "f14b5d3f-1c42-40b1-a48b-6baeba62c889",
+            ",",
+            "6f2b0902-4667-4daa-b8dc-42cac14ab9e5",
+            ",",
+            "29c9a596-a557-4ff7-abd6-a985bdc39be0",
+            ",",
+            "8c691810-dfd5-44d8-ae8e-0ffba13bde47",
+            ",",
+            "b9eb36ee-3afc-40c0-a6b4-5f9ed2e41e8e",
+            ",",
+            "cd27ab83-30a2-4be8-942f-a3ee124dc4e4",
+            "."
+        ],
+        "cat": "c4",
+        "sub": "s27"
+    }
+]
