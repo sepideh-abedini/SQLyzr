@@ -6,7 +6,7 @@ from typing import Literal, List
 from src.eval.dataset_config import DatasetConfig
 from src.util.file_utils import get_num_lines
 
-ModelName = Literal["din", "dail", "dum", "custom", "simple", "simple_v2"]
+ModelName = Literal["din", "dail", "dum", "custom", "direct", "direct_v2"]
 
 
 @dataclass(frozen=True)

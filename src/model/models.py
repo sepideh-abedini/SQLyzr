@@ -11,8 +11,8 @@ MODELS = {
     "din": DinRunner(),
     "dail": DailRunner(),
     "dum": DummyRunner(),
-    "simple": SimpleRunner(),
-    "simple_v2": SimpleRunnerV2(),
+    "direct": SimpleRunner(),
+    "direct_v2": SimpleRunnerV2(),
     "custom": CustomRunner()
 }
 

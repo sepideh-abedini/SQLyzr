@@ -28,7 +28,7 @@ import { BUILD_VERSION } from './config'
   </main>
 
   <footer class="footer">
-    <span>Build version: {{ BUILD_VERSION }} </span>
+    <span>Build version: {{ BUILD_VERSION.slice(0, 7) }} </span>
   </footer>
 </template>
 

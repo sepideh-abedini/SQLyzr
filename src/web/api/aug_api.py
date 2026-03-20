@@ -34,7 +34,7 @@ class AugAPI(BaseAPI):
 
     def get_ds_stats(self):
         dataset_size = 0
-        conf = load_config(AUG_CONF)
+        conf = load_config(self.config_file)
         ds_conf = conf.eval_conf.dataset_configs[0]
         dbf = SqliteFacade(ds_conf)
         data = read_json(ds_conf.get_test_path())
@@ -57,13 +57,13 @@ class AugAPI(BaseAPI):
             return jsonify({"error": str(e)}), 500
 
     async def clear(self):
-        conf = load_config(AUG_CONF)
+        conf = load_config(self.config_file)
         conf.clear()
-        conf_data = ConfigData.load(AUG_CONF)
+        conf_data = ConfigData.load(self.config_file)
         conf_data = conf_data.model_copy(update={
             "dataset_versions": [conf_data.dataset_versions[0]]
         })
-        conf_data.save(AUG_CONF)
+        conf_data.save(self.config_file)
         return jsonify({
             "message": "Clear done!"
         }), 200
@@ -79,7 +79,7 @@ class AugAPI(BaseAPI):
                 return jsonify({"error": f"Script file not found at {script_path}"}), 404
 
             self.process = subprocess.Popen(
-                [sys.executable, "-u", script_path, "--config", AUG_CONF],
+                [sys.executable, "-u", script_path, "--config", self.config_file],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -123,7 +123,7 @@ class AugAPI(BaseAPI):
             })
 
     def get_plot(self, hue=None, name=None):
-        conf = load_config(AUG_CONF)
+        conf = load_config(self.config_file)
         logger.info(conf.get_aug_out("spider"))
         chart_file = f"{name}.png"
         if hue is not None:
@@ -138,29 +138,29 @@ class AugAPI(BaseAPI):
             return jsonify({"error": f"Plot file not found at {plot_path}"}), 404
 
     def update_aug_config(self):
-        old_config = ConfigData.load(AUG_CONF)
+        old_config = ConfigData.load(self.config_file)
         old_config = old_config.dict()
         update_data = request.json
         for key, value in update_data.items():
             old_config[key] = value
         logger.info(f"New config: {update_data}")
-        write_json(AUG_CONF, old_config)
+        write_json(self.config_file, old_config)
         try:
-            sqlyzr = Sqlyzr(AUG_CONF)
+            sqlyzr = Sqlyzr(self.config_file)
         except Exception as e:
             print(e)
-            write_json(AUG_CONF, old_config)
+            write_json(self.config_file, old_config)
             return str(e), 400
         return jsonify({"message": "Configuration updated successfully"})
 
     def get_aug_config(self):
-        data = read_json(AUG_CONF)
+        data = read_json(self.config_file)
         return jsonify(data)
 
     def reset_aug(self):
-        conf_data = ConfigData.load(AUG_CONF)
+        conf_data = ConfigData.load(self.config_file)
         conf_data = conf_data.model_copy(update={
             "dataset_versions": [conf_data.dataset_versions[0]]
         })
-        conf_data.save(AUG_CONF)
+        conf_data.save(self.config_file)
         return jsonify(conf_data.dict()), 200

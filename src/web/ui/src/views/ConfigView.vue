@@ -181,6 +181,13 @@
                 class="p-button-primary"
               />
               <Button
+                label="Cleanup"
+                icon="pi pi-trash"
+                v-tooltip="'Delete all output files'"
+                @click="cleanup"
+                severity="danger"
+              />
+              <Button
                 label="Reset Config"
                 icon="pi pi-refresh"
                 @click="resetConfig"
@@ -309,7 +316,7 @@ export default {
         },
         charts: [],
       },
-      modelOptions: ['din', 'dail', 'simple'],
+      modelOptions: ['din', 'dail', 'direct'],
       suggested_temps: [0.0, 0.2, 0.5, 0.7, 1.0],
       chartOptions: [
         'Execution Accuracy',
@@ -420,6 +427,17 @@ export default {
       if (this.refreshInterval) {
         clearInterval(this.refreshInterval)
       }
+    },
+    async cleanup() {
+      const res = await this.call_api('api/config/cleanup', { method: 'POST' })
+      console.log(res)
+      await this.fetchConfig()
+      this.$toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Data cleared successfully.',
+        life: 3000,
+      })
     },
     setInterval() {
       this.fetchData()

@@ -82,7 +82,7 @@ jobs:
         run: |
           docker compose -f docker-compose.staging.yml down -v
           sleep 3
-          docker compose -f docker-compose.staging.yml pull
+          docker pull $SQLYZR_IMAGE
           docker inspect --format='{{index .RepoDigests 0}}' $SQLYZR_IMAGE
           docker compose -f docker-compose.staging.yml up --force-recreate -d
 
