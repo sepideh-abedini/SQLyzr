@@ -301,6 +301,7 @@ class Drawer:
         plt.figure(figsize=(5, 5))
         ax = sns.countplot(df, x="Category", hue=hue, hue_order=vers, order=cats)
 
+        os.makedirs(os.path.join(self.out_dir, hue), exist_ok=True)
         plt.savefig(os.path.join(self.out_dir, hue, f"cat_count.png"))
         plt.clf()
 
