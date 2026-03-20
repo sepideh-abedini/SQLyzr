@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import Menubar from 'primevue/menubar'
+import { BUILD_VERSION } from './config'
 </script>
 
 <template>
@@ -22,7 +23,13 @@ import Menubar from 'primevue/menubar'
       </div>
     </template>
   </Menubar>
-  <RouterView />
+  <main class="content">
+    <RouterView />
+  </main>
+
+  <footer class="footer">
+    <span>Build version: {{ BUILD_VERSION }} </span>
+  </footer>
 </template>
 
 <style scoped>

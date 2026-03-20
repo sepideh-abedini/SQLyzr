@@ -77,6 +77,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
+            SQLYZR_BUILD_VERSION=${{ github.sha }}
             SQLYZR_WEB_PORT=${{vars.SQLYZR_WEB_PORT}}
             SQLYZR_API_URL=https://temp.${{vars.SQLYZR_DOMAIN}}
 
