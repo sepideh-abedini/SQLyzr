@@ -12,13 +12,12 @@
             class="w-full"
           />
         </FormField>
-        <FormField class="md:col-6">
+        <FormField v-if="selectedHue" class="md:col-6">
           <label class="field-label">Plot:</label>
           <Select
             v-model="selectedPlot"
             :options="avail_plots"
             placeholder="Select a plot"
-            default-value="EA"
             class="w-full"
             :disabled="avail_plots.length === 0"
           >

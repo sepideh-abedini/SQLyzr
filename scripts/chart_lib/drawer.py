@@ -291,21 +291,22 @@ class Drawer:
         subs = natsorted(df['SubCategory'].unique())
         cats = natsorted(df['Category'].unique())
         vers = natsorted(df['dst_ver'].unique())
+        hue = 'dst_ver'
 
         temp = df["Temp"].unique()[0]
         model = df["Model"].unique()[0]
         itr = df["itr"].unique()[0]
         scale = df["scale"].unique()[0]
         df = df[(df['Temp'] == temp) & (df['Model'] == model) & (df['itr'] == itr) & (df['scale'] == scale)]
-        ax = sns.countplot(df, x="Category", hue="dst_ver", hue_order=vers, order=cats)
-        # plt.figure(figsize=(5, 5))
+        plt.figure(figsize=(5, 5))
+        ax = sns.countplot(df, x="Category", hue=hue, hue_order=vers, order=cats)
 
-        plt.savefig(os.path.join(self.out_dir, f"cat_count.png"))
+        plt.savefig(os.path.join(self.out_dir, hue, f"cat_count.png"))
         plt.clf()
 
         # plt.figure(figsize=(50, 5))
-        sns.countplot(df, x="SubCategory", hue="dst_ver", hue_order=vers, order=subs)
-        plt.savefig(os.path.join(self.out_dir, f"sub_cat_count.png"))
+        sns.countplot(df, x="SubCategory", hue=hue, hue_order=vers, order=subs)
+        plt.savefig(os.path.join(self.out_dir, hue, f"sub_cat_count.png"))
         if self.show:
             plt.show()
 
