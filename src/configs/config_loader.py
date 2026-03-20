@@ -101,6 +101,7 @@ def load_config(path) -> SQLyzrConfig:
     dataset_confs = DATASETS[conf_data.dataset]
     dataset_confs = dataset_confs[conf_data.dataset_size]
     versioned_dataset_confs = []
+    os.makedirs(conf_data.get_model_dataset_dir(), exist_ok=True)
     for conf in dataset_confs:
         for version in conf_data.dataset_versions:
             versioned_dataset_confs.append(conf.to_ver(version))

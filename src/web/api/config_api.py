@@ -19,12 +19,16 @@ class ConfigAPI(BaseAPI):
 
     def get_config(self):
         data = read_json(self.config_file)
+        if 1 in data['scales']:
+            data['scales'].remove(1)
         return jsonify(data)
 
     def update_config(self):
         old_config = ConfigData.load(self.config_file)
         old_config = old_config.dict()
         update_data = request.json
+        if 1 not in update_data['scales']:
+            update_data['scales'] = [1] + update_data['scales']
         for key, value in update_data.items():
             old_config[key] = value
         logger.info(f"New config: {update_data}")

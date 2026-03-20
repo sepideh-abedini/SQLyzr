@@ -91,7 +91,7 @@
                     display="chip"
                     filter
                     placeholder="Select scales"
-                    v-model="scales"
+                    v-model="config.scales"
                     :options="avail_scales"
                   >
                   </MultiSelect>
@@ -207,7 +207,7 @@
             <div class="status-info mb-3">
               <div v-if="running" class="status-badge running">
                 <i class="pi pi-spin pi-spinner mr-2"></i>
-                <span>Running: {{ current_step }}</span>
+                <span>Running </span>
               </div>
               <div v-else-if="success" class="status-badge completed">
                 <i class="pi pi-check-circle mr-2"></i>
@@ -334,14 +334,6 @@ export default {
     }
   },
   computed: {
-    scales: {
-      get() {
-        return this.conf?.scales.filter((v) => v !== 1)
-      },
-      set(val) {
-        this.config.scales = [1, ...(val ?? [])]
-      },
-    },
     errorThresholdPercent: {
       get() {
         return Math.round((this.config.error_threshold ?? 0) * 100)

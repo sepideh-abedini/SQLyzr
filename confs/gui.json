@@ -21,7 +21,7 @@
         "augment": false,
         "charts": true,
         "eval": false,
-        "predict": false,
+        "predict": true,
         "scale": false,
         "transformers": false,
         "verify": false
@@ -34,9 +34,7 @@
     ],
     "etcr": 1,
     "scales": [
-        1,
-        2,
-        5
+        1
     ],
     "eval_force": true,
     "pipeline_status": {

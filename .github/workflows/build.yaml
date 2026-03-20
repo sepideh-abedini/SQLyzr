@@ -19,7 +19,7 @@ env:
 
 jobs:
   build-web:
-    runs-on: self-hosted
+    runs-on: [ self-hosted, ci ]
     permissions:
       contents: read
       packages: write
