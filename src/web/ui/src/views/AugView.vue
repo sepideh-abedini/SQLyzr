@@ -4,25 +4,31 @@
     <div class="grid">
       <div class="grid md:col-6">
         <FormField class="md:col-6">
-          <label class="field-label">Plot:</label>
+          <label class="field-label">Plot Type</label>
           <Select
-            v-model="selectedPlot"
-            :options="avail_charts"
-            placeholder="Select a plot"
-            default-value="EA"
+            v-model="selectedHue"
+            :options="avail_hues"
+            placeholder="Select a type"
             class="w-full"
           />
         </FormField>
         <FormField class="md:col-6">
-          <label class="field-label">Grouping</label>
+          <label class="field-label">Plot:</label>
           <Select
-            v-model="selectedHue"
-            :options="avail_hues"
-            placeholder="Select a grouping"
-            default-value="Model"
+            v-model="selectedPlot"
+            :options="avail_plots"
+            placeholder="Select a plot"
+            default-value="EA"
             class="w-full"
-            :disabled="avail_hues.length === 0"
-          />
+            :disabled="avail_plots.length === 0"
+          >
+            <template #option="slotProps">
+              {{ formatPlotName(slotProps.option) }}
+            </template>
+            <template #value="slotProps">
+              {{ formatPlotName(slotProps.value) }}
+            </template>
+          </Select>
         </FormField>
         <div v-if="selectedPlot" class="h-full rounded-lg p-4">
           <img :src="plot_url" class="plot" />
@@ -50,28 +56,13 @@ import FloatLabel from 'primevue/floatlabel'
 import Column from 'primevue/column'
 import AugConfigView from '@/views/AugConfigView.vue'
 
-const charts = {
-  REA: {
-    file: 'mean__relaxed__execution__accuracy_per__sub_category',
-    vars: ['Model', 'dst_ver'],
-  },
-  Overall: {
-    file: 'overall__scores',
-    vars: ['Model', 'dst_ver'],
-  },
-  'Gold Exec Time': { file: 'mean__gold__execution__time_per_scale', vars: ['Model', 'dst_ver'] },
-  'SubCategory Dist': {
-    file: 'sub_cat_count',
-    vars: [],
-  },
-}
-
 export default {
   name: 'AugView',
   mixins: [apiMixin],
   data() {
     return {
       db_stats: [{ db_id: 'foo', scale: 2 }],
+      plot_dict: {},
       datasetSize: 0,
       isRunning: false,
       status: 'idle',
@@ -93,40 +84,41 @@ export default {
     }
   },
   computed: {
-    avail_charts() {
-      const keys = Object.keys(charts)
-      return Object.keys(charts)
-    },
     plot_url() {
-      const chart_name = charts[this.selectedPlot]?.file
-      if (this.selectedHue)
-        return `${API_BASE_URL}/api/aug/plot/${this.selectedHue}/${chart_name}?ts=${this.plotTimestamp}`
-      else
-        return `${API_BASE_URL}/api/aug/plot/${chart_name}?ts=${this.plotTimestamp}`
+      return `${API_BASE_URL}/api/aug/plot/${this.selectedHue}/${this.selectedPlot}?ts=${this.plotTimestamp}`
     },
     disabled() {
       return this.isRunning || this.modified
     },
+    avail_hues() {
+      return Object.keys(this.plot_dict)
+    },
+    avail_plots() {
+      console.log(this.selectedHue)
+      if (this.selectedHue) return this.plot_dict[this.selectedHue]
+      else return []
+    },
   },
   methods: {
+    formatPlotName(str: string) {
+      return str
+        .replace(/\.[^/.]+$/, '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (l) => l.toUpperCase())
+    },
     async fetchCharts() {
       try {
         const data = await this.call_api('api/charts')
-        const chart_paths = data.avail_charts
-        if (chart_paths.length > 0) {
-          this.avail_charts = chart_paths.map((p) => {
-            const label = p
-              .split('/')
-              .pop()
-              .replace(/\.png$/, '')
-              .replace(/__/g, ' ')
-              .replace(/\b\w/g, (c) => c.toUpperCase())
-
-            return { value: p, label }
-          })
-          this.selectedChart = this.avail_charts[1].value
+        const avail_charts = data.avail_charts
+        this.plot_dict = avail_charts
+        console.log(avail_charts)
+        if (Object.keys(avail_charts).length) {
+          this.selectedHue = Object.keys(avail_charts)[0]
+          if (this.plot_dict[this.selectedHue].length > 0)
+            this.selectedPlot = this.plot_dict[this.selectedHue][0]
         }
       } catch (error) {
+        console.error('Error fetching charts:', error)
       } finally {
         this.loading = false
       }
@@ -178,15 +170,12 @@ export default {
     },
   },
   watch: {
+    selectedHue(newVal, oldVal) {
+      if (this.plot_dict[this.selectedHue].length > 0)
+        this.selectedPlot = this.plot_dict[this.selectedHue][0]
+      else this.selectedPlot = null
+    },
     selectedPlot(newVal, oldVal) {
-      if (newVal !== null) {
-        this.avail_hues = charts[newVal].vars
-        if (this.avail_hues.length === 0) {
-          this.selectedHue = null
-        } else {
-          this.selectedHue = this.avail_hues[0]
-        }
-      }
       this.refreshPlot()
     },
   },

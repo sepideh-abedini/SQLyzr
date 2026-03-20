@@ -13,7 +13,7 @@
     ],
     "itrs": 1,
     "models": [
-        "dail"
+        "direct"
     ],
     "batch": false,
     "force": false,

@@ -125,12 +125,12 @@ class AugAPI(BaseAPI):
     def get_plot(self, hue=None, name=None):
         conf = load_config(self.config_file)
         logger.info(conf.get_aug_out("spider"))
-        chart_file = f"{name}.png"
         if hue is not None:
-            plot_path = os.path.join(conf.eval_conf.charts_dir, hue, chart_file)
+            plot_path = os.path.join(conf.eval_conf.charts_dir, hue, name)
         else:
-            plot_path = os.path.join(conf.eval_conf.charts_dir, chart_file)
+            plot_path = os.path.join(conf.eval_conf.charts_dir, name)
         plot_path = os.path.normpath(plot_path)
+        logger.info(f"Reading plot file: {plot_path}")
         if os.path.exists(plot_path):
             plot_path = "../../" + plot_path
             return send_file(plot_path, mimetype='image/png')
