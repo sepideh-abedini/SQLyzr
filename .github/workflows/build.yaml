@@ -7,6 +7,7 @@ on:
     paths:
       - 'src/**'
       - 'tests/**'
+      - 'scripts/**'
       - Dockerfile
       - pyproject.toml
       - .github/workflows/build.yaml
