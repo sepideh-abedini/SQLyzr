@@ -12,7 +12,7 @@
                   <Select
                     v-model="config.dataset"
                     :options="dataset_options"
-                    placeholder="Select Dataset"
+                    placeholder="Select Workload"
                     class="w-full"
                   />
                 </FloatLabel>
@@ -62,12 +62,13 @@
               <FormField class="md:col-6">
                 <FloatLabel variant="in">
                   <label class="field-label">Temperature:</label>
-                  <AutoComplete
-                    :typeahead="false"
-                    multiple
-                    :suggestions="suggested_temps"
+                  <MultiSelect
                     v-model="config.temps"
-                    @complete="addTemp"
+                    display="chip"
+                    :options="suggested_temps"
+                    filter
+                    placeholder="Select Temperatures"
+                    class="w-full"
                     fluid
                   />
                 </FloatLabel>
@@ -156,13 +157,13 @@
                 </FloatLabel>
               </FormField>
               <FormField class="mb-3">
-                <label class="field-label">Charts:</label>
+                <label class="field-label">Plots:</label>
                 <MultiSelect
                   v-model="config.charts"
                   display="chip"
                   :options="chartOptions"
                   filter
-                  placeholder="Select Charts"
+                  placeholder="Select Plots"
                   class="w-full"
                 />
               </FormField>
@@ -190,10 +191,11 @@
                 :disabled="running"
               />
               <Button
-                label="Reset Config"
+                label="Default Config"
                 icon="pi pi-refresh"
                 @click="resetConfig"
                 severity="secondary"
+                v-tooltip="'Reset to default configuration'"
                 outlined
                 :disabled="running"
               />
@@ -294,7 +296,7 @@ export default {
       fail: false,
       calculating: false,
       selected_pipeline_mode: 'Evaluation',
-      dataset_options: ['sqlyzr', 'aug', 'spider', 'bird', 'beaver'],
+      dataset_options: ['aggregate', 'spider', 'bird', 'beaver'],
       size_options: ['small', 'all'],
       selected_version: null,
       config: {
@@ -311,7 +313,6 @@ export default {
         error_threshold: 90,
         etcr: 1.0,
         pipeline: {
-          verify: false,
           predict: false,
           eval: false,
           augment: false,
@@ -319,7 +320,6 @@ export default {
           scale: false,
         },
         pipeline_status: {
-          verify: false,
           predict: false,
           eval: false,
           charts: false,
@@ -329,7 +329,7 @@ export default {
         charts: [],
       },
       modelOptions: ['din', 'dail', 'direct'],
-      suggested_temps: [0.0, 0.2, 0.5, 0.7, 1.0],
+      suggested_temps: [0.2, 0.5, 0.7, 1.0],
       chartOptions: [
         'Overall',
         'Execution Accuracy',
@@ -372,7 +372,7 @@ export default {
       return [2, 5, 10]
     },
     sorted_pipeline_steps() {
-      return ['verify', 'predict', 'eval', 'charts', 'augment', 'scale']
+      return ['predict', 'eval', 'charts', 'augment', 'scale']
     },
 
     // finished() {
@@ -498,6 +498,7 @@ export default {
     addTemp(event) {
       let newTemp = event.query
       this.config.temps.push(newTemp)
+      this.suggested_temps = [0.2, 0.5, 1.0]
     },
     async fetchConfig() {
       this.loading = true
@@ -514,7 +515,6 @@ export default {
 
       if (!this.config.pipeline) {
         this.config.pipeline = {
-          verify: false,
           predict: false,
           eval: false,
           transformers: false,

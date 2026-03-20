@@ -11,7 +11,7 @@ load_dotenv()
 from src.cat.catter import Catter
 from src.configs.config_loader import load_config
 from src.eval.dataset_config import DatasetConfig
-from src.util.file_utils import read_json, write_json, get_dir_size
+from src.util.file_utils import read_json, write_json
 
 
 def assign_cats(rows):

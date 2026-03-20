@@ -7,6 +7,7 @@ from src.eval.metrics import Metric
 from src.eval.single_run_config import SingleRunConfig, ModelName
 from src.sqlyzr.chart_config import ChartName
 
+DEFAULT_TEMP = 0.2
 
 @dataclass
 class ModelEvalConfig:
@@ -31,8 +32,10 @@ class ModelEvalConfig:
                batch: bool,
                scales: List[int]):
         run_confs = {}
+        if len(temps) == 0:
+            temps = [DEFAULT_TEMP]
         for model in models:
-            for temp, itr in product(temps, range(num_itrs)):
+            for temp, itr in product(temps, range(num_itrs + 1)):
                 for dataset_config in dataset_configs:
                     conf = SingleRunConfig(dataset_config=dataset_config,
                                            pred_dir=pred_dir,

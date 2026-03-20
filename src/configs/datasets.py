@@ -143,8 +143,8 @@ CUSTOM_SQLITE_DATASET = DatasetConfig(
 )
 
 DATASETS = {
-    "sqlyzr": {
-        "small": [SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL]
+    "aggregate": {
+        "small": [AUG_SMALL, BIRD_SMALL, BEAVER_SMALL]
     },
     "bird": {
         "small": [BIRD_SMALL],
@@ -155,7 +155,7 @@ DATASETS = {
         #     "train": BIRD_TRAIN
     },
     "spider": {
-        "small": [SPIDER_SMALL],
+        "small": [AUG_SMALL],
         "500": [SPIDER_500],
         # "dev": SPIDER_DEV,
         # "test": SPIDER_TEST,
@@ -176,5 +176,5 @@ DATASETS = {
     }
 }
 
-DatasetName = Literal["spider", "bird", "beaver", "sqlyzr", "custom", "aug"]
+DatasetName = Literal["spider", "bird", "beaver", "aggregate", "custom", "aug"]
 DatasetSize = Literal["small", "dev", "train", "test", "all", "500", "bad", "mask"]

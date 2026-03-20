@@ -97,7 +97,7 @@ Charts: {self.charts}
 
 def load_config(path) -> SQLyzrConfig:
     conf_data = ConfigData.load(path)
-    logger.debug(conf_data)
+    logger.info(conf_data)
     dataset_confs = DATASETS[conf_data.dataset]
     dataset_confs = dataset_confs[conf_data.dataset_size]
     versioned_dataset_confs = []

@@ -1,4 +1,5 @@
 import os.path
+import time
 from abc import ABC, abstractmethod
 from typing import Callable, List, TypeVar, Type
 
@@ -68,7 +69,7 @@ class Predictor(ABC):
         self.save_extra_numeric_metric(self._run_conf.get_tokens_path(),
                                        lambda r: r['usage']['total_tokens'] if 'usage' in r else 0)
         self.save_extra_numeric_metric(self._run_conf.get_time_path(),
-                                       lambda r: r['finished'] - r['created'])
+                                       lambda r: r.get('finished', int(time.time()) - r['created']))
 
     @alog("Asking GPT")
     async def _ask_file(self, in_path: str, out_path: str):

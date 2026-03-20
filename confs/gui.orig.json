@@ -1,14 +1,16 @@
 {
     "data_dir": "data",
     "out_dir": "out",
-    "aug_per_sub_cat": 0,
+    "aug_per_sub_cat": 5,
     "error_threshold": 0.8,
     "dataset": "spider",
     "dataset_size": "small",
     "dataset_versions": [
         "v0"
     ],
-    "temps": [],
+    "temps": [
+        0.2
+    ],
     "itrs": 1,
     "models": [
         "direct"
@@ -17,15 +19,19 @@
     "force": false,
     "pipeline": {
         "augment": false,
-        "charts": false,
-        "eval": false,
+        "charts": true,
+        "eval": true,
         "predict": true,
         "scale": false,
         "transformers": false,
         "verify": false
     },
-    "charts": [],
-    "etcr": 1.46,
+    "charts": [
+        "Execution Accuracy",
+        "Relaxed Execution Accuracy",
+        "Execution Accuracy-Scaled"
+    ],
+    "etcr": 1,
     "scales": [
         1
     ],

@@ -30,8 +30,11 @@ class ConfigAPI(BaseAPI):
         return jsonify({"message": "Configuration file reset to original!"})
 
     def update_config(self):
-        old_config = ConfigData.load(self.config_file)
-        old_config = old_config.dict()
+        try:
+            old_config = ConfigData.load(self.config_file)
+            old_config = old_config.dict()
+        except Exception as e:
+            old_config = dict()
         update_data = request.json
         if 1 not in update_data['scales']:
             update_data['scales'] = [1] + update_data['scales']
