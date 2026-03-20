@@ -34,7 +34,9 @@
     ],
     "etcr": 1,
     "scales": [
-        1
+        1,
+        2,
+        5
     ],
     "eval_force": true,
     "pipeline_status": {

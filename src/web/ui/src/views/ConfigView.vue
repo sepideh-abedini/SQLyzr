@@ -91,7 +91,7 @@
                     display="chip"
                     filter
                     placeholder="Select scales"
-                    v-model="config.scales"
+                    v-model="scales"
                     :options="avail_scales"
                   >
                   </MultiSelect>
@@ -246,6 +246,7 @@ import { ToggleButton, AutoComplete, SelectButton } from 'primevue'
 import LogsView from '@/views/LogsView.vue'
 import ChartsView from '@/views/ChartsView.vue'
 import RCalc from '@/views/RCalc.vue'
+import { toRaw } from 'vue'
 
 export default {
   components: {
@@ -291,6 +292,7 @@ export default {
         dataset: '',
         dataset_size: '',
         dataset_versions: [],
+        scales: [],
         itrs: 1,
         temps: [0.2],
         batch: false,
@@ -332,6 +334,14 @@ export default {
     }
   },
   computed: {
+    scales: {
+      get() {
+        return this.conf?.scales.filter((v) => v !== 1)
+      },
+      set(val) {
+        this.config.scales = [1, ...(val ?? [])]
+      },
+    },
     errorThresholdPercent: {
       get() {
         return Math.round((this.config.error_threshold ?? 0) * 100)
@@ -340,12 +350,14 @@ export default {
         this.config.error_threshold = val / 100
       },
     },
-
+    visible_scales() {
+      return this.avail_scales.filter((v) => v !== 1)
+    },
     avail_versions() {
       return [...Array(5).keys()].map((i) => `v${i}`)
     },
     avail_scales() {
-      return [1, 2, 5, 10]
+      return [2, 5, 10]
     },
     sorted_pipeline_steps() {
       return ['verify', 'predict', 'eval', 'charts', 'augment', 'scale']
