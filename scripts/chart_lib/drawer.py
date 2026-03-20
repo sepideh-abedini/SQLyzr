@@ -88,6 +88,22 @@ class Drawer:
         self.df = self.proc_df(scores_path)
         os.makedirs(os.path.join(self.out_dir, self.hue), exist_ok=True)
 
+    def add_overall(self, df: DataFrame, x: str):
+        dst_vers = natsorted(df['dst_ver'].unique())
+        to_drop = {'Category', 'SubCategory', 'Dataset'}
+        to_drop = list(to_drop.difference({x}))
+        # We are using raw scores, so we need this
+        mean_values = df.drop(columns=to_drop).groupby(['Model', 'dst_ver', x], observed=False).mean()
+        mean_values = mean_values.groupby(['Model', 'dst_ver']).mean()
+        #
+        for (model, dst_ver) in df[['Model', 'dst_ver']].drop_duplicates().itertuples(index=False):
+            new_row = {'Model': model, 'dst_ver': dst_ver, 'Category': "overall", "SubCategory": "overall"}
+            new_row.update(mean_values.loc[(model, dst_ver)].to_dict())
+            row = pd.DataFrame([new_row])
+            row['dst_ver'] = pd.Categorical(row['dst_ver'], categories=dst_vers, ordered=True)
+            df = pd.concat([df, row], ignore_index=True)
+        return df
+
     def proc_df(self, scores_path: str):
         logger.info(f"Processing {scores_path}")
         df = pd.read_csv(scores_path)
@@ -96,10 +112,10 @@ class Drawer:
         df = df.dropna(subset=["cat"])
         cats = natsorted(df['cat'].unique())
         sub_cats = natsorted(df['sub'].unique())
-        dst_ver = natsorted(df['dst_ver'].unique())
+        dst_vers = natsorted(df['dst_ver'].unique())
         df['cat'] = pd.Categorical(df['cat'], categories=cats, ordered=True)
         df['sub'] = pd.Categorical(df['sub'], categories=sub_cats, ordered=True)
-        df['dst_ver'] = pd.Categorical(df['dst_ver'], categories=dst_ver, ordered=True)
+        df['dst_ver'] = pd.Categorical(df['dst_ver'], categories=dst_vers, ordered=True)
         df = df.sort_values(by=['cat', 'sub', 'dst_ver'])
         if self.only_correct:
             df = df[df['rea'] == 1]
@@ -120,22 +136,6 @@ class Drawer:
             TOP_TEMP = tmps[0]
             df = df[df['tmp'] == TOP_TEMP]
 
-        if self.include_all:
-            # mean_values = df.drop(columns=['cat', 'sub_cat', "dataset"]).groupby('model').mean()
-            # for value in df['model'].unique():
-            #     new_row = {'model': value, 'cat': "overall", "sub_cat": "overall"}
-            #     new_row.update(mean_values.loc[value].to_dict())
-            #     row = pd.DataFrame([new_row])
-            #     df = pd.concat([df, row], ignore_index=True)
-            mean_values = df.drop(columns=['sub', "dst"]).groupby(['model', 'dst_ver', 'cat'], observed=False).mean()
-            mean_values = mean_values.groupby(['model']).mean()
-            #
-            for value in df['model'].unique():
-                new_row = {'model': value, 'cat': "overall", "sub": "overall"}
-                new_row.update(mean_values.loc[value].to_dict())
-                row = pd.DataFrame([new_row])
-                df = pd.concat([df, row], ignore_index=True)
-
         df = df.rename(columns=COL_NAMES)
 
         if self.hue != 'dst_ver':
@@ -148,7 +148,7 @@ class Drawer:
     def metric_dir(self, metric):
         return os.path.join(self.out_dir, snakecase(metric))
 
-    def draw_barplot(self, x: str, y: str, hue: str, estimator: str):
+    def draw_barplot(self, df: DataFrame, x: str, y: str, hue: str, estimator: str):
         order = [
             's0',
             's1', 's2',
@@ -158,7 +158,7 @@ class Drawer:
             's28', 's29', 's26', 's27',
             's30', 's32', 's31', 's34', 's33'
         ]
-        ax = sns.barplot(self.df, x=x, y=y, hue=hue, estimator=estimator, width=0.8)
+        ax = sns.barplot(df, x=x, y=y, hue=hue, estimator=estimator, width=0.8)
         return ax
 
     def fix_axis(self, metric: str, ax: Axes):
@@ -181,10 +181,13 @@ class Drawer:
         logger.info(f"Plot saved to {path}")
 
     def draw_metric_mean(self, x: str, metric: str):
+        df = self.df
+        if self.include_all:
+            df = self.add_overall(df, x)
         num_x = self.df[x].nunique()
         width = max(5, num_x * (bar_width + bar_spacing))
         fig = plt.figure(figsize=(width, 5))
-        ax = self.draw_barplot(x, metric, self.hue, "mean")
+        ax = self.draw_barplot(df, x, metric, self.hue, "mean")
         self.fix_axis(metric, ax)
         title = f"Mean {metric} per {x}"
         ax.set_title(title)
@@ -317,11 +320,12 @@ class Drawer:
         # plt.savefig(os.path.join(self.out_dir, f"overall.png"))
 
     def draw_scale_plot(self, metric):
+        df = self.df
         x = 'scale'
         num_x = self.df[x].nunique()
         width = max(5, num_x * (bar_width + bar_spacing))
         fig = plt.figure(figsize=(width, 5))
-        ax = self.draw_barplot(x, metric, self.hue, "mean")
+        ax = self.draw_barplot(df, x, metric, self.hue, "mean")
         self.fix_axis(metric, ax)
         title = f"Mean {metric} per {x}"
         ax.set_title(title)

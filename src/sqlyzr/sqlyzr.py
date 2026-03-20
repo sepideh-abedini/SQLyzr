@@ -44,6 +44,7 @@ class Sqlyzr:
             post_processor = ScoresPostProcessor(self.conf)
             post_processor.run()
             run_status.eval = True
+            self.messanger.write(f"Evaluation completed!")
 
         if self.conf.pipeline.charts:
             for hue in ["Model", "dst_ver"]:

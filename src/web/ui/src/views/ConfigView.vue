@@ -179,6 +179,7 @@
                 icon="pi pi-save"
                 @click="saveConfig"
                 class="p-button-primary"
+                :disabled="running"
               />
               <Button
                 label="Cleanup"
@@ -186,6 +187,7 @@
                 v-tooltip="'Delete all output files'"
                 @click="cleanup"
                 severity="danger"
+                :disabled="running"
               />
               <Button
                 label="Reset Config"
@@ -193,13 +195,21 @@
                 @click="resetConfig"
                 severity="secondary"
                 outlined
+                :disabled="running"
               />
-              <Button label="Run SQLyzr" icon="pi pi-play" @click="runSqlyzr" severity="primary" />
               <Button
-                label="Kill SQLyzr"
+                label="Run SQLyzr"
+                icon="pi pi-play"
+                @click="runSqlyzr"
+                severity="primary"
+                :disabled="running"
+              />
+              <Button
+                label="Stop Sqlyzr"
                 icon="pi pi-times"
                 @click="killSqlyzr"
                 severity="danger"
+                :disabled="!running"
               />
             </div>
           </div>
@@ -396,7 +406,6 @@ export default {
       this.success = false
       this.fail = false
     },
-
     async fetchStatus() {
       const data = await this.call_api('api/process/status', {}, false)
       const old_running = this.running
@@ -417,7 +426,8 @@ export default {
             severity: 'success',
             summary: 'Success',
             detail: msg,
-            life: 3000,
+            sticky: true,
+            // life: 3000,
           })
         }
         if (data.return_code > 0) {
@@ -426,7 +436,7 @@ export default {
             severity: 'error',
             summary: 'Failure',
             detail: msg,
-            life: 3000,
+            // life: 3000,
           })
         }
       }
@@ -478,7 +488,12 @@ export default {
     },
     async killSqlyzr() {
       await this.call_api(`/api/process/kill`, { method: 'POST' })
-      this.setInterval()
+      // this.setInterval()
+      this.$toast.add({
+        severity: 'success',
+        summary: 'SQLyzr stopped!',
+        life: 3000,
+      })
     },
     addTemp(event) {
       let newTemp = event.query
@@ -531,7 +546,8 @@ export default {
       this.loading = false
     },
     async resetConfig() {
-      const response = await this.call_api('api/error', { method: 'POST' })
+      const response = await this.call_api('api/config/reset', { method: 'POST' }, true)
+      await this.fetchConfig()
     },
   },
   watch: {

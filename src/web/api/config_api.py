@@ -16,12 +16,18 @@ class ConfigAPI(BaseAPI):
         self.app.route('/api/config', methods=['GET'])(self.get_config)
         self.app.route('/api/config', methods=['POST'])(self.update_config)
         self.app.route('/api/config/cleanup', methods=['POST'])(self.cleanup)
+        self.app.route('/api/config/reset', methods=['POST'])(self.reset_config)
 
     def get_config(self):
         data = read_json(self.config_file)
         if 1 in data['scales']:
             data['scales'].remove(1)
         return jsonify(data)
+
+    def reset_config(self):
+        orig_conf_file = self.config_file.replace(".json", ".orig.json")
+        shutil.copy(orig_conf_file, self.config_file)
+        return jsonify({"message": "Configuration file reset to original!"})
 
     def update_config(self):
         old_config = ConfigData.load(self.config_file)
