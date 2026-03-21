@@ -320,7 +320,7 @@ export default {
       calculating: false,
       selected_pipeline_mode: 'Evaluation',
       dataset_options: ['aggregate', 'spider', 'bird', 'beaver'],
-      size_options: ['small'],
+      size_options: ['small', 'full'],
       selected_version: null,
       initialized: false,
       verified_scales: [],

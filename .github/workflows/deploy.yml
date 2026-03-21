@@ -79,7 +79,7 @@ jobs:
 
       - name: Copy Data
         run: |
-          mkdir -p ./data && cp -r ./sample_data/. ./data/
+          mkdir -p /app/data && cp -r ./sample_data/. /app/data/
 
       - name: Docker compose up
         env: ${{ vars }}

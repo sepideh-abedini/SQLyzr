@@ -15,7 +15,9 @@ import { BUILD_VERSION } from './config'
         <!--        <RouterLink to="/status">Execution</RouterLink>-->
         <RouterLink to="/charts">Charts</RouterLink>
         <!--        <RouterLink to="/aug">Augmentation</RouterLink>-->
-        <RouterLink to="/errors">Errors</RouterLink>
+        <RouterLink to="/errors">Error Analysis</RouterLink>
+        <RouterLink to="/categories">Categories</RouterLink>
+        <RouterLink to="/metrics">Metrics</RouterLink>
         <RouterLink to="/scores">Scores</RouterLink>
         <RouterLink to="/logs">Logs</RouterLink>
         <RouterLink to="/files">Files</RouterLink>
@@ -43,5 +45,12 @@ header {
 
 nav a.router-link-exact-active {
   color: var(--color-text);
+}
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  width: 100%;
 }
 </style>

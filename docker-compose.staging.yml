@@ -3,9 +3,9 @@ services:
     image: "${SQLYZR_IMAGE:?SQLYZR_IMAGE}"
     restart: always
     volumes:
-      - "./data:/app/data"
+      - "/app/data:/app/data"
       - "./confs:/app/confs"
-      - "./out:/app/out"
+      - "/app/out:/app/out"
       - "./.env:/app/.env"
     environment:
       RUNNER_TRACKING_ID: ""

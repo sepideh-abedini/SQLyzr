@@ -10,6 +10,8 @@ import StatusView from '@/views/StatusView.vue'
 import EnvView from '@/views/EnvView.vue'
 import DatabaseView from '@/views/DatabaseView.vue'
 import AugView from '@/views/AugView.vue'
+import CategoriesView from '@/views/CategoriesView.vue'
+import MetricsView from '@/views/MetricsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,6 +70,16 @@ const router = createRouter({
       path: '/aug',
       name: 'aug',
       component: AugView,
+    },
+    {
+      path: '/categories',
+      name: 'categories',
+      component: CategoriesView,
+    },
+    {
+      path: '/metrics',
+      name: 'metrics',
+      component: MetricsView,
     },
   ],
 })

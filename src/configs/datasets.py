@@ -149,7 +149,7 @@ DATASETS = {
     },
     "bird": {
         "small": [SPIDER_SMALL],
-        "all": [BIRD_ALL],
+        "full": [BIRD_ALL],
         "bad": [BIRD_BAD],
         "mask": [BIRD_MASK],
         #     "dev": BIRD_DEV,
@@ -162,20 +162,20 @@ DATASETS = {
         # "test": SPIDER_TEST,
         # "train": SPIDER_TRAIN,
         "mask": [SPIDER_MASK],
-        "all": [SPIDER_ALL]
+        "full": [SPIDER_ALL]
     },
     "aug": {
         "small": [AUG_SMALL],
-        "all": [AUG_ALL]
+        "full": [AUG_ALL]
     },
     "beaver": {
-        "all": [BEAVER_ALL],
+        "full": [BEAVER_ALL],
         "small": [BEAVER_SMALL]
     },
     "custom": {
-        "all": [CUSTOM_SQLITE_DATASET]
+        "full": [CUSTOM_SQLITE_DATASET]
     }
 }
 
 DatasetName = Literal["spider", "bird", "beaver", "aggregate", "custom", "aug"]
-DatasetSize = Literal["small", "dev", "train", "test", "all", "500", "bad", "mask"]
+DatasetSize = Literal["small", "dev", "train", "test", "full", "500", "bad", "mask"]

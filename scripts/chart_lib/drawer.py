@@ -89,6 +89,7 @@ class Drawer:
         os.makedirs(os.path.join(self.out_dir, self.hue), exist_ok=True)
 
     def add_overall(self, df: DataFrame, x: str):
+        x = "Category"
         dst_vers = natsorted(df['dst_ver'].unique())
         to_drop = {'Category', 'SubCategory', 'Dataset'}
         to_drop = list(to_drop.difference({x}))
@@ -158,7 +159,8 @@ class Drawer:
             's28', 's29', 's26', 's27',
             's30', 's32', 's31', 's34', 's33'
         ]
-        ax = sns.barplot(df, x=x, y=y, hue=hue, estimator=estimator, width=0.8)
+        hue_order = sorted(df[hue].unique())
+        ax = sns.barplot(df, x=x, y=y, hue=hue, hue_order=hue_order, estimator=estimator, width=0.8)
         return ax
 
     def fix_axis(self, metric: str, ax: Axes):
@@ -312,10 +314,24 @@ class Drawer:
             plt.show()
 
     def draw_overall(self):
+        print("DRAWING OVERALL")
         df = melt_scores(self.df)
+        cat_avg = (
+            df.groupby(["Model", "Dataset", "dst_ver", "Metric", "Category"])["Score"]
+            .mean()
+            .reset_index()
+        )
+        macro_avg = (
+            cat_avg.groupby(["Model", "Dataset", "dst_ver", "Metric"])["Score"]
+            .mean()
+            .reset_index()
+        )
+
         plt.figure(figsize=(15, 5))
         plt.title("Overall Scores")
-        ax = sns.barplot(df, x="Metric", y="Score", hue=self.hue)
+        # ax = sns.barplot(df, x="Metric", y="Score", hue=self.hue)
+        hue_order = sorted(macro_avg[self.hue].unique())
+        ax = sns.barplot(macro_avg, x="Metric", y="Score", hue=self.hue, hue_order=hue_order)
         ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
         ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
         self.save_fig("overall", ax)
