@@ -3,7 +3,7 @@
     "out_dir": "out",
     "aug_per_sub_cat": 0,
     "error_threshold": 0.8,
-    "dataset": "spider",
+    "dataset": "bird",
     "dataset_size": "small",
     "dataset_versions": [
         "v0"
@@ -17,8 +17,8 @@
     "force": false,
     "pipeline": {
         "augment": false,
-        "charts": false,
-        "eval": false,
+        "charts": true,
+        "eval": true,
         "predict": true,
         "scale": false,
         "transformers": false,

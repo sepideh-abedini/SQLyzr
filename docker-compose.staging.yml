@@ -3,7 +3,7 @@ services:
     image: "${SQLYZR_IMAGE:?SQLYZR_IMAGE}"
     restart: always
     volumes:
-      - "./sample_data:/app/data"
+      - "./data:/app/data"
       - "./confs:/app/confs"
       - "./out:/app/out"
       - "./.env:/app/.env"

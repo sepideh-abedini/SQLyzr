@@ -9,7 +9,6 @@ services:
         SQLYZR_API_URL: "${SQLYZR_API_URL:?SQLYZR_API_URL}"
     volumes:
       - "./data:/app/data"
-      - "./gui.json:/app/gui.json"
       - "./out:/app/out"
       - "./confs:/app/confs"
     ports:

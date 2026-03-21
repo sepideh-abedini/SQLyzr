@@ -77,6 +77,10 @@ jobs:
       - name: Print env
         run: cat .env
 
+      - name: Copy Data
+        run: |
+          mkdir -p ./data && cp -r ./sample_data/. ./data/
+
       - name: Docker compose up
         env: ${{ vars }}
         run: |
@@ -86,24 +90,25 @@ jobs:
           docker inspect --format='{{index .RepoDigests 0}}' $SQLYZR_IMAGE
           docker compose -f docker-compose.staging.yml up --force-recreate -d
 
-#      - name: Logs
-#        env: ${{ vars }}
-#        run: docker compose -f docker-compose.staging.yml logs
-#
-#      - name: Health check
-#        env: ${{ vars }}
-#        run: |
-#          for i in {1..10}; do
-#            if curl -fs https:///temp.$SQLYZR_DOMAIN/api/health; then
-#              echo "Server is up"
-#              exit 0
-#            fi
-#            echo "Waiting for server..."
-#            sleep 6
-#          done
-#          echo "Health check failed"
-#          exit 1
-#
-#      - name: Cleanup on failure
-#        if: failure()
-#        run: docker compose -f docker-compose.staging.yml down -v
+
+      - name: Health check
+        env: ${{ vars }}
+        run: |
+          for i in {1..10}; do
+            if curl -fs https:///temp.$SQLYZR_DOMAIN/api/health; then
+              echo "Server is up"
+              exit 0
+            fi
+            echo "Waiting for server..."
+            sleep 6
+          done
+          echo "Health check failed"
+          exit 1
+
+      - name: Logs
+        env: ${{ vars }}
+        run: docker compose -f docker-compose.staging.yml logs
+
+      - name: Cleanup on failure
+        if: failure()
+        run: docker compose -f docker-compose.staging.yml down -v

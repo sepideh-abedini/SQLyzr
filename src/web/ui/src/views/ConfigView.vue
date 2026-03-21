@@ -14,6 +14,7 @@
                     :options="dataset_options"
                     placeholder="Select Workload"
                     class="w-full"
+                    :disabled="dataset_lock_mode"
                   />
                 </FloatLabel>
               </FormField>
@@ -25,6 +26,7 @@
                     :options="size_options"
                     placeholder="Select Size"
                     class="w-full"
+                    :disabled="dataset_lock_mode"
                   />
                 </FloatLabel>
               </FormField>
@@ -196,7 +198,14 @@
                 @click="resetConfig"
                 severity="secondary"
                 v-tooltip="'Reset to default configuration'"
-                outlined
+                :disabled="running"
+              />
+              <Button
+                label="Clear Config"
+                icon="pi pi-eraser"
+                @click="clearConfig"
+                severity="secondary"
+                v-tooltip="'Clear config'"
                 :disabled="running"
               />
               <Button
@@ -354,6 +363,9 @@ export default {
     }
   },
   computed: {
+    dataset_lock_mode() {
+      return this.config.pipeline.augment || this.config.pipeline.scale
+    },
     errorThresholdPercent: {
       get() {
         return Math.round((this.config.error_threshold ?? 0) * 100)
@@ -405,6 +417,29 @@ export default {
       this.running = false
       this.success = false
       this.fail = false
+    },
+    clearConfig() {
+      this.config = {
+        models: [],
+        dataset: '',
+        dataset_size: '',
+        dataset_versions: [],
+        scales: [],
+        itrs: 1,
+        temps: [],
+        batch: false,
+        force: false,
+        aug_per_sub_cat: 0,
+        error_threshold: 50,
+        etcr: 1.0,
+        pipeline: {
+          predict: false,
+          eval: false,
+          augment: false,
+          charts: false,
+          scale: false,
+        },
+      }
     },
     async fetchStatus() {
       const data = await this.call_api('api/process/status', {}, false)
@@ -595,6 +630,12 @@ export default {
           break
         default:
           this.config.pipeline = old_pipe
+      }
+    },
+    dataset_lock_mode(newVal) {
+      if(newVal) {
+        this.config.dataset = "spider"
+        this.config.dataset_size = "small"
       }
     },
     'config.pipeline': {
