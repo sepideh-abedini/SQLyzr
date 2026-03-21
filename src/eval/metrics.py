@@ -85,7 +85,7 @@ class ExecAcc(Metric):
 class GoldNotEmpty(Metric):
     def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> int:
         try:
-            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold, timeout=DB_LONG_TIMEOUT)
+            gold_sql_exec_res = self.dbc.exec_query_sync(db_id, gold, scale=scale, timeout=DB_LONG_TIMEOUT)
             if gold_sql_exec_res is not None and len(gold_sql_exec_res) > 0:
                 return 1
             else:
@@ -165,12 +165,12 @@ class NewRelaxedExecAcc(Metric):
             pred_data, gold_data = transformer.transform_sql(pred_parsed, gold_parsed)
 
             timer = lib.Timer.start()
-            pred_sql_exec_res = self.dbc.exec_query_uncached(db_id, pred_data.sql, timeout=DB_LONG_TIMEOUT)
+            pred_sql_exec_res = self.dbc.exec_query_uncached(db_id, pred_data.sql, scale=scale, timeout=DB_LONG_TIMEOUT)
             pred_sql_exec_time = timer.lap()
             pred_sql_exec_time *= 1_000_000
 
             timer = lib.Timer.start()
-            gold_sql_exec_res = self.dbc.exec_query_uncached(db_id, gold_data.sql, timeout=DB_LONG_TIMEOUT)
+            gold_sql_exec_res = self.dbc.exec_query_uncached(db_id, gold_data.sql, scale=scale, timeout=DB_LONG_TIMEOUT)
             gold_sql_exec_time = timer.lap()
             gold_sql_exec_time *= 1_000_000
 
@@ -188,7 +188,7 @@ class NewRelaxedExecAcc(Metric):
             if gold_sql_exec_time == 0:
                 gold_data = SqlInputData(db_id, gold)
                 timer = lib.Timer.start()
-                gold_sql_exec_res = self.dbc.exec_query_uncached(db_id, gold_data.sql, timeout=DB_LONG_TIMEOUT)
+                gold_sql_exec_res = self.dbc.exec_query_uncached(db_id, gold_data.sql, scale=scale, timeout=DB_LONG_TIMEOUT)
                 gold_sql_exec_time = timer.lap()
                 gold_sql_exec_time *= 1_000_000
         return 0, 0, gold_sql_exec_time, pred_sql_exec_time

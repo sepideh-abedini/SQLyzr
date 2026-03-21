@@ -68,7 +68,7 @@ class MysqlFacade(DatabaseFacade):
     def exec_query_uncached(self, db_id: str, sql: str, scale: int = 1, timeout: int = DB_TIMEOUT) -> Optional[
         List[Tuple]]:
 
-        logger.info(f"MYSQL Timeout: {timeout}")
+        # logger.info(f"MYSQL Timeout: {timeout}")
         if scale > 1:
             raise RuntimeError(f"MySQL scale {scale} not supported")
         conn = None
@@ -102,7 +102,7 @@ class MysqlFacade(DatabaseFacade):
         return connection
 
     def exec_query_sync(self, db_id: str, sql: str, scale: int = 1, timeout: int = DB_TIMEOUT) -> Optional[List[Tuple]]:
-        logger.info(f"MYSQL Timeout: {timeout}")
+        # logger.info(f"MYSQL Timeout: {timeout}")
         if scale > 1:
             raise RuntimeError(f"MySQL scale {scale} not supported")
         if DB_CACHE:
@@ -110,7 +110,7 @@ class MysqlFacade(DatabaseFacade):
             if res:
                 logger.debug("Cache hit")
                 return res
-        result = self.exec_query_uncached(db_id, sql, timeout)
+        result = self.exec_query_uncached(db_id, sql, scale=scale, timeout=timeout)
         if DB_CACHE:
             save_db_cache(db_id, sql, result)
         return result

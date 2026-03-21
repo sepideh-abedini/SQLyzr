@@ -150,7 +150,7 @@
                       :on-label="step"
                       :off-label="step"
                       class="text-capitalize"
-                      :disabled="step !== 'scale' && !valid_scales"
+                      :disabled="step === 'scale' && !valid_scales"
                     />
                     <i
                       v-if="index < sorted_pipeline_steps.length - 1"
@@ -501,6 +501,9 @@ export default {
         this.finished = true
         this.clearInterval()
         this.fetchConfig()
+        const scales = this.scales
+        this.scales = []
+        this.scales = scales
       }
     },
     clearInterval() {
@@ -662,8 +665,8 @@ export default {
         const verified_scales = result.verified_scales
         console.log('SCALES:', result.verified_scales, this.config.scales)
         const isSubset = (a, b) => a.every((v) => b.includes(v))
-        this.valid_scales = isSubset(this.config.scales, verified_scales)
-        if (!this.valid_scales) {
+        const valid_scales = isSubset(this.config.scales, verified_scales)
+        if (!valid_scales) {
           this.$toast.add({
             severity: 'warn',
             summary: 'Databases not scaled!',
@@ -672,6 +675,7 @@ export default {
           })
           this.selected_pipeline_mode = 'Scaling'
         }
+        this.valid_scales = valid_scales
       },
       deep: true,
     },
