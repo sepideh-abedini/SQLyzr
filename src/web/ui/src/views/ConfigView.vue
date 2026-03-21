@@ -1,7 +1,6 @@
 <template>
   <div class="config">
     <Toast position="bottom-right" />
-    <h1>{{ valid_scales }}</h1>
     <Card>
       <template #content>
         <div class="grid">

@@ -2,16 +2,27 @@
   <div class="trs">
     <Toast position="bottom-right" />
 
-    <h1>Error Fixing Suggestions</h1>
-    <Tabs v-if="trsData" :value="selectedTrs">
-      <TabList>
-        <Tab v-for="(item, i) in trsData" :value="i">
-          {{ format_file_name(item.name) }}
-        </Tab>
-      </TabList>
+    <h1>Select Repair Report</h1>
+    <Tabs v-if="trsData" :value="selectedTrs" @update:value="(val) => (selectedTrs = val)">
+      <!--      <TabList>-->
+      <!--        <Tab v-for="(item, i) in trsData" :value="i">-->
+      <!--          {{ format_file_name(item.name) }}-->
+      <!--        </Tab>-->
+      <!--      </TabList>-->
+      <Select v-model="selectedTrs" :options="trsData.map((_, i) => i)">
+        <template #option="slotProps">
+          {{ format_file_name(trsData[slotProps.option].name) }}
+        </template>
+
+        <template #value="slotProps">
+          <span >
+            {{ format_file_name(trsData[slotProps.value].name) }}
+          </span>
+        </template>
+      </Select>
       <TabPanels>
         <TabPanel v-for="(item, i) in trsData" :value="i">
-          <h1>Repairs Summary</h1>
+          <h2>Repairs Summary</h2>
           <div class="grid">
             <div class="col-12 md:col-6 p-2">
               <h3>Execution Accuracy: {{ item.stats.ea }}/{{ item.stats.count }}</h3>
@@ -134,6 +145,8 @@ import 'prismjs'
 import 'prismjs/components/prism-sql'
 import 'prismjs/themes/prism.css'
 import SQLDiff from '@/views/components/SqlDiff.vue'
+import MultiSelect from 'primevue/multiselect'
+import Select from 'primevue/select'
 
 export default {
   components: {
@@ -153,6 +166,8 @@ export default {
     Tabs,
     TabPanels,
     TabList,
+    MultiSelect,
+    Select,
   },
   data() {
     return {
@@ -207,12 +222,13 @@ export default {
       console.log(parts)
       file_name = parts[parts.length - 1]
       file_name = file_name.replace('trs', '')
-      return (
-        file_name
-          // .replace(/\.[^/.]+$/, '')
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (l) => l.toUpperCase())
-      )
+      const tokens = file_name.split('_')
+
+      const temp = tokens[tokens.length - 2]
+      const iteration = tokens[tokens.length - 1]
+      const base = tokens.slice(0, -2).join(' ')
+
+      return `${base}, temp = ${temp}, iteration = ${iteration}`
     },
     async fetchTrsData() {
       this.loading = true
@@ -222,12 +238,12 @@ export default {
       this.selectedGroup = null
       this.fetchAttempted = true
 
-      this.selectedTrs = 0
       try {
         const data = await this.call_api(`api/trs`)
         this.trsData = data
 
         if (this.trsData && this.trsData.length > 0) {
+          this.selectedTrs = 0
           this.$toast.add({
             severity: 'success',
             summary: 'Success',
