@@ -1,6 +1,6 @@
 <template xmlns="http://www.w3.org/1999/html">
   <div class="aug-view p-4">
-    <Toast />
+    <Toast position="bottom-right" />
     <div class="grid">
       <div class="grid md:col-6">
         <FormField class="md:col-6">
@@ -111,7 +111,7 @@ export default {
         const data = await this.call_api('api/charts')
         const avail_charts = data?.avail_charts
         this.plot_dict = avail_charts
-        if (avail_charts &&  Object.keys(avail_charts).length > 0) {
+        if (avail_charts && Object.keys(avail_charts).length > 0) {
           this.selectedHue = Object.keys(avail_charts)[0]
           if (this.plot_dict[this.selectedHue].length > 0)
             this.selectedPlot = this.plot_dict[this.selectedHue][0]

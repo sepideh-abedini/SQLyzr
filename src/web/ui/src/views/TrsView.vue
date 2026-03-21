@@ -1,9 +1,9 @@
 <template>
   <div class="trs">
-    <Toast />
+    <Toast position="bottom-right" />
 
     <h1>Error Fixing Suggestions</h1>
-    <Tabs v-if="trsData" v-model="selectedTrs">
+    <Tabs v-if="trsData" :value="selectedTrs">
       <TabList>
         <Tab v-for="(item, i) in trsData" :value="i">
           {{ format_file_name(item.name) }}
@@ -15,8 +15,6 @@
           <div class="grid">
             <div class="col-12 md:col-6 p-2">
               <h3>Execution Accuracy: {{ item.stats.ea }}/{{ item.stats.count }}</h3>
-            </div>
-            <div class="col-12 md:col-6 p-2">
               <h3>Repaired: {{ item.stats.repaired }}/{{ item.stats.count - item.stats.ea }}</h3>
             </div>
           </div>
@@ -113,7 +111,7 @@
           <Tag severity="info" class="trs-item-db">Database: {{ item.db_id }}</Tag>
         </div>
         <div class="trs-item-content">
-          <SQLDiff :gold="selectedElement.gold" :pred="selectedElement.pred" />
+          <SQLDiff :gold="item.gold" :pred="item.pred" />
         </div>
       </div>
     </div>
@@ -171,7 +169,7 @@ export default {
       selectedGroup: null,
       dmp: new DiffMatchPatch.diff_match_patch(),
       showDiff: true,
-      selectedTrs: 0,
+      selectedTrs: null,
       pred: 'SELECT t1.a, t2.b, t2.c FROM t1 JOIN t2',
       gold: 'SELECT a, b FROM t1 JOIN t2',
     }
@@ -224,9 +222,9 @@ export default {
       this.selectedGroup = null
       this.fetchAttempted = true
 
+      this.selectedTrs = 0
       try {
         const data = await this.call_api(`api/trs`)
-        console.log('TRS data:', data)
         this.trsData = data
 
         if (this.trsData && this.trsData.length > 0) {
@@ -236,7 +234,7 @@ export default {
             detail: `Loaded ${this.trsData.length} repair suggestions`,
             life: 3000,
           })
-          this.selectedTrs = 0
+          this.selectedElement = this.repairs[0]
         } else {
           this.$toast.add({
             severity: 'info',
@@ -252,11 +250,9 @@ export default {
         this.loading = false
       }
     },
-
     selectElement(element) {
       this.selectedElement = element
     },
-
     showGroupDetails(group) {
       this.selectedGroup = group
       this.groupDetailsVisible = true

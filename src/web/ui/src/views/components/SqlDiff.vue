@@ -17,7 +17,6 @@
         :label="isDiffVisible ? 'Hide Diff' : 'Show Diff'"
         :icon="isDiffVisible ? 'pi pi-eye-slash' : 'pi pi-eye'"
         @click="isDiffVisible = !isDiffVisible"
-        class="p-button-sm p-button-text"
       />
     </div>
   </div>

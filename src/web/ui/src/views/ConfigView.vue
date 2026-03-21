@@ -403,7 +403,7 @@ export default {
       return [2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 1000]
     },
     sorted_pipeline_steps() {
-      return ['predict', 'eval', 'charts', 'augment', 'scale']
+      return ['predict', 'eval', 'charts', 'transformers', 'augment', 'scale']
     },
 
     // finished() {
