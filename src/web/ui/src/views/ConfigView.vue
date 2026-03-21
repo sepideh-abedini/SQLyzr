@@ -381,7 +381,7 @@ export default {
       return [...Array(5).keys()].map((i) => `v${i}`)
     },
     avail_scales() {
-      return [2, 5, 10]
+      return [2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 1000]
     },
     sorted_pipeline_steps() {
       return ['predict', 'eval', 'charts', 'augment', 'scale']
@@ -633,9 +633,9 @@ export default {
       }
     },
     dataset_lock_mode(newVal) {
-      if(newVal) {
-        this.config.dataset = "spider"
-        this.config.dataset_size = "small"
+      if (newVal) {
+        this.config.dataset = 'spider'
+        this.config.dataset_size = 'small'
       }
     },
     'config.pipeline': {
