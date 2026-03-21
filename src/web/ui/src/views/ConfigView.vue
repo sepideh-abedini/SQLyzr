@@ -403,7 +403,7 @@ export default {
       return [2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 1000]
     },
     sorted_pipeline_steps() {
-      return ['predict', 'eval', 'charts', 'transformers', 'augment', 'scale']
+      return ['scale', 'predict', 'eval', 'charts', 'transformers', 'augment']
     },
 
     // finished() {
@@ -653,7 +653,7 @@ export default {
 
       const old_pipe = JSON.parse(JSON.stringify(this.config.pipeline))
 
-      const flags = ['predict', 'eval', 'charts', 'transformers', 'augment', 'scale']
+      const flags = ['scale', 'predict', 'eval', 'charts', 'transformers', 'augment']
       flags.forEach((flag) => {
         this.config.pipeline[flag] = false
       })
