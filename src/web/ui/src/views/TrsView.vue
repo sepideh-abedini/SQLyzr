@@ -6,7 +6,7 @@
     <Tabs v-if="trsData" v-model="selectedTrs">
       <TabList>
         <Tab v-for="(item, i) in trsData" :value="i">
-          {{ item.name }}
+          {{ format_file_name(item.name) }}
         </Tab>
       </TabList>
       <TabPanels>
@@ -204,6 +204,18 @@ export default {
     },
   },
   methods: {
+    format_file_name(file_name) {
+      const parts = file_name.split('/')
+      console.log(parts)
+      file_name = parts[parts.length - 1]
+      file_name = file_name.replace('trs', '')
+      return (
+        file_name
+          // .replace(/\.[^/.]+$/, '')
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (l) => l.toUpperCase())
+      )
+    },
     async fetchTrsData() {
       this.loading = true
       this.error = null
@@ -224,6 +236,7 @@ export default {
             detail: `Loaded ${this.trsData.length} repair suggestions`,
             life: 3000,
           })
+          this.selectedTrs = 0
         } else {
           this.$toast.add({
             severity: 'info',
