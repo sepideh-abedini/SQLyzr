@@ -51,7 +51,8 @@ class SingleRunConfig:
         return f"{self.get_pred_path()}.usage.json"
 
     def get_trs_path(self):
-        return os.path.join(self.path_prefix, f"{self.trs_file_name}_{self.temp}_{self.itr}.csv")
+        return os.path.join(self.trs_dir,
+                            f"{self.model}_{self.dataset_config.dataset_type}_{self.dataset_config.ver}_{self.trs_file_name}_{self.temp}_{self.itr}.csv")
 
     def is_pred_file_valid(self):
         return os.path.exists(self.get_pred_path()) and get_num_lines(self.get_pred_path()) == get_num_lines(

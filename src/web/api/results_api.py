@@ -1,4 +1,6 @@
 import os
+from os.path import isdir
+
 import pandas as pd
 from flask import jsonify, send_file
 from src.sqlyzr.sqlyzr import Sqlyzr
@@ -56,8 +58,8 @@ class ResultsAPI(BaseAPI):
                 })
             else:
                 return jsonify({
-                    "error": "No results file found"
-                }), 404
+                    "message": "No results file found"
+                }), 200
         except Exception as e:
             print("Error:", e)
             return jsonify({"error": str(e)}), 500
@@ -65,17 +67,17 @@ class ResultsAPI(BaseAPI):
     def get_charts(self):
         try:
             sqlyzr = Sqlyzr(self.config_file)
-            files = []
             avail_charts = dict()
-            hues = [os.path.basename(f) for f in os.listdir(sqlyzr.conf.eval_conf.charts_dir)]
-            for hue in hues:
-                avail_charts[hue] = []
-                hue_dir = os.path.join(sqlyzr.conf.eval_conf.charts_dir, hue)
-                if os.path.exists(hue_dir):
-                    chart_names = [os.path.basename(f) for f in os.listdir(hue_dir)]
-                    for chart_name in chart_names:
-                        avail_charts.setdefault(hue, []).append(chart_name)
-                        # files.append(str(os.path.join(hue, chart_name)))
+            if os.path.exists(sqlyzr.conf.eval_conf.charts_dir):
+                hues = [os.path.basename(f) for f in os.listdir(sqlyzr.conf.eval_conf.charts_dir)]
+                for hue in hues:
+                    avail_charts[hue] = []
+                    hue_dir = os.path.join(sqlyzr.conf.eval_conf.charts_dir, hue)
+                    if os.path.exists(hue_dir) and os.path.isdir(hue_dir):
+                        chart_names = [os.path.basename(f) for f in os.listdir(hue_dir)]
+                        for chart_name in chart_names:
+                            avail_charts.setdefault(hue, []).append(chart_name)
+                            # files.append(str(os.path.join(hue, chart_name)))
             return jsonify({
                 "avail_charts": avail_charts,
             })

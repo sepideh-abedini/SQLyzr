@@ -19,30 +19,22 @@
     "batch": false,
     "force": false,
     "pipeline": {
-        "augment": true,
-        "charts": false,
-        "eval": false,
-        "predict": false,
-        "scale": false,
+        "verify": false,
+        "predict": true,
+        "eval": true,
         "transformers": false,
-        "verify": false
+        "augment": false,
+        "charts": true,
+        "scale": false
     },
     "charts": [
         "Execution Accuracy",
         "Relaxed Execution Accuracy",
         "Execution Accuracy-Scaled"
     ],
-    "etcr": 1,
+    "etcr": 1.0,
     "scales": [
         1
     ],
-    "eval_force": true,
-    "pipeline_status": {
-        "augment": false,
-        "charts": true,
-        "eval": true,
-        "predict": true,
-        "scale": false,
-        "verify": false
-    }
+    "eval_force": true
 }

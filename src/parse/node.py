@@ -19,7 +19,7 @@ class SqlAstNode(ABC):
         pass
 
     def log_self(self):
-        # logger.debug(f"{self.__class__.__name__}: {str(self)}")
+        logger.info(f"{self.__class__.__name__}: {str(self)}")
         pass
 
     def __hash__(self):
@@ -262,7 +262,8 @@ class SelectClauseNode(SqlAstNode):
     def __eq__(self, other):
         if not isinstance(other, SelectClauseNode):
             return False
-        if set(self.result_columns) == set(other.result_columns):  # and self.distinct == other.distinct:
+        if set(self.result_columns) == set(other.result_columns) \
+                and self.distinct == other.distinct:
             return True
         else:
             self.log_self()
@@ -497,6 +498,14 @@ class GroupClauseNode(SqlAstNode):
         return 1
 
 
+def sym_eq(left: SqlAstNode, right: SqlAstNode):
+    if left is None:
+        print("Left null")
+        return right == left
+    else:
+        print("Left not null")
+        return left == right
+
 @dataclass
 # 2: the select
 class SelectCoreNode(SqlAstNode):
@@ -513,7 +522,7 @@ class SelectCoreNode(SqlAstNode):
             return False
         if self.select_clause == other.select_clause and \
                 self.from_clause == other.from_clause and \
-                self.where_clause == other.where_clause and \
+                sym_eq(self.where_clause, other.where_clause) and \
                 self.group_clause == other.group_clause:
             return True
         else:

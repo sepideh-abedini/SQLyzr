@@ -1,18 +1,19 @@
+import os
 from typing import Literal
 
 from src.eval.dataset_config import DatasetConfig
 
-# BASE_DIR = "data"
-BASE_DIR = "sample_data"
+BASE_DIR = os.environ.get("SQLYZR_DATA_DIR", "data")
 
 SPIDER_SMALL = DatasetConfig(
     dataset_dir=f"{BASE_DIR}/spider",
     test_file="data.test.small.json",
     gold_file="data.test.small.gold.txt",
-    train_file="data.train.small.json",
+    train_file="data.train.json",
     tables_file="tables.small.json",
     db_dir="database",
-    ver="v0"
+    ver="v0",
+    aug_db_id="musical"
 )
 
 SPIDER_500 = DatasetConfig(
@@ -144,7 +145,7 @@ CUSTOM_SQLITE_DATASET = DatasetConfig(
 
 DATASETS = {
     "aggregate": {
-        "small": [AUG_SMALL, BIRD_SMALL, BEAVER_SMALL]
+        "small": [SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL]
     },
     "bird": {
         "small": [SPIDER_SMALL],

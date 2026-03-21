@@ -48,14 +48,13 @@
                   </div>
                 </FormField>
                 <FormField class="md:col-6">
-                  <label class="field-label">Workload Versions:</label>
-                  <Select
-                    display="chip"
-                    filter
-                    placeholder="Select version"
-                    v-model="selected_version"
-                    :options="config.dataset_versions"
-                  />
+                  <FloatLabel variant="in">
+                    <label class="field-label">Batch Mode:</label>
+                    <div class="flex align-items-center">
+                      <ToggleSwitch v-model="config.batch" />
+                      <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
+                    </div>
+                  </FloatLabel>
                 </FormField>
               </div>
               <div class="grid">
@@ -63,8 +62,8 @@
                   <label class="field-label">Num Iterations:</label>
                   <InputNumber v-model="config.itrs" :min="1" :max="5" fluid> </InputNumber>
                 </FormField>
-                <FormField class="md:col-6">
-                  <FloatLabel variant="in">
+                <FormField class="md:col-9">
+                  <FloatLabel variant="in" class="w-full">
                     <label class="field-label">Temperature:</label>
                     <MultiSelect
                       v-model="config.temps"
@@ -77,18 +76,9 @@
                     />
                   </FloatLabel>
                 </FormField>
-                <FormField class="md:col-3">
-                  <FloatLabel variant="in">
-                    <label class="field-label">Batch Mode:</label>
-                    <div class="flex align-items-center">
-                      <ToggleSwitch v-model="config.batch" />
-                      <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
-                    </div>
-                  </FloatLabel>
-                </FormField>
               </div>
               <div class="grid w-full">
-                <FormField class="md:col-6">
+                <FormField class="md:col-7">
                   <FloatLabel variant="in">
                     <label>Scaling Factors:</label>
                     <MultiSelect
@@ -102,7 +92,7 @@
                     </MultiSelect>
                   </FloatLabel>
                 </FormField>
-                <FormField class="md:col-6">
+                <FormField class="md:col-5">
                   <FloatLabel variant="in">
                     <label>Augmentation per Subcategory</label>
                     <InputText size="large" fluid v-model="config.aug_per_sub_cat" />
@@ -110,6 +100,25 @@
                 </FormField>
               </div>
               <div class="grid w-full">
+                <FormField class="md:col-5">
+                  <label class="field-label">Workload Versions [DEBUG]:</label>
+                  <Select
+                    display="chip"
+                    filter
+                    placeholder="Select version"
+                    v-model="selected_version"
+                    :options="config.dataset_versions"
+                  />
+                </FormField>
+                <FormField class="md:col-6">
+                  <FloatLabel variant="in">
+                    <label class="field-label">Force Evaluation [DEBUG]:</label>
+                    <div class="flex align-items-center">
+                      <ToggleSwitch v-model="config.eval_force" />
+                      <span class="ml-2">{{ config.eval_force ? 'On' : 'Off' }}</span>
+                    </div>
+                  </FloatLabel>
+                </FormField>
                 <!--                <RCalc />-->
               </div>
             </div>
@@ -313,6 +322,7 @@ export default {
       dataset_options: ['aggregate', 'spider', 'bird', 'beaver'],
       size_options: ['small'],
       selected_version: null,
+      initialized: false,
       config: {
         models: [],
         dataset: '',
@@ -326,17 +336,20 @@ export default {
         aug_per_sub_cat: 5,
         error_threshold: 90,
         etcr: 1.0,
+        eval_force: false,
         pipeline: {
           predict: false,
           eval: false,
           augment: false,
           charts: false,
+          transformers: false,
           scale: false,
         },
         pipeline_status: {
           predict: false,
           eval: false,
           charts: false,
+          transformers: false,
           augment: false,
           scale: false,
         },
@@ -580,8 +593,8 @@ export default {
     },
 
     async saveConfig() {
+      console.log('SAVING CONFIG:', this.config)
       this.loading = true
-      console.log(this.config)
       await this.call_api(
         'api/config',
         {
@@ -602,8 +615,9 @@ export default {
       deep: true,
       async handler(newVal) {
         try {
+          console.log('WATCHING CONFIG:', newVal)
           await this.saveConfig()
-          await this.fetchConfig()
+          // await this.fetchConfig()
           this.$toast.add({
             severity: 'success',
             summary: 'Configuration saved!',
@@ -641,7 +655,7 @@ export default {
 
       const old_pipe = JSON.parse(JSON.stringify(this.config.pipeline))
 
-      const flags = ['predict', 'eval', 'charts', 'augment', 'scale']
+      const flags = ['predict', 'eval', 'charts', 'transformers', 'augment', 'scale']
       flags.forEach((flag) => {
         this.config.pipeline[flag] = false
       })
@@ -651,6 +665,7 @@ export default {
           this.config.pipeline.predict = true
           this.config.pipeline.eval = true
           this.config.pipeline.charts = true
+          this.config.pipeline.transformers = true
           break
         case 'Augmentation':
           this.config.pipeline.augment = true
@@ -699,6 +714,7 @@ export default {
   mounted() {
     this.fetchConfig()
     this.fetchData()
+    this.initialized = true
   },
 
   beforeUnmount() {

@@ -1,6 +1,6 @@
 <template>
   <div class="logs">
-    <div class="">
+    <div class="h-full">
       <ProgressSpinner v-if="loading" class="my-4" />
       <div v-else class="log-container">
         <pre class="log-content" v-html="colorizedLogs"></pre>

@@ -13,25 +13,20 @@ class TrsAPI(BaseAPI):
 
     def get_trs_data(self):
         sqlyzr = Sqlyzr(self.config_file)
+        csv_files = []
+        for run_conf in sqlyzr.conf.eval_conf.get_run_confs():
+            trs_path = run_conf.get_trs_path()
+            csv_files.append(trs_path)
+
         try:
-            model = request.args.get('model')
-            dataset = request.args.get('dataset')
-
-            if not model or not dataset:
-                return jsonify({"error": "Model and dataset parameters are required"}), 400
-            trs_dir = os.path.join(sqlyzr.conf.eval_conf.base_dir, 'trs', model, dataset)
-
-            if not os.path.exists(trs_dir):
-                return jsonify({"error": f"No TRS data found for model '{model}' and dataset '{dataset}'"}), 404
-
-            csv_files = [f for f in os.listdir(trs_dir) if f.endswith('.csv')]
             response = []
             for csv_file in csv_files:
-                response.append({
-                    "name": csv_file.replace('.csv', ''),
-                    "stats": read_json(os.path.join(trs_dir, csv_file + ".stats.json")),
-                    "repairs": read_json(os.path.join(trs_dir, csv_file + ".json"))
-                })
+                if os.path.exists(csv_file):
+                    response.append({
+                        "name": csv_file.replace('.csv', ''),
+                        "stats": read_json(csv_file + ".stats.json"),
+                        "repairs": read_json(csv_file + ".json")
+                    })
 
             return jsonify(response)
 

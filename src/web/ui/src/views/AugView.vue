@@ -91,7 +91,7 @@ export default {
       return this.isRunning || this.modified
     },
     avail_hues() {
-      return Object.keys(this.plot_dict)
+      return Object.keys(this.plot_dict ?? {})
     },
     avail_plots() {
       console.log(this.selectedHue)
@@ -109,10 +109,9 @@ export default {
     async fetchCharts() {
       try {
         const data = await this.call_api('api/charts')
-        const avail_charts = data.avail_charts
+        const avail_charts = data?.avail_charts
         this.plot_dict = avail_charts
-        console.log(avail_charts)
-        if (Object.keys(avail_charts).length) {
+        if (avail_charts &&  Object.keys(avail_charts).length > 0) {
           this.selectedHue = Object.keys(avail_charts)[0]
           if (this.plot_dict[this.selectedHue].length > 0)
             this.selectedPlot = this.plot_dict[this.selectedHue][0]
@@ -176,6 +175,7 @@ export default {
       else this.selectedPlot = null
     },
     selectedPlot(newVal, oldVal) {
+      console.log('selected plot changed')
       this.refreshPlot()
     },
   },

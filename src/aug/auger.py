@@ -49,7 +49,7 @@ class Auger:
         if db_id:
             self.__db_id = db_id
         else:
-            self.__db_id = self.schema_repo.get_db_id_with_most_columns()
+            self.__db_id = self.schema_repo.get_db_id_with_most_columns(ds_conf)
         self.__examples = self.__extract_examples(self.__dataset_conf)
         os.makedirs(self.__conf.aug_dir, exist_ok=True)
         logger.info(
@@ -67,7 +67,7 @@ class Auger:
     @log("Extracting examples")
     def __extract_examples(self, ds_conf: DatasetConfig):
         examples = {}
-        with open(ds_conf.get_test_path()) as dataset_file:
+        with open(ds_conf.get_train_path()) as dataset_file:
             dataset_data = json.load(dataset_file)
             i = 1
             for entry in tqdm.tqdm(dataset_data, desc="Extracting examples", total=len(dataset_data)):

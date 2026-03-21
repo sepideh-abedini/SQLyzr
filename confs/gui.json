@@ -18,10 +18,10 @@
     "batch": false,
     "force": false,
     "pipeline": {
-        "augment": false,
-        "charts": true,
+        "augment": true,
+        "charts": false,
         "eval": true,
-        "predict": true,
+        "predict": false,
         "scale": false,
         "transformers": false,
         "verify": false
@@ -38,10 +38,9 @@
     "eval_force": true,
     "pipeline_status": {
         "augment": false,
-        "charts": true,
-        "eval": true,
-        "predict": true,
-        "scale": false,
-        "verify": false
+        "charts": false,
+        "eval": false,
+        "predict": false,
+        "scale": false
     }
 }

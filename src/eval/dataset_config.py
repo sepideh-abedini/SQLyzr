@@ -15,6 +15,7 @@ class DatasetConfig:
     ver: Optional[str] = None
     mysql: bool = False
     dataset_type: Literal['spider', 'bird', 'beaver'] = 'spider'
+    aug_db_id: Optional[str] = None
 
     @property
     def gold_file_ver(self) -> str:

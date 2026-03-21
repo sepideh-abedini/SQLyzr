@@ -15,6 +15,7 @@ import { BUILD_VERSION } from './config'
         <!--        <RouterLink to="/status">Execution</RouterLink>-->
         <RouterLink to="/charts">Charts</RouterLink>
         <!--        <RouterLink to="/aug">Augmentation</RouterLink>-->
+        <RouterLink to="/errors">Errors</RouterLink>
         <RouterLink to="/scores">Scores</RouterLink>
         <RouterLink to="/logs">Logs</RouterLink>
         <RouterLink to="/files">Files</RouterLink>

@@ -1,10 +1,13 @@
 import mimetypes
 import os
+from pathlib import Path
+
 from flask import jsonify, request
 from flask import jsonify, send_file
 
 from src.sqlyzr.sqlyzr import Sqlyzr
 from .base_api import BaseAPI
+from ...configs.config_loader import ConfigData
 
 
 class FilesAPI(BaseAPI):
@@ -21,9 +24,8 @@ class FilesAPI(BaseAPI):
             return sum(1 for _ in f)
 
     def get_file(self, subpath):
-        print("HEY")
-        sqlyzr = Sqlyzr(self.config_file)
-        base_dir = sqlyzr.conf.eval_conf.base_dir
+        conf = ConfigData.load(self.config_file)
+        base_dir = conf.get_model_dataset_dir()
 
         target_path = os.path.normpath(os.path.join(base_dir, subpath))
 
@@ -38,8 +40,8 @@ class FilesAPI(BaseAPI):
     def list_files(self):
         try:
             path = request.args.get('path', '')
-            sqlyzr = Sqlyzr(self.config_file)
-            base_dir = sqlyzr.conf.eval_conf.base_dir
+            conf = ConfigData.load(self.config_file)
+            base_dir = conf.get_model_dataset_dir()
 
             target_path = os.path.normpath(os.path.join(base_dir, path))
             if not target_path.startswith(base_dir):
@@ -63,7 +65,8 @@ class FilesAPI(BaseAPI):
                 })
 
             return jsonify({
-                "home": sqlyzr.conf.eval_conf.base_dir,
+                # "home":  sqlyzr.conf.eval_conf.base_dir,
+                "home": str(Path(conf.get_model_dataset_dir()).parent),
                 "path": path,
                 "items": items
             })
@@ -73,8 +76,8 @@ class FilesAPI(BaseAPI):
     def get_file_content(self):
         try:
             path = request.args.get('path', '')
-            sqlyzr = Sqlyzr(self.config_file)
-            base_dir = sqlyzr.conf.eval_conf.base_dir
+            conf = ConfigData.load(self.config_file)
+            base_dir = conf.get_model_dataset_dir()
 
             target_path = os.path.normpath(os.path.join(base_dir, path))
 
@@ -108,8 +111,8 @@ class FilesAPI(BaseAPI):
     def delete_all_files(self):
         try:
             path = request.args.get('path', '')
-            sqlyzr = Sqlyzr(self.config_file)
-            base_dir = sqlyzr.conf.eval_conf.base_dir
+            conf = ConfigData.load(self.config_file)
+            base_dir = conf.get_model_dataset_dir()
 
             target_path = os.path.normpath(os.path.join(base_dir, path))
             if not target_path.startswith(base_dir):
@@ -138,8 +141,8 @@ class FilesAPI(BaseAPI):
     def delete_file(self):
         try:
             path = request.args.get('path', '')
-            sqlyzr = Sqlyzr(self.config_file)
-            base_dir = sqlyzr.conf.eval_conf.base_dir
+            conf = ConfigData.load(self.config_file)
+            base_dir = conf.get_model_dataset_dir()
 
             target_path = os.path.normpath(os.path.join(base_dir, path))
             if not target_path.startswith(base_dir):
@@ -156,7 +159,8 @@ class FilesAPI(BaseAPI):
                 })
             elif os.path.isdir(target_path):
                 import shutil
-                shutil.rmtree(target_path)
+                os.rmdir(target_path)
+                shutil.rmtree(target_path, ignore_errors=True)
                 return jsonify({
                     "success": True,
                     "message": "Directory deleted successfully"

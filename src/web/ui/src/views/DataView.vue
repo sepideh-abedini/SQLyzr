@@ -34,16 +34,16 @@
             class="p-button-sm p-button-danger ml-auto"
             title="Delete all files in current directory"
           />
-          <FileUpload
-            mode="basic"
-            accept=".zip"
-            :maxFileSize="50000000"
-            customUpload
-            @uploader="uploadZip"
-            :auto="true"
-            chooseLabel="Upload ZIP"
-            class="ml-2"
-          />
+<!--          <FileUpload-->
+<!--            mode="basic"-->
+<!--            accept=".zip"-->
+<!--            :maxFileSize="50000000"-->
+<!--            customUpload-->
+<!--            @uploader="uploadZip"-->
+<!--            :auto="true"-->
+<!--            chooseLabel="Upload ZIP"-->
+<!--            class="ml-2"-->
+<!--          />-->
         </div>
 
         <ProgressSpinner v-if="loading" class="my-4" />

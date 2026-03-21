@@ -1,9 +1,11 @@
 import json
+import os
 from os.path import split
 from typing import Dict
 
 from loguru import logger
 
+from src.eval.dataset_config import DatasetConfig
 from src.util.database_schema import DatabaseSchema
 from src.util.str_utils import split_to_snake
 
@@ -39,11 +41,14 @@ class DatabaseSchemaRepo:
 
                 self.dbs[db['db_id']] = schema
 
-    def get_db_id_with_most_columns(self):
+    def get_db_id_with_most_columns(self, conf: DatasetConfig):
         best_db_id = None
         max_cols = 0
         for db_id, schema in self.dbs.items():
             num_cols = sum(len(table.keys()) for table in schema.tables.values())
+            db_size = os.path.getsize(conf.get_db_file_path(db_id)) / (1024 * 1024)
+            if db_size > 50:
+                continue
             if num_cols > max_cols:
                 max_cols = num_cols
                 best_db_id = db_id

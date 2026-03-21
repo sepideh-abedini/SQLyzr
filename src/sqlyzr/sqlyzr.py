@@ -1,7 +1,4 @@
-import os
 import shutil
-
-import pandas as pd
 
 from src.chart.charter import draw_all_charts
 from src.configs.config_loader import load_config, ConfigData

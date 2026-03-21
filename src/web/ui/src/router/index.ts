@@ -50,8 +50,8 @@ const router = createRouter({
       component: StatusView,
     },
     {
-      path: '/trs',
-      name: 'trs',
+      path: '/errors',
+      name: 'errors',
       component: TrsView,
     },
     {

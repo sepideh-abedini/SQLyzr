@@ -50,7 +50,7 @@ class DatasetAugmentor:
 
         for ds_conf in self.last_version_conf.eval_conf.dataset_configs:
             logger.info(f"Augmenting: {ds_conf.dataset_type}[{ds_conf.ver}]")
-            auger = Auger(self.last_version_conf, ds_conf, sub_cats)
+            auger = Auger(self.last_version_conf, ds_conf, sub_cats, db_id=ds_conf.aug_db_id)
             await auger.run()
 
         if expand:
