@@ -10,6 +10,7 @@
             :options="avail_hues"
             placeholder="Select a type"
             class="w-full"
+            @change="selectedPlot = null"
           />
         </FormField>
         <FormField v-if="selectedHue" class="md:col-6">

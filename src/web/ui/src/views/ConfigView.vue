@@ -1,117 +1,120 @@
 <template>
   <div class="config">
-    <Toast />
+    <Toast position="bottom-right" />
+    <!--    <h1>{{loading}}</h1>-->
     <Card>
       <template #content>
         <div class="grid">
-          <div class="md:col-6 p-2 config-section">
-            <div class="grid">
-              <FormField class="md:col-6">
-                <FloatLabel variant="in">
-                  <label class="field-label">Workload:</label>
-                  <Select
-                    v-model="config.dataset"
-                    :options="dataset_options"
-                    placeholder="Select Workload"
-                    class="w-full"
-                    :disabled="dataset_lock_mode"
-                  />
-                </FloatLabel>
-              </FormField>
-              <FormField class="md:col-6">
-                <FloatLabel variant="in">
-                  <label class="field-label">Workload Size:</label>
-                  <Select
-                    v-model="config.dataset_size"
-                    :options="size_options"
-                    placeholder="Select Size"
-                    class="w-full"
-                    :disabled="dataset_lock_mode"
-                  />
-                </FloatLabel>
-              </FormField>
-            </div>
-            <div class="grid">
-              <FormField class="md:col-6">
-                <label class="field-label">Text2SQL System:</label>
-                <div class="flex flex-wrap gap-3 mt-2">
-                  <MultiSelect
-                    v-model="config.models"
-                    display="chip"
-                    :options="modelOptions"
-                    filter
-                    placeholder="Select Models"
-                    class="w-full"
-                  />
-                </div>
-              </FormField>
-              <FormField class="md:col-6">
-                <label class="field-label">Workload Versions:</label>
-                <Select
-                  display="chip"
-                  filter
-                  placeholder="Select version"
-                  v-model="selected_version"
-                  :options="config.dataset_versions"
-                />
-              </FormField>
-            </div>
-            <div class="grid">
-              <FormField class="md:col-3">
-                <label class="field-label">Num Iterations:</label>
-                <InputNumber v-model="config.itrs" :min="1" :max="5" fluid> </InputNumber>
-              </FormField>
-              <FormField class="md:col-6">
-                <FloatLabel variant="in">
-                  <label class="field-label">Temperature:</label>
-                  <MultiSelect
-                    v-model="config.temps"
-                    display="chip"
-                    :options="suggested_temps"
-                    filter
-                    placeholder="Select Temperatures"
-                    class="w-full"
-                    fluid
-                  />
-                </FloatLabel>
-              </FormField>
-              <FormField class="md:col-3">
-                <FloatLabel variant="in">
-                  <label class="field-label">Batch Mode:</label>
-                  <div class="flex align-items-center">
-                    <ToggleSwitch v-model="config.batch" />
-                    <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
+          <div class="md:col-6 p-2">
+            <div class="config-section">
+              <div class="grid">
+                <FormField class="md:col-6">
+                  <FloatLabel variant="in">
+                    <label class="field-label">Workload:</label>
+                    <Select
+                      v-model="config.dataset"
+                      :options="dataset_options"
+                      placeholder="Select Workload"
+                      class="w-full"
+                      :disabled="dataset_lock_mode"
+                    />
+                  </FloatLabel>
+                </FormField>
+                <FormField class="md:col-6">
+                  <FloatLabel variant="in">
+                    <label class="field-label">Workload Size:</label>
+                    <Select
+                      v-model="config.dataset_size"
+                      :options="size_options"
+                      placeholder="Select Size"
+                      class="w-full"
+                      :disabled="dataset_lock_mode"
+                    />
+                  </FloatLabel>
+                </FormField>
+              </div>
+              <div class="grid">
+                <FormField class="md:col-6">
+                  <label class="field-label">Text2SQL System:</label>
+                  <div class="flex flex-wrap gap-3 mt-2">
+                    <MultiSelect
+                      v-model="config.models"
+                      display="chip"
+                      :options="modelOptions"
+                      filter
+                      placeholder="Select Models"
+                      class="w-full"
+                    />
                   </div>
-                </FloatLabel>
-              </FormField>
-            </div>
-            <div class="grid w-full">
-              <FormField class="md:col-6">
-                <FloatLabel variant="in">
-                  <label>Scaling Factors:</label>
-                  <MultiSelect
-                    class="w-full"
+                </FormField>
+                <FormField class="md:col-6">
+                  <label class="field-label">Workload Versions:</label>
+                  <Select
                     display="chip"
                     filter
-                    placeholder="Select scales"
-                    v-model="config.scales"
-                    :options="avail_scales"
-                  >
-                  </MultiSelect>
-                </FloatLabel>
-              </FormField>
-              <FormField class="md:col-6">
-                <FloatLabel variant="in">
-                  <label>Augmentation per Subcategory</label>
-                  <InputText size="large" fluid v-model="config.aug_per_sub_cat" />
-                </FloatLabel>
-              </FormField>
-            </div>
-            <div class="grid w-full">
-              <RCalc />
+                    placeholder="Select version"
+                    v-model="selected_version"
+                    :options="config.dataset_versions"
+                  />
+                </FormField>
+              </div>
+              <div class="grid">
+                <FormField class="md:col-3">
+                  <label class="field-label">Num Iterations:</label>
+                  <InputNumber v-model="config.itrs" :min="1" :max="5" fluid> </InputNumber>
+                </FormField>
+                <FormField class="md:col-6">
+                  <FloatLabel variant="in">
+                    <label class="field-label">Temperature:</label>
+                    <MultiSelect
+                      v-model="config.temps"
+                      display="chip"
+                      :options="suggested_temps"
+                      filter
+                      placeholder="Select Temperatures"
+                      class="w-full"
+                      fluid
+                    />
+                  </FloatLabel>
+                </FormField>
+                <FormField class="md:col-3">
+                  <FloatLabel variant="in">
+                    <label class="field-label">Batch Mode:</label>
+                    <div class="flex align-items-center">
+                      <ToggleSwitch v-model="config.batch" />
+                      <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
+                    </div>
+                  </FloatLabel>
+                </FormField>
+              </div>
+              <div class="grid w-full">
+                <FormField class="md:col-6">
+                  <FloatLabel variant="in">
+                    <label>Scaling Factors:</label>
+                    <MultiSelect
+                      class="w-full"
+                      display="chip"
+                      filter
+                      placeholder="Select scales"
+                      v-model="config.scales"
+                      :options="avail_scales"
+                    >
+                    </MultiSelect>
+                  </FloatLabel>
+                </FormField>
+                <FormField class="md:col-6">
+                  <FloatLabel variant="in">
+                    <label>Augmentation per Subcategory</label>
+                    <InputText size="large" fluid v-model="config.aug_per_sub_cat" />
+                  </FloatLabel>
+                </FormField>
+              </div>
+              <div class="grid w-full">
+                <!--                <RCalc />-->
+              </div>
             </div>
           </div>
-          <div class="md:col-6 p-2">
+          <div class="md:col-6 p-2 config-section">
             <div class="config-section">
               <FormField class="mb-3">
                 <label class="field-label">Error Threshold (Min Acceptable REA):</label>
@@ -177,20 +180,20 @@
         <div class="grid">
           <div class="col-12">
             <div class="flex justify-content-center gap-3 mt-3">
-              <Button
-                label="Save Configuration"
-                icon="pi pi-save"
-                @click="saveConfig"
-                class="p-button-primary"
-                :disabled="running"
-              />
+              <!--              <Button-->
+              <!--                label="Save Configuration"-->
+              <!--                icon="pi pi-save"-->
+              <!--                @click="saveConfig"-->
+              <!--                class="p-button-primary"-->
+              <!--                :disabled="running"-->
+              <!--              />-->
               <Button
                 label="Cleanup"
                 icon="pi pi-trash"
                 v-tooltip="'Delete all output files'"
                 @click="cleanup"
                 severity="danger"
-                :disabled="running"
+                :disabled="run_disabled"
               />
               <Button
                 label="Default Config"
@@ -198,7 +201,7 @@
                 @click="resetConfig"
                 severity="secondary"
                 v-tooltip="'Reset to default configuration'"
-                :disabled="running"
+                :disabled="run_disabled"
               />
               <Button
                 label="Clear Config"
@@ -206,14 +209,14 @@
                 @click="clearConfig"
                 severity="secondary"
                 v-tooltip="'Clear config'"
-                :disabled="running"
+                :disabled="run_disabled"
               />
               <Button
                 label="Run SQLyzr"
                 icon="pi pi-play"
                 @click="runSqlyzr"
                 severity="primary"
-                :disabled="running"
+                :disabled="run_disabled"
               />
               <Button
                 label="Stop Sqlyzr"
@@ -268,6 +271,8 @@ import LogsView from '@/views/LogsView.vue'
 import ChartsView from '@/views/ChartsView.vue'
 import RCalc from '@/views/RCalc.vue'
 import { toRaw } from 'vue'
+import { saveAs } from '@primevue/core'
+import isEqual from 'lodash/isEqual'
 
 export default {
   components: {
@@ -306,7 +311,7 @@ export default {
       calculating: false,
       selected_pipeline_mode: 'Evaluation',
       dataset_options: ['aggregate', 'spider', 'bird', 'beaver'],
-      size_options: ['small', 'all'],
+      size_options: ['small'],
       selected_version: null,
       config: {
         models: [],
@@ -363,6 +368,9 @@ export default {
     }
   },
   computed: {
+    run_disabled() {
+      return this.running || this.loading
+    },
     dataset_lock_mode() {
       return this.config.pipeline.augment || this.config.pipeline.scale
     },
@@ -538,8 +546,11 @@ export default {
     async fetchConfig() {
       this.loading = true
       this.error = null
-      const data = await this.call_api('api/config')
-      console.log(data)
+      const data = await this.call_api('api/config', {}, false)
+      if (isEqual(data, this.config)) {
+        this.loading = false
+        return
+      }
       Object.assign(this.config, data)
 
       if (this.config.temps && Array.isArray(this.config.temps)) {
@@ -565,6 +576,7 @@ export default {
         .map((v) => parseInt(v.slice(1), 10))
         .reduce((a, b) => Math.max(a, b), -Infinity)
       this.selected_version = `v${highest}`
+      this.loading = false
     },
 
     async saveConfig() {
@@ -576,7 +588,7 @@ export default {
           method: 'POST',
           body: JSON.stringify(this.config),
         },
-        true,
+        false,
       )
       this.loading = false
     },
@@ -586,6 +598,24 @@ export default {
     },
   },
   watch: {
+    config: {
+      deep: true,
+      async handler(newVal) {
+        try {
+          await this.saveConfig()
+          await this.fetchConfig()
+          this.$toast.add({
+            severity: 'success',
+            summary: 'Configuration saved!',
+            detail: '',
+            life: 1000,
+          })
+        } catch (e) {
+          console.error('Error saving configuration:', e, newVal)
+          return
+        }
+      },
+    },
     selected_version(newVal) {
       if (newVal && typeof newVal === 'string') {
         const index = parseInt(newVal.replace('v', ''), 10)

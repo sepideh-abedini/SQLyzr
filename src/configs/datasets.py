@@ -2,8 +2,8 @@ from typing import Literal
 
 from src.eval.dataset_config import DatasetConfig
 
-BASE_DIR = "data"
-# BASE_DIR = "sample_data"
+# BASE_DIR = "data"
+BASE_DIR = "sample_data"
 
 SPIDER_SMALL = DatasetConfig(
     dataset_dir=f"{BASE_DIR}/spider",

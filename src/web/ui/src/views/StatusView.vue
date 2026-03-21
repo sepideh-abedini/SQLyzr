@@ -1,6 +1,6 @@
 <template>
   <div class="status">
-    <Toast />
+    <Toast position="bottom-right" />
 
     <Card class="w-1/2">
       <template #title>
