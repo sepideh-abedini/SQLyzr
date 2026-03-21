@@ -53,9 +53,9 @@ AUG_ALL = DatasetConfig(
 
 AUG_SMALL = DatasetConfig(
     dataset_dir=f"{BASE_DIR}/spider_aug",
-    test_file="data.test.cat.small.json",
-    gold_file="data.test.cat.small.gold.txt",
-    train_file="data.train.cat.json",
+    test_file="data.test.small.json",
+    gold_file="data.test.small.gold.txt",
+    train_file="data.train.json",
     tables_file="tables.small.json",
     db_dir="database",
     ver="v0"
@@ -147,7 +147,7 @@ DATASETS = {
         "small": [AUG_SMALL, BIRD_SMALL, BEAVER_SMALL]
     },
     "bird": {
-        "small": [BIRD_SMALL],
+        "small": [SPIDER_SMALL],
         "all": [BIRD_ALL],
         "bad": [BIRD_BAD],
         "mask": [BIRD_MASK],
@@ -155,7 +155,7 @@ DATASETS = {
         #     "train": BIRD_TRAIN
     },
     "spider": {
-        "small": [AUG_SMALL],
+        "small": [SPIDER_SMALL],
         "500": [SPIDER_500],
         # "dev": SPIDER_DEV,
         # "test": SPIDER_TEST,

@@ -1,0 +1,77 @@
+{
+    "tables": {
+        "user_profiles": {
+            "columns": {
+                "uid": {
+                    "sdtype": "id"
+                },
+                "name": {
+                    "sdtype": "categorical"
+                },
+                "email": {
+                    "sdtype": "categorical"
+                },
+                "partitionid": {
+                    "sdtype": "numerical"
+                },
+                "followers": {
+                    "sdtype": "numerical"
+                }
+            },
+            "primary_key": "uid"
+        },
+        "tweets": {
+            "columns": {
+                "id": {
+                    "sdtype": "id"
+                },
+                "uid": {
+                    "sdtype": "id"
+                },
+                "text": {
+                    "sdtype": "categorical"
+                },
+                "createdate": {
+                    "sdtype": "date",
+                    "pii": true
+                }
+            },
+            "primary_key": "id"
+        },
+        "follows": {
+            "columns": {
+                "f1": {
+                    "sdtype": "id"
+                },
+                "f2": {
+                    "sdtype": "id"
+                },
+                "follows_pk": {
+                    "sdtype": "id"
+                }
+            },
+            "primary_key": "follows_pk"
+        }
+    },
+    "relationships": [
+        {
+            "parent_table_name": "user_profiles",
+            "child_table_name": "tweets",
+            "parent_primary_key": "uid",
+            "child_foreign_key": "uid"
+        },
+        {
+            "parent_table_name": "user_profiles",
+            "child_table_name": "follows",
+            "parent_primary_key": "uid",
+            "child_foreign_key": "f2"
+        },
+        {
+            "parent_table_name": "user_profiles",
+            "child_table_name": "follows",
+            "parent_primary_key": "uid",
+            "child_foreign_key": "f1"
+        }
+    ],
+    "METADATA_SPEC_VERSION": "V1"
+}

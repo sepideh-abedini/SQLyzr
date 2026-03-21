@@ -3,7 +3,7 @@
     "out_dir": "out",
     "aug_per_sub_cat": 0,
     "error_threshold": 0.8,
-    "dataset": "bird",
+    "dataset": "spider",
     "dataset_size": "small",
     "dataset_versions": [
         "v0"

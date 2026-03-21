@@ -7,19 +7,157 @@
             ],
             [
                 0,
-                "song id"
+                "race id"
             ],
             [
                 0,
-                "title"
+                "name"
+            ],
+            [
+                0,
+                "class"
+            ],
+            [
+                0,
+                "date"
+            ],
+            [
+                0,
+                "track id"
             ],
             [
                 1,
-                "aid"
+                "track id"
             ],
             [
                 1,
-                "title"
+                "name"
+            ],
+            [
+                1,
+                "location"
+            ],
+            [
+                1,
+                "seating"
+            ],
+            [
+                1,
+                "year opened"
+            ]
+        ],
+        "column_names_original": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "Race_ID"
+            ],
+            [
+                0,
+                "Name"
+            ],
+            [
+                0,
+                "Class"
+            ],
+            [
+                0,
+                "Date"
+            ],
+            [
+                0,
+                "Track_ID"
+            ],
+            [
+                1,
+                "Track_ID"
+            ],
+            [
+                1,
+                "Name"
+            ],
+            [
+                1,
+                "Location"
+            ],
+            [
+                1,
+                "Seating"
+            ],
+            [
+                1,
+                "Year_Opened"
+            ]
+        ],
+        "column_types": [
+            "text",
+            "number",
+            "text",
+            "text",
+            "text",
+            "text",
+            "number",
+            "text",
+            "text",
+            "number",
+            "number"
+        ],
+        "db_id": "race_track",
+        "foreign_keys": [
+            [
+                5,
+                6
+            ]
+        ],
+        "primary_keys": [
+            1,
+            6
+        ],
+        "table_names": [
+            "race",
+            "track"
+        ],
+        "table_names_original": [
+            "race",
+            "track"
+        ]
+    },
+    {
+        "column_names": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "city id"
+            ],
+            [
+                0,
+                "official name"
+            ],
+            [
+                0,
+                "status"
+            ],
+            [
+                0,
+                "area km 2"
+            ],
+            [
+                0,
+                "population"
+            ],
+            [
+                0,
+                "census ranking"
+            ],
+            [
+                1,
+                "farm id"
             ],
             [
                 1,
@@ -27,71 +165,67 @@
             ],
             [
                 1,
-                "label"
+                "total horses"
             ],
             [
                 1,
-                "type"
+                "working horses"
+            ],
+            [
+                1,
+                "total cattle"
+            ],
+            [
+                1,
+                "oxen"
+            ],
+            [
+                1,
+                "bulls"
+            ],
+            [
+                1,
+                "cows"
+            ],
+            [
+                1,
+                "pigs"
+            ],
+            [
+                1,
+                "sheep and goats"
             ],
             [
                 2,
-                "id"
+                "competition id"
             ],
             [
                 2,
-                "first name"
+                "year"
             ],
             [
                 2,
-                "last name"
+                "theme"
+            ],
+            [
+                2,
+                "host city id"
+            ],
+            [
+                2,
+                "hosts"
             ],
             [
                 3,
-                "song id"
+                "competition id"
             ],
             [
                 3,
-                "bandmate id"
+                "farm id"
             ],
             [
                 3,
-                "instrument"
-            ],
-            [
-                4,
-                "song id"
-            ],
-            [
-                4,
-                "bandmate"
-            ],
-            [
-                4,
-                "stage position"
-            ],
-            [
-                5,
-                "album id"
-            ],
-            [
-                5,
-                "position"
-            ],
-            [
-                5,
-                "song id"
-            ],
-            [
-                6,
-                "song id"
-            ],
-            [
-                6,
-                "bandmate"
-            ],
-            [
-                6,
-                "type"
+                "rank"
             ]
         ],
         "column_names_original": [
@@ -101,19 +235,31 @@
             ],
             [
                 0,
-                "SongId"
+                "City_ID"
             ],
             [
                 0,
-                "Title"
+                "Official_Name"
+            ],
+            [
+                0,
+                "Status"
+            ],
+            [
+                0,
+                "Area_km_2"
+            ],
+            [
+                0,
+                "Population"
+            ],
+            [
+                0,
+                "Census_Ranking"
             ],
             [
                 1,
-                "AId"
-            ],
-            [
-                1,
-                "Title"
+                "Farm_ID"
             ],
             [
                 1,
@@ -121,87 +267,73 @@
             ],
             [
                 1,
-                "Label"
+                "Total_Horses"
             ],
             [
                 1,
-                "Type"
+                "Working_Horses"
+            ],
+            [
+                1,
+                "Total_Cattle"
+            ],
+            [
+                1,
+                "Oxen"
+            ],
+            [
+                1,
+                "Bulls"
+            ],
+            [
+                1,
+                "Cows"
+            ],
+            [
+                1,
+                "Pigs"
+            ],
+            [
+                1,
+                "Sheep_and_Goats"
             ],
             [
                 2,
-                "Id"
+                "Competition_ID"
             ],
             [
                 2,
-                "Firstname"
+                "Year"
             ],
             [
                 2,
-                "Lastname"
+                "Theme"
+            ],
+            [
+                2,
+                "Host_city_ID"
+            ],
+            [
+                2,
+                "Hosts"
             ],
             [
                 3,
-                "SongId"
+                "Competition_ID"
             ],
             [
                 3,
-                "BandmateId"
+                "Farm_ID"
             ],
             [
                 3,
-                "Instrument"
-            ],
-            [
-                4,
-                "SongId"
-            ],
-            [
-                4,
-                "Bandmate"
-            ],
-            [
-                4,
-                "StagePosition"
-            ],
-            [
-                5,
-                "AlbumId"
-            ],
-            [
-                5,
-                "Position"
-            ],
-            [
-                5,
-                "SongId"
-            ],
-            [
-                6,
-                "SongId"
-            ],
-            [
-                6,
-                "Bandmate"
-            ],
-            [
-                6,
-                "Type"
+                "Rank"
             ]
         ],
         "column_types": [
             "text",
             "number",
             "text",
-            "number",
-            "text",
-            "number",
-            "text",
-            "text",
-            "number",
-            "text",
-            "text",
-            "number",
-            "number",
             "text",
             "number",
             "number",
@@ -211,69 +343,52 @@
             "number",
             "number",
             "number",
-            "text"
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "text",
+            "number",
+            "text",
+            "number",
+            "number",
+            "number"
         ],
-        "db_id": "music_2",
+        "db_id": "farm",
         "foreign_keys": [
-            [
-                12,
-                8
-            ],
-            [
-                11,
-                1
-            ],
-            [
-                15,
-                8
-            ],
-            [
-                14,
-                1
-            ],
-            [
-                17,
-                3
-            ],
-            [
-                19,
-                1
-            ],
-            [
-                21,
-                8
-            ],
             [
                 20,
                 1
+            ],
+            [
+                23,
+                7
+            ],
+            [
+                22,
+                17
             ]
         ],
         "primary_keys": [
             1,
-            3,
-            8,
-            11,
-            14,
+            7,
             17,
-            20
+            22
         ],
         "table_names": [
-            "songs",
-            "albums",
-            "band",
-            "instruments",
-            "performance",
-            "track lists",
-            "vocals"
+            "city",
+            "farm",
+            "farm competition",
+            "competition record"
         ],
         "table_names_original": [
-            "Songs",
-            "Albums",
-            "Band",
-            "Instruments",
-            "Performance",
-            "Tracklists",
-            "Vocals"
+            "city",
+            "farm",
+            "farm_competition",
+            "competition_record"
         ]
     },
     {
@@ -284,47 +399,51 @@
             ],
             [
                 0,
-                "college name"
+                "allergy name"
             ],
             [
                 0,
-                "state"
-            ],
-            [
-                0,
-                "enrollment"
+                "allergy type"
             ],
             [
                 1,
-                "player id"
+                "stuid"
             ],
             [
                 1,
-                "player name"
-            ],
-            [
-                1,
-                "yes card"
-            ],
-            [
-                1,
-                "training hours"
+                "allergy"
             ],
             [
                 2,
-                "player id"
+                "stuid"
             ],
             [
                 2,
-                "college name"
+                "last name"
             ],
             [
                 2,
-                "player position"
+                "first name"
             ],
             [
                 2,
-                "decision"
+                "age"
+            ],
+            [
+                2,
+                "sex"
+            ],
+            [
+                2,
+                "major"
+            ],
+            [
+                2,
+                "advisor"
+            ],
+            [
+                2,
+                "city code"
             ]
         ],
         "column_names_original": [
@@ -334,47 +453,51 @@
             ],
             [
                 0,
-                "cName"
+                "Allergy"
             ],
             [
                 0,
-                "state"
-            ],
-            [
-                0,
-                "enr"
+                "AllergyType"
             ],
             [
                 1,
-                "pID"
+                "StuID"
             ],
             [
                 1,
-                "pName"
-            ],
-            [
-                1,
-                "yCard"
-            ],
-            [
-                1,
-                "HS"
+                "Allergy"
             ],
             [
                 2,
-                "pID"
+                "StuID"
             ],
             [
                 2,
-                "cName"
+                "LName"
             ],
             [
                 2,
-                "pPos"
+                "Fname"
             ],
             [
                 2,
-                "decision"
+                "Age"
+            ],
+            [
+                2,
+                "Sex"
+            ],
+            [
+                2,
+                "Major"
+            ],
+            [
+                2,
+                "Advisor"
+            ],
+            [
+                2,
+                "city_code"
             ]
         ],
         "column_types": [
@@ -382,40 +505,40 @@
             "text",
             "text",
             "number",
-            "number",
-            "text",
             "text",
             "number",
+            "text",
+            "text",
             "number",
             "text",
-            "text",
+            "number",
+            "number",
             "text"
         ],
-        "db_id": "soccer_2",
+        "db_id": "allergy_1",
         "foreign_keys": [
             [
-                9,
+                4,
                 1
             ],
             [
-                8,
-                4
+                3,
+                5
             ]
         ],
         "primary_keys": [
             1,
-            4,
-            8
+            5
         ],
         "table_names": [
-            "college",
-            "player",
-            "tryout"
+            "allergy type",
+            "has allergy",
+            "student"
         ],
         "table_names_original": [
-            "College",
-            "Player",
-            "Tryout"
+            "Allergy_Type",
+            "Has_Allergy",
+            "Student"
         ]
     },
     {
@@ -426,91 +549,111 @@
             ],
             [
                 0,
-                "product id"
+                "account id"
             ],
             [
                 0,
-                "product type code"
-            ],
-            [
-                0,
-                "product name"
-            ],
-            [
-                0,
-                "product price"
-            ],
-            [
-                1,
-                "address id"
-            ],
-            [
-                1,
-                "address details"
-            ],
-            [
-                2,
                 "customer id"
             ],
             [
-                2,
-                "address id"
+                0,
+                "account name"
             ],
             [
-                2,
-                "payment method code"
+                0,
+                "other account details"
             ],
             [
-                2,
-                "customer number"
+                1,
+                "customer id"
             ],
             [
-                2,
-                "customer name"
+                1,
+                "customer first name"
             ],
             [
-                2,
+                1,
+                "customer last name"
+            ],
+            [
+                1,
                 "customer address"
             ],
             [
-                2,
+                1,
                 "customer phone"
             ],
             [
-                2,
+                1,
                 "customer email"
             ],
             [
-                3,
-                "order id"
+                1,
+                "other customer details"
             ],
             [
-                3,
+                2,
+                "card id"
+            ],
+            [
+                2,
                 "customer id"
             ],
             [
-                3,
-                "order date"
+                2,
+                "card type code"
+            ],
+            [
+                2,
+                "card number"
+            ],
+            [
+                2,
+                "date valid from"
+            ],
+            [
+                2,
+                "date valid to"
+            ],
+            [
+                2,
+                "other card details"
             ],
             [
                 3,
-                "order status code"
+                "transaction id"
             ],
             [
-                4,
-                "order item id"
+                3,
+                "previous transaction id"
             ],
             [
-                4,
-                "order id"
+                3,
+                "account id"
             ],
             [
-                4,
-                "product id"
+                3,
+                "card id"
             ],
             [
-                4,
-                "order quantity"
+                3,
+                "transaction type"
+            ],
+            [
+                3,
+                "transaction date"
+            ],
+            [
+                3,
+                "transaction amount"
+            ],
+            [
+                3,
+                "transaction comment"
+            ],
+            [
+                3,
+                "other transaction details"
             ]
         ],
         "column_names_original": [
@@ -520,102 +663,119 @@
             ],
             [
                 0,
-                "product_id"
+                "account_id"
             ],
             [
                 0,
-                "product_type_code"
-            ],
-            [
-                0,
-                "product_name"
-            ],
-            [
-                0,
-                "product_price"
-            ],
-            [
-                1,
-                "address_id"
-            ],
-            [
-                1,
-                "address_details"
-            ],
-            [
-                2,
                 "customer_id"
             ],
             [
-                2,
-                "address_id"
+                0,
+                "account_name"
             ],
             [
-                2,
-                "payment_method_code"
+                0,
+                "other_account_details"
             ],
             [
-                2,
-                "customer_number"
+                1,
+                "customer_id"
             ],
             [
-                2,
-                "customer_name"
+                1,
+                "customer_first_name"
             ],
             [
-                2,
+                1,
+                "customer_last_name"
+            ],
+            [
+                1,
                 "customer_address"
             ],
             [
-                2,
+                1,
                 "customer_phone"
             ],
             [
-                2,
+                1,
                 "customer_email"
             ],
             [
-                3,
-                "order_id"
+                1,
+                "other_customer_details"
             ],
             [
-                3,
+                2,
+                "card_id"
+            ],
+            [
+                2,
                 "customer_id"
             ],
             [
-                3,
-                "order_date"
+                2,
+                "card_type_code"
+            ],
+            [
+                2,
+                "card_number"
+            ],
+            [
+                2,
+                "date_valid_from"
+            ],
+            [
+                2,
+                "date_valid_to"
+            ],
+            [
+                2,
+                "other_card_details"
             ],
             [
                 3,
-                "order_status_code"
+                "transaction_id"
             ],
             [
-                4,
-                "order_item_id"
+                3,
+                "previous_transaction_id"
             ],
             [
-                4,
-                "order_id"
+                3,
+                "account_id"
             ],
             [
-                4,
-                "product_id"
+                3,
+                "card_id"
             ],
             [
-                4,
-                "order_quantity"
+                3,
+                "transaction_type"
+            ],
+            [
+                3,
+                "transaction_date"
+            ],
+            [
+                3,
+                "transaction_amount"
+            ],
+            [
+                3,
+                "transaction_comment"
+            ],
+            [
+                3,
+                "other_transaction_details"
             ]
         ],
         "column_types": [
             "text",
             "number",
-            "text",
-            "text",
-            "number",
             "number",
             "text",
-            "number",
+            "text",
             "number",
             "text",
             "text",
@@ -625,26 +785,538 @@
             "text",
             "number",
             "number",
+            "text",
+            "text",
+            "time",
             "time",
             "text",
             "number",
             "number",
             "number",
+            "number",
+            "text",
+            "time",
+            "number",
+            "text",
             "text"
         ],
-        "db_id": "customers_and_orders",
+        "db_id": "customers_card_transactions",
         "foreign_keys": [
-            [
-                16,
-                7
-            ],
             [
                 21,
                 1
             ],
             [
-                20,
-                15
+                22,
+                12
+            ]
+        ],
+        "primary_keys": [
+            1,
+            5,
+            12
+        ],
+        "table_names": [
+            "accounts",
+            "customers",
+            "customers cards",
+            "financial transactions"
+        ],
+        "table_names_original": [
+            "Accounts",
+            "Customers",
+            "Customers_Cards",
+            "Financial_Transactions"
+        ]
+    },
+    {
+        "column_names": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "musical id"
+            ],
+            [
+                0,
+                "name"
+            ],
+            [
+                0,
+                "year"
+            ],
+            [
+                0,
+                "award"
+            ],
+            [
+                0,
+                "category"
+            ],
+            [
+                0,
+                "nominee"
+            ],
+            [
+                0,
+                "result"
+            ],
+            [
+                1,
+                "actor id"
+            ],
+            [
+                1,
+                "name"
+            ],
+            [
+                1,
+                "musical id"
+            ],
+            [
+                1,
+                "character"
+            ],
+            [
+                1,
+                "duration"
+            ],
+            [
+                1,
+                "age"
+            ]
+        ],
+        "column_names_original": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "Musical_ID"
+            ],
+            [
+                0,
+                "Name"
+            ],
+            [
+                0,
+                "Year"
+            ],
+            [
+                0,
+                "Award"
+            ],
+            [
+                0,
+                "Category"
+            ],
+            [
+                0,
+                "Nominee"
+            ],
+            [
+                0,
+                "Result"
+            ],
+            [
+                1,
+                "Actor_ID"
+            ],
+            [
+                1,
+                "Name"
+            ],
+            [
+                1,
+                "Musical_ID"
+            ],
+            [
+                1,
+                "Character"
+            ],
+            [
+                1,
+                "Duration"
+            ],
+            [
+                1,
+                "age"
+            ]
+        ],
+        "column_types": [
+            "text",
+            "number",
+            "text",
+            "number",
+            "text",
+            "text",
+            "text",
+            "text",
+            "number",
+            "text",
+            "number",
+            "text",
+            "text",
+            "number"
+        ],
+        "db_id": "musical",
+        "foreign_keys": [
+            [
+                10,
+                8
+            ]
+        ],
+        "primary_keys": [
+            1,
+            8
+        ],
+        "table_names": [
+            "musical",
+            "actor"
+        ],
+        "table_names_original": [
+            "musical",
+            "actor"
+        ]
+    },
+    {
+        "column_names": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "publication id"
+            ],
+            [
+                0,
+                "book id"
+            ],
+            [
+                0,
+                "publisher"
+            ],
+            [
+                0,
+                "publication date"
+            ],
+            [
+                0,
+                "price"
+            ],
+            [
+                1,
+                "book id"
+            ],
+            [
+                1,
+                "title"
+            ],
+            [
+                1,
+                "issues"
+            ],
+            [
+                1,
+                "writer"
+            ]
+        ],
+        "column_names_original": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "Publication_ID"
+            ],
+            [
+                0,
+                "Book_ID"
+            ],
+            [
+                0,
+                "Publisher"
+            ],
+            [
+                0,
+                "Publication_Date"
+            ],
+            [
+                0,
+                "Price"
+            ],
+            [
+                1,
+                "Book_ID"
+            ],
+            [
+                1,
+                "Title"
+            ],
+            [
+                1,
+                "Issues"
+            ],
+            [
+                1,
+                "Writer"
+            ]
+        ],
+        "column_types": [
+            "text",
+            "number",
+            "number",
+            "text",
+            "text",
+            "number",
+            "number",
+            "text",
+            "number",
+            "text"
+        ],
+        "db_id": "book_2",
+        "foreign_keys": [
+            [
+                2,
+                6
+            ]
+        ],
+        "primary_keys": [
+            1,
+            6
+        ],
+        "table_names": [
+            "publication",
+            "book"
+        ],
+        "table_names_original": [
+            "publication",
+            "book"
+        ]
+    },
+    {
+        "column_names": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "country id"
+            ],
+            [
+                0,
+                "country name"
+            ],
+            [
+                0,
+                "capital"
+            ],
+            [
+                0,
+                "official native language"
+            ],
+            [
+                1,
+                "team id"
+            ],
+            [
+                1,
+                "name"
+            ],
+            [
+                2,
+                "season"
+            ],
+            [
+                2,
+                "player"
+            ],
+            [
+                2,
+                "position"
+            ],
+            [
+                2,
+                "country"
+            ],
+            [
+                2,
+                "team"
+            ],
+            [
+                2,
+                "draft pick number"
+            ],
+            [
+                2,
+                "draft class"
+            ],
+            [
+                2,
+                "college"
+            ],
+            [
+                3,
+                "player id"
+            ],
+            [
+                3,
+                "player"
+            ],
+            [
+                3,
+                "years played"
+            ],
+            [
+                3,
+                "total wl"
+            ],
+            [
+                3,
+                "singles wl"
+            ],
+            [
+                3,
+                "doubles wl"
+            ],
+            [
+                3,
+                "team"
+            ]
+        ],
+        "column_names_original": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "Country_id"
+            ],
+            [
+                0,
+                "Country_name"
+            ],
+            [
+                0,
+                "Capital"
+            ],
+            [
+                0,
+                "Official_native_language"
+            ],
+            [
+                1,
+                "Team_id"
+            ],
+            [
+                1,
+                "Name"
+            ],
+            [
+                2,
+                "Season"
+            ],
+            [
+                2,
+                "Player"
+            ],
+            [
+                2,
+                "Position"
+            ],
+            [
+                2,
+                "Country"
+            ],
+            [
+                2,
+                "Team"
+            ],
+            [
+                2,
+                "Draft_Pick_Number"
+            ],
+            [
+                2,
+                "Draft_Class"
+            ],
+            [
+                2,
+                "College"
+            ],
+            [
+                3,
+                "Player_ID"
+            ],
+            [
+                3,
+                "Player"
+            ],
+            [
+                3,
+                "Years_Played"
+            ],
+            [
+                3,
+                "Total_WL"
+            ],
+            [
+                3,
+                "Singles_WL"
+            ],
+            [
+                3,
+                "Doubles_WL"
+            ],
+            [
+                3,
+                "Team"
+            ]
+        ],
+        "column_types": [
+            "text",
+            "number",
+            "text",
+            "text",
+            "text",
+            "number",
+            "text",
+            "number",
+            "text",
+            "text",
+            "number",
+            "number",
+            "number",
+            "text",
+            "text",
+            "number",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text",
+            "number"
+        ],
+        "db_id": "match_season",
+        "foreign_keys": [
+            [
+                11,
+                5
+            ],
+            [
+                10,
+                1
+            ],
+            [
+                21,
+                5
             ]
         ],
         "primary_keys": [
@@ -654,18 +1326,16 @@
             15
         ],
         "table_names": [
-            "products",
-            "addresses",
-            "customers",
-            "customer orders",
-            "order items"
+            "country",
+            "team",
+            "match season",
+            "player"
         ],
         "table_names_original": [
-            "Products",
-            "Addresses",
-            "Customers",
-            "Customer_Orders",
-            "Order_Items"
+            "country",
+            "team",
+            "match_season",
+            "player"
         ]
     },
     {
@@ -676,127 +1346,83 @@
             ],
             [
                 0,
-                "staff id"
+                "team id"
             ],
             [
                 0,
-                "staff details"
+                "school id"
+            ],
+            [
+                0,
+                "team name"
+            ],
+            [
+                0,
+                "acc regular season"
+            ],
+            [
+                0,
+                "acc percent"
+            ],
+            [
+                0,
+                "acc home"
+            ],
+            [
+                0,
+                "acc road"
+            ],
+            [
+                0,
+                "all games"
+            ],
+            [
+                0,
+                "all games percent"
+            ],
+            [
+                0,
+                "all home"
+            ],
+            [
+                0,
+                "all road"
+            ],
+            [
+                0,
+                "all neutral"
             ],
             [
                 1,
-                "staff role code"
+                "school id"
             ],
             [
                 1,
-                "staff role description"
+                "school"
             ],
             [
-                2,
-                "process outcome code"
+                1,
+                "location"
             ],
             [
-                2,
-                "process outcome description"
+                1,
+                "founded"
             ],
             [
-                3,
-                "process status code"
+                1,
+                "affiliation"
             ],
             [
-                3,
-                "process status description"
+                1,
+                "enrollment"
             ],
             [
-                4,
-                "author name"
+                1,
+                "nickname"
             ],
             [
-                4,
-                "other details"
-            ],
-            [
-                5,
-                "document id"
-            ],
-            [
-                5,
-                "author name"
-            ],
-            [
-                5,
-                "document name"
-            ],
-            [
-                5,
-                "document description"
-            ],
-            [
-                5,
-                "other details"
-            ],
-            [
-                6,
-                "process id"
-            ],
-            [
-                6,
-                "next process id"
-            ],
-            [
-                6,
-                "process name"
-            ],
-            [
-                6,
-                "process description"
-            ],
-            [
-                6,
-                "other details"
-            ],
-            [
-                7,
-                "document id"
-            ],
-            [
-                7,
-                "process id"
-            ],
-            [
-                7,
-                "process outcome code"
-            ],
-            [
-                7,
-                "process status code"
-            ],
-            [
-                8,
-                "document id"
-            ],
-            [
-                8,
-                "process id"
-            ],
-            [
-                8,
-                "staff id"
-            ],
-            [
-                8,
-                "staff role code"
-            ],
-            [
-                8,
-                "date from"
-            ],
-            [
-                8,
-                "date to"
-            ],
-            [
-                8,
-                "other details"
+                1,
+                "primary conference"
             ]
         ],
         "column_names_original": [
@@ -806,127 +1432,749 @@
             ],
             [
                 0,
-                "staff_id"
+                "Team_ID"
             ],
             [
                 0,
-                "staff_details"
+                "School_ID"
+            ],
+            [
+                0,
+                "Team_Name"
+            ],
+            [
+                0,
+                "ACC_Regular_Season"
+            ],
+            [
+                0,
+                "ACC_Percent"
+            ],
+            [
+                0,
+                "ACC_Home"
+            ],
+            [
+                0,
+                "ACC_Road"
+            ],
+            [
+                0,
+                "All_Games"
+            ],
+            [
+                0,
+                "All_Games_Percent"
+            ],
+            [
+                0,
+                "All_Home"
+            ],
+            [
+                0,
+                "All_Road"
+            ],
+            [
+                0,
+                "All_Neutral"
             ],
             [
                 1,
-                "staff_role_code"
+                "School_ID"
             ],
             [
                 1,
-                "staff_role_description"
+                "School"
+            ],
+            [
+                1,
+                "Location"
+            ],
+            [
+                1,
+                "Founded"
+            ],
+            [
+                1,
+                "Affiliation"
+            ],
+            [
+                1,
+                "Enrollment"
+            ],
+            [
+                1,
+                "Nickname"
+            ],
+            [
+                1,
+                "Primary_conference"
+            ]
+        ],
+        "column_types": [
+            "text",
+            "number",
+            "number",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text",
+            "number",
+            "text",
+            "text",
+            "text",
+            "number",
+            "text",
+            "text",
+            "number",
+            "text",
+            "number",
+            "text",
+            "text"
+        ],
+        "db_id": "university_basketball",
+        "foreign_keys": [
+            [
+                2,
+                13
+            ]
+        ],
+        "primary_keys": [
+            1,
+            13
+        ],
+        "table_names": [
+            "basketball match",
+            "university"
+        ],
+        "table_names_original": [
+            "basketball_match",
+            "university"
+        ]
+    },
+    {
+        "column_names": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "user id"
+            ],
+            [
+                0,
+                "follower id"
+            ],
+            [
+                1,
+                "id"
+            ],
+            [
+                1,
+                "user id"
+            ],
+            [
+                1,
+                "text"
+            ],
+            [
+                1,
+                "create date"
             ],
             [
                 2,
-                "process_outcome_code"
+                "uid"
             ],
             [
                 2,
-                "process_outcome_description"
+                "name"
             ],
             [
-                3,
-                "process_status_code"
+                2,
+                "email"
             ],
             [
-                3,
-                "process_status_description"
+                2,
+                "partition id"
+            ],
+            [
+                2,
+                "followers"
+            ]
+        ],
+        "column_names_original": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "f1"
+            ],
+            [
+                0,
+                "f2"
+            ],
+            [
+                1,
+                "id"
+            ],
+            [
+                1,
+                "uid"
+            ],
+            [
+                1,
+                "text"
+            ],
+            [
+                1,
+                "createdate"
+            ],
+            [
+                2,
+                "uid"
+            ],
+            [
+                2,
+                "name"
+            ],
+            [
+                2,
+                "email"
+            ],
+            [
+                2,
+                "partitionid"
+            ],
+            [
+                2,
+                "followers"
+            ]
+        ],
+        "column_types": [
+            "text",
+            "number",
+            "number",
+            "number",
+            "number",
+            "text",
+            "time",
+            "number",
+            "text",
+            "text",
+            "number",
+            "number"
+        ],
+        "db_id": "twitter_1",
+        "foreign_keys": [
+            [
+                2,
+                7
+            ],
+            [
+                1,
+                7
             ],
             [
                 4,
-                "author_name"
+                7
+            ]
+        ],
+        "primary_keys": [
+            1,
+            3,
+            7
+        ],
+        "table_names": [
+            "follows",
+            "tweets",
+            "user profiles"
+        ],
+        "table_names_original": [
+            "follows",
+            "tweets",
+            "user_profiles"
+        ]
+    },
+    {
+        "column_names": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "model name"
+            ],
+            [
+                0,
+                "launch year"
+            ],
+            [
+                0,
+                "ram mib"
+            ],
+            [
+                0,
+                "rom mib"
+            ],
+            [
+                0,
+                "slots"
+            ],
+            [
+                0,
+                "wifi"
+            ],
+            [
+                0,
+                "bluetooth"
+            ],
+            [
+                1,
+                "graphics mode"
+            ],
+            [
+                1,
+                "char cells"
+            ],
+            [
+                1,
+                "pixels"
+            ],
+            [
+                1,
+                "hardware colours"
+            ],
+            [
+                1,
+                "used kb"
+            ],
+            [
+                1,
+                "map"
+            ],
+            [
+                1,
+                "type"
+            ],
+            [
+                2,
+                "company name"
+            ],
+            [
+                2,
+                "hardware model name"
+            ],
+            [
+                2,
+                "accreditation type"
+            ],
+            [
+                2,
+                "accreditation level"
+            ],
+            [
+                2,
+                "date"
+            ],
+            [
+                2,
+                "chip model"
+            ],
+            [
+                2,
+                "screen mode"
+            ]
+        ],
+        "column_names_original": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "Model_name"
+            ],
+            [
+                0,
+                "Launch_year"
+            ],
+            [
+                0,
+                "RAM_MiB"
+            ],
+            [
+                0,
+                "ROM_MiB"
+            ],
+            [
+                0,
+                "Slots"
+            ],
+            [
+                0,
+                "WiFi"
+            ],
+            [
+                0,
+                "Bluetooth"
+            ],
+            [
+                1,
+                "Graphics_mode"
+            ],
+            [
+                1,
+                "Char_cells"
+            ],
+            [
+                1,
+                "Pixels"
+            ],
+            [
+                1,
+                "Hardware_colours"
+            ],
+            [
+                1,
+                "used_kb"
+            ],
+            [
+                1,
+                "map"
+            ],
+            [
+                1,
+                "Type"
+            ],
+            [
+                2,
+                "Company_name"
+            ],
+            [
+                2,
+                "Hardware_Model_name"
+            ],
+            [
+                2,
+                "Accreditation_type"
+            ],
+            [
+                2,
+                "Accreditation_level"
+            ],
+            [
+                2,
+                "Date"
+            ],
+            [
+                2,
+                "chip_model"
+            ],
+            [
+                2,
+                "screen_mode"
+            ]
+        ],
+        "column_types": [
+            "text",
+            "text",
+            "number",
+            "number",
+            "number",
+            "text",
+            "text",
+            "text",
+            "number",
+            "text",
+            "text",
+            "number",
+            "number",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text",
+            "text"
+        ],
+        "db_id": "phone_1",
+        "foreign_keys": [
+            [
+                20,
+                1
+            ],
+            [
+                21,
+                8
+            ]
+        ],
+        "primary_keys": [
+            1,
+            8,
+            16
+        ],
+        "table_names": [
+            "chip model",
+            "screen mode",
+            "phone"
+        ],
+        "table_names_original": [
+            "chip_model",
+            "screen_mode",
+            "phone"
+        ]
+    },
+    {
+        "column_names": [
+            [
+                -1,
+                "*"
+            ],
+            [
+                0,
+                "attribute id"
+            ],
+            [
+                0,
+                "attribute name"
+            ],
+            [
+                0,
+                "attribute data type"
+            ],
+            [
+                1,
+                "catalog id"
+            ],
+            [
+                1,
+                "catalog name"
+            ],
+            [
+                1,
+                "catalog publisher"
+            ],
+            [
+                1,
+                "date of publication"
+            ],
+            [
+                1,
+                "date of latest revision"
+            ],
+            [
+                2,
+                "catalog level number"
+            ],
+            [
+                2,
+                "catalog id"
+            ],
+            [
+                2,
+                "catalog level name"
+            ],
+            [
+                3,
+                "catalog entry id"
+            ],
+            [
+                3,
+                "catalog level number"
+            ],
+            [
+                3,
+                "parent entry id"
+            ],
+            [
+                3,
+                "previous entry id"
+            ],
+            [
+                3,
+                "next entry id"
+            ],
+            [
+                3,
+                "catalog entry name"
+            ],
+            [
+                3,
+                "product stock number"
+            ],
+            [
+                3,
+                "price in dollars"
+            ],
+            [
+                3,
+                "price in euros"
+            ],
+            [
+                3,
+                "price in pounds"
+            ],
+            [
+                3,
+                "capacity"
+            ],
+            [
+                3,
+                "length"
+            ],
+            [
+                3,
+                "height"
+            ],
+            [
+                3,
+                "width"
             ],
             [
                 4,
-                "other_details"
+                "catalog entry id"
             ],
             [
-                5,
-                "document_id"
+                4,
+                "catalog level number"
             ],
             [
-                5,
-                "author_name"
+                4,
+                "attribute id"
             ],
             [
-                5,
-                "document_name"
+                4,
+                "attribute value"
+            ]
+        ],
+        "column_names_original": [
+            [
+                -1,
+                "*"
             ],
             [
-                5,
-                "document_description"
+                0,
+                "attribute_id"
             ],
             [
-                5,
-                "other_details"
+                0,
+                "attribute_name"
             ],
             [
-                6,
-                "process_id"
+                0,
+                "attribute_data_type"
             ],
             [
-                6,
-                "next_process_id"
+                1,
+                "catalog_id"
             ],
             [
-                6,
-                "process_name"
+                1,
+                "catalog_name"
             ],
             [
-                6,
-                "process_description"
+                1,
+                "catalog_publisher"
             ],
             [
-                6,
-                "other_details"
+                1,
+                "date_of_publication"
             ],
             [
-                7,
-                "document_id"
+                1,
+                "date_of_latest_revision"
             ],
             [
-                7,
-                "process_id"
+                2,
+                "catalog_level_number"
             ],
             [
-                7,
-                "process_outcome_code"
+                2,
+                "catalog_id"
             ],
             [
-                7,
-                "process_status_code"
+                2,
+                "catalog_level_name"
             ],
             [
-                8,
-                "document_id"
+                3,
+                "catalog_entry_id"
             ],
             [
-                8,
-                "process_id"
+                3,
+                "catalog_level_number"
             ],
             [
-                8,
-                "staff_id"
+                3,
+                "parent_entry_id"
             ],
             [
-                8,
-                "staff_role_code"
+                3,
+                "previous_entry_id"
             ],
             [
-                8,
-                "date_from"
+                3,
+                "next_entry_id"
             ],
             [
-                8,
-                "date_to"
+                3,
+                "catalog_entry_name"
             ],
             [
-                8,
-                "other_details"
+                3,
+                "product_stock_number"
+            ],
+            [
+                3,
+                "price_in_dollars"
+            ],
+            [
+                3,
+                "price_in_euros"
+            ],
+            [
+                3,
+                "price_in_pounds"
+            ],
+            [
+                3,
+                "capacity"
+            ],
+            [
+                3,
+                "length"
+            ],
+            [
+                3,
+                "height"
+            ],
+            [
+                3,
+                "width"
+            ],
+            [
+                4,
+                "catalog_entry_id"
+            ],
+            [
+                4,
+                "catalog_level_number"
+            ],
+            [
+                4,
+                "attribute_id"
+            ],
+            [
+                4,
+                "attribute_value"
             ]
         ],
         "column_types": [
@@ -934,106 +2182,71 @@
             "number",
             "text",
             "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
-            "text",
             "number",
             "text",
-            "text",
-            "text",
-            "text",
-            "number",
-            "number",
-            "text",
-            "text",
-            "text",
-            "number",
-            "number",
-            "text",
-            "text",
-            "number",
-            "number",
-            "number",
             "text",
             "time",
             "time",
+            "number",
+            "number",
+            "text",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "text",
+            "text",
+            "number",
+            "number",
+            "number",
+            "text",
+            "text",
+            "text",
+            "text",
+            "number",
+            "number",
+            "number",
             "text"
         ],
-        "db_id": "cre_Doc_Workflow",
+        "db_id": "product_catalog",
         "foreign_keys": [
             [
-                12,
+                10,
+                4
+            ],
+            [
+                13,
                 9
             ],
             [
-                24,
-                7
-            ],
-            [
-                23,
-                5
-            ],
-            [
-                22,
-                16
-            ],
-            [
-                21,
-                11
-            ],
-            [
-                28,
-                3
-            ],
-            [
-                25,
-                21
+                27,
+                9
             ],
             [
                 26,
-                22
-            ],
-            [
-                27,
-                1
+                12
             ]
         ],
         "primary_keys": [
             1,
-            3,
-            5,
-            7,
+            4,
             9,
-            11,
-            16,
-            21,
-            25
+            12
         ],
         "table_names": [
-            "staff",
-            "reference staff roles",
-            "process outcomes",
-            "process status",
-            "authors",
-            "documents",
-            "business processes",
-            "documents processes",
-            "staff in processes"
+            "attribute definitions",
+            "catalogs",
+            "catalog structure",
+            "catalog contents",
+            "catalog contents additional attributes"
         ],
         "table_names_original": [
-            "Staff",
-            "Ref_Staff_Roles",
-            "Process_Outcomes",
-            "Process_Status",
-            "Authors",
-            "Documents",
-            "Business_Processes",
-            "Documents_Processes",
-            "Staff_in_Processes"
+            "Attribute_Definitions",
+            "Catalogs",
+            "Catalog_Structure",
+            "Catalog_Contents",
+            "Catalog_Contents_Additional_Attributes"
         ]
     }
 ]

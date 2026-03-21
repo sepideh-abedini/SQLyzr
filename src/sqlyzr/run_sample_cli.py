@@ -1,6 +1,8 @@
 import argparse
+import re
 import asyncio
 import os.path
+import shutil
 from random import shuffle
 
 from dotenv import load_dotenv
@@ -27,14 +29,14 @@ def assign_cats(rows):
     return new_rows
 
 
-import re
+include_dbs = ["book_2", "musical", "phone_1", "twitter_1", "race_track", "twitter_1", "university_basketball"]
 
 
 def replace_small_json(path: str) -> str:
     return re.sub(r'\.small.*\.json$', '.json', path)
 
 
-def sample_data(conf, small_data_path, num_dbs, data_per_db):
+def sample_data(conf, small_data_path, num_dbs, data_per_db, exclude_dbs=frozenset()):
     all_test_path = replace_small_json(small_data_path)
     all_data = read_json(all_test_path)
     collect_data = dict()
@@ -46,6 +48,10 @@ def sample_data(conf, small_data_path, num_dbs, data_per_db):
     candidate_dbs = list(collect_data.keys())
     shuffle(candidate_dbs)
     for db_id in candidate_dbs:
+        if db_id not in include_dbs:
+            continue
+        if db_id in exclude_dbs:
+            continue
         if len(collect_data[db_id]) >= data_per_db:
             db_size = os.path.getsize(conf.get_db_file_path(db_id)) / (1024 * 1024)
             logger.info(f"DB Size {db_id}: {db_size:.2f} MB")
@@ -75,7 +81,7 @@ def sample_data(conf, small_data_path, num_dbs, data_per_db):
 
 async def collect_small_data(ds: DatasetConfig, num_dbs: int, data_per_db: int):
     test_dbs = sample_data(ds, ds.get_test_path(), num_dbs, data_per_db)
-    train_dbs = sample_data(ds, ds.get_train_path(), num_dbs, data_per_db)
+    train_dbs = sample_data(ds, ds.get_train_path(), num_dbs, data_per_db, frozenset(test_dbs))
     all_dbs = test_dbs.union(train_dbs)
     pick_tables = dict()
     tables = read_json(ds.get_tables_path().replace(".small", ""))
@@ -84,6 +90,10 @@ async def collect_small_data(ds: DatasetConfig, num_dbs: int, data_per_db: int):
             pick_tables[table['db_id']] = table
     logger.info(f"DBs: {pick_tables.keys()} into {ds.get_tables_path()}")
     write_json(ds.get_tables_path(), list(pick_tables.values()))
+    shutil.rmtree(ds.get_db_path() + "_small")
+    os.makedirs(ds.get_db_path() + "_small", exist_ok=True)
+    for db_id in all_dbs:
+        shutil.copytree(os.path.join(ds.get_db_path(), db_id), os.path.join(f"{ds.get_db_path()}_small", db_id))
 
 
 async def main():

@@ -1,483 +1,39 @@
 [
     {
-        "db_id": "customers_and_orders",
-        "query": "SELECT count(*) FROM Addresses",
+        "db_id": "allergy_1",
+        "query": "SELECT DISTINCT allergy FROM Allergy_type WHERE allergytype  =  \"food\"",
         "query_toks": [
             "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
+            "DISTINCT",
+            "allergy",
             "FROM",
-            "Addresses"
+            "Allergy_type",
+            "WHERE",
+            "allergytype",
+            "=",
+            "``",
+            "food",
+            "''"
         ],
         "query_toks_no_value": [
             "select",
-            "count",
-            "(",
-            "*",
-            ")",
+            "distinct",
+            "allergy",
             "from",
-            "addresses"
+            "allergy_type",
+            "where",
+            "allergytype",
+            "=",
+            "value"
         ],
-        "question": "How many addresses do we have?",
-        "question_toks": [
-            "How",
-            "many",
-            "addresses",
-            "do",
-            "we",
-            "have",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        1
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        3,
-                        [
-                            0,
-                            [
-                                0,
-                                0,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "customers_and_orders",
-        "query": "SELECT count(*) FROM Addresses",
-        "query_toks": [
-            "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
-            "FROM",
-            "Addresses"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "count",
-            "(",
-            "*",
-            ")",
-            "from",
-            "addresses"
-        ],
-        "question": "Count the number of addresses.",
-        "question_toks": [
-            "Count",
-            "the",
-            "number",
-            "of",
-            "addresses",
-            "."
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        1
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        3,
-                        [
-                            0,
-                            [
-                                0,
-                                0,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "customers_and_orders",
-        "query": "SELECT address_id ,  address_details FROM Addresses",
-        "query_toks": [
-            "SELECT",
-            "address_id",
-            ",",
-            "address_details",
-            "FROM",
-            "Addresses"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "address_id",
-            ",",
-            "address_details",
-            "from",
-            "addresses"
-        ],
-        "question": "List all address ids and address details.",
-        "question_toks": [
-            "List",
-            "all",
-            "address",
-            "ids",
-            "and",
-            "address",
-            "details",
-            "."
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        1
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                5,
-                                false
-                            ],
-                            null
-                        ]
-                    ],
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                6,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c1",
-        "sub": "s1"
-    },
-    {
-        "db_id": "customers_and_orders",
-        "query": "SELECT address_id ,  address_details FROM Addresses",
-        "query_toks": [
-            "SELECT",
-            "address_id",
-            ",",
-            "address_details",
-            "FROM",
-            "Addresses"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "address_id",
-            ",",
-            "address_details",
-            "from",
-            "addresses"
-        ],
-        "question": "What are all the address ids and address details?",
-        "question_toks": [
-            "What",
-            "are",
-            "all",
-            "the",
-            "address",
-            "ids",
-            "and",
-            "address",
-            "details",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        1
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                5,
-                                false
-                            ],
-                            null
-                        ]
-                    ],
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                6,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c1",
-        "sub": "s1"
-    },
-    {
-        "db_id": "customers_and_orders",
-        "query": "SELECT count(*) FROM Products",
-        "query_toks": [
-            "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
-            "FROM",
-            "Products"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "count",
-            "(",
-            "*",
-            ")",
-            "from",
-            "products"
-        ],
-        "question": "How many products do we have?",
-        "question_toks": [
-            "How",
-            "many",
-            "products",
-            "do",
-            "we",
-            "have",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        3,
-                        [
-                            0,
-                            [
-                                0,
-                                0,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "customers_and_orders",
-        "query": "SELECT count(*) FROM Products",
-        "query_toks": [
-            "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
-            "FROM",
-            "Products"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "count",
-            "(",
-            "*",
-            ")",
-            "from",
-            "products"
-        ],
-        "question": "Count the number of products.",
-        "question_toks": [
-            "Count",
-            "the",
-            "number",
-            "of",
-            "products",
-            "."
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        3,
-                        [
-                            0,
-                            [
-                                0,
-                                0,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "customers_and_orders",
-        "query": "SELECT product_id ,  product_type_code ,  product_name FROM Products",
-        "query_toks": [
-            "SELECT",
-            "product_id",
-            ",",
-            "product_type_code",
-            ",",
-            "product_name",
-            "FROM",
-            "Products"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "product_id",
-            ",",
-            "product_type_code",
-            ",",
-            "product_name",
-            "from",
-            "products"
-        ],
-        "question": "Show all product ids, product type codes, and product name.",
+        "question": "Show all allergies with type food.",
         "question_toks": [
             "Show",
             "all",
-            "product",
-            "ids",
-            ",",
-            "product",
+            "allergies",
+            "with",
             "type",
-            "codes",
-            ",",
-            "and",
-            "product",
-            "name",
+            "food",
             "."
         ],
         "sql": {
@@ -491,7 +47,7 @@
                 "conds": []
             },
             "select": [
-                false,
+                true,
                 [
                     [
                         0,
@@ -500,211 +56,6 @@
                             [
                                 0,
                                 1,
-                                false
-                            ],
-                            null
-                        ]
-                    ],
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                2,
-                                false
-                            ],
-                            null
-                        ]
-                    ],
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                3,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c1",
-        "sub": "s1"
-    },
-    {
-        "db_id": "customers_and_orders",
-        "query": "SELECT product_id ,  product_type_code ,  product_name FROM Products",
-        "query_toks": [
-            "SELECT",
-            "product_id",
-            ",",
-            "product_type_code",
-            ",",
-            "product_name",
-            "FROM",
-            "Products"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "product_id",
-            ",",
-            "product_type_code",
-            ",",
-            "product_name",
-            "from",
-            "products"
-        ],
-        "question": "What are the ids, type codes, and names for all products?",
-        "question_toks": [
-            "What",
-            "are",
-            "the",
-            "ids",
-            ",",
-            "type",
-            "codes",
-            ",",
-            "and",
-            "names",
-            "for",
-            "all",
-            "products",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                1,
-                                false
-                            ],
-                            null
-                        ]
-                    ],
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                2,
-                                false
-                            ],
-                            null
-                        ]
-                    ],
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                3,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c1",
-        "sub": "s1"
-    },
-    {
-        "db_id": "customers_and_orders",
-        "query": "SELECT product_price FROM Products WHERE product_name  =  \"Monitor\"",
-        "query_toks": [
-            "SELECT",
-            "product_price",
-            "FROM",
-            "Products",
-            "WHERE",
-            "product_name",
-            "=",
-            "``",
-            "Monitor",
-            "''"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "product_price",
-            "from",
-            "products",
-            "where",
-            "product_name",
-            "=",
-            "value"
-        ],
-        "question": "What is the price for the product with name Monitor?",
-        "question_toks": [
-            "What",
-            "is",
-            "the",
-            "price",
-            "for",
-            "the",
-            "product",
-            "with",
-            "name",
-            "Monitor",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        0,
-                        [
-                            0,
-                            [
-                                0,
-                                4,
                                 false
                             ],
                             null
@@ -720,12 +71,12 @@
                         0,
                         [
                             0,
-                            3,
+                            2,
                             false
                         ],
                         null
                     ],
-                    "\"Monitor\"",
+                    "\"food\"",
                     null
                 ]
             ],
@@ -738,42 +89,403 @@
             "except": null
         },
         "cat": "c2",
-        "sub": "s4"
+        "sub": "s8"
     },
     {
-        "db_id": "customers_and_orders",
-        "query": "SELECT product_price FROM Products WHERE product_name  =  \"Monitor\"",
+        "db_id": "allergy_1",
+        "query": "SELECT DISTINCT allergytype FROM Allergy_type",
         "query_toks": [
             "SELECT",
-            "product_price",
+            "DISTINCT",
+            "allergytype",
             "FROM",
-            "Products",
-            "WHERE",
-            "product_name",
-            "=",
-            "``",
-            "Monitor",
-            "''"
+            "Allergy_type"
         ],
         "query_toks_no_value": [
             "select",
-            "product_price",
+            "distinct",
+            "allergytype",
             "from",
-            "products",
-            "where",
-            "product_name",
-            "=",
-            "value"
+            "allergy_type"
         ],
-        "question": "Give the price of the Monitor product.",
+        "question": "Show all allergy types.",
+        "question_toks": [
+            "Show",
+            "all",
+            "allergy",
+            "types",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        0
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                true,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                2,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s8"
+    },
+    {
+        "db_id": "race_track",
+        "query": "SELECT DISTINCT LOCATION FROM track",
+        "query_toks": [
+            "SELECT",
+            "DISTINCT",
+            "LOCATION",
+            "FROM",
+            "track"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "distinct",
+            "location",
+            "from",
+            "track"
+        ],
+        "question": "Give the different locations of tracks.",
         "question_toks": [
             "Give",
             "the",
-            "price",
+            "different",
+            "locations",
+            "of",
+            "tracks",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        1
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                true,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                8,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s8"
+    },
+    {
+        "db_id": "allergy_1",
+        "query": "SELECT DISTINCT Major FROM Student",
+        "query_toks": [
+            "SELECT",
+            "DISTINCT",
+            "Major",
+            "FROM",
+            "Student"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "distinct",
+            "major",
+            "from",
+            "student"
+        ],
+        "question": "Show all majors.",
+        "question_toks": [
+            "Show",
+            "all",
+            "majors",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                true,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                10,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s8"
+    },
+    {
+        "db_id": "race_track",
+        "query": "SELECT DISTINCT CLASS FROM race",
+        "query_toks": [
+            "SELECT",
+            "DISTINCT",
+            "CLASS",
+            "FROM",
+            "race"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "distinct",
+            "class",
+            "from",
+            "race"
+        ],
+        "question": "Return the different classes of races.",
+        "question_toks": [
+            "Return",
+            "the",
+            "different",
+            "classes",
+            "of",
+            "races",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        0
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                true,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                3,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s8"
+    },
+    {
+        "db_id": "product_catalog",
+        "query": "SELECT catalog_entry_name FROM catalog_contents WHERE next_entry_id  >  8",
+        "query_toks": [
+            "SELECT",
+            "catalog_entry_name",
+            "FROM",
+            "catalog_contents",
+            "WHERE",
+            "next_entry_id",
+            ">",
+            "8"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "catalog_entry_name",
+            "from",
+            "catalog_contents",
+            "where",
+            "next_entry_id",
+            ">",
+            "value"
+        ],
+        "question": "What are the catalog entry names of the products with next entry ID above 8?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "catalog",
+            "entry",
+            "names",
             "of",
             "the",
-            "Monitor",
-            "product",
+            "products",
+            "with",
+            "next",
+            "entry",
+            "ID",
+            "above",
+            "8",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        3
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                17,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    3,
+                    [
+                        0,
+                        [
+                            0,
+                            16,
+                            false
+                        ],
+                        null
+                    ],
+                    8.0,
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "product_catalog",
+        "query": "SELECT attribute_data_type FROM Attribute_Definitions WHERE attribute_name  =  \"Green\"",
+        "query_toks": [
+            "SELECT",
+            "attribute_data_type",
+            "FROM",
+            "Attribute_Definitions",
+            "WHERE",
+            "attribute_name",
+            "=",
+            "``",
+            "Green",
+            "''"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "attribute_data_type",
+            "from",
+            "attribute_definitions",
+            "where",
+            "attribute_name",
+            "=",
+            "value"
+        ],
+        "question": "Find the attribute data type for the attribute named \"Green\".",
+        "question_toks": [
+            "Find",
+            "the",
+            "attribute",
+            "data",
+            "type",
+            "for",
+            "the",
+            "attribute",
+            "named",
+            "``",
+            "Green",
+            "''",
             "."
         ],
         "sql": {
@@ -795,7 +507,7 @@
                             0,
                             [
                                 0,
-                                4,
+                                3,
                                 false
                             ],
                             null
@@ -811,12 +523,12 @@
                         0,
                         [
                             0,
-                            3,
+                            2,
                             false
                         ],
                         null
                     ],
-                    "\"Monitor\"",
+                    "\"Green\"",
                     null
                 ]
             ],
@@ -832,778 +544,1089 @@
         "sub": "s4"
     },
     {
-        "db_id": "soccer_2",
-        "query": "SELECT sum(enr) FROM College",
+        "db_id": "allergy_1",
+        "query": "SELECT Advisor FROM Student WHERE StuID  =  1004",
         "query_toks": [
             "SELECT",
-            "sum",
-            "(",
-            "enr",
-            ")",
+            "Advisor",
             "FROM",
-            "College"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "sum",
-            "(",
-            "enr",
-            ")",
-            "from",
-            "college"
-        ],
-        "question": "What is the total enrollment number of all colleges?",
-        "question_toks": [
-            "What",
-            "is",
-            "the",
-            "total",
-            "enrollment",
-            "number",
-            "of",
-            "all",
-            "colleges",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        4,
-                        [
-                            0,
-                            [
-                                0,
-                                3,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "soccer_2",
-        "query": "SELECT sum(enr) FROM College",
-        "query_toks": [
-            "SELECT",
-            "sum",
-            "(",
-            "enr",
-            ")",
-            "FROM",
-            "College"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "sum",
-            "(",
-            "enr",
-            ")",
-            "from",
-            "college"
-        ],
-        "question": "How many students are enrolled in college?",
-        "question_toks": [
-            "How",
-            "many",
-            "students",
-            "are",
-            "enrolled",
-            "in",
-            "college",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        4,
-                        [
-                            0,
-                            [
-                                0,
-                                3,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "soccer_2",
-        "query": "SELECT avg(enr) FROM College",
-        "query_toks": [
-            "SELECT",
-            "avg",
-            "(",
-            "enr",
-            ")",
-            "FROM",
-            "College"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "avg",
-            "(",
-            "enr",
-            ")",
-            "from",
-            "college"
-        ],
-        "question": "What is the average enrollment number?",
-        "question_toks": [
-            "What",
-            "is",
-            "the",
-            "average",
-            "enrollment",
-            "number",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        5,
-                        [
-                            0,
-                            [
-                                0,
-                                3,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "soccer_2",
-        "query": "SELECT avg(enr) FROM College",
-        "query_toks": [
-            "SELECT",
-            "avg",
-            "(",
-            "enr",
-            ")",
-            "FROM",
-            "College"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "avg",
-            "(",
-            "enr",
-            ")",
-            "from",
-            "college"
-        ],
-        "question": "How many students, on average, does each college have enrolled?",
-        "question_toks": [
-            "How",
-            "many",
-            "students",
-            ",",
-            "on",
-            "average",
-            ",",
-            "does",
-            "each",
-            "college",
-            "have",
-            "enrolled",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        5,
-                        [
-                            0,
-                            [
-                                0,
-                                3,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "soccer_2",
-        "query": "SELECT count(*) FROM College",
-        "query_toks": [
-            "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
-            "FROM",
-            "College"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "count",
-            "(",
-            "*",
-            ")",
-            "from",
-            "college"
-        ],
-        "question": "How many colleges in total?",
-        "question_toks": [
-            "How",
-            "many",
-            "colleges",
-            "in",
-            "total",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        3,
-                        [
-                            0,
-                            [
-                                0,
-                                0,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "soccer_2",
-        "query": "SELECT count(*) FROM College",
-        "query_toks": [
-            "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
-            "FROM",
-            "College"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "count",
-            "(",
-            "*",
-            ")",
-            "from",
-            "college"
-        ],
-        "question": "How many different colleges are there?",
-        "question_toks": [
-            "How",
-            "many",
-            "different",
-            "colleges",
-            "are",
-            "there",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        3,
-                        [
-                            0,
-                            [
-                                0,
-                                0,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "soccer_2",
-        "query": "SELECT count(*) FROM Player WHERE HS  >  1000",
-        "query_toks": [
-            "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
-            "FROM",
-            "Player",
+            "Student",
             "WHERE",
-            "HS",
-            ">",
-            "1000"
+            "StuID",
+            "=",
+            "1004"
         ],
         "query_toks_no_value": [
             "select",
-            "count",
-            "(",
-            "*",
-            ")",
+            "advisor",
             "from",
-            "player",
-            "where",
-            "hs",
-            ">",
-            "value"
-        ],
-        "question": "How many players have more than 1000 hours of training?",
-        "question_toks": [
-            "How",
-            "many",
-            "players",
-            "have",
-            "more",
-            "than",
-            "1000",
-            "hours",
-            "of",
-            "training",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        1
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        3,
-                        [
-                            0,
-                            [
-                                0,
-                                0,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [
-                [
-                    false,
-                    3,
-                    [
-                        0,
-                        [
-                            0,
-                            7,
-                            false
-                        ],
-                        null
-                    ],
-                    1000.0,
-                    null
-                ]
-            ],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "soccer_2",
-        "query": "SELECT count(*) FROM Player WHERE HS  >  1000",
-        "query_toks": [
-            "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
-            "FROM",
-            "Player",
-            "WHERE",
-            "HS",
-            ">",
-            "1000"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "count",
-            "(",
-            "*",
-            ")",
-            "from",
-            "player",
-            "where",
-            "hs",
-            ">",
-            "value"
-        ],
-        "question": "How many different players trained for more than 1000 hours?",
-        "question_toks": [
-            "How",
-            "many",
-            "different",
-            "players",
-            "trained",
-            "for",
-            "more",
-            "than",
-            "1000",
-            "hours",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        1
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        3,
-                        [
-                            0,
-                            [
-                                0,
-                                0,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [
-                [
-                    false,
-                    3,
-                    [
-                        0,
-                        [
-                            0,
-                            7,
-                            false
-                        ],
-                        null
-                    ],
-                    1000.0,
-                    null
-                ]
-            ],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "soccer_2",
-        "query": "SELECT count(*) FROM College WHERE enr  >  15000",
-        "query_toks": [
-            "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
-            "FROM",
-            "College",
-            "WHERE",
-            "enr",
-            ">",
-            "15000"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "count",
-            "(",
-            "*",
-            ")",
-            "from",
-            "college",
-            "where",
-            "enr",
-            ">",
-            "value"
-        ],
-        "question": "How many colleges has more than 15000 students?",
-        "question_toks": [
-            "How",
-            "many",
-            "colleges",
-            "has",
-            "more",
-            "than",
-            "15000",
-            "students",
-            "?"
-        ],
-        "sql": {
-            "from": {
-                "table_units": [
-                    [
-                        "table_unit",
-                        0
-                    ]
-                ],
-                "conds": []
-            },
-            "select": [
-                false,
-                [
-                    [
-                        3,
-                        [
-                            0,
-                            [
-                                0,
-                                0,
-                                false
-                            ],
-                            null
-                        ]
-                    ]
-                ]
-            ],
-            "where": [
-                [
-                    false,
-                    3,
-                    [
-                        0,
-                        [
-                            0,
-                            3,
-                            false
-                        ],
-                        null
-                    ],
-                    15000.0,
-                    null
-                ]
-            ],
-            "groupBy": [],
-            "having": [],
-            "orderBy": [],
-            "limit": null,
-            "intersect": null,
-            "union": null,
-            "except": null
-        },
-        "cat": "c2",
-        "sub": "s6"
-    },
-    {
-        "db_id": "soccer_2",
-        "query": "SELECT count(*) FROM College WHERE enr  >  15000",
-        "query_toks": [
-            "SELECT",
-            "count",
-            "(",
-            "*",
-            ")",
-            "FROM",
-            "College",
-            "WHERE",
-            "enr",
-            ">",
-            "15000"
-        ],
-        "query_toks_no_value": [
-            "select",
-            "count",
-            "(",
-            "*",
-            ")",
-            "from",
-            "college",
-            "where",
-            "enr",
-            ">",
-            "value"
-        ],
-        "question": "What is the number of colleges with a student population greater than 15000?",
-        "question_toks": [
-            "What",
-            "is",
-            "the",
-            "number",
-            "of",
-            "colleges",
-            "with",
-            "a",
             "student",
-            "population",
+            "where",
+            "stuid",
+            "=",
+            "value"
+        ],
+        "question": "Who is the advisor of student with ID 1004?",
+        "question_toks": [
+            "Who",
+            "is",
+            "the",
+            "advisor",
+            "of",
+            "student",
+            "with",
+            "ID",
+            "1004",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                11,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            5,
+                            false
+                        ],
+                        null
+                    ],
+                    1004.0,
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "allergy_1",
+        "query": "SELECT city_code FROM Student WHERE LName  =  \"Kim\"",
+        "query_toks": [
+            "SELECT",
+            "city_code",
+            "FROM",
+            "Student",
+            "WHERE",
+            "LName",
+            "=",
+            "``",
+            "Kim",
+            "''"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "city_code",
+            "from",
+            "student",
+            "where",
+            "lname",
+            "=",
+            "value"
+        ],
+        "question": "Which city does the student whose last name is \"Kim\" live in?",
+        "question_toks": [
+            "Which",
+            "city",
+            "does",
+            "the",
+            "student",
+            "whose",
+            "last",
+            "name",
+            "is",
+            "``",
+            "Kim",
+            "''",
+            "live",
+            "in",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                12,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            6,
+                            false
+                        ],
+                        null
+                    ],
+                    "\"Kim\"",
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "match_season",
+        "query": "SELECT Player FROM match_season WHERE College  =  \"UCLA\"",
+        "query_toks": [
+            "SELECT",
+            "Player",
+            "FROM",
+            "match_season",
+            "WHERE",
+            "College",
+            "=",
+            "``",
+            "UCLA",
+            "''"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "player",
+            "from",
+            "match_season",
+            "where",
+            "college",
+            "=",
+            "value"
+        ],
+        "question": "Who are the players from UCLA?",
+        "question_toks": [
+            "Who",
+            "are",
+            "the",
+            "players",
+            "from",
+            "UCLA",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                8,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            14,
+                            false
+                        ],
+                        null
+                    ],
+                    "\"UCLA\"",
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "race_track",
+        "query": "SELECT name ,  seating FROM track WHERE year_opened  >  2000 ORDER BY seating",
+        "query_toks": [
+            "SELECT",
+            "name",
+            ",",
+            "seating",
+            "FROM",
+            "track",
+            "WHERE",
+            "year_opened",
+            ">",
+            "2000",
+            "ORDER",
+            "BY",
+            "seating"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "name",
+            ",",
+            "seating",
+            "from",
+            "track",
+            "where",
+            "year_opened",
+            ">",
+            "value",
+            "order",
+            "by",
+            "seating"
+        ],
+        "question": "What are the names and seatings for all tracks opened after 2000, ordered by seating?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "names",
+            "and",
+            "seatings",
+            "for",
+            "all",
+            "tracks",
+            "opened",
+            "after",
+            "2000",
+            ",",
+            "ordered",
+            "by",
+            "seating",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        1
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                7,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                9,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    3,
+                    [
+                        0,
+                        [
+                            0,
+                            10,
+                            false
+                        ],
+                        null
+                    ],
+                    2000.0,
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [
+                "asc",
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            9,
+                            false
+                        ],
+                        null
+                    ]
+                ]
+            ],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "university_basketball",
+        "query": "SELECT school ,  LOCATION FROM university WHERE affiliation  =  'Public'",
+        "query_toks": [
+            "SELECT",
+            "school",
+            ",",
+            "LOCATION",
+            "FROM",
+            "university",
+            "WHERE",
+            "affiliation",
+            "=",
+            "'Public",
+            "'"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "school",
+            ",",
+            "location",
+            "from",
+            "university",
+            "where",
+            "affiliation",
+            "=",
+            "value"
+        ],
+        "question": "What are the public schools and what are their locations?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "public",
+            "schools",
+            "and",
+            "what",
+            "are",
+            "their",
+            "locations",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        1
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                14,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                15,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            17,
+                            false
+                        ],
+                        null
+                    ],
+                    "\"Public\"",
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "phone_1",
+        "query": "SELECT chip_model ,  screen_mode FROM phone WHERE Hardware_Model_name = \"LG-P760\";",
+        "query_toks": [
+            "SELECT",
+            "chip_model",
+            ",",
+            "screen_mode",
+            "FROM",
+            "phone",
+            "WHERE",
+            "Hardware_Model_name",
+            "=",
+            "``",
+            "LG-P760",
+            "''",
+            ";"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "chip_model",
+            ",",
+            "screen_mode",
+            "from",
+            "phone",
+            "where",
+            "hardware_model_name",
+            "=",
+            "value"
+        ],
+        "question": "What are the chip model and screen mode of the phone with hardware model name \"LG-P760\"?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "chip",
+            "model",
+            "and",
+            "screen",
+            "mode",
+            "of",
+            "the",
+            "phone",
+            "with",
+            "hardware",
+            "model",
+            "name",
+            "``",
+            "LG-P760",
+            "''",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                20,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                21,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            16,
+                            false
+                        ],
+                        null
+                    ],
+                    "\"LG-P760\"",
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "allergy_1",
+        "query": "SELECT StuID FROM Student WHERE age  >  20",
+        "query_toks": [
+            "SELECT",
+            "StuID",
+            "FROM",
+            "Student",
+            "WHERE",
+            "age",
+            ">",
+            "20"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "stuid",
+            "from",
+            "student",
+            "where",
+            "age",
+            ">",
+            "value"
+        ],
+        "question": "What are the student ids for students over 20 years old?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "student",
+            "ids",
+            "for",
+            "students",
+            "over",
+            "20",
+            "years",
+            "old",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                5,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    3,
+                    [
+                        0,
+                        [
+                            0,
+                            8,
+                            false
+                        ],
+                        null
+                    ],
+                    20.0,
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "allergy_1",
+        "query": "SELECT Advisor FROM Student WHERE StuID  =  1004",
+        "query_toks": [
+            "SELECT",
+            "Advisor",
+            "FROM",
+            "Student",
+            "WHERE",
+            "StuID",
+            "=",
+            "1004"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "advisor",
+            "from",
+            "student",
+            "where",
+            "stuid",
+            "=",
+            "value"
+        ],
+        "question": "Who advises student 1004?",
+        "question_toks": [
+            "Who",
+            "advises",
+            "student",
+            "1004",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                11,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            5,
+                            false
+                        ],
+                        null
+                    ],
+                    1004.0,
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "allergy_1",
+        "query": "SELECT allergytype FROM Allergy_type WHERE allergy  =  \"Cat\"",
+        "query_toks": [
+            "SELECT",
+            "allergytype",
+            "FROM",
+            "Allergy_type",
+            "WHERE",
+            "allergy",
+            "=",
+            "``",
+            "Cat",
+            "''"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "allergytype",
+            "from",
+            "allergy_type",
+            "where",
+            "allergy",
+            "=",
+            "value"
+        ],
+        "question": "What is the type of allergy Cat?",
+        "question_toks": [
+            "What",
+            "is",
+            "the",
+            "type",
+            "of",
+            "allergy",
+            "Cat",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        0
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                2,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            1,
+                            false
+                        ],
+                        null
+                    ],
+                    "\"Cat\"",
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "allergy_1",
+        "query": "SELECT Fname ,  Lname ,  Age FROM Student WHERE Sex  =  'F'",
+        "query_toks": [
+            "SELECT",
+            "Fname",
+            ",",
+            "Lname",
+            ",",
+            "Age",
+            "FROM",
+            "Student",
+            "WHERE",
+            "Sex",
+            "=",
+            "'F",
+            "'"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "fname",
+            ",",
+            "lname",
+            ",",
+            "age",
+            "from",
+            "student",
+            "where",
+            "sex",
+            "=",
+            "value"
+        ],
+        "question": "What are the full names and ages for all female students whose sex is F?",
+        "question_toks": [
+            "What",
+            "are",
+            "the",
+            "full",
+            "names",
+            "and",
+            "ages",
+            "for",
+            "all",
+            "female",
+            "students",
+            "whose",
+            "sex",
+            "is",
+            "F",
+            "?"
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                7,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                6,
+                                false
+                            ],
+                            null
+                        ]
+                    ],
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                8,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            9,
+                            false
+                        ],
+                        null
+                    ],
+                    "\"F\"",
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "product_catalog",
+        "query": "SELECT catalog_entry_name FROM catalog_contents WHERE next_entry_id  >  8",
+        "query_toks": [
+            "SELECT",
+            "catalog_entry_name",
+            "FROM",
+            "catalog_contents",
+            "WHERE",
+            "next_entry_id",
+            ">",
+            "8"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "catalog_entry_name",
+            "from",
+            "catalog_contents",
+            "where",
+            "next_entry_id",
+            ">",
+            "value"
+        ],
+        "question": "Name all the products with next entry ID greater than 8.",
+        "question_toks": [
+            "Name",
+            "all",
+            "the",
+            "products",
+            "with",
+            "next",
+            "entry",
+            "ID",
             "greater",
             "than",
-            "15000",
-            "?"
+            "8",
+            "."
         ],
         "sql": {
             "from": {
                 "table_units": [
                     [
                         "table_unit",
-                        0
+                        3
                     ]
                 ],
                 "conds": []
@@ -1612,12 +1635,12 @@
                 false,
                 [
                     [
-                        3,
+                        0,
                         [
                             0,
                             [
                                 0,
-                                0,
+                                17,
                                 false
                             ],
                             null
@@ -1633,12 +1656,12 @@
                         0,
                         [
                             0,
-                            3,
+                            16,
                             false
                         ],
                         null
                     ],
-                    15000.0,
+                    8.0,
                     null
                 ]
             ],
@@ -1651,6 +1674,189 @@
             "except": null
         },
         "cat": "c2",
-        "sub": "s6"
+        "sub": "s4"
+    },
+    {
+        "db_id": "twitter_1",
+        "query": "SELECT email FROM user_profiles WHERE name  =  'Mary'",
+        "query_toks": [
+            "SELECT",
+            "email",
+            "FROM",
+            "user_profiles",
+            "WHERE",
+            "name",
+            "=",
+            "'Mary",
+            "'"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "email",
+            "from",
+            "user_profiles",
+            "where",
+            "name",
+            "=",
+            "value"
+        ],
+        "question": "Find the emails of the user named \"Mary\".",
+        "question_toks": [
+            "Find",
+            "the",
+            "emails",
+            "of",
+            "the",
+            "user",
+            "named",
+            "``",
+            "Mary",
+            "''",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                9,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            8,
+                            false
+                        ],
+                        null
+                    ],
+                    "\"Mary\"",
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
+    },
+    {
+        "db_id": "allergy_1",
+        "query": "SELECT StuID FROM Student WHERE Sex  =  'M'",
+        "query_toks": [
+            "SELECT",
+            "StuID",
+            "FROM",
+            "Student",
+            "WHERE",
+            "Sex",
+            "=",
+            "'M",
+            "'"
+        ],
+        "query_toks_no_value": [
+            "select",
+            "stuid",
+            "from",
+            "student",
+            "where",
+            "sex",
+            "=",
+            "value"
+        ],
+        "question": "Show student ids for all male students.",
+        "question_toks": [
+            "Show",
+            "student",
+            "ids",
+            "for",
+            "all",
+            "male",
+            "students",
+            "."
+        ],
+        "sql": {
+            "from": {
+                "table_units": [
+                    [
+                        "table_unit",
+                        2
+                    ]
+                ],
+                "conds": []
+            },
+            "select": [
+                false,
+                [
+                    [
+                        0,
+                        [
+                            0,
+                            [
+                                0,
+                                5,
+                                false
+                            ],
+                            null
+                        ]
+                    ]
+                ]
+            ],
+            "where": [
+                [
+                    false,
+                    2,
+                    [
+                        0,
+                        [
+                            0,
+                            9,
+                            false
+                        ],
+                        null
+                    ],
+                    "\"M\"",
+                    null
+                ]
+            ],
+            "groupBy": [],
+            "having": [],
+            "orderBy": [],
+            "limit": null,
+            "intersect": null,
+            "union": null,
+            "except": null
+        },
+        "cat": "c2",
+        "sub": "s4"
     }
 ]
