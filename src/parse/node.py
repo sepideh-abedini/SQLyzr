@@ -19,7 +19,7 @@ class SqlAstNode(ABC):
         pass
 
     def log_self(self):
-        logger.info(f"{self.__class__.__name__}: {str(self)}")
+        logger.debug(f"{self.__class__.__name__}: {str(self)}")
         pass
 
     def __hash__(self):

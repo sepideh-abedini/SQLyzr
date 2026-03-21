@@ -1,8 +1,13 @@
+import threading
+
 from flask import Flask
+
 
 class BaseAPI:
     """Base class for all API classes"""
-    
+
+    _lock = threading.Lock()
+
     def __init__(self, app: Flask, config_file: str):
         """
         Initialize the API class
@@ -13,7 +18,7 @@ class BaseAPI:
         """
         self.app = app
         self.config_file = config_file
-        
+
     def register_routes(self):
         """
         Register routes with the Flask application.

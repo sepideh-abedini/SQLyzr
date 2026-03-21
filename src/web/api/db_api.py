@@ -1,12 +1,17 @@
 import os
 from flask import jsonify, request
+from loguru import logger
+
 from .base_api import BaseAPI
+from ...configs.config_loader import load_config
 from ...configs.datasets import SPIDER_ALL
+from ...new_scale.apply_sdv import apply_scaling
 from ...rel.db_facade import DatabaseFacade
 from ...rel.db_factory import DatabaseFactory
 from ...scalar.tmp import scale_db
 from ...scalar.utils.export_ddls import revert_backup
 from ...scalar.utils.table_meta import get_tables, exec_sql
+from ...sqlyzr.run_scale_cli import verify_hash, save_hash
 from ...util.file_utils import read_json
 
 
@@ -18,6 +23,7 @@ class DBAPI(BaseAPI):
         self.app.route('/api/db/table_rows', methods=['GET'])(self.get_table_rows)
         self.app.route('/api/db/scale', methods=['POST'])(self.scale_db)
         self.app.route('/api/db/revert', methods=['GET'])(self.revert)
+        self.app.route('/api/db/factors', methods=['GET'])(self.get_scaled_factor)
 
     def list_databases(self):
         conf = SPIDER_ALL
@@ -97,3 +103,24 @@ class DBAPI(BaseAPI):
             return jsonify({"message": "Database reverted successfully"})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+
+    def get_scaled_factor(self):
+        with BaseAPI._lock:
+            conf = load_config(self.config_file)
+            db_ids = set()
+            ds_conf = conf.eval_conf.dataset_configs[0]
+            data = read_json(ds_conf.get_test_path())
+            db_ids = db_ids.union(set(map(lambda x: x["db_id"], data)))
+            db_ids = sorted(list(db_ids))
+            scales = conf.eval_conf.scales
+            verified_scales = []
+            for scale in scales:
+                if scale <= 1:
+                    continue
+                if verify_hash(ds_conf, scale):
+                    logger.info(f"Scaling for scale = {scale} exist, skipping!")
+                    verified_scales.append(scale)
+                    continue
+            return jsonify({
+                "verified_scales": verified_scales,
+            }), 200

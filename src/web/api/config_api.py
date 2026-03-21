@@ -1,15 +1,11 @@
-import os
 import shutil
 
 from flask import jsonify, request
-from src.util.file_utils import read_json, write_json
-from src.sqlyzr.sqlyzr import Sqlyzr
-from .base_api import BaseAPI
 from loguru import logger
-import threading
 
-_lock = threading.Lock()
-
+from src.sqlyzr.sqlyzr import Sqlyzr
+from src.util.file_utils import read_json, write_json
+from .base_api import BaseAPI
 from ...configs.config_loader import ConfigData, load_config
 
 
@@ -33,7 +29,7 @@ class ConfigAPI(BaseAPI):
         return jsonify({"message": "Configuration file reset to original!"})
 
     def update_config(self):
-        with _lock:
+        with BaseAPI._lock:
             try:
                 old_config = ConfigData.load(self.config_file)
                 old_config = old_config.dict()

@@ -1,7 +1,7 @@
 <template>
   <div class="config">
     <Toast position="bottom-right" />
-    <!--    <h1>{{loading}}</h1>-->
+    <h1>{{ valid_scales }}</h1>
     <Card>
       <template #content>
         <div class="grid">
@@ -151,6 +151,7 @@
                       :on-label="step"
                       :off-label="step"
                       class="text-capitalize"
+                      :disabled="step !== 'scale' && !valid_scales"
                     />
                     <i
                       v-if="index < sorted_pipeline_steps.length - 1"
@@ -323,6 +324,8 @@ export default {
       size_options: ['small'],
       selected_version: null,
       initialized: false,
+      verified_scales: [],
+      valid_scales: false,
       config: {
         models: [],
         dataset: '',
@@ -607,6 +610,10 @@ export default {
       const response = await this.call_api('api/config/reset', { method: 'POST' }, true)
       await this.fetchConfig()
     },
+
+    async getVerifiedScales() {
+      return await this.call_api('api/db/factors', {}, false)
+    },
   },
   watch: {
     config: {
@@ -644,6 +651,27 @@ export default {
             .map((v) => parseInt(v.replace('v', ''), 10))
             .reduce((a, b) => Math.max(a, b), 0)
           this.selected_version = `v${highest}`
+        }
+      },
+      deep: true,
+    },
+
+    'config.scales': {
+      async handler(newArr) {
+        const result = await this.getVerifiedScales()
+        console.log('VERIFIED SCALES:', result)
+        const verified_scales = result.verified_scales
+        console.log('SCALES:', result.verified_scales, this.config.scales)
+        const isSubset = (a, b) => a.every((v) => b.includes(v))
+        this.valid_scales = isSubset(this.config.scales, verified_scales)
+        if (!this.valid_scales) {
+          this.$toast.add({
+            severity: 'warn',
+            summary: 'Databases not scaled!',
+            detail: 'To use the selected scaling factors, you must run the scaling pipeline first.',
+            sticky: true,
+          })
+          this.selected_pipeline_mode = 'Scaling'
         }
       },
       deep: true,
