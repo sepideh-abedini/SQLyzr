@@ -348,6 +348,9 @@ class Drawer:
 
     def draw_scale_plot(self, metric):
         df = self.df
+        if metric not in df.columns:
+            return
+
         x = 'scale'
         num_x = self.df[x].nunique()
         width = max(5, num_x * (bar_width + bar_spacing))
