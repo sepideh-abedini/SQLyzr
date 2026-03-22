@@ -71,7 +71,6 @@ class ResultsAPI(BaseAPI):
             if os.path.exists(sqlyzr.conf.eval_conf.charts_dir):
                 hues = [os.path.basename(f) for f in os.listdir(sqlyzr.conf.eval_conf.charts_dir)]
                 for hue in hues:
-                    avail_charts[hue] = []
                     hue_dir = os.path.join(sqlyzr.conf.eval_conf.charts_dir, hue)
                     if os.path.exists(hue_dir) and os.path.isdir(hue_dir):
                         chart_names = [os.path.basename(f) for f in os.listdir(hue_dir)]

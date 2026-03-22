@@ -13,29 +13,25 @@
     ],
     "itrs": 1,
     "models": [
-        "din"
+        "direct"
     ],
     "batch": false,
     "force": false,
     "pipeline": {
         "augment": false,
-        "charts": false,
-        "eval": false,
-        "predict": false,
-        "scale": true,
+        "charts": true,
+        "eval": true,
+        "predict": true,
+        "scale": false,
         "transformers": false,
         "verify": false
     },
     "charts": [
-        "Execution Accuracy",
-        "Relaxed Execution Accuracy",
-        "Execution Accuracy-Scaled"
+        "Overall"
     ],
-    "etcr": 1,
+    "etcr": 1.46,
     "scales": [
-        1,
-        2,
-        3
+        1
     ],
     "eval_force": true,
     "pipeline_status": {
