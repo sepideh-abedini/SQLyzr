@@ -362,7 +362,7 @@ export default {
       chartOptions: [
         'Overall',
         'Execution Accuracy',
-        'Relaxed Execution Accuracy',
+        // 'Relaxed Execution Accuracy',
         'Exact Match',
         'Execution Time',
         'Token Usage',

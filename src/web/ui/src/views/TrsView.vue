@@ -15,7 +15,7 @@
         </template>
 
         <template #value="slotProps">
-          <span>
+          <span v-if="trsData[slotProps.value]">
             {{ format_file_name(trsData[slotProps.value].name) }}
           </span>
         </template>
