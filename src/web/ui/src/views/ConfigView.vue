@@ -540,7 +540,7 @@ export default {
     },
     async killSqlyzr() {
       await this.call_api(`/api/process/kill`, { method: 'POST' })
-      // this.setInterval()
+      this.setInterval()
       this.$toast.add({
         severity: 'success',
         summary: 'SQLyzr stopped!',

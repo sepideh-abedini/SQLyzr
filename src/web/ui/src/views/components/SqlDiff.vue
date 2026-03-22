@@ -6,6 +6,13 @@
       <div class="trs-item-content">
         <div class="trs-sql">
           <Tag severity="warn">Predicted SQL</Tag>
+          <Button
+            class="ml-2 mb-1"
+            :label="isDiffVisible ? 'Hide Diff' : 'Show Diff'"
+            :icon="isDiffVisible ? 'pi pi-eye-slash' : 'pi pi-eye'"
+            @click="isDiffVisible = !isDiffVisible"
+            size="small"
+          />
           <pre v-html="isDiffVisible ? calculateDiff(pred, gold) : highlightSQL(pred)"></pre>
         </div>
         <div class="trs-sql">
@@ -13,11 +20,6 @@
           <pre v-html="highlightSQL(gold)"></pre>
         </div>
       </div>
-      <Button
-        :label="isDiffVisible ? 'Hide Diff' : 'Show Diff'"
-        :icon="isDiffVisible ? 'pi pi-eye-slash' : 'pi pi-eye'"
-        @click="isDiffVisible = !isDiffVisible"
-      />
     </div>
   </div>
 </template>

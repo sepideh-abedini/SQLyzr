@@ -148,7 +148,7 @@ DATASETS = {
         "small": [SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL]
     },
     "bird": {
-        "small": [SPIDER_SMALL],
+        "small": [BIRD_SMALL],
         "full": [BIRD_ALL],
         "bad": [BIRD_BAD],
         "mask": [BIRD_MASK],
