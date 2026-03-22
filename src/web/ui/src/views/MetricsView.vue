@@ -8,7 +8,7 @@
       <TabList>
         <Tab value="0"><h2>EA</h2></Tab>
         <Tab value="1"><h2>EM</h2></Tab>
-        <Tab value="2"><h2>REA</h2></Tab>
+<!--        <Tab value="2"><h2>REA</h2></Tab>-->
         <Tab value="3"><h2>TU</h2></Tab>
         <Tab value="4"><h2>CC</h2></Tab>
         <Tab value="5"><h2>ETC</h2></Tab>

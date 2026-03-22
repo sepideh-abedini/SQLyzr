@@ -1,3 +1,4 @@
+import os
 import shutil
 
 from src.chart.charter import draw_all_charts
@@ -31,6 +32,10 @@ class Sqlyzr:
             run_status.verify = True
             self.messanger.write(f"Verify DONE!!")
 
+        if self.conf.pipeline.scale:
+            scales = scale_dbs(self.conf_path)
+            self.messanger.write(f"Scaling for factors {scales} completed")
+
         if self.conf.pipeline.predict:
             await run_model(self.conf)
             run_status.predict = True
@@ -44,10 +49,14 @@ class Sqlyzr:
             self.messanger.write(f"Evaluation completed!")
 
         if self.conf.pipeline.charts:
+            shutil.rmtree(self.conf.eval_conf.charts_dir)
+            os.makedirs(self.conf.eval_conf.charts_dir, exist_ok=True)
             for hue in ["Model", "dst_ver"]:
                 draw_all_charts(self.conf.eval_conf.get_raw_scores_path(),
                                 out_dir=self.conf.eval_conf.charts_dir,
-                                included_charts=self.conf.eval_conf.included_charts, hue=hue)
+                                included_charts=self.conf.eval_conf.included_charts,
+                                hue=hue,
+                                scaled_plots=len(self.conf.eval_conf.scales) > 1)
             run_status.charts = True
 
         if self.conf.pipeline.transformers:
@@ -66,7 +75,3 @@ class Sqlyzr:
             shutil.copy(self.conf_path, f"{self.conf_path}.bak")
             conf_data.save(self.conf_path)
             self.messanger.write(f"Data augmentation done: {cur_ver} -> {new_ver}")
-
-        if self.conf.pipeline.scale:
-            scales = scale_dbs(self.conf_path)
-            self.messanger.write(f"Scaling for factors {scales} completed")

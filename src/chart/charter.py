@@ -20,7 +20,7 @@ from src.sqlyzr.chart_config import ChartName
 # exit(0)
 
 
-def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartName], hue):
+def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartName], hue, scaled_plots: bool = False):
     # if os.path.exists(out_dir):
     #     shutil.rmtree(out_dir)
     #     os.mkdir(out_dir)
@@ -31,10 +31,10 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
     if "Overall" in included_charts:
         drawer.draw_overall()
 
-    drawer = Drawer(scores_path, show=False, out_dir=out_dir, hue="scale")
-    scaled_metrics = [c.replace("-Scaled", "") for c in included_charts if "Scaled" in c]
-    for metric in scaled_metrics:
-        drawer.draw_scale_plot(metric)
+    if scaled_plots:
+        drawer = Drawer(scores_path, show=False, out_dir=out_dir, hue="scale")
+        for metric in included_charts:
+            drawer.draw_scale_plot(metric)
 
     drawer = Drawer(scores_path, include_all=True, show=False, out_dir=out_dir, hue=hue)
     metrics = [
@@ -43,6 +43,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartN
         "Exact Match",
         "Execution Time",
         "Token Usage",
+        "Gold Execution Time"
     ]
     for metric in tqdm.tqdm(metrics):
         if metric in included_charts:

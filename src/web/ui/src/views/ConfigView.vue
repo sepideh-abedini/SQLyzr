@@ -125,7 +125,7 @@
           <div class="md:col-6 p-2 config-section">
             <div class="config-section">
               <FormField class="mb-3">
-                <label class="field-label">Error Threshold (Min Acceptable REA):</label>
+                <label class="field-label">Error Threshold (Min Acceptable EA):</label>
                 <div class="flex justify-content-center mt-2">
                   <Knob
                     value-color="red"
@@ -369,14 +369,7 @@ export default {
         'Execution Time Consistency',
         'Complexity Consistency',
         'Category Distribution',
-        'Gold Execution Time',
-        'Overall',
-        'Execution Accuracy-Scaled',
-        'Relaxed Execution Accuracy-Scaled',
-        'Exact Match-Scaled',
-        'Execution Time Consistency-Scaled',
-        'Complexity Consistency-Scaled',
-        'Gold Execution Time-Scaled',
+        'Gold Execution Time'
       ],
     }
   },
