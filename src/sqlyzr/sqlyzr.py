@@ -51,7 +51,7 @@ class Sqlyzr:
         if self.conf.pipeline.charts:
             shutil.rmtree(self.conf.eval_conf.charts_dir)
             os.makedirs(self.conf.eval_conf.charts_dir, exist_ok=True)
-            for hue in ["Model", "dst_ver"]:
+            for hue in ["System", "Workload Version"]:
                 draw_all_charts(self.conf.eval_conf.get_raw_scores_path(),
                                 out_dir=self.conf.eval_conf.charts_dir,
                                 included_charts=self.conf.eval_conf.included_charts,

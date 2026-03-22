@@ -27,9 +27,7 @@
         "verify": false
     },
     "charts": [
-        "Execution Accuracy",
-        "Relaxed Execution Accuracy",
-        "Execution Accuracy-Scaled"
+        "Execution Accuracy"
     ],
     "etcr": 1,
     "scales": [

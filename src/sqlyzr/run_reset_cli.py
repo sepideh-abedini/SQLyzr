@@ -18,7 +18,7 @@ async def main():
     draw_all_charts(conf.eval_conf.get_raw_scores_path(),
                     out_dir=conf.eval_conf.charts_dir,
                     included_charts=["Category Distribution"],
-                    hue="dst_ver")
+                    hue="Workload Version",)
 
 
 if __name__ == "__main__":

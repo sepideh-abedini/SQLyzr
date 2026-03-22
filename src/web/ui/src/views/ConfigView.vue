@@ -369,7 +369,7 @@ export default {
         'Execution Time Consistency',
         'Complexity Consistency',
         'Category Distribution',
-        'Gold Execution Time'
+        'Gold Execution Time',
       ],
     }
   },
