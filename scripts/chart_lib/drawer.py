@@ -1,4 +1,6 @@
 import os.path
+from typing import Optional
+
 from loguru import logger
 
 import pandas as pd
@@ -12,6 +14,9 @@ from pandas import DataFrame
 
 SHOW_ERROR_BAR = True
 
+FIG_HEIGHT = 5
+BAR_WIDTH = 0.8
+
 # plt.rcParams["font.size"] = 24
 # plt.rcParams["font.weight"] = "bold"
 # plt.rcParams["lines.linewidth"] = 3
@@ -20,6 +25,22 @@ SHOW_ERROR_BAR = True
 #
 ET_TRESH = 0.1
 INCLUDE_ALL = True
+
+
+def fix_plot_size(df: pd.DataFrame, x: str, hue: str, scale=1):
+    num_x = len(df[x].unique())
+    num_h = len(df[hue].unique())
+    base_width = num_x
+    width = (base_width * max(scale, num_h / 2))
+    plt.title("Overall Scores")
+    col_width = 0.8
+    if num_h > 1:
+        col_width = (col_width / (width / base_width)) * (num_h / 2)
+    else:
+        col_width = (col_width / (width / base_width))
+    plt.figure(figsize=(width, FIG_HEIGHT))
+    return col_width
+
 
 COL_NAMES = {
     "ea": "Execution Accuracy",
@@ -91,7 +112,6 @@ class Drawer:
         self.only_correct = only_correct
         self.exclude_c6 = exclude_c6
         self.df = self.proc_df(scores_path)
-        os.makedirs(os.path.join(self.out_dir, self.hue), exist_ok=True)
 
     def add_overall(self, df: DataFrame, x: str):
         x = "Category"
@@ -142,7 +162,6 @@ class Drawer:
             TOP_TEMP = tmps[0]
             df = df[df['tmp'] == TOP_TEMP]
 
-
         df = df.rename(columns=COL_NAMES)
 
         if self.hue != 'Workload Version':
@@ -165,11 +184,13 @@ class Drawer:
             's28', 's29', 's26', 's27',
             's30', 's32', 's31', 's34', 's33'
         ]
+        col_width = fix_plot_size(df, x, hue, scale=2)
         hue_order = sorted(df[hue].unique())
         if SHOW_ERROR_BAR:
-            ax = sns.barplot(df, x=x, y=y, hue=hue, hue_order=hue_order, estimator=estimator, width=0.8)
+            ax = sns.barplot(df, x=x, y=y, hue=hue, hue_order=hue_order, estimator=estimator, width=col_width)
         else:
-            ax = sns.barplot(df, x=x, y=y, hue=hue, hue_order=hue_order, estimator=estimator, width=0.8, errorbar=None)
+            ax = sns.barplot(df, x=x, y=y, hue=hue, hue_order=hue_order, estimator=estimator, width=col_width,
+                             errorbar=None)
         return ax
 
     def fix_axis(self, metric: str, ax: Axes):
@@ -184,10 +205,15 @@ class Drawer:
             ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
             ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
 
-    def save_fig(self, metric, ax: Axes):
+    def save_fig(self, metric, ax: Axes, sub_dir: Optional[str] = None):
         title = ax.get_title()
         ax.set_title("")
-        path = os.path.join(self.out_dir, self.hue, f"{snakecase(title)}.png")
+        if sub_dir is None:
+            save_dir = os.path.join(self.out_dir, self.hue)
+        else:
+            save_dir = os.path.join(self.out_dir, sub_dir)
+        os.makedirs(save_dir, exist_ok=True)
+        path = os.path.join(save_dir, f"{snakecase(title)}.png")
         plt.savefig(path, bbox_inches='tight', dpi=300)
         logger.info(f"Plot saved to {path}")
 
@@ -303,14 +329,16 @@ class Drawer:
         cats = natsorted(df['Category'].unique())
         vers = natsorted(df['Workload Version'].unique())
         hue = 'Workload Version'
+        x = 'Category'
+        col_width = fix_plot_size(df, x, hue=hue, scale=3)
 
         temp = df["Temp"].unique()[0]
         model = df["Model"].unique()[0]
         itr = df["itr"].unique()[0]
         scale = df["scale"].unique()[0]
         df = df[(df['Temp'] == temp) & (df["Model"] == model) & (df['itr'] == itr) & (df['scale'] == scale)]
-        plt.figure(figsize=(5, 5))
-        ax = sns.countplot(df, x="Category", hue=hue, hue_order=vers, order=cats)
+
+        ax = sns.countplot(df, x=x, hue=hue, hue_order=vers, order=cats, width=col_width)
 
         os.makedirs(os.path.join(self.out_dir, hue), exist_ok=True)
         plt.savefig(os.path.join(self.out_dir, hue, f"cat_count.png"))
@@ -336,11 +364,13 @@ class Drawer:
             .reset_index()
         )
 
-        plt.figure(figsize=(15, 5))
+        x = "Metric"
+        col_width = fix_plot_size(df, x, hue=self.hue, scale=3)
+
         plt.title("Overall Scores")
         # ax = sns.barplot(df, x="Metric", y="Score", hue=self.hue)
         hue_order = sorted(macro_avg[self.hue].unique())
-        ax = sns.barplot(macro_avg, x="Metric", y="Score", hue=self.hue, hue_order=hue_order)
+        ax = sns.barplot(macro_avg, x="Metric", y="Score", hue=self.hue, hue_order=hue_order, width=col_width)
         ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
         ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
         self.save_fig("overall", ax)
@@ -352,16 +382,17 @@ class Drawer:
             return
 
         x = 'scale'
-        num_x = self.df[x].nunique()
-        width = max(5, num_x * (bar_width + bar_spacing))
-        fig = plt.figure(figsize=(width, 5))
+        # num_x = self.df[x].nunique()
+        # width = max(5, num_x * (bar_width + bar_spacing))
+        # fig = plt.figure(figsize=(width, 5))
+        fix_plot_size(df, x, hue=self.hue, scale=2)
         ax = self.draw_barplot(df, x, metric, self.hue, "mean")
         self.fix_axis(metric, ax)
         title = f"Mean {metric} per {x}"
         ax.set_title(title)
-        self.save_fig(metric, ax)
-        if self.show:
-            fig.show()
+        self.save_fig(metric, ax, "Scale")
+        # if self.show:
+        #     fig.show()
 
     def draw_all(self):
         pass

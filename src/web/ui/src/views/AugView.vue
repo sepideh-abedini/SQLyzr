@@ -30,6 +30,9 @@
             </template>
           </Select>
         </FormField>
+      </div>
+
+      <div class="plot-container grid md:col-12 flex justify-content-center">
         <div v-if="selectedPlot" class="h-full rounded-lg p-4">
           <img :src="plot_url" class="plot" />
         </div>
@@ -206,7 +209,13 @@ export default {
 </script>
 
 <style scoped>
+.plot-container {
+  max-height: 75vh;
+}
+
 .plot {
-  width: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
 }
 </style>

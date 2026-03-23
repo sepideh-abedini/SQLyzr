@@ -32,7 +32,7 @@ def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[PlotNa
         drawer.draw_overall()
 
     if scaled_plots:
-        drawer = Drawer(scores_path, show=False, out_dir=out_dir, hue="scale")
+        drawer = Drawer(scores_path, show=False, out_dir=out_dir, hue="Model")
         for metric in included_charts:
             drawer.draw_scale_plot(metric)
 
