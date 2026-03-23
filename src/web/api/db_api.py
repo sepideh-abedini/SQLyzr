@@ -117,7 +117,7 @@ class DBAPI(BaseAPI):
             for scale in scales:
                 if scale <= 1:
                     continue
-                if verify_hash(ds_conf, scale):
+                if verify_hash(ds_conf, scale, set(db_ids)):
                     logger.info(f"Scaling for scale = {scale} exist, skipping!")
                     verified_scales.append(scale)
                     continue

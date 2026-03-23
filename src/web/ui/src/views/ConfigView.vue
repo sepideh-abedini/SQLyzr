@@ -9,7 +9,7 @@
               <div class="grid">
                 <FormField class="md:col-6">
                   <FloatLabel variant="in">
-                    <label class="field-label">Workload:</label>
+                    <label class="field-label">Workload</label>
                     <Select
                       v-model="config.dataset"
                       :options="dataset_options"
@@ -23,7 +23,7 @@
                 </FormField>
                 <FormField class="md:col-6">
                   <FloatLabel variant="in">
-                    <label class="field-label">Workload Size:</label>
+                    <label class="field-label">Workload Size</label>
                     <Select
                       v-model="config.dataset_size"
                       :options="size_options"
@@ -36,7 +36,7 @@
               </div>
               <div class="grid">
                 <FormField class="md:col-9">
-                  <label class="field-label">Text2SQL Model:</label>
+                  <label class="field-label">Text2SQL Model</label>
                   <div class="flex flex-wrap gap-3 mt-2">
                     <MultiSelect
                       v-model="config.models"
@@ -52,7 +52,7 @@
                 </FormField>
                 <FormField class="md:col-3">
                   <FloatLabel variant="in">
-                    <label class="field-label">Batch Mode:</label>
+                    <label class="field-label">Batch Mode</label>
                     <div class="flex align-items-center">
                       <ToggleSwitch v-model="config.batch" />
                       <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
@@ -62,12 +62,12 @@
               </div>
               <div class="grid">
                 <FormField class="md:col-3">
-                  <label class="field-label">Num Iterations:</label>
+                  <label class="field-label">Num Iterations</label>
                   <InputNumber v-model="config.itrs" :min="1" :max="5" fluid> </InputNumber>
                 </FormField>
                 <FormField class="md:col-9">
                   <FloatLabel variant="in" class="w-full">
-                    <label class="field-label">Temperature:</label>
+                    <label class="field-label">Temperature</label>
                     <MultiSelect
                       v-model="config.temps"
                       display="chip"
@@ -80,7 +80,7 @@
                   </FloatLabel>
                 </FormField>
               </div>
-              <div class="grid w-full">
+              <div class="grid">
                 <FormField class="md:col-7">
                   <FloatLabel variant="in">
                     <label>Scaling Factors:</label>
@@ -98,13 +98,13 @@
                 <FormField class="md:col-5">
                   <FloatLabel variant="in">
                     <label>Augmentation per Subcategory</label>
-                    <InputText size="large" fluid v-model="config.aug_per_sub_cat" />
+                    <InputText fluid v-model="config.aug_per_sub_cat" />
                   </FloatLabel>
                 </FormField>
               </div>
               <div class="grid w-full">
                 <FormField class="md:col-5">
-                  <label class="field-label">Workload Version:</label>
+                  <label class="field-label">Workload Version</label>
                   <Select
                     display="chip"
                     filter
