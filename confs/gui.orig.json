@@ -19,14 +19,14 @@
     "force": false,
     "pipeline": {
         "augment": false,
-        "charts": true,
+        "plots": true,
         "eval": true,
         "predict": true,
         "scale": false,
-        "transformers": false,
+        "analysis": false,
         "verify": false
     },
-    "charts": [
+    "plots": [
         "Execution Accuracy"
     ],
     "etcr": 1,
@@ -36,10 +36,11 @@
     "eval_force": true,
     "pipeline_status": {
         "augment": false,
-        "charts": true,
+        "plots": true,
         "eval": true,
         "predict": true,
         "scale": false,
-        "verify": false
+        "verify": false,
+        "analysis": false
     }
 }

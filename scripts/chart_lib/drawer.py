@@ -35,7 +35,7 @@ COL_NAMES = {
     "sub": "SubCategory",
     "cdiff": "Complexity Inconsistency",
     "etcdiff": "Execution Time Inconsistency",
-    "model": "System",
+    "model": "Model",
     "dst": "Dataset",
     "tmp": "Temp",
     "dst_ver": "Workload Version"
@@ -61,7 +61,7 @@ def full_extent(ax, pad=0.0):
 
 
 def melt_scores(df):
-    df = pd.melt(df, id_vars=["System", 'Dataset', 'Category', 'Temp', 'SubCategory', 'Workload Version'],
+    df = pd.melt(df, id_vars=["Model", 'Dataset', 'Category', 'Temp', 'SubCategory', 'Workload Version'],
                  value_vars=['Execution Accuracy',
                              # 'Relaxed Execution Accuracy',
                              'Exact Match',
@@ -83,7 +83,7 @@ class Drawer:
     hue: str
 
     def __init__(self, scores_path: str, include_all: bool = False, only_correct: bool = False,
-                 exclude_c6: bool = False, show: bool = False, out_dir: str = OUT_DIR, hue: str = "System"):
+                 exclude_c6: bool = False, show: bool = False, out_dir: str = OUT_DIR, hue: str = "Model"):
         self.hue = hue
         self.out_dir = out_dir
         self.show = show
@@ -99,11 +99,11 @@ class Drawer:
         to_drop = {'Category', 'SubCategory', 'Dataset'}
         to_drop = list(to_drop.difference({x}))
         # We are using raw scores, so we need this
-        mean_values = df.drop(columns=to_drop).groupby(["System", 'Workload Version', x], observed=False).mean()
-        mean_values = mean_values.groupby(["System", 'Workload Version']).mean()
+        mean_values = df.drop(columns=to_drop).groupby(["Model", 'Workload Version', x], observed=False).mean()
+        mean_values = mean_values.groupby(["Model", 'Workload Version']).mean()
         #
-        for (model, dst_ver) in df[["System", 'Workload Version']].drop_duplicates().itertuples(index=False):
-            new_row = {"System": model, 'Workload Version': dst_ver, 'Category': "overall", "SubCategory": "overall"}
+        for (model, dst_ver) in df[["Model", 'Workload Version']].drop_duplicates().itertuples(index=False):
+            new_row = {"Model": model, 'Workload Version': dst_ver, 'Category': "overall", "SubCategory": "overall"}
             new_row.update(mean_values.loc[(model, dst_ver)].to_dict())
             row = pd.DataFrame([new_row])
             row['Workload Version'] = pd.Categorical(row['Workload Version'], categories=dst_vers, ordered=True)
@@ -305,10 +305,10 @@ class Drawer:
         hue = 'Workload Version'
 
         temp = df["Temp"].unique()[0]
-        model = df["System"].unique()[0]
+        model = df["Model"].unique()[0]
         itr = df["itr"].unique()[0]
         scale = df["scale"].unique()[0]
-        df = df[(df['Temp'] == temp) & (df["System"] == model) & (df['itr'] == itr) & (df['scale'] == scale)]
+        df = df[(df['Temp'] == temp) & (df["Model"] == model) & (df['itr'] == itr) & (df['scale'] == scale)]
         plt.figure(figsize=(5, 5))
         ax = sns.countplot(df, x="Category", hue=hue, hue_order=vers, order=cats)
 
@@ -326,12 +326,12 @@ class Drawer:
         print("DRAWING OVERALL")
         df = melt_scores(self.df)
         cat_avg = (
-            df.groupby(["System", "Dataset", "Workload Version", "Metric", "Category"])["Score"]
+            df.groupby(["Model", "Dataset", "Workload Version", "Metric", "Category"])["Score"]
             .mean()
             .reset_index()
         )
         macro_avg = (
-            cat_avg.groupby(["System", "Dataset", "Workload Version", "Metric"])["Score"]
+            cat_avg.groupby(["Model", "Dataset", "Workload Version", "Metric"])["Score"]
             .mean()
             .reset_index()
         )

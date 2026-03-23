@@ -11,7 +11,7 @@ from src.configs.metrics import METRICS
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import ModelName
-from src.sqlyzr.chart_config import ChartName
+from src.sqlyzr.chart_config import PlotName
 from src.sqlyzr.pipeline_config import PipelineConfig
 
 
@@ -29,7 +29,7 @@ class ConfigData(BaseModel):
     batch: bool = False
     force: bool = False
     pipeline: PipelineConfig = PipelineConfig()
-    charts: List[ChartName] = []
+    plots: List[PlotName] = []
     etcr: float = 1.1
     scales: List[int] = []
     eval_force: bool = True
@@ -90,7 +90,7 @@ Batch: {self.batch}
 Temps: {self.temps}
 Itrs: {self.itrs}
 Pipeline: {self.pipeline}
-Charts: {self.charts}
+Plots: {self.plots}
 #######################################
 """
 
@@ -120,7 +120,7 @@ def load_config(path) -> SQLyzrConfig:
         dataset_configs=versioned_dataset_confs,
         metrics=METRICS[conf_data.dataset],
         batch=conf_data.batch,
-        included_charts=conf_data.charts,
+        included_charts=conf_data.plots,
         models=conf_data.models,
         scales=conf_data.scales
     )

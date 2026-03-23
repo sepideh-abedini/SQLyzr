@@ -18,15 +18,16 @@
     "batch": false,
     "force": false,
     "pipeline": {
+        "analysis": true,
         "augment": false,
-        "charts": true,
         "eval": true,
+        "plots": true,
         "predict": true,
+        "repairs": false,
         "scale": false,
-        "transformers": false,
         "verify": false
     },
-    "charts": [
+    "plots": [
         "Overall"
     ],
     "etcr": 1.46,
@@ -36,7 +37,7 @@
     "eval_force": true,
     "pipeline_status": {
         "augment": false,
-        "charts": true,
+        "plots": true,
         "eval": true,
         "predict": true,
         "scale": false,

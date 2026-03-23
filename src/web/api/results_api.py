@@ -8,7 +8,7 @@ from .base_api import BaseAPI
 
 COLUMN_NAMES = {
     "ea_mean": "Mean Execution Accuracy",
-    "model": "System",
+    "model": "Model",
     "tmp": "Temperature",
     "cat": "Category",
     "sub": "Subcategory",

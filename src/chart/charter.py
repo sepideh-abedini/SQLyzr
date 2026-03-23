@@ -8,7 +8,7 @@ from dataclasses_json.stringcase import snakecase
 from natsort import natsorted
 
 from scripts.chart_lib.drawer import Drawer
-from src.sqlyzr.chart_config import ChartName
+from src.sqlyzr.chart_config import PlotName
 
 
 # SCORES_PATH = "charts/all_scores_v1.csv"
@@ -20,7 +20,7 @@ from src.sqlyzr.chart_config import ChartName
 # exit(0)
 
 
-def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[ChartName], hue, scaled_plots: bool = False):
+def draw_all_charts(scores_path: str, out_dir: str, included_charts: List[PlotName], hue, scaled_plots: bool = False):
     # if os.path.exists(out_dir):
     #     shutil.rmtree(out_dir)
     #     os.mkdir(out_dir)

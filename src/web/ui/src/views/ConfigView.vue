@@ -13,6 +13,8 @@
                     <Select
                       v-model="config.dataset"
                       :options="dataset_options"
+                      optionLabel="label"
+                      optionValue="value"
                       placeholder="Select Workload"
                       class="w-full"
                       :disabled="dataset_lock_mode"
@@ -33,20 +35,22 @@
                 </FormField>
               </div>
               <div class="grid">
-                <FormField class="md:col-6">
-                  <label class="field-label">Text2SQL System:</label>
+                <FormField class="md:col-9">
+                  <label class="field-label">Text2SQL Model:</label>
                   <div class="flex flex-wrap gap-3 mt-2">
                     <MultiSelect
                       v-model="config.models"
                       display="chip"
                       :options="modelOptions"
                       filter
+                      optionLabel="label"
+                      optionValue="value"
                       placeholder="Select Models"
                       class="w-full"
                     />
                   </div>
                 </FormField>
-                <FormField class="md:col-6">
+                <FormField class="md:col-3">
                   <FloatLabel variant="in">
                     <label class="field-label">Batch Mode:</label>
                     <div class="flex align-items-center">
@@ -100,7 +104,7 @@
               </div>
               <div class="grid w-full">
                 <FormField class="md:col-5">
-                  <label class="field-label">Workload Versions [DEBUG]:</label>
+                  <label class="field-label">Workload Version:</label>
                   <Select
                     display="chip"
                     filter
@@ -111,7 +115,7 @@
                 </FormField>
                 <FormField class="md:col-6">
                   <FloatLabel variant="in">
-                    <label class="field-label">Force Evaluation [DEBUG]:</label>
+                    <label class="field-label">Force Evaluation:</label>
                     <div class="flex align-items-center">
                       <ToggleSwitch v-model="config.eval_force" />
                       <span class="ml-2">{{ config.eval_force ? 'On' : 'Off' }}</span>
@@ -173,9 +177,11 @@
               <FormField class="mb-3">
                 <label class="field-label">Plots:</label>
                 <MultiSelect
-                  v-model="config.charts"
+                  v-model="config.plots"
                   display="chip"
                   :options="chartOptions"
+                  optionLabel="label"
+                  optionValue="value"
                   filter
                   placeholder="Select Plots"
                   class="w-full"
@@ -279,8 +285,6 @@ import { ToggleButton, AutoComplete, SelectButton } from 'primevue'
 import LogsView from '@/views/LogsView.vue'
 import ChartsView from '@/views/ChartsView.vue'
 import RCalc from '@/views/RCalc.vue'
-import { toRaw } from 'vue'
-import { saveAs } from '@primevue/core'
 import isEqual from 'lodash/isEqual'
 
 export default {
@@ -319,7 +323,12 @@ export default {
       fail: false,
       calculating: false,
       selected_pipeline_mode: 'Evaluation',
-      dataset_options: ['aggregate', 'spider', 'bird', 'beaver'],
+      dataset_options: [
+        { label: 'Aggregate', value: 'aggregate' },
+        { label: 'Spider', value: 'spider' },
+        { label: 'BIRD', value: 'bird' },
+        { label: 'Beaver', value: 'beaver' },
+      ],
       size_options: ['small', 'full'],
       selected_version: null,
       initialized: false,
@@ -343,33 +352,37 @@ export default {
           predict: false,
           eval: false,
           augment: false,
-          charts: false,
-          transformers: false,
+          plots: false,
+          analysis: false,
           scale: false,
         },
         pipeline_status: {
           predict: false,
           eval: false,
-          charts: false,
-          transformers: false,
+          plots: false,
+          analysis: false,
           augment: false,
           scale: false,
         },
-        charts: [],
+        plots: [],
       },
-      modelOptions: ['din', 'dail', 'direct'],
+      modelOptions: [
+        { label: 'DIN-SQL', value: 'din' },
+        { label: 'DAIL-SQL', value: 'dail' },
+        { label: 'Direct-LLM', value: 'direct' },
+      ],
       suggested_temps: [0.2, 0.5, 0.7, 1.0],
       chartOptions: [
-        'Overall',
-        'Execution Accuracy',
-        // 'Relaxed Execution Accuracy',
-        'Exact Match',
-        'Execution Time',
-        'Token Usage',
-        'Execution Time Consistency',
-        'Complexity Consistency',
-        'Category Distribution',
-        'Gold Execution Time',
+        { label: 'Overall', value: 'Overall' },
+        { label: 'Execution Accuracy (EA)', value: 'Execution Accuracy' },
+        // { label: 'Relaxed Execution Accuracy', value: 'Relaxed Execution Accuracy' },
+        { label: 'Exact Match (EM)', value: 'Exact Match' },
+        // { label: 'Execution Time', value: 'Execution Time' },
+        { label: 'Token Usage (TU)', value: 'Token Usage' },
+        { label: 'Execution Time Consistency (ETC)', value: 'Execution Time Consistency' },
+        { label: 'Complexity Consistency (CC)', value: 'Complexity Consistency' },
+        { label: 'Category Distribution', value: 'Category Distribution' },
+        { label: 'Gold Execution Time', value: 'Gold Execution Time' },
       ],
     }
   },
@@ -398,7 +411,7 @@ export default {
       return [2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 1000]
     },
     sorted_pipeline_steps() {
-      return ['scale', 'predict', 'eval', 'charts', 'transformers', 'augment']
+      return ['scale', 'predict', 'eval', 'plots', 'analysis', 'augment']
     },
 
     // finished() {
@@ -450,7 +463,7 @@ export default {
           predict: false,
           eval: false,
           augment: false,
-          charts: false,
+          plots: false,
           scale: false,
         },
       }
@@ -572,14 +585,14 @@ export default {
         this.config.pipeline = {
           predict: false,
           eval: false,
-          transformers: false,
+          analysis: false,
           augment: false,
-          charts: false,
+          plots: false,
           scale: false,
         }
       }
-      if (!Array.isArray(this.config.charts)) {
-        this.config.charts = []
+      if (!Array.isArray(this.config.plots)) {
+        this.config.plots = []
       }
       const highest = this.config.dataset_versions
         .map((v) => parseInt(v.slice(1), 10))
@@ -677,7 +690,7 @@ export default {
 
       const old_pipe = JSON.parse(JSON.stringify(this.config.pipeline))
 
-      const flags = ['scale', 'predict', 'eval', 'charts', 'transformers', 'augment']
+      const flags = ['scale', 'predict', 'eval', 'plots', 'analysis', 'augment']
       flags.forEach((flag) => {
         this.config.pipeline[flag] = false
       })
@@ -686,8 +699,8 @@ export default {
         case 'Evaluation':
           this.config.pipeline.predict = true
           this.config.pipeline.eval = true
-          this.config.pipeline.charts = true
-          this.config.pipeline.transformers = true
+          this.config.pipeline.plots = true
+          this.config.pipeline.analysis = true
           break
         case 'Augmentation':
           this.config.pipeline.augment = true
@@ -708,13 +721,13 @@ export default {
     'config.pipeline': {
       handler(newVal) {
         if (!newVal) return
-        if (newVal.predict && newVal.eval && newVal.charts && !newVal.augment && !newVal.scale) {
+        if (newVal.predict && newVal.eval && newVal.plots && !newVal.augment && !newVal.scale) {
           this.selected_pipeline_mode = 'Evaluation'
         } else if (
           newVal.augment &&
           !newVal.predict &&
           !newVal.eval &&
-          !newVal.charts &&
+          !newVal.plots &&
           !newVal.scale
         ) {
           this.selected_pipeline_mode = 'Augmentation'
@@ -722,7 +735,7 @@ export default {
           newVal.scale &&
           !newVal.predict &&
           !newVal.eval &&
-          !newVal.charts &&
+          !newVal.plots &&
           !newVal.augment
         ) {
           this.selected_pipeline_mode = 'Scaling'

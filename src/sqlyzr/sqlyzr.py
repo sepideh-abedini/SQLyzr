@@ -48,22 +48,22 @@ class Sqlyzr:
             run_status.eval = True
             self.messanger.write(f"Evaluation completed!")
 
-        if self.conf.pipeline.charts:
+        if self.conf.pipeline.plots:
             shutil.rmtree(self.conf.eval_conf.charts_dir)
             os.makedirs(self.conf.eval_conf.charts_dir, exist_ok=True)
-            for hue in ["System", "Workload Version"]:
+            for hue in ["Model", "Workload Version"]:
                 draw_all_charts(self.conf.eval_conf.get_raw_scores_path(),
                                 out_dir=self.conf.eval_conf.charts_dir,
                                 included_charts=self.conf.eval_conf.included_charts,
                                 hue=hue,
                                 scaled_plots=len(self.conf.eval_conf.scales) > 1)
-            run_status.charts = True
+            run_status.plots = True
 
-        if self.conf.pipeline.transformers:
+        if self.conf.pipeline.analysis:
             trs_finder = TransformerFinder(self.conf)
             trs_finder.run()
             trs_finder.post_process()
-            run_status.transformers = True
+            run_status.analysis = True
 
         if self.conf.pipeline.augment:
             augmentor = DatasetAugmentor(self.conf)

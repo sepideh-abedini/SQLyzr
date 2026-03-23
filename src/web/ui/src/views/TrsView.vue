@@ -2,7 +2,7 @@
   <div class="trs">
     <Toast position="bottom-right" />
 
-    <h1>Select Repair Report</h1>
+    <h1>Select Error Analysis Report</h1>
     <Tabs v-if="trsData" :value="selectedTrs" @update:value="(val) => (selectedTrs = val)">
       <!--      <TabList>-->
       <!--        <Tab v-for="(item, i) in trsData" :value="i">-->

@@ -1,39 +1,60 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
 import Menubar from 'primevue/menubar'
 import { BUILD_VERSION } from './config'
+
+const items = [
+  { label: 'Configuration', route: '/' },
+  { label: 'Plots', route: '/plots' },
+  { label: 'Error Analysis', route: '/errors' },
+  { label: 'Categories', route: '/categories' },
+  { label: 'Scores', route: '/scores' },
+  { label: 'Logs', route: '/logs' },
+  { label: 'Files', route: '/files' },
+  { label: 'Data', route: '/data' },
+]
 </script>
 
 <template>
-  <Menubar>
+  <Menubar :model="items">
     <template #start>
       <h1>SQLyzr</h1>
     </template>
-    <template #end>
-      <div class="flex items-center gap-2">
-        <RouterLink to="/">Dashboard</RouterLink>
-        <!--        <RouterLink to="/status">Execution</RouterLink>-->
-        <RouterLink to="/charts">Charts</RouterLink>
-        <!--        <RouterLink to="/aug">Augmentation</RouterLink>-->
-        <RouterLink to="/errors">Error Analysis</RouterLink>
-        <RouterLink to="/categories">Categories</RouterLink>
-        <RouterLink to="/metrics">Metrics</RouterLink>
-        <RouterLink to="/scores">Scores</RouterLink>
-        <RouterLink to="/logs">Logs</RouterLink>
-        <RouterLink to="/files">Files</RouterLink>
-        <RouterLink to="/data">Data</RouterLink>
-        <!--        <RouterLink to="/env">Environment Variables</RouterLink>-->
-      </div>
+
+    <template #item="{ item, props }">
+      <router-link v-if="item.route" :to="item.route" custom v-slot="{ href, navigate, isActive }">
+        <a
+          v-ripple
+          :href="href"
+          v-bind="props.action"
+          @click="navigate"
+          :class="{ active: isActive }"
+        >
+          <span>{{ item.label }}</span>
+        </a>
+      </router-link>
+
+      <a v-else v-ripple :href="item.url" v-bind="props.action">
+        <span>{{ item.label }}</span>
+      </a>
     </template>
   </Menubar>
+
   <main class="content">
     <RouterView />
   </main>
 
   <footer class="footer">
-    <span>Build version: {{ BUILD_VERSION.slice(0, 7) }} </span>
+    <span>Build version: {{ BUILD_VERSION.slice(0, 7) }}</span>
   </footer>
 </template>
+
+<style scoped>
+.active {
+  font-weight: 600;
+  border-bottom: 2px solid currentColor;
+}
+</style>
+
 
 <style scoped>
 header {

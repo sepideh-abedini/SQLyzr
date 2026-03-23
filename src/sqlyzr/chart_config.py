@@ -1,6 +1,6 @@
 from typing import Literal
 
-ChartName = Literal[
+PlotName = Literal[
     "Overall",
     "Execution Accuracy",
     "Relaxed Execution Accuracy",

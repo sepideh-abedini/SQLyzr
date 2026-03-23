@@ -32,8 +32,8 @@ const router = createRouter({
       component: ScoresView,
     },
     {
-      path: '/charts',
-      name: 'charts',
+      path: '/plots',
+      name: 'Plots',
       component: AugView,
     },
     {

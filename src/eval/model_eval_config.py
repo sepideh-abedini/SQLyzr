@@ -5,7 +5,7 @@ from typing import List, Dict, Type
 from src.eval.dataset_config import DatasetConfig
 from src.eval.metrics import Metric
 from src.eval.single_run_config import SingleRunConfig, ModelName
-from src.sqlyzr.chart_config import ChartName
+from src.sqlyzr.chart_config import PlotName
 
 DEFAULT_TEMP = 0.2
 
@@ -18,7 +18,7 @@ class ModelEvalConfig:
     pred_dir: str
     trs_dir: str
     charts_dir: str
-    included_charts: List[ChartName]
+    included_charts: List[PlotName]
     dataset_configs: List[DatasetConfig]
     metrics: Dict[str, Type[Metric]]
     scales: List[int]
@@ -28,7 +28,7 @@ class ModelEvalConfig:
                base_dir: str,
                dataset_configs: List[DatasetConfig],
                metrics: Dict[str, Type[Metric]],
-               included_charts: List[ChartName],
+               included_charts: List[PlotName],
                models: List[ModelName],
                batch: bool,
                scales: List[int]):

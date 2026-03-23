@@ -9,9 +9,9 @@ class PipelineConfig(BaseModel):
     verify: bool = False
     predict: bool = False
     eval: bool = False
-    transformers: bool = False
+    analysis: bool = False
     augment: bool = False
-    charts: bool = False
+    plots: bool = False
     scale: bool = False
 
     def __str__(self):

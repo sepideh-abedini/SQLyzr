@@ -26,7 +26,7 @@ COL_NAMES = {
     "sub_cat": "SubCategory",
     "cdiff": "Complexity Inconsistency",
     "etcdiff": "Execution Time Inconsistency",
-    "model": "System",
+    "model": "Model",
     "dataset": "Dataset",
     "tmp": "Temp",
 }
@@ -159,7 +159,7 @@ class Drawer:
         num_x = self.df[x].nunique()
         width = max(5, num_x * (bar_width + bar_spacing))
         fig = plt.figure(figsize=(width, 5))
-        ax = self.draw_barplot(x, metric, "System", "mean")
+        ax = self.draw_barplot(x, metric, "Model", "mean")
         self.fix_axis(metric, ax)
         title = f"Mean {metric} per {x}"
         ax.set_title(title)
@@ -191,7 +191,7 @@ class Drawer:
                 ax.set_title(title)
                 sub_df = df[(df[row] == row_val) & (df[col] == col_val)]
                 sub_cats = natsorted(sub_df[x].unique())
-                sns.barplot(sub_df, x=x, y=metric, hue="System", estimator="mean", ax=ax, legend=False,
+                sns.barplot(sub_df, x=x, y=metric, hue="Model", estimator="mean", ax=ax, legend=False,
                             order=sub_cats)
                 self.fix_axis(metric, ax)
                 if save_indiv:
@@ -229,7 +229,7 @@ class Drawer:
             ax.set_title(title)
             sub_df = df[(df[col] == col_val)]
             sub_cats = natsorted(sub_df[x].unique())
-            sns.barplot(sub_df, x=x, y=metric, hue="System", estimator="mean", ax=ax, legend=False,
+            sns.barplot(sub_df, x=x, y=metric, hue="Model", estimator="mean", ax=ax, legend=False,
                         order=sub_cats)
             self.fix_axis(metric, ax)
             if save_indiv:
@@ -275,7 +275,7 @@ class Drawer:
     def draw_overall(self):
         df = melt_scores(self.df)
         plt.figure(figsize=(15, 5))
-        ax = sns.barplot(df, x="Metric", y="Score", hue="System")
+        ax = sns.barplot(df, x="Metric", y="Score", hue="Model")
         ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
         ax.set_yticklabels([f'{y:.0%}' for y in ax.get_yticks()])
         plt.savefig(os.path.join(OUT_DIR, f"overall.png"))
