@@ -8,30 +8,26 @@
             <div class="config-section">
               <div class="grid">
                 <FormField class="md:col-6">
-                  <FloatLabel variant="in">
-                    <label class="field-label">Workload</label>
-                    <Select
-                      v-model="config.dataset"
-                      :options="dataset_options"
-                      optionLabel="label"
-                      optionValue="value"
-                      placeholder="Select Workload"
-                      class="w-full"
-                      :disabled="dataset_lock_mode"
-                    />
-                  </FloatLabel>
+                  <label class="field-label">Workload</label>
+                  <Select
+                    v-model="config.dataset"
+                    :options="dataset_options"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select Workload"
+                    class="w-full"
+                    :disabled="dataset_lock_mode"
+                  />
                 </FormField>
                 <FormField class="md:col-6">
-                  <FloatLabel variant="in">
-                    <label class="field-label">Workload Size</label>
-                    <Select
-                      v-model="config.dataset_size"
-                      :options="size_options"
-                      placeholder="Select Size"
-                      class="w-full"
-                      :disabled="dataset_lock_mode"
-                    />
-                  </FloatLabel>
+                  <label class="field-label">Workload Size</label>
+                  <Select
+                    v-model="config.dataset_size"
+                    :options="size_options"
+                    placeholder="Select Size"
+                    class="w-full"
+                    :disabled="dataset_lock_mode"
+                  />
                 </FormField>
               </div>
               <div class="grid">
@@ -50,14 +46,12 @@
                     />
                   </div>
                 </FormField>
-                <FormField class="md:col-3">
-                  <FloatLabel variant="in">
-                    <label class="field-label">Batch Mode</label>
-                    <div class="flex align-items-center">
-                      <ToggleSwitch v-model="config.batch" />
-                      <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
-                    </div>
-                  </FloatLabel>
+                <FormField class="md:col-3 h-full">
+                  <label class="field-label">Batch Mode</label>
+                  <div class="flex align-items-center h-full">
+                    <ToggleSwitch v-model="config.batch" />
+                    <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
+                  </div>
                 </FormField>
               </div>
               <div class="grid">
@@ -66,40 +60,34 @@
                   <InputNumber v-model="config.itrs" :min="1" :max="5" fluid> </InputNumber>
                 </FormField>
                 <FormField class="md:col-9">
-                  <FloatLabel variant="in" class="w-full">
-                    <label class="field-label">Temperature</label>
-                    <MultiSelect
-                      v-model="config.temps"
-                      display="chip"
-                      :options="suggested_temps"
-                      filter
-                      placeholder="Select Temperatures"
-                      class="w-full"
-                      fluid
-                    />
-                  </FloatLabel>
+                  <label class="field-label">Temperature</label>
+                  <MultiSelect
+                    v-model="config.temps"
+                    display="chip"
+                    :options="suggested_temps"
+                    filter
+                    placeholder="Select Temperatures"
+                    class="w-full"
+                    fluid
+                  />
                 </FormField>
               </div>
               <div class="grid">
                 <FormField class="md:col-7">
-                  <FloatLabel variant="in">
-                    <label>Scaling Factors:</label>
-                    <MultiSelect
-                      class="w-full"
-                      display="chip"
-                      filter
-                      placeholder="Select scales"
-                      v-model="config.scales"
-                      :options="avail_scales"
-                    >
-                    </MultiSelect>
-                  </FloatLabel>
+                  <label class="field-label">Scaling Factors</label>
+                  <MultiSelect
+                    class="w-full"
+                    display="chip"
+                    filter
+                    placeholder="Select scales"
+                    v-model="config.scales"
+                    :options="avail_scales"
+                  >
+                  </MultiSelect>
                 </FormField>
                 <FormField class="md:col-5">
-                  <FloatLabel variant="in">
-                    <label>Augmentation per Subcategory</label>
-                    <InputText fluid v-model="config.aug_per_sub_cat" />
-                  </FloatLabel>
+                  <label class="field-label">Augmentation per Subcategory</label>
+                  <InputText fluid v-model="config.aug_per_sub_cat" />
                 </FormField>
               </div>
               <div class="grid w-full">
@@ -115,7 +103,7 @@
                 </FormField>
                 <FormField class="md:col-6">
                   <FloatLabel variant="in">
-                    <label class="field-label">Force Evaluation:</label>
+                    <label class="field-label">Force Evaluation</label>
                     <div class="flex align-items-center">
                       <ToggleSwitch v-model="config.eval_force" />
                       <span class="ml-2">{{ config.eval_force ? 'On' : 'Off' }}</span>
@@ -124,12 +112,23 @@
                 </FormField>
                 <!--                <RCalc />-->
               </div>
+              <div class="w-full flex justify-content-center">
+                <Message
+                  v-if="config_updated"
+                  icon="pi pi-check"
+                  :life="3000"
+                  size="small"
+                  severity="success"
+                  variant="outlined"
+                  >Configuration Updated!</Message
+                >
+              </div>
             </div>
           </div>
-          <div class="md:col-6 p-2 config-section">
+          <div class="md:col-6 p-2">
             <div class="config-section">
               <FormField class="mb-3">
-                <label class="field-label">Error Threshold (Min Acceptable EA):</label>
+                <label class="field-label">Error Threshold (Min Acceptable EA)</label>
                 <div class="flex justify-content-center mt-2">
                   <Knob
                     value-color="red"
@@ -142,7 +141,7 @@
                 </div>
               </FormField>
               <FormField v-if="config.pipeline" class="mb-3">
-                <label class="field-label">Pipeline Steps:</label>
+                <label class="field-label">Pipeline Steps</label>
                 <div class="pipeline-container mt-2">
                   <div
                     v-for="(step, index) in sorted_pipeline_steps"
@@ -165,7 +164,7 @@
               </FormField>
               <FormField class="col-12 flex justify-content-center">
                 <FloatLabel variant="in">
-                  <label class="field-label">Pipeline Mode:</label>
+                  <label class="field-label">Pipeline Mode</label>
                   <SelectButton
                     severity="success"
                     name="selection"
@@ -175,7 +174,7 @@
                 </FloatLabel>
               </FormField>
               <FormField class="mb-3">
-                <label class="field-label">Plots:</label>
+                <label class="field-label">Plots</label>
                 <MultiSelect
                   v-model="config.plots"
                   display="chip"
@@ -286,6 +285,7 @@ import LogsView from '@/views/LogsView.vue'
 import ChartsView from '@/views/ChartsView.vue'
 import RCalc from '@/views/RCalc.vue'
 import isEqual from 'lodash/isEqual'
+import Message from 'primevue/message'
 
 export default {
   components: {
@@ -307,11 +307,13 @@ export default {
     ToggleButton,
     AutoComplete,
     SelectButton,
+    Message,
   },
   data() {
     return {
       p: 95,
       k: 10,
+      config_updated: false,
       running: false,
       loading: false,
       memory_percent: 0,
@@ -629,14 +631,10 @@ export default {
       async handler(newVal) {
         try {
           console.log('WATCHING CONFIG:', newVal)
+          this.config_updated = false
           await this.saveConfig()
           // await this.fetchConfig()
-          this.$toast.add({
-            severity: 'success',
-            summary: 'Configuration saved!',
-            detail: '',
-            life: 1000,
-          })
+          this.config_updated = true
         } catch (e) {
           console.error('Error saving configuration:', e, newVal)
           return
@@ -676,10 +674,10 @@ export default {
           this.$toast.add({
             severity: 'warn',
             summary: 'Databases not scaled!',
-            detail: 'To use the selected scaling factors, you must run the scaling pipeline first.',
-            sticky: true,
+            detail: 'To use the selected scaling factors, scaling step must be enabled.',
+            life: 5000,
           })
-          this.selected_pipeline_mode = 'Scaling'
+          this.config.pipeline.scale = true
         }
         this.valid_scales = valid_scales
       },
@@ -796,6 +794,19 @@ export default {
 
 .text-capitalize {
   text-transform: capitalize;
+}
+
+.p-multiselect,
+.p-inputtext {
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.p-select {
+  height: 40px;
+  display: flex;
+  align-items: center;
 }
 
 .p-togglebutton.p-button.p-highlight,
