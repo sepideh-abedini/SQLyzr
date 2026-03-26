@@ -5,7 +5,7 @@ export default {
     async call_api(endpoint: string, options = {}, notify: boolean = false) {
       const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
 
-      console.log(`Calling API: ${url}`)
+      // console.log(`Calling API: ${url}`)
       const defaultOptions = {
         headers: {
           'Content-Type': 'application/json',

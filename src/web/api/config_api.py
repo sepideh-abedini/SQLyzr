@@ -36,6 +36,7 @@ class ConfigAPI(BaseAPI):
             except Exception as e:
                 old_config = dict()
             update_data = request.json
+            logger.info(f"Updating: {update_data}")
             if 1 not in update_data['scales']:
                 update_data['scales'] = [1] + update_data['scales']
             for key, value in update_data.items():
@@ -48,6 +49,7 @@ class ConfigAPI(BaseAPI):
             except Exception as e:
                 conf_data_raw = read_json(self.config_file)
                 write_json(self.config_file, old_config)
+                logger.error(f"Update failed! {e}")
                 return str(e), 400
             return jsonify({"message": "Configuration updated successfully"})
 

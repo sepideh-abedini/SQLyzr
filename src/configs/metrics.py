@@ -24,5 +24,7 @@ METRICS = {
     "bird": BIRD_METRICS,
     "beaver": BIRD_METRICS,
     "aggregate": BIRD_METRICS,
-    "custom": SPIDER_METRICS
+    "custom": SPIDER_METRICS,
+    "aligned": BIRD_METRICS,
+    "sqlyzr": BIRD_METRICS
 }

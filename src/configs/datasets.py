@@ -143,9 +143,19 @@ CUSTOM_SQLITE_DATASET = DatasetConfig(
     dataset_type="spider"
 )
 
+ALIGNED_ALL = DatasetConfig(
+    dataset_dir=f"{BASE_DIR}/spider_aug",
+    test_file="data.test.cat.json",
+    gold_file="data.test.cat.gold.txt",
+    train_file="data.train.cat.json",
+    tables_file="tables.json",
+    db_dir="database"
+)
+
 DATASETS = {
     "aggregate": {
-        "small": [SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL]
+        "small": [SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL],
+        "full": [SPIDER_ALL, BIRD_ALL, BEAVER_ALL]
     },
     "bird": {
         "small": [BIRD_SMALL],
@@ -168,14 +178,24 @@ DATASETS = {
         "small": [AUG_SMALL],
         "full": [AUG_ALL]
     },
+    "aligned": {
+        "full": [ALIGNED_ALL]
+    },
     "beaver": {
         "full": [BEAVER_ALL],
         "small": [BEAVER_SMALL]
     },
     "custom": {
-        "full": [CUSTOM_SQLITE_DATASET]
+        "full": [SPIDER_SMALL]
+    },
+    'sqlyzr': {
+        "s1": [SPIDER_SMALL],
+        "s2": [BIRD_SMALL],
+        "s3": [BEAVER_ALL],
+        "full": [SPIDER_ALL, BIRD_ALL, BEAVER_ALL],
+        "aligned": [SPIDER_SMALL]
     }
 }
 
-DatasetName = Literal["spider", "bird", "beaver", "aggregate", "custom", "aug"]
-DatasetSize = Literal["small", "dev", "train", "test", "full", "500", "bad", "mask"]
+DatasetName = Literal["spider", "bird", "beaver", "aggregate", "aligned", "custom", "aug", "sqlyzr"]
+DatasetSize = Literal["small", "dev", "train", "test", "full", "500", "bad", "mask", "s1", "s2", "s3", "aligned"]

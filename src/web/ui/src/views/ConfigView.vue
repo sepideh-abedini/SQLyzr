@@ -12,18 +12,20 @@
                   <Select
                     v-model="config.dataset"
                     :options="dataset_options"
+                    placeholder="Select Workload"
                     optionLabel="label"
                     optionValue="value"
-                    placeholder="Select Workload"
                     class="w-full"
                     :disabled="dataset_lock_mode"
                   />
                 </FormField>
                 <FormField class="md:col-6">
-                  <label class="field-label">Workload Size</label>
+                  <label class="field-label">Workload Sample</label>
                   <Select
                     v-model="config.dataset_size"
-                    :options="size_options"
+                    :options="dataset_size_options[config.dataset]"
+                    optionLabel="label"
+                    optionValue="value"
                     placeholder="Select Size"
                     class="w-full"
                     :disabled="dataset_lock_mode"
@@ -313,6 +315,7 @@ export default {
     return {
       p: 95,
       k: 10,
+      valid: true,
       config_updated: false,
       running: false,
       loading: false,
@@ -326,12 +329,45 @@ export default {
       calculating: false,
       selected_pipeline_mode: 'Evaluation',
       dataset_options: [
-        { label: 'Aggregate', value: 'aggregate' },
-        { label: 'Spider', value: 'spider' },
-        { label: 'BIRD', value: 'bird' },
-        { label: 'Beaver', value: 'beaver' },
+        {
+          label: 'SQLyzr',
+          value: 'sqlyzr',
+        },
+        {
+          label: 'Custom',
+          value: 'custom',
+        },
       ],
-      size_options: ['small', 'full'],
+      dataset_size_options: {
+        sqlyzr: [
+          {
+            label: 'Sample 1',
+            value: 's1',
+          },
+          {
+            label: 'Sample 2',
+            value: 's2',
+          },
+          {
+            label: 'Sample 3',
+            value: 's3',
+          },
+          {
+            label: 'Full',
+            value: 'full',
+          },
+          {
+            label: 'Aligned',
+            value: 'aligned',
+          },
+        ],
+        custom: [
+          {
+            label: 'Full',
+            value: 'full',
+          },
+        ],
+      },
       selected_version: null,
       initialized: false,
       verified_scales: [],
@@ -482,7 +518,6 @@ export default {
         this.max_cpu = data.cpu_percent_max || 0
       }
       if (old_running !== this.running) {
-        console.log(data)
         const msg = data.msg ?? ''
         if (data.return_code === 0) {
           this.success = true
@@ -521,7 +556,6 @@ export default {
     },
     async cleanup() {
       const res = await this.call_api('api/config/cleanup', { method: 'POST' })
-      console.log(res)
       await this.fetchConfig()
       this.$toast.add({
         severity: 'success',
@@ -602,9 +636,7 @@ export default {
       this.selected_version = `v${highest}`
       this.loading = false
     },
-
     async saveConfig() {
-      console.log('SAVING CONFIG:', this.config)
       this.loading = true
       await this.call_api(
         'api/config',
@@ -620,21 +652,31 @@ export default {
       const response = await this.call_api('api/config/reset', { method: 'POST' }, true)
       await this.fetchConfig()
     },
-
     async getVerifiedScales() {
       return await this.call_api('api/db/factors', {}, false)
     },
   },
   watch: {
+    'config.dataset': {
+      deep: true,
+      async handler(newVal, oldVal) {
+        this.config.dataset_size = this.dataset_size_options[this.config.dataset][0].value
+      },
+    },
     config: {
       deep: true,
-      async handler(newVal) {
+      async handler(newVal, oldVal) {
+        console.log('Config changed:', newVal)
+        if (newVal.dataset !== oldVal.dataset) {
+          console.log('Config changed:', newVal)
+        }
         try {
-          console.log('WATCHING CONFIG:', newVal)
-          this.config_updated = false
-          await this.saveConfig()
+          if (this.valid) {
+            this.config_updated = false
+            await this.saveConfig()
+            this.config_updated = true
+          }
           // await this.fetchConfig()
-          this.config_updated = true
         } catch (e) {
           console.error('Error saving configuration:', e, newVal)
           return
@@ -661,13 +703,10 @@ export default {
       },
       deep: true,
     },
-
     'config.scales': {
       async handler(newArr) {
         const result = await this.getVerifiedScales()
-        console.log('VERIFIED SCALES:', result)
         const verified_scales = result.verified_scales
-        console.log('SCALES:', result.verified_scales, this.config.scales)
         const isSubset = (a, b) => a.every((v) => b.includes(v))
         const valid_scales = isSubset(this.config.scales, verified_scales)
         if (!valid_scales) {

@@ -1,6 +1,5 @@
 import os.path
-import shutil
-from typing import List, Optional
+from typing import List
 
 from loguru import logger
 from natsort import natsorted
