@@ -29,7 +29,8 @@ def assign_cats(rows):
     return new_rows
 
 
-include_dbs = ["book_2", "musical", "phone_1", "twitter_1", "race_track", "twitter_1", "university_basketball"]
+include_dbs = ["book_2", "musical", "phone_1", "twitter_1", "race_track", "twitter_1", "university_basketball", "fram",
+               "phone_1"]
 
 
 def replace_small_json(path: str) -> str:
@@ -37,8 +38,8 @@ def replace_small_json(path: str) -> str:
 
 
 def sample_data(conf, small_data_path, num_dbs, data_per_db, exclude_dbs=frozenset()):
-    all_test_path = replace_small_json(small_data_path)
-    all_data = read_json(all_test_path)
+    all_data_path = replace_small_json(small_data_path)
+    all_data = read_json(all_data_path)
     collect_data = dict()
     for row in all_data:
         db_id = row['db_id']

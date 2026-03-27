@@ -3,7 +3,6 @@
     <Toast position="bottom-right" />
     <Card>
       <template #content>
-<!--        <WorkloadUpload />-->
         <div class="grid">
           <div class="md:col-6 p-2">
             <div class="config-section">
@@ -94,7 +93,7 @@
                 </FormField>
               </div>
               <div class="grid w-full">
-                <FormField class="md:col-5">
+                <FormField class="md:col-3">
                   <label class="field-label">Workload Version</label>
                   <Select
                     display="chip"
@@ -104,13 +103,19 @@
                     :options="config.dataset_versions"
                   />
                 </FormField>
-                <FormField class="md:col-6">
+                <FormField class="md:col-3">
                   <FloatLabel variant="in">
                     <label class="field-label">Force Evaluation</label>
                     <div class="flex align-items-center">
                       <ToggleSwitch v-model="config.eval_force" />
                       <span class="ml-2">{{ config.eval_force ? 'On' : 'Off' }}</span>
                     </div>
+                  </FloatLabel>
+                </FormField>
+                <FormField class="md:col-6">
+                  <FloatLabel variant="in">
+                    <label class="field-label">Upload Workload</label>
+                    <WorkloadUpload/>
                   </FloatLabel>
                 </FormField>
                 <!--                <RCalc />-->
@@ -290,6 +295,7 @@ import RCalc from '@/views/RCalc.vue'
 import isEqual from 'lodash/isEqual'
 import Message from 'primevue/message'
 import WorkloadUpload from '@/views/WorkloadUpload.vue'
+import Dialog from 'primevue/dialog'
 
 export default {
   components: {
@@ -313,6 +319,7 @@ export default {
     AutoComplete,
     SelectButton,
     Message,
+    Dialog,
   },
   data() {
     return {

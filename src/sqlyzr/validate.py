@@ -30,10 +30,22 @@ async def validate_dataset(dataset_configs: List[DatasetConfig]):
     for ds_conf in dataset_configs:
         test_data = read_json(ds_conf.get_test_path())
         train_data = read_json(ds_conf.get_test_path())
+        tables = read_json(ds_conf.get_tables_path())
+
+        db_ids = set(map(lambda x: x["db_id"], train_data)).union(set(map(lambda x: x["db_id"], test_data)))
+
+        table_db_ids = set(map(lambda x: x["db_id"], tables))
+
+        if not db_ids.issubset(table_db_ids):
+            raise RuntimeError(f"Database not found in tables.json: {db_ids.difference(table_db_ids)}")
 
         db_facade = DatabaseFactory.get_instance(ds_conf)
 
         db_facade.check_connection()
+
+        for db_id in db_ids:
+            if db_facade.get_tables(db_id) is None:
+                raise RuntimeError(f"Database not found for {db_id}")
 
         logger.info(f"Validating dataset={ds_conf.dataset_type}, train={len(train_data)}, test={len(test_data)} ")
 

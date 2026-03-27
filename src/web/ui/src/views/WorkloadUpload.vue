@@ -1,44 +1,56 @@
 <template>
-  <Card>
-    <template #title>
-      <h1>Upload Custom Data</h1>
-    </template>
-    <template #content>
-      <FileUpload
-        mode="basic"
-        accept=".zip"
-        :maxFileSize="50000000"
-        customUpload
-        @uploader="onUpload"
-        :auto="true"
-        chooseLabel="Upload ZIP"
-        class="ml-2"
-      />
-      <label class="field-label">Overwrite Existing Files?</label>
-      <div class="flex align-items-center h-full">
-        <ToggleSwitch v-model="overwrite" />
-        <span class="ml-2">{{ overwrite ? 'On' : 'Off' }}</span>
+  <Button label="Upload" @click="visible = true" icon="pi pi-upload" severity="info" />
+  <Dialog v-model:visible="visible" modal header="Upload Custom Workload">
+    <div class="grid">
+      <div class="col-12 text-align-center">
+        Upload a zip file containing the custom workload data.
       </div>
-    </template>
-  </Card>
+      <div class="col-12">
+        <div class="flex justify-end gap-2">
+          <FileUpload
+            mode="basic"
+            accept=".zip"
+            :maxFileSize="50000000"
+            customUpload
+            @uploader="onUpload"
+            :auto="true"
+            chooseLabel="Upload ZIP"
+            class="ml-2"
+          />
+        </div>
+        <div class="col-12">
+          <label class="field-label">Overwrite Existing Files?</label>
+          <div class="flex align-items-center h-full">
+            <ToggleSwitch v-model="overwrite" />
+            <span class="ml-2">{{ overwrite ? 'On' : 'Off' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Dialog>
 </template>
 
 <script>
 import Card from 'primevue/card'
+import Button from 'primevue/button'
 import FileUpload from 'primevue/fileupload'
 import { API_BASE_URL } from '@/config.ts'
 import ToggleSwitch from 'primevue/toggleswitch'
+import Dialog from 'primevue/dialog'
 
 export default {
   components: {
     Card,
     FileUpload,
     ToggleSwitch,
+    Button,
+    Dialog,
   },
   data() {
     return {
       loading: false,
-      overwrite: false,
+      overwrite: true,
+      visible: false,
     }
   },
   methods: {
@@ -83,7 +95,7 @@ export default {
           this.$toast.add({
             severity: 'success',
             summary: 'Success',
-            detail: data.message,
+            detail: 'Workload uploaded successfully. Select the Custom to use this workload.',
             life: 3000,
           })
         })
@@ -98,6 +110,7 @@ export default {
         })
         .finally(() => {
           this.loading = false
+          this.visible = false
         })
     },
   },

@@ -135,12 +135,13 @@ BEAVER_SMALL = DatasetConfig(
 
 CUSTOM_SQLITE_DATASET = DatasetConfig(
     dataset_dir=f"{BASE_DIR}/custom",
-    test_file="data.test.v0.json",
-    gold_file="data.test.gold.v0.txt",
+    test_file="data.test.json",
+    gold_file="data.test.gold.txt",
     train_file="data.train.json",
     tables_file="tables.json",
     db_dir="database",
-    dataset_type="spider"
+    dataset_type="spider",
+    ver="v0"
 )
 
 ALIGNED_ALL = DatasetConfig(
@@ -186,7 +187,7 @@ DATASETS = {
         "small": [BEAVER_SMALL]
     },
     "custom": {
-        "full": [SPIDER_SMALL]
+        "full": [CUSTOM_SQLITE_DATASET]
     },
     'sqlyzr': {
         "s1": [SPIDER_SMALL],

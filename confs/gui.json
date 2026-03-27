@@ -29,6 +29,7 @@
     "plots": [
         "Category Distribution",
         "Execution Accuracy",
+        "Gold Execution Time"
     ],
     "etcr": 1.46,
     "scales": [

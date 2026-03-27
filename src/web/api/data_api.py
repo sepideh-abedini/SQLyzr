@@ -7,6 +7,8 @@ from .base_api import BaseAPI
 from ...configs.datasets import CUSTOM_SQLITE_DATASET
 from ...sqlyzr.validate import validate_dataset
 
+BASE_DIR = os.environ.get("SQLYZR_DATA_DIR", "data")
+
 
 class DataAPI(BaseAPI):
 
@@ -26,7 +28,7 @@ class DataAPI(BaseAPI):
             return 0
 
     def get_data_dir(self):
-        return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'data')
+        return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), BASE_DIR)
 
     def list_data_files(self):
         try:
