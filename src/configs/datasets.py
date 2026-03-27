@@ -135,8 +135,8 @@ BEAVER_SMALL = DatasetConfig(
 
 CUSTOM_SQLITE_DATASET = DatasetConfig(
     dataset_dir=f"{BASE_DIR}/custom",
-    test_file="data.test.json",
-    gold_file="data.test.gold.txt",
+    test_file="data.test.v0.json",
+    gold_file="data.test.gold.v0.txt",
     train_file="data.train.json",
     tables_file="tables.json",
     db_dir="database",

@@ -157,14 +157,18 @@ class DataAPI(BaseAPI):
 
     async def upload_zip(self):
         try:
+            overwrite = request.args.get('overwrite', 'false').lower() == 'true'
             base_dir = self.get_data_dir()
 
             if 'file' not in request.files:
                 return jsonify({"error": "No file part"}), 400
 
             if os.path.exists(CUSTOM_SQLITE_DATASET.dataset_dir):
-                return jsonify({
-                    "error": f"Directory exists: {CUSTOM_SQLITE_DATASET.dataset_dir}, it should be removed before uploading new dataset"}), 400
+                if overwrite:
+                    shutil.rmtree(CUSTOM_SQLITE_DATASET.dataset_dir)
+                else:
+                    return jsonify({
+                        "error": f"Directory exists: {CUSTOM_SQLITE_DATASET.dataset_dir}, it should be removed before uploading new dataset"}), 400
 
             file = request.files['file']
             if file.filename == '':

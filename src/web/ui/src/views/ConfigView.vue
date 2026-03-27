@@ -3,6 +3,7 @@
     <Toast position="bottom-right" />
     <Card>
       <template #content>
+<!--        <WorkloadUpload />-->
         <div class="grid">
           <div class="md:col-6 p-2">
             <div class="config-section">
@@ -288,9 +289,11 @@ import ChartsView from '@/views/ChartsView.vue'
 import RCalc from '@/views/RCalc.vue'
 import isEqual from 'lodash/isEqual'
 import Message from 'primevue/message'
+import WorkloadUpload from '@/views/WorkloadUpload.vue'
 
 export default {
   components: {
+    WorkloadUpload,
     RCalc,
     LogsView,
     ChartsView,
@@ -751,8 +754,8 @@ export default {
     },
     dataset_lock_mode(newVal) {
       if (newVal) {
-        this.config.dataset = 'spider'
-        this.config.dataset_size = 'small'
+        this.config.dataset = 'sqlyzr'
+        this.config.dataset_size = 's1'
       }
     },
     'config.pipeline': {

@@ -3,7 +3,7 @@ import Menubar from 'primevue/menubar'
 import { BUILD_VERSION } from './config'
 
 const items = [
-  { label: 'Configuration', route: '/' },
+  { label: 'Dashboard', route: '/' },
   { label: 'Plots', route: '/plots' },
   { label: 'Error Analysis', route: '/errors' },
   { label: 'Categories', route: '/categories' },

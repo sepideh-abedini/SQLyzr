@@ -3,8 +3,8 @@
     "out_dir": "out",
     "aug_per_sub_cat": 5,
     "error_threshold": 0.8,
-    "dataset": "spider",
-    "dataset_size": "small",
+    "dataset": "sqlyzr",
+    "dataset_size": "s1",
     "dataset_versions": [
         "v0"
     ],
