@@ -1,7 +1,7 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Literal, List
+from typing import Literal, List, Dict
 
 from src.eval.dataset_config import DatasetConfig
 from src.util.file_utils import get_num_lines
@@ -25,6 +25,7 @@ class SingleRunConfig:
     tokens_file_name: str = "tokens"
     scores_file_name: str = "scores"
     batch: bool = False
+    options: Dict = field(default_factory=dict)
 
     def __post_init__(self):
         os.makedirs(Path(self.get_pred_path()).parent, exist_ok=True)

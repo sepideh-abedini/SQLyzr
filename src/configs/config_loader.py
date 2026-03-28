@@ -1,5 +1,5 @@
 import os.path
-from typing import List
+from typing import List, Literal
 
 from loguru import logger
 from natsort import natsorted
@@ -12,6 +12,12 @@ from src.eval.model_eval_config import ModelEvalConfig
 from src.eval.single_run_config import ModelName
 from src.sqlyzr.chart_config import PlotName
 from src.sqlyzr.pipeline_config import PipelineConfig
+
+LLM_MODEL_NAME = Literal["gpt-4.1-mini", "gpt-4.1", "gpt-5.4-nano", "gpt-5.4-mini", "gpt-5.4"]
+
+
+class ExtraOptions(BaseModel):
+    llm: LLM_MODEL_NAME = "gpt-4.1-mini"
 
 
 class ConfigData(BaseModel):
@@ -32,6 +38,7 @@ class ConfigData(BaseModel):
     etcr: float = 1.1
     scales: List[int] = []
     eval_force: bool = True
+    options: ExtraOptions = ExtraOptions()
 
     @property
     def last_version(self):
@@ -121,7 +128,8 @@ def load_config(path) -> SQLyzrConfig:
         batch=conf_data.batch,
         included_charts=conf_data.plots,
         models=conf_data.models,
-        scales=conf_data.scales
+        scales=conf_data.scales,
+        options=conf_data.options.dict(),
     )
     conf = SQLyzrConfig(
         idx=conf_data.idx,

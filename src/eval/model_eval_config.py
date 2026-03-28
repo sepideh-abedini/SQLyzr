@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import product
 from typing import List, Dict, Type
 from src.eval.dataset_config import DatasetConfig
@@ -22,6 +22,7 @@ class ModelEvalConfig:
     dataset_configs: List[DatasetConfig]
     metrics: Dict[str, Type[Metric]]
     scales: List[int]
+    options: Dict = field(default_factory=dict)
 
     @staticmethod
     def create(temps: List[float], num_itrs: int, pred_dir: str, eval_dir: str, trs_dir: str, charts_dir: str,
@@ -31,7 +32,8 @@ class ModelEvalConfig:
                included_charts: List[PlotName],
                models: List[ModelName],
                batch: bool,
-               scales: List[int]):
+               scales: List[int],
+               options: Dict[str, str]):
         run_confs = {}
         if len(temps) == 0:
             temps = [DEFAULT_TEMP]
@@ -46,7 +48,8 @@ class ModelEvalConfig:
                                            itr=itr,
                                            batch=batch,
                                            model=model,
-                                           scales=scales)
+                                           scales=scales,
+                                           options=options)
                     run_confs.setdefault(temp, []).append(conf)
         return ModelEvalConfig(
             run_confs=run_confs,

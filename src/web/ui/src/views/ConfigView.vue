@@ -48,12 +48,16 @@
                     />
                   </div>
                 </FormField>
-                <FormField class="md:col-3 h-full">
-                  <label class="field-label">Batch Mode</label>
-                  <div class="flex align-items-center h-full">
-                    <ToggleSwitch v-model="config.batch" />
-                    <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
-                  </div>
+                <FormField class="md:col-3">
+                  <label class="field-label">LLM</label>
+                  <Select
+                    filter
+                    placeholder="Select LLM"
+                    v-model="config.options.llm"
+                    :options="avail_llms"
+                    fluid
+                    class="w-full"
+                  />
                 </FormField>
               </div>
               <div class="grid">
@@ -93,14 +97,25 @@
               </div>
               <div class="grid w-full">
                 <FormField class="md:col-3">
+                  <FloatLabel variant="in">
+                    <label class="field-label">Upload Workload</label>
+                    <WorkloadUpload />
+                  </FloatLabel>
+                </FormField>
+                <FormField class="md:col-3">
                   <label class="field-label">Workload Version</label>
                   <Select
-                    display="chip"
-                    filter
                     placeholder="Select version"
                     v-model="selected_version"
                     :options="config.dataset_versions"
                   />
+                </FormField>
+                <FormField class="md:col-3 h-full">
+                  <label class="field-label">Batch Mode</label>
+                  <div class="flex align-items-center h-full">
+                    <ToggleSwitch v-model="config.batch" />
+                    <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
+                  </div>
                 </FormField>
                 <FormField class="md:col-3">
                   <FloatLabel variant="in">
@@ -109,12 +124,6 @@
                       <ToggleSwitch v-model="config.eval_force" />
                       <span class="ml-2">{{ config.eval_force ? 'On' : 'Off' }}</span>
                     </div>
-                  </FloatLabel>
-                </FormField>
-                <FormField class="md:col-6">
-                  <FloatLabel variant="in">
-                    <label class="field-label">Upload Workload</label>
-                    <WorkloadUpload />
                   </FloatLabel>
                 </FormField>
                 <!--                <RCalc />-->
@@ -338,6 +347,7 @@ export default {
       fail: false,
       calculating: false,
       selected_pipeline_mode: 'Evaluation',
+      avail_llms: ['gpt-4.1-mini', 'gpt-4.1', 'gpt-5.4-nano', 'gpt-5.4-mini', 'gpt-5.4'],
       dataset_options: [
         {
           label: 'SQLyzr',
@@ -413,6 +423,9 @@ export default {
           scale: false,
         },
         plots: [],
+        options: {
+          llm: 'gpt-4.1',
+        },
       },
       modelOptions: [
         { label: 'DIN-SQL', value: 'din' },
@@ -850,8 +863,7 @@ export default {
 
 .p-multiselect,
 .p-inputtext,
-.p-inputchips-input
-{
+.p-inputchips-input {
   height: 40px;
   display: flex;
   align-items: center;
