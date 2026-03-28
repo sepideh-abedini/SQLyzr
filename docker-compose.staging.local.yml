@@ -24,7 +24,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ui.tls=true"
-      - "traefik.http.routers.ui.rule=Host(`temp.${SQLYZR_DOMAIN}`)"
+      - "traefik.http.routers.ui.rule=Host(`${SQLYZR_SUB}.${SQLYZR_DOMAIN}`)"
 
   mysql:
     image: mysql:8.0

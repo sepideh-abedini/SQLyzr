@@ -27,7 +27,7 @@ jobs:
     runs-on: [ self-hosted, cd ]
     environment:
       name: staging
-      url: https://temp.${{vars.SQLYZR_DOMAIN}}
+      url: https://${{vars.SQLYZR_SUB}}.${{vars.SQLYZR_DOMAIN}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,6 +71,7 @@ jobs:
           echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> .env
           echo "MYSQL_HOST=${{ vars.MYSQL_HOST }}" >> .env
           echo "SQLYZR_DOMAIN=${{ vars.SQLYZR_DOMAIN }}" >> .env
+          echo "SQLYZR_SUB=${{ vars.SQLYZR_SUB }}" >> .env
           echo "SQLYZR_WEB_PORT=${{ vars.SQLYZR_WEB_PORT }}" >> .env
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
 
@@ -95,7 +96,7 @@ jobs:
         env: ${{ vars }}
         run: |
           for i in {1..10}; do
-            if curl -fs https:///temp.$SQLYZR_DOMAIN/api/health; then
+            if curl -fs https:///$SQLYZR_SUB.$SQLYZR_DOMAIN/api/health; then
               echo "Server is up"
               exit 0
             fi

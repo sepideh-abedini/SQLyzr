@@ -5,7 +5,7 @@ services:
         - "${IMAGE_TAG}"
       args:
         SQLYZR_WEB_PORT: "${SQLYZR_WEB_PORT}"
-        SQLYZR_API_URL: "https://ui.${SQLYZR_DOMAIN}"
+        SQLYZR_API_URL: "https://${SQLYZR_SUB}.${SQLYZR_DOMAIN}"
     volumes:
       - "web_out:/app/out"
       - "./data:/app/data"

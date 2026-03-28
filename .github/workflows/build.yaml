@@ -80,5 +80,5 @@ jobs:
           build-args: |
             SQLYZR_BUILD_VERSION=${{ github.sha }}
             SQLYZR_WEB_PORT=${{vars.SQLYZR_WEB_PORT}}
-            SQLYZR_API_URL=https://temp.${{vars.SQLYZR_DOMAIN}}
+            SQLYZR_API_URL=https://${{vars.SQLYZR_SUB}}.${{vars.SQLYZR_DOMAIN}}
 
