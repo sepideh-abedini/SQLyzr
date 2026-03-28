@@ -46,6 +46,7 @@ class ConfigAPI(BaseAPI):
             try:
                 conf_data = ConfigData.load(self.config_file)
                 sqlyzr = Sqlyzr(self.config_file)
+                conf_data.save(self.config_file)
             except Exception as e:
                 conf_data_raw = read_json(self.config_file)
                 write_json(self.config_file, old_config)

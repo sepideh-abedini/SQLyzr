@@ -63,13 +63,12 @@
                 </FormField>
                 <FormField class="md:col-9">
                   <label class="field-label">Temperature</label>
-                  <MultiSelect
+                  <Chips
+                    v-tooltip.top="{ value: 'Enter a number followed by a comma', autoHide: true }"
                     v-model="config.temps"
-                    display="chip"
-                    :options="suggested_temps"
-                    filter
-                    placeholder="Select Temperatures"
-                    class="w-full"
+                    separator=","
+                    placeholder="Enter temperatures"
+                    class="w-full chips"
                     fluid
                   />
                 </FormField>
@@ -295,6 +294,7 @@ import isEqual from 'lodash/isEqual'
 import Message from 'primevue/message'
 import WorkloadUpload from '@/views/WorkloadUpload.vue'
 import Dialog from 'primevue/dialog'
+import Chips from 'primevue/chips'
 
 export default {
   components: {
@@ -319,6 +319,7 @@ export default {
     SelectButton,
     Message,
     Dialog,
+    Chips,
   },
   data() {
     return {
@@ -487,6 +488,9 @@ export default {
     },
   },
   methods: {
+    on_temp_change(event) {
+      console.log('Temp change:', event.value)
+    },
     clear() {
       this.running = false
       this.success = false
@@ -845,7 +849,9 @@ export default {
 }
 
 .p-multiselect,
-.p-inputtext {
+.p-inputtext,
+.p-inputchips-input
+{
   height: 40px;
   display: flex;
   align-items: center;
