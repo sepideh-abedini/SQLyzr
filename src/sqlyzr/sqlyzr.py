@@ -24,7 +24,7 @@ class Sqlyzr:
         self.conf_path = conf_path
         self.messanger = Messanger()
 
-    async def run(self):
+    async def run(self, allow_aug: bool = True):
         run_status = PipelineConfig.init()
 
         if self.conf.pipeline.verify:
@@ -65,7 +65,7 @@ class Sqlyzr:
             trs_finder.post_process()
             run_status.analysis = True
 
-        if self.conf.pipeline.augment:
+        if allow_aug and self.conf.pipeline.augment:
             augmentor = DatasetAugmentor(self.conf)
             new_ver = await augmentor.augment_data(expand=True)
             run_status.augment = True
