@@ -8,5 +8,6 @@ def draw_graph(ast: SqlAstNode, out_path: str):
     visitor = AstDiagramTreeExtractor()
     root = ast.accept(visitor)
     graph = graphviz.Digraph(comment=ast.__class__.__name__)
+    graph.attr(dpi='300')  # for high-resolution output
     root.add_to_graph(graph)
     graph.render(out_path, format='png', cleanup=True)

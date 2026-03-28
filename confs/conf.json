@@ -1,28 +1,42 @@
 {
-    "aug_per_sub_cat": 5,
-    "batch": false,
-    "charts": [
-        "Execution Accuracy",
-        "Relaxed Execution Accuracy",
-        "Overall"
-    ],
     "dataset": "spider",
     "dataset_size": "small",
-    "error_threshold": 90,
-    "force": false,
     "itrs": 1,
     "models": [
-        "din"
+        "custom"
     ],
     "pipeline": {
+        "scale": false,
         "verify": true,
         "predict": true,
         "eval": true,
-        "charts": true,
-        "transformers": false,
+        "analysis": true,
+        "plots": false,
         "augment": false
     },
+    "plots": [
+        "Execution Accuracy",
+        "Overall",
+        "Execution Accuracy",
+        "Relaxed Execution Accuracy",
+        "Exact Match",
+        "Execution Time",
+        "Token Usage",
+        "Gold Execution Time",
+        "Category Distribution"
+    ],
+    "options": {
+        "llm": "gpt-4.1-mini"
+    },
+    "aug_per_sub_cat": 5,
+    "error_threshold": 0.7,
+    "dataset_versions": [
+        "v0"
+    ],
     "temps": [
         0.2
-    ]
+    ],
+    "batch": false,
+    "etcr": 1.46,
+    "out_dir": "out"
 }

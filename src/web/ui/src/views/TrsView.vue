@@ -226,7 +226,10 @@ export default {
 
       const temp = tokens[tokens.length - 2]
       const iteration = tokens[tokens.length - 1]
-      const base = tokens.slice(0, -2).join(' ')
+      let base = tokens.slice(0, -2).join(' ')
+      base = base.replace('spider', 's1')
+      base = base.replace('bird', 's2')
+      base = base.replace('beaver', 's3')
 
       return `${base}, temp = ${temp}, iteration = ${iteration}`
     },

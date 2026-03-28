@@ -29,6 +29,15 @@ def write_json(path: str, data):
         f.write(json.dumps(data, indent=4))
 
 
+def write_golds(input_path: str, output_path: str):
+    data = read_json(input_path)
+    with open(output_path, "w") as f:
+        for row in data:
+            db_id = row["db_id"]
+            sql = row["query"]
+            f.write(f"{sql}\t{db_id}\n")
+
+
 def get_num_lines(file_path: str):
     with open(file_path) as f:
         return len(f.readlines())

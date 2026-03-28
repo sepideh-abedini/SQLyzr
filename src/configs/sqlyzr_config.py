@@ -14,7 +14,8 @@ class SQLyzrConfig:
     eval_conf: ModelEvalConfig
     aug_dir: str
     error_threshold: float
-    etc_ratio: float = 1.1
+    ds_versions: list[str]
+    etc_ratio: float = 1.46
     aug_per_sub_cat: int = 2
     pipeline: PipelineConfig = PipelineConfig
     eval_force: bool = True

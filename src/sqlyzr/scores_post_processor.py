@@ -59,7 +59,6 @@ class ScoresPostProcessor:
         sub_grouped['etc'] = etc
         sub_grouped = sub_grouped.reset_index()
         sub_grouped.to_csv(config.get_scores_path("_sub"))
-        logger.info(f"Sub grouped cols: {len(sub_grouped.columns)}")
 
         cat_grouped = df.drop(columns=['sub']).groupby(['model', 'dst_ver', 'tmp', 'cat'])
         cc = cat_grouped.apply(metric_consistency('plc'))
@@ -70,7 +69,6 @@ class ScoresPostProcessor:
         cat_grouped['sub'] = 'all'
         cat_grouped = cat_grouped.reset_index()
         cat_grouped.to_csv(config.get_scores_path("_cat"))
-        logger.info(f"sub = all  cols: {len(cat_grouped.columns)}")
 
         tmp_cat_grouped = df.drop(columns=['sub']).groupby(['model', 'dst_ver', 'tmp', 'cat'])
         cc = tmp_cat_grouped.apply(metric_consistency('plc'))
@@ -90,7 +88,6 @@ class ScoresPostProcessor:
         all_cats['sub'] = 'all'
         all_cats = all_cats.reset_index()
         all_cats.to_csv(config.get_scores_path("_all"))
-        logger.info(f"cat = all cols: {len(all_cats.columns)}")
 
         combined = pd.concat([sub_grouped, cat_grouped, all_cats], ignore_index=True)
         combined.to_csv(config.get_scores_path("_combined"))

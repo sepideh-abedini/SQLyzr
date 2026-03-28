@@ -31,7 +31,6 @@ def process_initializer():
 
 
 def exec_multi_process(fun: Callable[[T], U], vals: List[T], desc: str = "", num_procs: int = NUM_PROCS) -> List[U]:
-    print("NUM PROCS", num_procs)
     if num_procs < 2:
         return __exec_with_map(fun, vals, desc)
     else:

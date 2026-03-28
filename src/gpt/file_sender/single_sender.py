@@ -1,7 +1,6 @@
 import os
 from typing import List
 
-
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.gateway.gateway import GptGateway
 from src.gpt.models import BatchInputRequest, BatchInputResponse
@@ -11,7 +10,6 @@ from src.util.model_utils import read_jsonl
 
 class GptSingleSender(GptFileSender):
     _gateway: GptGateway
-    ASYNC_BATCH = int(os.environ.get("ASYNC_BATCH", 1))
 
     def __init__(self):
         super().__init__()

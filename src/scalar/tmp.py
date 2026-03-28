@@ -1,6 +1,6 @@
 from src.configs.datasets import SPIDER_ALL
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_factory import DatabaseFactory
+from src.db.db_factory import DatabaseFactory
 from src.scalar.utils.db_stats import get_db_stats
 from src.scalar.utils.export_ddls import apply_migration, revert_backup, export_ddl
 from src.scalar.utils.gen_mig import generate_migration_script

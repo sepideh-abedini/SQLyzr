@@ -28,7 +28,7 @@ import json
 from nltk import word_tokenize
 
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_factory import DatabaseFactory
+from src.db.db_factory import DatabaseFactory
 
 CLAUSE_KEYWORDS = ('select', 'from', 'where', 'group', 'order', 'limit', 'intersect', 'union', 'except')
 JOIN_KEYWORDS = ('join', 'on', 'as')

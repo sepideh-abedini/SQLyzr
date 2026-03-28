@@ -12,7 +12,7 @@ import sqlparse
 from loguru import logger
 
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_factory import DatabaseFactory
+from src.db.db_factory import DatabaseFactory
 
 
 # process the case of duplicated output of ChatGPT and GPT4 for SQL Representation with QA or SQLONLY Organization

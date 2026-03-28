@@ -1,15 +1,12 @@
 import argparse
 import asyncio
-import os
-import time
 
 from dotenv import load_dotenv
 from loguru import logger
 
-from src.configs.config_loader import load_config
-from src.util.monitor import MonitorProcess
-
 load_dotenv()
+
+from src.configs.config_loader import load_config
 
 from src.sqlyzr.sqlyzr import Sqlyzr
 

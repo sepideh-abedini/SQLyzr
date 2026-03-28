@@ -97,18 +97,22 @@
               </div>
               <div class="grid w-full">
                 <FormField class="md:col-3">
-                  <FloatLabel variant="in">
-                    <label class="field-label">Upload Workload</label>
-                    <WorkloadUpload />
-                  </FloatLabel>
-                </FormField>
-                <FormField class="md:col-3">
                   <label class="field-label">Workload Version</label>
                   <Select
                     placeholder="Select version"
                     v-model="selected_version"
                     :options="config.dataset_versions"
                   />
+                </FormField>
+
+                <FormField class="md:col-3">
+                  <FloatLabel variant="in">
+                    <label class="field-label">Force Evaluation</label>
+                    <div class="flex align-items-center">
+                      <ToggleSwitch v-model="config.eval_force" />
+                      <span class="ml-2">{{ config.eval_force ? 'On' : 'Off' }}</span>
+                    </div>
+                  </FloatLabel>
                 </FormField>
                 <FormField class="md:col-3 h-full">
                   <label class="field-label">Batch Mode</label>
@@ -117,13 +121,11 @@
                     <span class="ml-2">{{ config.batch ? 'On' : 'Off' }}</span>
                   </div>
                 </FormField>
+
                 <FormField class="md:col-3">
                   <FloatLabel variant="in">
-                    <label class="field-label">Force Evaluation</label>
-                    <div class="flex align-items-center">
-                      <ToggleSwitch v-model="config.eval_force" />
-                      <span class="ml-2">{{ config.eval_force ? 'On' : 'Off' }}</span>
-                    </div>
+                    <label class="field-label">Upload Workload</label>
+                    <WorkloadUpload />
                   </FloatLabel>
                 </FormField>
                 <!--                <RCalc />-->

@@ -6,7 +6,7 @@ import tqdm
 
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.models import SqlyzrChatCompletion
-from src.rel.db_facade import DB_CACHE
+from src.db.db_facade import DB_CACHE
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.utils.post_process import process_duplication, get_sqls
 from src.util.str_utils import shrink_whitespaces

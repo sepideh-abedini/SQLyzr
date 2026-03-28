@@ -4,7 +4,7 @@ from collections import defaultdict
 from loguru import logger
 
 from src.configs.sqlyzr_config import SQLyzrConfig
-from src.model.custom_runner import CustomRunner
+from src.model.custom.custom_runner import CustomRunner
 from src.sqlyzr.model_runner import DinRunner, DailRunner, DummyRunner, SimpleRunner, SimpleRunnerV2
 
 MODELS = {

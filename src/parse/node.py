@@ -500,10 +500,10 @@ class GroupClauseNode(SqlAstNode):
 
 def sym_eq(left: SqlAstNode, right: SqlAstNode):
     if left is None:
-        print("Left null")
+        # print("Left null")
         return right == left
     else:
-        print("Left not null")
+        # print("Left not null")
         return left == right
 
 @dataclass

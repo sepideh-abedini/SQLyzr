@@ -31,8 +31,6 @@ def configure_logging():
     # logger.add("info.log", level="INFO")
     # logger.add("trace.log", level="DEBUG")
     # logger.add("debug.log", level="DEBUG")
-    # logger.add("db.trace.log", level="TRACE", filter="src.rel.db_facade")
-    # logger.add("db.debug.log", level="DEBUG", filter="src.rel.db_facade")
     # logger.add("post_process.trace.log", level="TRACE", filter="src.third_party.dail.utils.post_process")
     # logger.add(sys.stderr, level=LOG_LEVEL, colorize=True, enqueue=True, format="<green>{time:HH:mm:ss} | </green><cyan>[{module}:{function}:{line}]</cyan><level> {level}: {message}</level>")
     logger.add(sys.stderr, level=LOG_LEVEL, colorize=True, enqueue=True,
@@ -74,8 +72,3 @@ def alog(name: str) -> Callable:
     return decorator
 
 
-_LOGGING_CONFIGURED = False
-if not _LOGGING_CONFIGURED:
-    configure_logging()
-    logger.info(f"Logging configured!")
-    _LOGGING_CONFIGURED = True

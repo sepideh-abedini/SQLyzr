@@ -1,4 +1,4 @@
-from src.rel.db_factory import DatabaseFactory
+from src.db.db_factory import DatabaseFactory
 from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy
 from src.third_party.dail.utils.utils import get_create_sqls_for_database
 import json

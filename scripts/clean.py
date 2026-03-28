@@ -11,8 +11,8 @@ from src.cat.catter import Catter
 from src.configs.config_loader import load_config
 from src.dataset.models import SpiderExample
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_facade import DatabaseFacade
-from src.rel.db_factory import DatabaseFactory
+from src.db.db_facade import DatabaseFacade
+from src.db.db_factory import DatabaseFactory
 from src.util.log_util import configure_logging
 from src.util.multi_thread_utils import exec_multi_process
 from src.util.str_utils import shrink_whitespaces

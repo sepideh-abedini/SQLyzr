@@ -1,17 +1,13 @@
-import os
 from flask import jsonify, request
 from loguru import logger
 
 from .base_api import BaseAPI
 from ...configs.config_loader import load_config
 from ...configs.datasets import SPIDER_ALL
-from ...new_scale.apply_sdv import apply_scaling
-from ...rel.db_facade import DatabaseFacade
-from ...rel.db_factory import DatabaseFactory
+from ...db.db_factory import DatabaseFactory
 from ...scalar.tmp import scale_db
 from ...scalar.utils.export_ddls import revert_backup
-from ...scalar.utils.table_meta import get_tables, exec_sql
-from ...sqlyzr.run_scale_cli import verify_hash, save_hash
+from ...sqlyzr.run_scale_cli import verify_hash
 from ...util.file_utils import read_json
 
 

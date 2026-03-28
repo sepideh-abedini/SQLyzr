@@ -6,17 +6,13 @@ from typing import List, Tuple
 from loguru import logger
 from natsort import natsorted
 
-from src.cat.catter import Catter
+from src.analyzer.letter_casing_transformer import LetterCasingTransformer
+from src.analyzer.sql_data import SqlInputData, SqlParsedData
+from src.db.db_facade import DatabaseFacade, DB_TIMEOUT
+from src.db.db_factory import DatabaseFactory
 from src.eval import lib
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
-from src.eval.single_run_config import SingleRunConfig
-from src.rel.db_facade import DatabaseFacade, DB_TIMEOUT
-from src.rel.db_factory import DatabaseFactory
-from src.rel.result_matcher import ExtraColumnsMatcher, IgnoreListOrderMatcher, IgnoreColOrderMatcher
-from src.rel.sql_data import SqlInputData, SqlParsedData
-from src.rel.sql_transformer import LetterCasingTransformer
-from src.rel.transformer_detector import TransformerDetector
 from src.third_party.dail.utils.utils import DB_LONG_TIMEOUT
 from src.third_party.spider.evaluation import get_spider_exact_match
 
@@ -95,33 +91,6 @@ class GoldNotEmpty(Metric):
             return 0
 
 
-class RelaxedExecAcc(Metric):
-
-    def __init__(self, name: str, conf: DatasetConfig):
-        super().__init__(name, conf)
-        self.detector = TransformerDetector(conf, [
-            LetterCasingTransformer(),
-            IgnoreListOrderMatcher(),
-            IgnoreColOrderMatcher(),
-            # IgnoreListOrderMatcher(),
-            ExtraColumnsMatcher()
-        ])
-
-    def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> int:
-        try:
-            pd = SqlInputData(db_id, pred)
-            gd = SqlInputData(db_id, gold)
-            # working_sub = self.detector.find_working_sub_sync(pd, gd)
-            working_sub = self.detector.apply_all(pd, gd)
-            if working_sub is not None:
-                return 1
-            else:
-                return 0
-        except Exception as e:
-            logger.debug(e)
-        return 0
-
-
 class NewRelaxedExecAcc(Metric):
 
     def __init__(self, name: str, conf: DatasetConfig):
@@ -153,45 +122,29 @@ class NewRelaxedExecAcc(Metric):
             logger.debug(e)
         return None
 
-    def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> Tuple[int, int, int, int]:
+    def calc(self, gold: str, pred: str, db_id: str, scale: int = 1) -> int:
         transformer = LetterCasingTransformer()
 
-        gold_sql_exec_time = 0
-        pred_sql_exec_time = 0
         try:
             pred_data = SqlInputData(db_id, pred)
             gold_data = SqlInputData(db_id, gold)
             pred_parsed, gold_parsed = self.parse(pred_data), self.parse(gold_data)
             pred_data, gold_data = transformer.transform_sql(pred_parsed, gold_parsed)
 
-            timer = lib.Timer.start()
             pred_sql_exec_res = self.dbc.exec_query_uncached(db_id, pred_data.sql, scale=scale, timeout=DB_LONG_TIMEOUT)
-            pred_sql_exec_time = timer.lap()
-            pred_sql_exec_time *= 1_000_000
-
-            timer = lib.Timer.start()
             gold_sql_exec_res = self.dbc.exec_query_uncached(db_id, gold_data.sql, scale=scale, timeout=DB_LONG_TIMEOUT)
-            gold_sql_exec_time = timer.lap()
-            gold_sql_exec_time *= 1_000_000
 
             if gold_sql_exec_res is None:
                 raise RuntimeError("Gold result is None!")
             if pred_sql_exec_res is None:
-                return 0, 0, gold_sql_exec_time, pred_sql_exec_time
+                return 0
             if self.check_equi(gold_sql_exec_res, pred_sql_exec_res):
-                ea = int(pred_sql_exec_res == gold_sql_exec_res)
-                return 1, ea, gold_sql_exec_time, pred_sql_exec_time
+                return 1
             else:
-                return 0, 0, gold_sql_exec_time, pred_sql_exec_time
+                return 0
         except Exception as e:
             logger.error(e)
-            if gold_sql_exec_time == 0:
-                gold_data = SqlInputData(db_id, gold)
-                timer = lib.Timer.start()
-                gold_sql_exec_res = self.dbc.exec_query_uncached(db_id, gold_data.sql, scale=scale, timeout=DB_LONG_TIMEOUT)
-                gold_sql_exec_time = timer.lap()
-                gold_sql_exec_time *= 1_000_000
-        return 0, 0, gold_sql_exec_time, pred_sql_exec_time
+        return 0
 
 
 class Count(Metric):

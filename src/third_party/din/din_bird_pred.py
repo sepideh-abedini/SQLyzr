@@ -11,9 +11,9 @@ from src.eval.lib import TimeLogger
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.models import BatchInputRequest
+from src.model.predictor import Predictor, load_data, process_responses
 from src.parse.parser import SqlParser
-from src.pred.predictor import Predictor, process_responses, load_data
-from src.rel.db_factory import DatabaseFactory
+from src.db.db_factory import DatabaseFactory
 from src.third_party.din.bird.bird_prompt_maker import schema_linking_prompt, classification_prompt, easy_prompt, \
     medium_prompt, hard_prompt, correction_prompt
 from src.third_party.din.bird.utils import table_descriptions_parser, get_database_schema, extract_schema_links, \

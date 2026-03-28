@@ -120,7 +120,7 @@ class Drawer:
         to_drop = list(to_drop.difference({x}))
         # We are using raw scores, so we need this
         mean_values = df.drop(columns=to_drop).groupby(["Model", 'Workload Version', x], observed=False).mean()
-        mean_values = mean_values.groupby(["Model", 'Workload Version']).mean()
+        mean_values = mean_values.groupby(["Model", 'Workload Version'], observed=False).mean()
         #
         for (model, dst_ver) in df[["Model", 'Workload Version']].drop_duplicates().itertuples(index=False):
             new_row = {"Model": model, 'Workload Version': dst_ver, 'Category': "overall", "SubCategory": "overall"}
@@ -216,6 +216,7 @@ class Drawer:
         path = os.path.join(save_dir, f"{snakecase(title)}.png")
         plt.savefig(path, bbox_inches='tight', dpi=300)
         logger.info(f"Plot saved to {path}")
+        plt.close()
 
     def draw_metric_mean(self, x: str, metric: str):
         df = self.df
@@ -354,12 +355,12 @@ class Drawer:
         print("DRAWING OVERALL")
         df = melt_scores(self.df)
         cat_avg = (
-            df.groupby(["Model", "Dataset", "Workload Version", "Metric", "Category"])["Score"]
+            df.groupby(["Model", "Dataset", "Workload Version", "Metric", "Category"], observed=False)["Score"]
             .mean()
             .reset_index()
         )
         macro_avg = (
-            cat_avg.groupby(["Model", "Dataset", "Workload Version", "Metric"])["Score"]
+            cat_avg.groupby(["Model", "Dataset", "Workload Version", "Metric"], observed=False)["Score"]
             .mean()
             .reset_index()
         )

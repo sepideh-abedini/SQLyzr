@@ -1,0 +1,19 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: on-failure
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_HOSTS=%
+      - MYSQL_ROOT_PASSWORD=sheep
+    volumes:
+      - "./confs/mysql.cnf:/etc/mysql/conf.d/mysql.cnf"
+      - "./data/beaver/dumps:/docker-entrypoint-initdb.d"
+      - "./data/beaver:/beaver"
+      - "./data/beaver_data:/var/lib/mysql"
+    networks:
+      - sqlyzr
+
+networks:
+  sqlyzr:

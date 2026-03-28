@@ -1,6 +1,6 @@
 from typing import List
 
-from src.pred.predictor import Predictor, load_data
+from src.model.predictor import load_data, Predictor
 
 
 class DummyPredictor(Predictor):

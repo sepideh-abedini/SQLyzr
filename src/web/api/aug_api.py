@@ -9,7 +9,7 @@ from loguru import logger
 
 from .base_api import BaseAPI
 from ...configs.config_loader import load_config, ConfigData
-from ...rel.sqlite_facade import SqliteFacade
+from ...db.sqlite_facade import SqliteFacade
 from ...sqlyzr.sqlyzr import Sqlyzr
 from ...util.file_utils import read_json, write_json
 

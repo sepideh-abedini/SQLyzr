@@ -25,8 +25,8 @@ import argparse
 import json
 
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_facade import DatabaseFacade
-from src.rel.db_factory import DatabaseFactory
+from src.db.db_facade import DatabaseFacade
+from src.db.db_factory import DatabaseFactory
 from src.third_party.spider.process_sql import get_schema, Schema, get_sql
 
 # Flag to disable value evaluation

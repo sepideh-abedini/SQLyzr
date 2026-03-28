@@ -3,9 +3,9 @@ import time
 
 import backoff
 from diskcache import Cache
-from openai import AsyncClient, RateLimitError
+from openai import AsyncClient, RateLimitError, api_key
 
-from src.gpt.gateway.gateway_exceptions import GptRateLimitException
+from src.gpt.gateway.gateway_exceptions import GptRateLimitException, GptGatewayException
 from src.gpt.gateway.single.token_tracker import GptTokenTracker
 from src.gpt.models import BatchInputRequest, BatchInputResponse
 from loguru import logger
@@ -58,4 +58,7 @@ class GptGateway:
         except RateLimitError as e:
             logger.warning(f"Rate Limit error: {e}")
             raise GptRateLimitException()
+        except Exception as e:
+            logger.error(f"GPT request failed {e}")
+            raise GptGatewayException(e)
         return result_with_fin

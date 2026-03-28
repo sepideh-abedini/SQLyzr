@@ -6,7 +6,7 @@ from loguru import logger
 
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.models import BatchInputRequest, SqlyzrChatCompletion
-from src.pred.predictor import Predictor
+from src.model.predictor import Predictor
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.data_preprocess import DailSchemaLinksGenerator
 from src.third_party.dail.generate_question import DailQuestionGenerator

@@ -1,3 +1,4 @@
+from src.analyzer.sqlyzr_exception import SqlyzrException
 from src.util.schema_repo import DatabaseSchemaRepo
 from src.eval.column_collector import ColumnCollector
 from src.parse.node import SqlAstNode
@@ -13,6 +14,8 @@ class ExactMatchParser:
         self.db_repo = DatabaseSchemaRepo(tables_json_path)
 
     def parse(self, sql: str, db_id: str) -> SqlAstNode:
+        if db_id not in self.db_repo.dbs:
+            raise SqlyzrException(f"Database not found: {db_id}")
         db_schema = self.db_repo.dbs[db_id]
         column_collector = ColumnCollector(db_schema)
         ast = parser.parse(sql)

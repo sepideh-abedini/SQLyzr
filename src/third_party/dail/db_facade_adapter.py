@@ -1,6 +1,6 @@
 from typing import Any
 
-from src.rel.db_facade import DatabaseFacade, DB_TIMEOUT
+from src.db.db_facade import DatabaseFacade, DB_TIMEOUT
 
 
 class DatabaseConnectionProxy:

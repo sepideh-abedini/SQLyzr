@@ -1,18 +1,32 @@
 {
-  "models": [
-    "dail"
+  "aug_per_sub_cat": 5,
+  "batch": false,
+  "charts": [
+    "Execution Time",
+    "Token Usage",
+    "Execution Time Consistency",
+    "Execution Time Inconsistency",
+    "Complexity Consistency",
+    "Complexity Inconsistency"
   ],
   "dataset": "agg",
   "dataset_size": "small",
-  "itrs": 1,
-  "temps": [
-    0.2
-  ],
-  "batch": false,
-  "aug_per_sub_cat": 5,
   "error_threshold": 90,
   "force": false,
+  "itrs": 1,
+  "models": [
+    "din",
+    "dail"
+  ],
   "pipeline": {
-    "verify": true
-  }
+    "eval": true,
+    "predict": true,
+    "verify": true,
+    "transformers": true,
+    "augment": false,
+    "charts": true
+  },
+  "temps": [
+    0.2
+  ]
 }

@@ -1,11 +1,11 @@
-from src.eval.metrics import ExactMatch, ExecAcc, GoldNotEmpty, ExecTime, RelaxedExecAcc, SpiderExactMatch, \
-    GoldExecTime
+from src.eval.metrics import ExactMatch, ExecAcc, GoldNotEmpty, ExecTime, SpiderExactMatch, \
+    GoldExecTime, NewRelaxedExecAcc
 
 SPIDER_METRICS = {
     "em": ExactMatch,
     "ea": ExecAcc,
     "gne": GoldNotEmpty,
-    "rea": RelaxedExecAcc,
+    "rea": NewRelaxedExecAcc,
     "et": ExecTime,
     "get": GoldExecTime,
     "sem": SpiderExactMatch,
@@ -14,7 +14,7 @@ SPIDER_METRICS = {
 BIRD_METRICS = {
     "em": ExactMatch,
     "ea": ExecAcc,
-    "rea": RelaxedExecAcc,
+    "rea": NewRelaxedExecAcc,
     "et": ExecTime,
     "get": GoldExecTime,
 }

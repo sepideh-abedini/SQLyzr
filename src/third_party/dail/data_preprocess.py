@@ -7,7 +7,7 @@ from loguru import logger
 from tqdm import tqdm
 
 from src.eval.single_run_config import SingleRunConfig
-from src.rel.db_factory import DatabaseFactory
+from src.db.db_factory import DatabaseFactory
 from src.sqlyzr.file_gen import FileGenerator
 from src.third_party.dail.dail_conf import DailConfig
 from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy

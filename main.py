@@ -1,18 +1,20 @@
-import argparse
-import asyncio
-import os
-
+from loguru import logger
 from dotenv import load_dotenv
 
-load_dotenv()
+from src.util.log_util import configure_logging
 
-from loguru import logger
+load_dotenv()
+configure_logging()
+
+logger.info("Loading modules")
+import argparse
+import asyncio
 
 from src.app_setup import setup_app
 from src.assets.print_logo import print_logo
-from src.eval.lib import Timer
 from src.sqlyzr.sqlyzr import Sqlyzr
-from src.util.monitor import MonitorProcess
+
+logger.info("Python modules loaded!")
 
 
 async def main(config_path: str):
@@ -24,13 +26,8 @@ async def main(config_path: str):
 
 if __name__ == '__main__':
     setup_app()
-    timer = Timer.start()
-    monitor = MonitorProcess(os.getpid())
     print_logo()
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", required=False, default="conf.json")
     args = parser.parse_args()
-    monitor.start()
     asyncio.run(main(args.config))
-    monitor.terminate()
-    print("TOTAL TIME: ", timer.lap())

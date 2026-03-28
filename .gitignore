@@ -34,10 +34,14 @@ conf.
 experimental_local
 .ipynb_checkpoints
 out
-!gui.json
+!tmp.conf.json
 *.pyc
 logs
 .python-version
 !requirements.txt
 conf.json
 out_old
+*.bak
+__pycache__
+clean_data
+*.err

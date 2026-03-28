@@ -12,8 +12,8 @@ from src.dataset.models import SpiderExample
 from src.eval.dataset_config import DatasetConfig
 from src.eval.exact_match import ExactMatchParser
 from src.eval.model_eval_config import ModelEvalConfig
-from src.rel.db_factory import DatabaseFactory
-from src.util.file_utils import read_json
+from src.db.db_factory import DatabaseFactory
+from src.util.file_utils import read_json, write_golds
 from src.util.multi_thread_utils import exec_multi_process
 
 
@@ -71,8 +71,10 @@ async def validate_dataset(dataset_configs: List[DatasetConfig]):
         if len(errors) > 0:
             logger.error("Invalid SQLs found!")
             logger.error(f"Num dataset errors: {len(errors)}/{total}")
-            with open(f"{ds_conf.get_test_path()}.clean", "w") as out_file:
+            clean_path = f"{ds_conf.get_test_path()}.clean"
+            with open(clean_path, "w") as out_file:
                 out_file.write(json.dumps(valid_examples, indent=True))
+            write_golds(clean_path, f"{clean_path}.gold.txt")
             raise RuntimeError("Invalid dataset")
         else:
             logger.info("Dataset is valid!")

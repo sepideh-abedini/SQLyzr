@@ -9,7 +9,7 @@ import numpy as np
 from src.configs.datasets import SPIDER_ALL, SPIDER_SMALL, BIRD_SMALL, BEAVER_SMALL
 from src.eval.dataset_config import DatasetConfig
 from src.eval.lib import Timer
-from src.rel.db_factory import DatabaseFactory
+from src.db.db_factory import DatabaseFactory
 from src.util.async_utils import apply_async
 from src.util.file_utils import read_json
 from src.util.log_util import configure_logging

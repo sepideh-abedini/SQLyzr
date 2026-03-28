@@ -5,9 +5,9 @@ import re
 from sql_metadata import Parser
 from transformers import AutoTokenizer
 
+from src.db.db_facade import DatabaseFacade
+from src.db.db_factory import DatabaseFactory
 from src.eval.dataset_config import DatasetConfig
-from src.rel.db_facade import DatabaseFacade
-from src.rel.db_factory import DatabaseFactory
 from src.third_party.dail.db_facade_adapter import DatabaseConnectionProxy
 from src.third_party.dail.utils.enums import LLM
 

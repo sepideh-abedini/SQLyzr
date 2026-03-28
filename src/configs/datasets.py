@@ -3,7 +3,7 @@ from typing import Literal
 
 from src.eval.dataset_config import DatasetConfig
 
-BASE_DIR = os.environ.get("SQLYZR_DATA_DIR", "data")
+BASE_DIR = os.environ.get("SQLYZR_DATA_DIR", "sample_data")
 
 SPIDER_SMALL = DatasetConfig(
     dataset_dir=f"{BASE_DIR}/spider",
@@ -31,7 +31,8 @@ SPIDER_ALL = DatasetConfig(
     gold_file="data.test.gold.txt",
     train_file="data.train.json",
     tables_file="tables.json",
-    db_dir="database"
+    db_dir="database",
+    ver="v0",
 )
 
 SPIDER_ALL_CAT = DatasetConfig(
@@ -109,7 +110,8 @@ BIRD_ALL = DatasetConfig(
     train_file="data.train.json",
     tables_file="tables.json",
     db_dir="database",
-    dataset_type="bird"
+    dataset_type="bird",
+    ver="v0"
 )
 
 BEAVER_ALL = DatasetConfig(

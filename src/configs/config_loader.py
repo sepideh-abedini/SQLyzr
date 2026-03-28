@@ -21,7 +21,6 @@ class ExtraOptions(BaseModel):
 
 
 class ConfigData(BaseModel):
-    data_dir: str = "data"
     out_dir: str = "out"
     aug_per_sub_cat: int = 2
     error_threshold: float = 101
@@ -36,7 +35,7 @@ class ConfigData(BaseModel):
     pipeline: PipelineConfig = PipelineConfig()
     plots: List[PlotName] = []
     etcr: float = 1.1
-    scales: List[int] = []
+    scales: List[int] = [1]
     eval_force: bool = True
     options: ExtraOptions = ExtraOptions()
 
@@ -140,6 +139,7 @@ def load_config(path) -> SQLyzrConfig:
         pipeline=conf_data.pipeline,
         etc_ratio=conf_data.etcr,
         eval_force=conf_data.eval_force,
+        ds_versions=conf_data.dataset_versions
     )
 
     return conf

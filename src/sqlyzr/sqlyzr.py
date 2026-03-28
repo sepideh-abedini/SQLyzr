@@ -1,17 +1,17 @@
 import os
 import shutil
 
-from src.chart.charter import draw_all_charts
 from src.configs.config_loader import load_config, ConfigData
 from src.configs.sqlyzr_config import SQLyzrConfig
 from src.ipc.messanger import Messanger
 from src.model.models import run_model
+from src.plots.charter import draw_all_charts
 from src.sqlyzr.augment_data import DatasetAugmentor
 from src.sqlyzr.pipeline_config import PipelineConfig
 from src.sqlyzr.run_scale_cli import scale_dbs
 from src.sqlyzr.score_calculator import ScoreCalculator
 from src.sqlyzr.scores_post_processor import ScoresPostProcessor
-from src.sqlyzr.transformer_eval import TransformerFinder
+from src.sqlyzr.transformer_eval_v2 import TransformerFinderNew
 from src.sqlyzr.validate import validate_dataset
 
 
@@ -30,7 +30,7 @@ class Sqlyzr:
         if self.conf.pipeline.verify:
             await validate_dataset(self.conf.eval_conf.dataset_configs)
             run_status.verify = True
-            self.messanger.write(f"Verify DONE!!")
+            self.messanger.write(f"Verify DONE!")
 
         if self.conf.pipeline.scale:
             scales = scale_dbs(self.conf_path)
@@ -51,7 +51,10 @@ class Sqlyzr:
         if self.conf.pipeline.plots:
             shutil.rmtree(self.conf.eval_conf.charts_dir)
             os.makedirs(self.conf.eval_conf.charts_dir, exist_ok=True)
-            for hue in ["Model", "Workload Version"]:
+            hues = ["Model"]
+            if len(self.conf.ds_versions) > 1:
+                hues.append("Workload Version")
+            for hue in hues:
                 draw_all_charts(self.conf.eval_conf.get_raw_scores_path(),
                                 out_dir=self.conf.eval_conf.charts_dir,
                                 included_charts=self.conf.eval_conf.included_charts,
@@ -60,7 +63,7 @@ class Sqlyzr:
             run_status.plots = True
 
         if self.conf.pipeline.analysis:
-            trs_finder = TransformerFinder(self.conf)
+            trs_finder = TransformerFinderNew(self.conf)
             trs_finder.run()
             trs_finder.post_process()
             run_status.analysis = True

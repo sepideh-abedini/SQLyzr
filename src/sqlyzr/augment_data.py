@@ -4,8 +4,8 @@ from typing import Optional, Set, Any
 import pandas as pd
 from loguru import logger
 
-from src.aug.auger import Auger
-from src.aug.text_sql_pair import TextSqlPair, GeneratedTextSqlPair
+from src.augmentation.auger import Auger
+from src.augmentation.text_sql_pair import GeneratedTextSqlPair
 from src.cat.categories import CATS
 from src.cat.sub_category import SubCategory
 from src.configs.sqlyzr_config import SQLyzrConfig

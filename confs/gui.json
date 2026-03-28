@@ -2,7 +2,7 @@
     "data_dir": "data",
     "out_dir": "out",
     "aug_per_sub_cat": 5,
-    "error_threshold": 0.8,
+    "error_threshold": 0.7,
     "dataset": "sqlyzr",
     "dataset_size": "s1",
     "dataset_versions": [
@@ -13,35 +13,29 @@
     ],
     "itrs": 1,
     "models": [
-        "direct"
+        "custom"
     ],
     "batch": false,
     "force": false,
     "pipeline": {
+        "verify": false,
+        "predict": true,
+        "eval": true,
         "analysis": true,
         "augment": false,
-        "eval": true,
-        "plots": true,
-        "predict": true,
-        "scale": false,
-        "verify": false
+        "plots": false,
+        "scale": false
     },
     "plots": [
-        "Category Distribution",
         "Execution Accuracy",
-        "Gold Execution Time"
+        "Overall"
     ],
     "etcr": 1.46,
     "scales": [
         1
     ],
     "eval_force": true,
-    "pipeline_status": {
-        "analysis": false,
-        "augment": false,
-        "eval": false,
-        "plots": false,
-        "predict": false,
-        "scale": false
+    "options": {
+        "llm": "gpt-4.1"
     }
 }

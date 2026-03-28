@@ -1,14 +1,17 @@
 import asyncio
 import os
+from loguru import logger
 
 from tqdm.asyncio import tqdm_asyncio
 
-ASYNC_BATCH = int(os.environ.get("ASYNC_BATCH", 1))
+ASYNC_BATCH = int(os.environ.get("ASYNC_BATCH", 10))
+
+logger.info(f"ASYNC BATCH: {ASYNC_BATCH}")
 
 
 async def apply_async(fun, items, desc=""):
-    print(ASYNC_BATCH)
     semaphore = asyncio.Semaphore(ASYNC_BATCH)
+
     async def sem_task(item):
         async with semaphore:
             res = await fun(item)
@@ -21,4 +24,3 @@ async def apply_async(fun, items, desc=""):
     results = await tqdm_asyncio.gather(*tasks, desc=desc, total=len(items))
 
     return results
-

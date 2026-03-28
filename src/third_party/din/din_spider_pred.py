@@ -7,8 +7,8 @@ from src.eval.lib import TimeLogger
 from src.eval.single_run_config import SingleRunConfig
 from src.gpt.file_sender.file_sender import GptFileSender
 from src.gpt.models import BatchInputRequest
+from src.model.predictor import Predictor, process_responses
 from src.parse.parser import SqlParser
-from src.pred.predictor import Predictor, process_responses
 from src.third_party.din.config import DinConfig
 from src.third_party.din.spider.prompt_maker import PromptMaker
 from src.util.str_utils import shrink_whitespaces, extract_sql
