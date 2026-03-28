@@ -115,7 +115,7 @@
                 <FormField class="md:col-6">
                   <FloatLabel variant="in">
                     <label class="field-label">Upload Workload</label>
-                    <WorkloadUpload/>
+                    <WorkloadUpload />
                   </FloatLabel>
                 </FormField>
                 <!--                <RCalc />-->
@@ -161,7 +161,6 @@
                       :on-label="step"
                       :off-label="step"
                       class="text-capitalize"
-                      :disabled="step === 'scale' && !valid_scales"
                     />
                     <i
                       v-if="index < sorted_pipeline_steps.length - 1"
@@ -726,7 +725,7 @@ export default {
             detail: 'To use the selected scaling factors, scaling step must be enabled.',
             life: 5000,
           })
-          this.config.pipeline.scale = true
+          // this.config.pipeline.scale = true
         }
         this.valid_scales = valid_scales
       },
