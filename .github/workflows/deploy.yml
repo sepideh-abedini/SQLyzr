@@ -21,6 +21,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   COMPOSE_PROJECT_NAME: staging
+  COMPOSE_PROJECT_DIR: .
 
 jobs:
   deploy:
@@ -85,11 +86,11 @@ jobs:
       - name: Docker compose up
         env: ${{ vars }}
         run: |
-          docker compose -f docker-compose.staging.yml down -v
+          docker compose -f confs/docker-compose.staging.yml down -v
           sleep 3
           docker pull $SQLYZR_IMAGE
           docker inspect --format='{{index .RepoDigests 0}}' $SQLYZR_IMAGE
-          docker compose -f docker-compose.staging.yml up --force-recreate -d
+          docker compose -f confs/docker-compose.staging.yml up --force-recreate -d
 
 
       - name: Health check
@@ -108,8 +109,8 @@ jobs:
 
       - name: Logs
         env: ${{ vars }}
-        run: docker compose -f docker-compose.staging.yml logs
+        run: docker compose -f confs/docker-compose.staging.yml logs
 
       - name: Cleanup on failure
         if: failure()
-        run: docker compose -f docker-compose.staging.yml down -v
+        run: docker compose -f confs/docker-compose.staging.yml down -v

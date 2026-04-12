@@ -137,7 +137,7 @@ To bringup a MySQL server on your machine and enable evaluation
 of Beaver workload, use the following command:
 
 ```shell
-docker compose -f docker-compose.mysql.local.yml up -d
+docker compose up -d
 ```
 
 this command starts a MySQL container with Bevaer data included.

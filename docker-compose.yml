@@ -1,23 +1,4 @@
 services:
-  sqlyzr:
-    build:
-      context: .
-      tags:
-        - "${SQLYZR_IMAGE}"
-      args:
-        SQLYZR_WEB_PORT: "${SQLYZR_WEB_PORT:?SQLYZR_WEB_PORT}"
-        SQLYZR_API_URL: "${SQLYZR_API_URL:?SQLYZR_API_URL}"
-    volumes:
-      - "./data:/app/data"
-      - "./out:/app/out"
-      - "./confs:/app/confs"
-    ports:
-      - "${SQLYZR_WEB_PORT}:${SQLYZR_WEB_PORT}"
-    env_file: ".env.docker"
-    networks:
-      - sqlyzr
-    shm_size: '8gb'
-
   mysql:
     image: mysql:8.0
     restart: on-failure
