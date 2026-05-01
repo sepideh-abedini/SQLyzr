@@ -98,6 +98,17 @@ For each option, you can use the values listed below:
 
 > ‼️⚠️ Only if you don't need any data inside the `out` directory ⚠️‼️
 
+### Verify datasets
+
+To verify each dataset, making sure it has the correct format, you can run the following command:
+```shell
+PYTHONPATH=. python3 scripts/verify_data.py -d <dataset> -s <dataset_size>
+```
+For instance, you can use the following command to verify the `spider` `small` dataset:
+```shell
+PYTHONPATH=. python3 scripts/verify_data.py -d spider -s small
+```
+
 ## Benchmark Data
 
 ### Sample Data
@@ -116,12 +127,11 @@ Expected working directory structure:
 
 ```
 repo
-├── clean_data
+├── data
 │ ├── beaver
 │ ├── bird
 │ └── spider
 ```
-
 
 You also need to set the following environment variable (inside the `.env` file):
 
@@ -135,6 +145,8 @@ One of the included benchmarks is Bevaer. However, in contrast
 to Spider and BIRD that use SQLite, Beaver uses MySQL.
 To bringup a MySQL server on your machine and enable evaluation
 of Beaver workload, use the following command:
+
+> Note that to use Beaver you should download the full benchmark data.
 
 ```shell
 docker compose up -d

@@ -45,3 +45,5 @@ out_old
 __pycache__
 clean_data
 *.err
+upload_data
+local

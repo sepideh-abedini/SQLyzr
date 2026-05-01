@@ -116,8 +116,8 @@ BIRD_ALL = DatasetConfig(
 
 BEAVER_ALL = DatasetConfig(
     dataset_dir=f"{BASE_DIR}/beaver",
-    test_file="data.test.json",
-    gold_file="data.test.gold.txt",
+    test_file="data.test.v0.json",
+    gold_file="data.test.v0.gold.txt",
     train_file="data.train.json",
     tables_file="tables.json",
     db_dir="database",
@@ -137,8 +137,8 @@ BEAVER_SMALL = DatasetConfig(
 
 CUSTOM_SQLITE_DATASET = DatasetConfig(
     dataset_dir=f"{BASE_DIR}/custom",
-    test_file="data.test.json",
-    gold_file="data.test.gold.txt",
+    test_file="data.test.v0.json",
+    gold_file="data.test.v0.gold.txt",
     train_file="data.train.json",
     tables_file="tables.json",
     db_dir="database",
@@ -194,7 +194,7 @@ DATASETS = {
     'sqlyzr': {
         "s1": [SPIDER_SMALL],
         "s2": [BIRD_SMALL],
-        "s3": [BEAVER_ALL],
+        "s3": [BEAVER_SMALL],
         "full": [SPIDER_ALL, BIRD_ALL, BEAVER_ALL],
         "aligned": [SPIDER_SMALL]
     }
