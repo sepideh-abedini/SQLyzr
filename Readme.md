@@ -120,7 +120,7 @@ your setup is working.
 
 ### Full benchmark data
 
-Download the complete benchmark data [here]().
+Download the complete benchmark data [here](https://drive.google.com/file/d/1UHYfLz_xCqJxFwGfxo6D8hTk_BKcPg0x/view?usp=sharing).
 
 After download extract the zip file as the `data` directory.
 Expected working directory structure:
